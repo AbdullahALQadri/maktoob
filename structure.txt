@@ -1,0 +1,136 @@
+Clean Architecture with Feature-First Modular Structure
+
+lib/
+│
+├── main.dart
+├── app.dart
+├── bloc_observer.dart
+├── injection_container.dart
+│
+├── Config/
+│   ├── routes/
+│   │   ├── app_routes.dart
+│   │   
+│   │
+│   ├── locale/
+│   │   ├── app_localizations.dart
+│   │   ├── locale_cubit.dart
+│   │   └── supported_locales.dart
+│   │
+│   └── themes/
+│       ├── app_theme.dart
+│       ├── light_theme.dart
+│       ├── dark_theme.dart
+│       ├── theme_cubit.dart
+│       └── theme_extensions.dart
+│
+├── Core/
+│   ├── api/
+│   │   ├── api_consumer.dart
+│   │   ├── dio_consumer.dart
+│   │   ├── app_interceptors.dart
+│   │   ├── end_points.dart
+│   │   └── status_code.dart
+│   │
+│   ├── error/
+│   │   ├── exceptions.dart
+│   │   └── failures.dart
+│   │
+│   ├── network/
+│   │   └── network_info.dart
+│   │
+│   ├── usecases/
+│   │   └── usecase.dart
+│   │
+│   ├── services/
+│   │   ├── notification/
+│   │   │   ├── notification_service.dart
+│   │   │   ├── firebase_notification_service.dart
+│   │   │   └── local_notification_service.dart
+│   │   │
+│   │   ├── biometric/
+│   │   │   └── biometric_service.dart
+│   │   │
+│   │   ├── analytics/
+│   │   │   └── analytics_service.dart
+│   │   │
+│   │   └── permissions/
+│   │       └── permission_service.dart
+│   │
+│   ├── widgets/
+│   │   ├── buttons/
+│   │   │   ├── primary_button.dart
+│   │   │   ├── secondary_button.dart
+│   │   │   └── icon_button_wrapper.dart
+│   │   │
+│   │   ├── inputs/
+│   │   │   ├── app_text_field.dart
+│   │   │   ├── password_text_field.dart
+│   │   │   └── otp_field.dart
+│   │   │
+│   │   ├── loading/
+│   │   │   └── app_loader.dart
+│   │   │
+│   │   ├── dialogs/
+│   │   │   └── app_dialog.dart
+│   │   │
+│   │   ├── sheets/
+│   │   │   └── app_bottom_sheet.dart
+│   │   │
+│   │   └── responsive/
+│   │       ├── responsive_builder.dart
+│   │       └── media_query_values.dart
+│   │
+│   └── utils/
+│       ├── constants.dart
+│       ├── app_colors.dart
+│       ├── app_assets.dart
+│       ├── extensions.dart
+│       │
+│       └── storage/
+│           └── shared_preferences_service.dart
+│
+├── Features/
+│   ├── feature_name/
+│   │   ├── data/
+│   │   │   ├── datasources/
+│   │   │   │   ├── feature_remote_data_source.dart
+│   │   │   │   └── feature_local_data_source.dart
+│   │   │   │
+│   │   │   ├── models/
+│   │   │   │   └── feature_model.dart
+│   │   │   │
+│   │   │   └── repositories/
+│   │   │       └── feature_repository_impl.dart
+│   │   │
+│   │   ├── domain/
+│   │   │   ├── entities/
+│   │   │   │   └── feature_entity.dart
+│   │   │   │
+│   │   │   ├── repositories/
+│   │   │   │   └── feature_repository.dart
+│   │   │   │
+│   │   │   └── usecases/
+│   │   │       └── get_feature_usecase.dart
+│   │   │
+│   │   └── presentation/
+│   │       ├── cubit/
+│   │       │   ├── feature_cubit.dart
+│   │       │   └── feature_state.dart
+│   │       │
+│   │       ├── screens/
+│   │       │   └── feature_screen.dart
+│   │       │
+│   │       └── widgets/
+│   │           └── feature_widget.dart
+│
+
+and this is my packages:
+flutter_bloc
+equatable
+dartz
+get_it
+dio
+internet_connection_checker
+shared_preferences
+device_preview

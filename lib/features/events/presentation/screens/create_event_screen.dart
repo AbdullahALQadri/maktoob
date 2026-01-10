@@ -1,8 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../data/models/event_models.dart';
+import '../cubit/create_event/create_event_cubit.dart';
+import '../cubit/create_event/create_event_state.dart';
 import '../widgets/step_header_widget.dart';
 import '../widgets/package_card_widget.dart';
 import '../widgets/venue_card_widget.dart';
@@ -22,36 +25,7 @@ class CreateEventScreen extends StatefulWidget {
 }
 
 class _CreateEventScreenState extends State<CreateEventScreen> {
-  int _currentStep = 1;
-  static const int _totalSteps = 7;
-
-  // Step 1: Package
-  String? _selectedPackage;
-
-  // Step 2: Venue
-  String? _selectedVenue;
-  bool _showCustomVenue = false;
-  CustomVenue _customVenue = CustomVenue();
-
-  // Step 3: Event Type
-  String? _selectedEventType;
-  bool _showCustomEventType = false;
-  String _customEventType = '';
-
-  // Step 4: Template
-  String? _selectedTemplate;
-  bool _requestCustomTemplate = false;
-
-  // Step 5: Event Details
-  EventDetails _eventDetails = EventDetails();
-
-  // Step 6: Guests
-  GuestMethod? _guestMethod;
-  List<GuestInfo> _manualGuests = [];
-  GuestInfo _currentGuest = GuestInfo();
-  File? _excelFile;
-
-  // Data
+  // Data - these should be loaded from a repository in a real app
   final List<PackageModel> _packages = [
     PackageModel(
       id: 'silver',
@@ -76,7 +50,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       id: 'platinum',
       name: 'Platinum',
       price: '999',
-      invitations: -1, // Unlimited
+      invitations: -1,
       features: ['Custom Templates', 'All Channels', 'Advanced Analytics', 'Custom Branding', '24/7 Support', 'API Access'],
       gradientColors: [AppColors.purple500, AppColors.pink500],
       icon: Icons.workspace_premium,
@@ -84,296 +58,281 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   ];
 
   final List<VenueModel> _venues = [
-    const VenueModel(id: '1', name: 'Grand Hotel Ballroom', capacity: 300, icon: '🏨'),
-    const VenueModel(id: '2', name: 'Convention Center', capacity: 500, icon: '🏢'),
-    const VenueModel(id: '3', name: 'Beach Resort', capacity: 150, icon: '🏖️'),
-    const VenueModel(id: '4', name: 'University Hall', capacity: 400, icon: '🎓'),
+    const VenueModel(id: '1', name: 'Grand Hotel Ballroom', capacity: 300, icon: 'hotel'),
+    const VenueModel(id: '2', name: 'Convention Center', capacity: 500, icon: 'business'),
+    const VenueModel(id: '3', name: 'Beach Resort', capacity: 150, icon: 'beach'),
+    const VenueModel(id: '4', name: 'University Hall', capacity: 400, icon: 'school'),
   ];
 
   final List<EventTypeModel> _eventTypes = [
-    EventTypeModel(id: 'wedding', name: 'Wedding', icon: '💒', gradientColors: [AppColors.pink500, AppColors.rose500]),
-    EventTypeModel(id: 'corporate', name: 'Corporate', icon: '🏢', gradientColors: [AppColors.blue500, AppColors.cyan500]),
-    EventTypeModel(id: 'birthday', name: 'Birthday', icon: '🎂', gradientColors: [AppColors.amber500, AppColors.orange500]),
-    EventTypeModel(id: 'graduation', name: 'Graduation', icon: '🎓', gradientColors: [AppColors.green600, AppColors.emerald500]),
-    EventTypeModel(id: 'conference', name: 'Conference', icon: '🎤', gradientColors: [AppColors.purple500, AppColors.indigo500]),
-    EventTypeModel(id: 'charity', name: 'Charity', icon: '❤️', gradientColors: [AppColors.red500, AppColors.pink500]),
+    EventTypeModel(id: 'wedding', name: 'Wedding', icon: 'wedding', gradientColors: [AppColors.pink500, AppColors.rose500]),
+    EventTypeModel(id: 'corporate', name: 'Corporate', icon: 'business', gradientColors: [AppColors.blue500, AppColors.cyan500]),
+    EventTypeModel(id: 'birthday', name: 'Birthday', icon: 'cake', gradientColors: [AppColors.amber500, AppColors.orange500]),
+    EventTypeModel(id: 'graduation', name: 'Graduation', icon: 'school', gradientColors: [AppColors.green600, AppColors.emerald500]),
+    EventTypeModel(id: 'conference', name: 'Conference', icon: 'mic', gradientColors: [AppColors.purple500, AppColors.indigo500]),
+    EventTypeModel(id: 'charity', name: 'Charity', icon: 'heart', gradientColors: [AppColors.red500, AppColors.pink500]),
   ];
 
   final List<TemplateModel> _templates = [
-    TemplateModel(id: 'elegant', name: 'Elegant Gold', preview: '✨', gradientColors: [AppColors.amber600, AppColors.amber600]),
-    TemplateModel(id: 'modern', name: 'Modern Minimal', preview: '▫️', gradientColors: [AppColors.gray700, AppColors.gray900]),
-    TemplateModel(id: 'floral', name: 'Floral Dream', preview: '🌸', gradientColors: [AppColors.pink500, AppColors.rose500]),
-    TemplateModel(id: 'classic', name: 'Classic White', preview: '⬜', gradientColors: [AppColors.gray100, AppColors.gray300]),
-    TemplateModel(id: 'luxury', name: 'Luxury Black', preview: '⬛', gradientColors: [AppColors.black, AppColors.gray700]),
-    TemplateModel(id: 'colorful', name: 'Colorful Joy', preview: '🎨', gradientColors: [AppColors.purple500, AppColors.pink500]),
+    TemplateModel(id: 'elegant', name: 'Elegant Gold', preview: 'sparkle', gradientColors: [AppColors.amber600, AppColors.amber600]),
+    TemplateModel(id: 'modern', name: 'Modern Minimal', preview: 'square', gradientColors: [AppColors.gray700, AppColors.gray900]),
+    TemplateModel(id: 'floral', name: 'Floral Dream', preview: 'flower', gradientColors: [AppColors.pink500, AppColors.rose500]),
+    TemplateModel(id: 'classic', name: 'Classic White', preview: 'square', gradientColors: [AppColors.gray100, AppColors.gray300]),
+    TemplateModel(id: 'luxury', name: 'Luxury Black', preview: 'square', gradientColors: [AppColors.black, AppColors.gray700]),
+    TemplateModel(id: 'colorful', name: 'Colorful Joy', preview: 'palette', gradientColors: [AppColors.purple500, AppColors.pink500]),
   ];
 
-  int get _packageLimit {
+  int _getPackageLimit(String packageId) {
     final pkg = _packages.firstWhere(
-      (p) => p.id == _selectedPackage,
+      (p) => p.id == packageId,
       orElse: () => _packages.first,
     );
     return pkg.invitations;
   }
 
-  bool get _canProceedStep1 => _selectedPackage != null;
-  bool get _canProceedStep2 => _selectedVenue != null || (_showCustomVenue && _customVenue.isValid);
-  bool get _canProceedStep3 => _selectedEventType != null || (_showCustomEventType && _customEventType.isNotEmpty);
-  bool get _canProceedStep4 => _selectedTemplate != null || _requestCustomTemplate;
-  bool get _canProceedStep5 => _eventDetails.isValid;
-  bool get _canProceedStep6 => _guestMethod != null;
-
-  bool get _canProceed {
-    switch (_currentStep) {
-      case 1: return _canProceedStep1;
-      case 2: return _canProceedStep2;
-      case 3: return _canProceedStep3;
-      case 4: return _canProceedStep4;
-      case 5: return _canProceedStep5;
-      case 6: return _canProceedStep6;
-      case 7: return true;
-      default: return false;
-    }
-  }
-
-  void _handleNext() {
-    if (_currentStep < _totalSteps) {
-      setState(() => _currentStep++);
-    }
-  }
-
-  void _handleBack() {
-    if (_currentStep > 1) {
-      setState(() => _currentStep--);
-    }
-  }
-
-  void _handleSaveDraft() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Event saved as draft!')),
-    );
-  }
-
-  void _handleSubmit() {
-    widget.onComplete?.call('event-123');
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Event submitted successfully!')),
-    );
-  }
-
-  void _handleAddGuest() {
-    final packageLimit = _packageLimit;
-    final currentGuestCount = _manualGuests.length;
-
-    if (packageLimit != -1 && currentGuestCount >= packageLimit) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('You have reached your package limit of $packageLimit guests!')),
-      );
-      return;
-    }
-
-    if (_currentGuest.isValid) {
-      setState(() {
-        _manualGuests.add(_currentGuest.copy());
-        _currentGuest = GuestInfo();
-      });
-    }
-  }
-
-  void _handleRemoveGuest(int index) {
-    setState(() {
-      _manualGuests.removeAt(index);
-    });
-  }
-
-  Widget _buildStepContent() {
-    switch (_currentStep) {
-      case 1:
-        return PackageSelectionWidget(
-          packages: _packages,
-          selectedPackage: _selectedPackage,
-          onPackageSelected: (id) => setState(() => _selectedPackage = id),
-        );
-      case 2:
-        return VenueSelectionWidget(
-          venues: _venues,
-          selectedVenue: _selectedVenue,
-          showCustomVenue: _showCustomVenue,
-          customVenue: _customVenue,
-          onVenueSelected: (id) => setState(() {
-            _selectedVenue = id;
-            _showCustomVenue = false;
-          }),
-          onToggleCustomVenue: () => setState(() {
-            _showCustomVenue = !_showCustomVenue;
-            _selectedVenue = null;
-          }),
-          onCustomVenueChanged: (venue) => setState(() => _customVenue = venue),
-        );
-      case 3:
-        return EventTypeSelectionWidget(
-          eventTypes: _eventTypes,
-          selectedEventType: _selectedEventType,
-          showCustomEventType: _showCustomEventType,
-          customEventType: _customEventType,
-          onEventTypeSelected: (id) => setState(() {
-            _selectedEventType = id;
-            _showCustomEventType = false;
-          }),
-          onToggleCustomEventType: () => setState(() {
-            _showCustomEventType = !_showCustomEventType;
-            _selectedEventType = null;
-          }),
-          onCustomEventTypeChanged: (value) => setState(() => _customEventType = value),
-        );
-      case 4:
-        return TemplateSelectionWidget(
-          templates: _templates,
-          selectedTemplate: _selectedTemplate,
-          requestCustomTemplate: _requestCustomTemplate,
-          onTemplateSelected: (id) => setState(() {
-            _selectedTemplate = id;
-            _requestCustomTemplate = false;
-          }),
-          onToggleCustomTemplate: () => setState(() {
-            _requestCustomTemplate = !_requestCustomTemplate;
-            _selectedTemplate = null;
-          }),
-        );
-      case 5:
-        return EventDetailsWidget(
-          eventDetails: _eventDetails,
-          onDetailsChanged: (details) => setState(() => _eventDetails = details),
-        );
-      case 6:
-        return GuestMethodWidget(
-          packageLimit: _packageLimit,
-          guestMethod: _guestMethod,
-          manualGuests: _manualGuests,
-          currentGuest: _currentGuest,
-          excelFile: _excelFile,
-          onGuestMethodSelected: (method) => setState(() => _guestMethod = method),
-          onAddGuest: _handleAddGuest,
-          onRemoveGuest: _handleRemoveGuest,
-          onCurrentGuestChanged: (guest) => setState(() => _currentGuest = guest),
-          onExcelFileSelected: (file) => setState(() => _excelFile = file),
-        );
-      case 7:
-        return SummaryWidget(
-          selectedPackage: _packages.firstWhere(
-            (p) => p.id == _selectedPackage,
-            orElse: () => _packages.first,
-          ),
-          selectedVenue: _selectedVenue != null
-              ? _venues.firstWhere((v) => v.id == _selectedVenue)
-              : null,
-          customVenue: _showCustomVenue ? _customVenue : null,
-          selectedEventType: _selectedEventType != null
-              ? _eventTypes.firstWhere((t) => t.id == _selectedEventType)
-              : null,
-          customEventType: _showCustomEventType ? _customEventType : null,
-          selectedTemplate: _selectedTemplate != null
-              ? _templates.firstWhere((t) => t.id == _selectedTemplate)
-              : null,
-          requestCustomTemplate: _requestCustomTemplate,
-          eventDetails: _eventDetails,
-          guestMethod: _guestMethod,
-          manualGuests: _manualGuests,
-          excelFile: _excelFile,
-        );
-      default:
-        return const SizedBox();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.gray100,
-      body: Column(
-        children: [
-          StepHeaderWidget(
-            currentStep: _currentStep,
-            totalSteps: _totalSteps,
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                child: _buildStepContent(),
+    return BlocConsumer<CreateEventCubit, CreateEventState>(
+      listener: (context, state) {
+        if (state.isSuccess && state.createdEventId != null) {
+          widget.onComplete?.call(state.createdEventId!);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Event created successfully!')),
+          );
+        }
+        if (state.isFailure && state.errorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.errorMessage!)),
+          );
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: AppColors.gray100,
+          body: Column(
+            children: [
+              StepHeaderWidget(
+                currentStep: state.currentStepNumber,
+                totalSteps: state.totalSteps,
               ),
-            ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          margin: const EdgeInsets.fromLTRB(16, 0, 16, 80),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.9),
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 20,
-                offset: const Offset(0, 4),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: _buildStepContent(state),
+                  ),
+                ),
               ),
             ],
           ),
-          child: _currentStep == _totalSteps
-              ? Row(
-                  children: [
-                    Expanded(
-                      child: _buildButton(
-                        'Save as Draft',
-                        onTap: _handleSaveDraft,
-                        isPrimary: false,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildButton(
-                        'Submit & Pay',
-                        onTap: _handleSubmit,
-                        isPrimary: true,
-                      ),
-                    ),
-                  ],
-                )
-              : Row(
-                  children: [
-                    if (_currentStep > 1)
-                      Container(
-                        width: 56,
-                        height: 56,
-                        margin: const EdgeInsets.only(right: 12),
-                        child: Material(
-                          color: AppColors.gray100,
-                          borderRadius: BorderRadius.circular(16),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(16),
-                            onTap: _handleBack,
-                            child: Icon(
-                              Icons.arrow_back,
-                              color: AppColors.gray700,
-                            ),
+          bottomNavigationBar: SafeArea(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.fromLTRB(16, 0, 16, 80),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: state.isLastStep
+                  ? Row(
+                      children: [
+                        Expanded(
+                          child: _buildButton(
+                            'Save as Draft',
+                            onTap: state.isLoading
+                                ? null
+                                : () => context.read<CreateEventCubit>().saveDraft(),
+                            isPrimary: false,
                           ),
                         ),
-                      ),
-                    Expanded(
-                      child: _buildButton(
-                        'Continue',
-                        onTap: _canProceed ? _handleNext : null,
-                        isPrimary: true,
-                        trailing: Icons.arrow_forward,
-                      ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildButton(
+                            'Submit & Pay',
+                            onTap: state.isLoading
+                                ? null
+                                : () => context.read<CreateEventCubit>().submitEvent(),
+                            isPrimary: true,
+                            isLoading: state.isLoading,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        if (!state.isFirstStep)
+                          Container(
+                            width: 56,
+                            height: 56,
+                            margin: const EdgeInsets.only(right: 12),
+                            child: Material(
+                              color: AppColors.gray100,
+                              borderRadius: BorderRadius.circular(16),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(16),
+                                onTap: () => context.read<CreateEventCubit>().previousStep(),
+                                child: Icon(
+                                  Icons.arrow_back,
+                                  color: AppColors.gray700,
+                                ),
+                              ),
+                            ),
+                          ),
+                        Expanded(
+                          child: _buildButton(
+                            'Continue',
+                            onTap: state.canProceed
+                                ? () => context.read<CreateEventCubit>().nextStep()
+                                : null,
+                            isPrimary: true,
+                            trailing: Icons.arrow_forward,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-        ),
-      ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStepContent(CreateEventState state) {
+    switch (state.currentStep) {
+      case CreateEventStep.package:
+        return PackageSelectionWidget(
+          packages: _packages,
+          selectedPackage: state.selectedPackageId,
+          onPackageSelected: (id) => context.read<CreateEventCubit>().selectPackage(id),
+        );
+      case CreateEventStep.venue:
+        return VenueSelectionWidget(
+          venues: _venues,
+          selectedVenue: state.selectedVenueId,
+          showCustomVenue: state.showCustomVenue,
+          customVenue: _convertToMutableCustomVenue(state.customVenue),
+          onVenueSelected: (id) => context.read<CreateEventCubit>().selectVenue(id),
+          onToggleCustomVenue: () => context.read<CreateEventCubit>().toggleCustomVenue(),
+          onCustomVenueChanged: (venue) => context.read<CreateEventCubit>().updateCustomVenue(
+            CustomVenue(
+              name: venue.name,
+              address: venue.address,
+              capacity: venue.capacity,
+            ),
+          ),
+        );
+      case CreateEventStep.eventType:
+        return EventTypeSelectionWidget(
+          eventTypes: _eventTypes,
+          selectedEventType: state.selectedEventTypeId,
+          showCustomEventType: state.showCustomEventType,
+          customEventType: state.customEventType,
+          onEventTypeSelected: (id) => context.read<CreateEventCubit>().selectEventType(id),
+          onToggleCustomEventType: () => context.read<CreateEventCubit>().toggleCustomEventType(),
+          onCustomEventTypeChanged: (value) => context.read<CreateEventCubit>().updateCustomEventType(value),
+        );
+      case CreateEventStep.template:
+        return TemplateSelectionWidget(
+          templates: _templates,
+          selectedTemplate: state.selectedTemplateId,
+          requestCustomTemplate: state.requestCustomTemplate,
+          onTemplateSelected: (id) => context.read<CreateEventCubit>().selectTemplate(id),
+          onToggleCustomTemplate: () => context.read<CreateEventCubit>().toggleCustomTemplate(),
+        );
+      case CreateEventStep.eventDetails:
+        return EventDetailsWidget(
+          eventDetails: _convertToMutableEventDetails(state.eventDetails),
+          onDetailsChanged: (details) => context.read<CreateEventCubit>().updateEventDetails(
+            EventDetails(
+              name: details.name,
+              date: details.date,
+              time: details.time != null
+                  ? DateTime(2000, 1, 1, details.time!.hour, details.time!.minute)
+                  : null,
+              responseDeadline: details.responseDeadline,
+              maxCompanions: details.maxCompanions,
+              allowCompanions: details.allowCompanions,
+            ),
+          ),
+        );
+      case CreateEventStep.guests:
+        return GuestMethodWidget(
+          packageLimit: _getPackageLimit(state.selectedPackageId ?? ''),
+          guestMethod: state.guestMethod,
+          manualGuests: state.manualGuests.map((g) => _convertToMutableGuestInfo(g)).toList(),
+          currentGuest: _convertToMutableGuestInfo(state.currentGuest),
+          excelFile: state.excelFile,
+          onGuestMethodSelected: (method) => context.read<CreateEventCubit>().selectGuestMethod(method),
+          onAddGuest: () => context.read<CreateEventCubit>().addGuest(),
+          onRemoveGuest: (index) => context.read<CreateEventCubit>().removeGuest(index),
+          onCurrentGuestChanged: (guest) => context.read<CreateEventCubit>().updateCurrentGuest(
+            GuestInfo(name: guest.name, email: guest.email, phone: guest.phone),
+          ),
+          onExcelFileSelected: (file) => context.read<CreateEventCubit>().setExcelFile(file),
+        );
+      case CreateEventStep.summary:
+        return SummaryWidget(
+          selectedPackage: _packages.firstWhere(
+            (p) => p.id == state.selectedPackageId,
+            orElse: () => _packages.first,
+          ),
+          selectedVenue: state.selectedVenueId != null
+              ? _venues.firstWhere((v) => v.id == state.selectedVenueId)
+              : null,
+          customVenue: state.showCustomVenue
+              ? _convertToMutableCustomVenue(state.customVenue)
+              : null,
+          selectedEventType: state.selectedEventTypeId != null
+              ? _eventTypes.firstWhere((t) => t.id == state.selectedEventTypeId)
+              : null,
+          customEventType: state.showCustomEventType ? state.customEventType : null,
+          selectedTemplate: state.selectedTemplateId != null
+              ? _templates.firstWhere((t) => t.id == state.selectedTemplateId)
+              : null,
+          requestCustomTemplate: state.requestCustomTemplate,
+          eventDetails: _convertToMutableEventDetails(state.eventDetails),
+          guestMethod: state.guestMethod,
+          manualGuests: state.manualGuests.map((g) => _convertToMutableGuestInfo(g)).toList(),
+          excelFile: state.excelFile,
+        );
+    }
+  }
+
+  // Helper methods to convert between immutable state objects and mutable widget objects
+  MutableCustomVenue _convertToMutableCustomVenue(CustomVenue venue) {
+    return MutableCustomVenue(
+      name: venue.name,
+      address: venue.address,
+      capacity: venue.capacity,
+    );
+  }
+
+  MutableEventDetails _convertToMutableEventDetails(EventDetails details) {
+    return MutableEventDetails(
+      name: details.name,
+      date: details.date,
+      time: details.time != null
+          ? TimeOfDay(hour: details.time!.hour, minute: details.time!.minute)
+          : null,
+      responseDeadline: details.responseDeadline,
+      maxCompanions: details.maxCompanions,
+      allowCompanions: details.allowCompanions,
+    );
+  }
+
+  MutableGuestInfo _convertToMutableGuestInfo(GuestInfo guest) {
+    return MutableGuestInfo(
+      name: guest.name,
+      email: guest.email,
+      phone: guest.phone,
     );
   }
 
@@ -382,6 +341,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     VoidCallback? onTap,
     bool isPrimary = true,
     IconData? trailing,
+    bool isLoading = false,
   }) {
     final enabled = onTap != null;
 
@@ -410,31 +370,93 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                   ],
                 )
               : null,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                text,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: enabled
-                      ? (isPrimary ? Colors.white : AppColors.gray700)
-                      : AppColors.gray400,
+          child: isLoading
+              ? const Center(
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      text,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: enabled
+                            ? (isPrimary ? Colors.white : AppColors.gray700)
+                            : AppColors.gray400,
+                      ),
+                    ),
+                    if (trailing != null) ...[
+                      const SizedBox(width: 8),
+                      Icon(
+                        trailing,
+                        color: enabled ? Colors.white : AppColors.gray400,
+                        size: 20,
+                      ),
+                    ],
+                  ],
                 ),
-              ),
-              if (trailing != null) ...[
-                const SizedBox(width: 8),
-                Icon(
-                  trailing,
-                  color: enabled ? Colors.white : AppColors.gray400,
-                  size: 20,
-                ),
-              ],
-            ],
-          ),
         ),
       ),
     );
   }
+}
+
+// Mutable versions for widget compatibility
+class MutableCustomVenue {
+  String name;
+  String address;
+  String capacity;
+
+  MutableCustomVenue({
+    this.name = '',
+    this.address = '',
+    this.capacity = '',
+  });
+
+  bool get isValid => name.isNotEmpty && address.isNotEmpty;
+}
+
+class MutableEventDetails {
+  String name;
+  DateTime? date;
+  TimeOfDay? time;
+  DateTime? responseDeadline;
+  int maxCompanions;
+  bool allowCompanions;
+
+  MutableEventDetails({
+    this.name = '',
+    this.date,
+    this.time,
+    this.responseDeadline,
+    this.maxCompanions = 2,
+    this.allowCompanions = true,
+  });
+
+  bool get isValid => name.isNotEmpty && date != null && time != null;
+}
+
+class MutableGuestInfo {
+  String name;
+  String email;
+  String phone;
+
+  MutableGuestInfo({
+    this.name = '',
+    this.email = '',
+    this.phone = '',
+  });
+
+  bool get isValid => name.isNotEmpty && email.isNotEmpty && phone.isNotEmpty;
+
+  MutableGuestInfo copy() => MutableGuestInfo(name: name, email: email, phone: phone);
 }

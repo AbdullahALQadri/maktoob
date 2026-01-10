@@ -1,43 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/app_colors.dart';
-
-/// Event model for the Events screen
-class EventModel {
-  final String id;
-  final String name;
-  final String type;
-  final String date;
-  final String time;
-  final String venue;
-  final int invitations;
-  final int responses;
-  final int attending;
-  final String status; // 'active', 'draft', 'completed'
-  final List<Color> gradient;
-  final IconData icon;
-
-  const EventModel({
-    required this.id,
-    required this.name,
-    required this.type,
-    required this.date,
-    required this.time,
-    required this.venue,
-    required this.invitations,
-    required this.responses,
-    required this.attending,
-    required this.status,
-    required this.gradient,
-    required this.icon,
-  });
-
-  double get responseRate =>
-      invitations > 0 ? (responses / invitations) * 100 : 0;
-
-  int get other => responses - attending;
-
-  bool get isInactive => status == 'draft' || status == 'completed';
-}
+import '../../data/models/event_model.dart';
+import '../../domain/entities/event_entity.dart';
+import '../cubit/events_list/events_list_cubit.dart';
+import '../cubit/events_list/events_list_state.dart';
 
 class EventsScreen extends StatefulWidget {
   final Function(String eventId)? onUploadPayment;
@@ -54,112 +21,12 @@ class EventsScreen extends StatefulWidget {
 }
 
 class _EventsScreenState extends State<EventsScreen> {
-  String _searchQuery = '';
-  String _filterStatus = 'all';
   final TextEditingController _searchController = TextEditingController();
 
-  // Mock events data
-  final List<EventModel> _events = [
-    EventModel(
-      id: '1',
-      name: 'Annual Gala 2024',
-      type: 'Corporate',
-      date: 'Dec 15, 2024',
-      time: '7:00 PM',
-      venue: 'Grand Hotel Ballroom',
-      invitations: 250,
-      responses: 180,
-      attending: 145,
-      status: 'active',
-      gradient: [AppColors.purple500, AppColors.pink500],
-      icon: Icons.celebration,
-    ),
-    EventModel(
-      id: '2',
-      name: 'Sarah & John Wedding',
-      type: 'Wedding',
-      date: 'Jan 20, 2025',
-      time: '4:00 PM',
-      venue: 'Beach Resort',
-      invitations: 150,
-      responses: 120,
-      attending: 98,
-      status: 'active',
-      gradient: [AppColors.pink500, AppColors.rose500],
-      icon: Icons.favorite,
-    ),
-    EventModel(
-      id: '3',
-      name: 'Tech Conference 2024',
-      type: 'Conference',
-      date: 'Nov 30, 2024',
-      time: '9:00 AM',
-      venue: 'Convention Center',
-      invitations: 500,
-      responses: 450,
-      attending: 420,
-      status: 'completed',
-      gradient: [AppColors.blue500, AppColors.cyan500],
-      icon: Icons.computer,
-    ),
-    EventModel(
-      id: '4',
-      name: 'Birthday Bash',
-      type: 'Birthday',
-      date: 'Feb 14, 2025',
-      time: '6:00 PM',
-      venue: 'Private Villa',
-      invitations: 50,
-      responses: 0,
-      attending: 0,
-      status: 'draft',
-      gradient: [AppColors.amber500, AppColors.orange500],
-      icon: Icons.cake,
-    ),
-    EventModel(
-      id: '5',
-      name: 'Charity Fundraiser',
-      type: 'Charity',
-      date: 'Mar 10, 2025',
-      time: '5:00 PM',
-      venue: 'Community Hall',
-      invitations: 200,
-      responses: 85,
-      attending: 70,
-      status: 'active',
-      gradient: [AppColors.emerald500, AppColors.green600],
-      icon: Icons.volunteer_activism,
-    ),
-    EventModel(
-      id: '6',
-      name: 'Graduation Ceremony',
-      type: 'Graduation',
-      date: 'Dec 1, 2024',
-      time: '10:00 AM',
-      venue: 'University Hall',
-      invitations: 300,
-      responses: 280,
-      attending: 275,
-      status: 'completed',
-      gradient: [AppColors.indigo500, AppColors.purple500],
-      icon: Icons.school,
-    ),
-  ];
-
-  List<EventModel> get _filteredEvents {
-    return _events.where((event) {
-      // Filter by search query
-      final matchesSearch = _searchQuery.isEmpty ||
-          event.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          event.type.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          event.venue.toLowerCase().contains(_searchQuery.toLowerCase());
-
-      // Filter by status
-      final matchesFilter =
-          _filterStatus == 'all' || event.status == _filterStatus;
-
-      return matchesSearch && matchesFilter;
-    }).toList();
+  @override
+  void initState() {
+    super.initState();
+    context.read<EventsListCubit>().loadEvents();
   }
 
   @override
@@ -172,19 +39,23 @@ class _EventsScreenState extends State<EventsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.gray100,
-      body: Column(
-        children: [
-          _buildHeader(),
-          _buildFilterTabs(),
-          Expanded(
-            child: _buildEventsList(),
-          ),
-        ],
+      body: BlocBuilder<EventsListCubit, EventsListState>(
+        builder: (context, state) {
+          return Column(
+            children: [
+              _buildHeader(state),
+              _buildFilterTabs(state),
+              Expanded(
+                child: _buildEventsList(state),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(EventsListState state) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -232,7 +103,7 @@ class _EventsScreenState extends State<EventsScreen> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      '${_events.length} Events',
+                      '${state.totalEvents} Events',
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -243,7 +114,7 @@ class _EventsScreenState extends State<EventsScreen> {
                 ],
               ),
               const SizedBox(height: 20),
-              _buildSearchBar(),
+              _buildSearchBar(state),
             ],
           ),
         ),
@@ -251,7 +122,7 @@ class _EventsScreenState extends State<EventsScreen> {
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildSearchBar(EventsListState state) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
       duration: const Duration(milliseconds: 500),
@@ -280,9 +151,7 @@ class _EventsScreenState extends State<EventsScreen> {
         child: TextField(
           controller: _searchController,
           onChanged: (value) {
-            setState(() {
-              _searchQuery = value;
-            });
+            context.read<EventsListCubit>().searchEvents(value);
           },
           decoration: InputDecoration(
             hintText: 'Search events...',
@@ -294,17 +163,15 @@ class _EventsScreenState extends State<EventsScreen> {
               Icons.search,
               color: AppColors.gray400,
             ),
-            suffixIcon: _searchQuery.isNotEmpty
+            suffixIcon: state.searchQuery.isNotEmpty
                 ? IconButton(
                     icon: Icon(
                       Icons.clear,
                       color: AppColors.gray400,
                     ),
                     onPressed: () {
-                      setState(() {
-                        _searchController.clear();
-                        _searchQuery = '';
-                      });
+                      _searchController.clear();
+                      context.read<EventsListCubit>().searchEvents('');
                     },
                   )
                 : null,
@@ -319,12 +186,12 @@ class _EventsScreenState extends State<EventsScreen> {
     );
   }
 
-  Widget _buildFilterTabs() {
+  Widget _buildFilterTabs(EventsListState state) {
     final filters = [
-      {'key': 'all', 'label': 'All'},
-      {'key': 'active', 'label': 'Active'},
-      {'key': 'draft', 'label': 'Draft'},
-      {'key': 'completed', 'label': 'Completed'},
+      {'status': null, 'label': 'All'},
+      {'status': EventStatus.active, 'label': 'Active'},
+      {'status': EventStatus.draft, 'label': 'Draft'},
+      {'status': EventStatus.completed, 'label': 'Completed'},
     ];
 
     return Container(
@@ -334,16 +201,16 @@ class _EventsScreenState extends State<EventsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Row(
           children: filters.map((filter) {
-            final isSelected = _filterStatus == filter['key'];
+            final isSelected = state.filterStatus == filter['status'];
             return Padding(
               padding: const EdgeInsets.only(right: 12),
               child: _FilterTab(
-                label: filter['label']!,
+                label: filter['label'] as String,
                 isSelected: isSelected,
                 onTap: () {
-                  setState(() {
-                    _filterStatus = filter['key']!;
-                  });
+                  context
+                      .read<EventsListCubit>()
+                      .filterByStatus(filter['status'] as EventStatus?);
                 },
               ),
             );
@@ -353,8 +220,53 @@ class _EventsScreenState extends State<EventsScreen> {
     );
   }
 
-  Widget _buildEventsList() {
-    final events = _filteredEvents;
+  Widget _buildEventsList(EventsListState state) {
+    if (state.isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    if (state.isFailure) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: AppColors.red500,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Error loading events',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: AppColors.gray700,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              state.errorMessage ?? 'Please try again',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.gray500,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                context.read<EventsListCubit>().loadEvents();
+              },
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final events = state.filteredEvents;
 
     if (events.isEmpty) {
       return Center(
@@ -388,37 +300,40 @@ class _EventsScreenState extends State<EventsScreen> {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-      itemCount: events.length,
-      itemBuilder: (context, index) {
-        return TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0.0, end: 1.0),
-          duration: Duration(milliseconds: 300 + (index * 100)),
-          curve: Curves.easeOut,
-          builder: (context, value, child) {
-            return Transform.translate(
-              offset: Offset(0, 30 * (1 - value)),
-              child: Opacity(
-                opacity: value,
-                child: child,
+    return RefreshIndicator(
+      onRefresh: () => context.read<EventsListCubit>().refreshEvents(),
+      child: ListView.builder(
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+        itemCount: events.length,
+        itemBuilder: (context, index) {
+          return TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0.0, end: 1.0),
+            duration: Duration(milliseconds: 300 + (index * 100)),
+            curve: Curves.easeOut,
+            builder: (context, value, child) {
+              return Transform.translate(
+                offset: Offset(0, 30 * (1 - value)),
+                child: Opacity(
+                  opacity: value,
+                  child: child,
+                ),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: _EventCard(
+                event: events[index],
+                onUploadPayment: () {
+                  widget.onUploadPayment?.call(events[index].id);
+                },
+                onViewEvent: () {
+                  widget.onViewEvent?.call(events[index].id);
+                },
               ),
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: _EventCard(
-              event: events[index],
-              onUploadPayment: () {
-                widget.onUploadPayment?.call(events[index].id);
-              },
-              onViewEvent: () {
-                widget.onViewEvent?.call(events[index].id);
-              },
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
@@ -473,7 +388,7 @@ class _FilterTab extends StatelessWidget {
 }
 
 class _EventCard extends StatefulWidget {
-  final EventModel event;
+  final EventEntity event;
   final VoidCallback onUploadPayment;
   final VoidCallback onViewEvent;
 
@@ -489,6 +404,20 @@ class _EventCard extends StatefulWidget {
 
 class _EventCardState extends State<_EventCard> {
   bool _isHovered = false;
+
+  List<Color> get _gradient {
+    if (widget.event is EventModel) {
+      return (widget.event as EventModel).gradient;
+    }
+    return [AppColors.purple500, AppColors.pink500];
+  }
+
+  IconData get _icon {
+    if (widget.event is EventModel) {
+      return (widget.event as EventModel).icon;
+    }
+    return Icons.event;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -506,7 +435,7 @@ class _EventCardState extends State<_EventCard> {
             boxShadow: [
               BoxShadow(
                 color: _isHovered
-                    ? widget.event.gradient.first.withOpacity(0.2)
+                    ? _gradient.first.withOpacity(0.2)
                     : Colors.black.withOpacity(0.08),
                 blurRadius: _isHovered ? 24 : 16,
                 offset: const Offset(0, 8),
@@ -532,7 +461,7 @@ class _EventCardState extends State<_EventCard> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: widget.event.gradient,
+          colors: _gradient,
         ),
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(20),
@@ -549,7 +478,7 @@ class _EventCardState extends State<_EventCard> {
               borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(
-              widget.event.icon,
+              _icon,
               color: Colors.white,
               size: 24,
             ),
@@ -603,25 +532,21 @@ class _EventCardState extends State<_EventCard> {
     String label;
 
     switch (widget.event.status) {
-      case 'active':
+      case EventStatus.active:
         bgColor = AppColors.green100;
         textColor = AppColors.green600;
         label = 'Active';
         break;
-      case 'draft':
+      case EventStatus.draft:
         bgColor = AppColors.gray200;
         textColor = AppColors.gray600;
         label = 'Draft';
         break;
-      case 'completed':
+      case EventStatus.completed:
         bgColor = AppColors.blue50;
         textColor = AppColors.blue600;
         label = 'Completed';
         break;
-      default:
-        bgColor = AppColors.gray200;
-        textColor = AppColors.gray600;
-        label = widget.event.status;
     }
 
     return Container(
@@ -736,7 +661,7 @@ class _EventCardState extends State<_EventCard> {
                 child: Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: widget.event.gradient,
+                      colors: _gradient,
                     ),
                     borderRadius: BorderRadius.circular(4),
                   ),
@@ -893,9 +818,9 @@ class _EventCardState extends State<_EventCard> {
             ),
           ],
         ),
-        child: Row(
+        child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
+          children: [
             Icon(
               Icons.visibility,
               color: Colors.white,
