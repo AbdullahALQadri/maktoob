@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 
 import '../utils/app_colors.dart';
+import '../utils/media_query_values.dart';
 
 /// A custom bottom navigation bar widget for the Maktoob app.
 ///
 /// Features:
-/// - 5 navigation tabs: Home, Events, Create (FAB style), Venue, Scanner
+/// - 4 navigation tabs: Venue, Create (FAB style), Scanner, Settings
 /// - Gradient purple-pink color for selected items
 /// - Floating center button with gradient background
 /// - Smooth animations for selection changes
 /// - White background with rounded top corners and top shadow
 class BottomNavigation extends StatefulWidget {
-  /// The index of the currently selected tab (0-4)
+  /// The index of the currently selected tab (0-3)
   final int currentIndex;
 
   /// Callback function when a tab is tapped
@@ -40,7 +41,7 @@ class _BottomNavigationState extends State<BottomNavigation>
 
   void _initializeAnimations() {
     _controllers = List.generate(
-      5,
+      4,
       (index) => AnimationController(
         duration: const Duration(milliseconds: 200),
         vsync: this,
@@ -54,7 +55,7 @@ class _BottomNavigationState extends State<BottomNavigation>
     }).toList();
 
     // Start animation for initially selected tab
-    if (widget.currentIndex >= 0 && widget.currentIndex < 5) {
+    if (widget.currentIndex >= 0 && widget.currentIndex < 4) {
       _controllers[widget.currentIndex].forward();
     }
   }
@@ -64,11 +65,11 @@ class _BottomNavigationState extends State<BottomNavigation>
     super.didUpdateWidget(oldWidget);
     if (oldWidget.currentIndex != widget.currentIndex) {
       // Reverse animation for previously selected tab
-      if (oldWidget.currentIndex >= 0 && oldWidget.currentIndex < 5) {
+      if (oldWidget.currentIndex >= 0 && oldWidget.currentIndex < 4) {
         _controllers[oldWidget.currentIndex].reverse();
       }
       // Forward animation for newly selected tab
-      if (widget.currentIndex >= 0 && widget.currentIndex < 5) {
+      if (widget.currentIndex >= 0 && widget.currentIndex < 4) {
         _controllers[widget.currentIndex].forward();
       }
     }
@@ -94,9 +95,9 @@ class _BottomNavigationState extends State<BottomNavigation>
     return Container(
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(context.dynamicWidth(0.06)),
+          topRight: Radius.circular(context.dynamicWidth(0.06)),
         ),
         boxShadow: [
           BoxShadow(
@@ -110,34 +111,31 @@ class _BottomNavigationState extends State<BottomNavigation>
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          padding: EdgeInsets.symmetric(
+            horizontal: context.dynamicWidth(0.02),
+            vertical: context.dynamicHeight(0.01),
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildNavItem(
                 index: 0,
-                label: 'Home',
-                outlinedIcon: Icons.home_outlined,
-                filledIcon: Icons.home,
-              ),
-              _buildNavItem(
-                index: 1,
-                label: 'Events',
-                outlinedIcon: Icons.event_outlined,
-                filledIcon: Icons.event,
-              ),
-              _buildCreateButton(),
-              _buildNavItem(
-                index: 3,
-                label: 'Venue',
+                label: 'الأماكن',
                 outlinedIcon: Icons.location_on_outlined,
                 filledIcon: Icons.location_on,
               ),
+              _buildCreateButton(),
               _buildNavItem(
-                index: 4,
-                label: 'Scanner',
+                index: 2,
+                label: 'الماسح',
                 outlinedIcon: Icons.qr_code_scanner_outlined,
                 filledIcon: Icons.qr_code_scanner,
+              ),
+              _buildNavItem(
+                index: 3,
+                label: 'الإعدادات',
+                outlinedIcon: Icons.settings_outlined,
+                filledIcon: Icons.settings,
               ),
             ],
           ),
@@ -158,7 +156,7 @@ class _BottomNavigationState extends State<BottomNavigation>
     return Expanded(
       child: InkWell(
         onTap: () => widget.onTap(index),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
         splashColor: AppColors.purple600.withValues(alpha: 0.1),
         highlightColor: AppColors.purple600.withValues(alpha: 0.05),
         child: AnimatedBuilder(
@@ -167,7 +165,7 @@ class _BottomNavigationState extends State<BottomNavigation>
             return Transform.scale(
               scale: _scaleAnimations[index].value,
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.01)),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -175,7 +173,7 @@ class _BottomNavigationState extends State<BottomNavigation>
                       icon: isSelected ? filledIcon : outlinedIcon,
                       isSelected: isSelected,
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: context.dynamicHeight(0.005)),
                     _buildGradientText(
                       text: label,
                       isSelected: isSelected,
@@ -200,14 +198,14 @@ class _BottomNavigationState extends State<BottomNavigation>
         shaderCallback: (bounds) => _gradient.createShader(bounds),
         child: Icon(
           icon,
-          size: 26,
+          size: context.dynamicWidth(0.065),
           color: AppColors.white,
         ),
       );
     }
     return Icon(
       icon,
-      size: 26,
+      size: context.dynamicWidth(0.065),
       color: AppColors.gray400,
     );
   }
@@ -223,7 +221,7 @@ class _BottomNavigationState extends State<BottomNavigation>
         child: Text(
           text,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: context.dynamicWidth(0.03),
             fontWeight: FontWeight.w600,
             color: AppColors.white,
           ),
@@ -233,7 +231,7 @@ class _BottomNavigationState extends State<BottomNavigation>
     return Text(
       text,
       style: TextStyle(
-        fontSize: 12,
+        fontSize: context.dynamicWidth(0.03),
         fontWeight: FontWeight.w500,
         color: AppColors.gray400,
       ),
@@ -242,22 +240,22 @@ class _BottomNavigationState extends State<BottomNavigation>
 
   /// Builds the center Create button with floating FAB style
   Widget _buildCreateButton() {
-    final isSelected = widget.currentIndex == 2;
+    final isSelected = widget.currentIndex == 1;
 
     return Expanded(
       child: GestureDetector(
-        onTap: () => widget.onTap(2),
+        onTap: () => widget.onTap(1),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             AnimatedBuilder(
-              animation: _scaleAnimations[2],
+              animation: _scaleAnimations[1],
               builder: (context, child) {
                 return Transform.scale(
-                  scale: _scaleAnimations[2].value,
+                  scale: _scaleAnimations[1].value,
                   child: Container(
-                    width: 56,
-                    height: 56,
+                    width: context.dynamicWidth(0.14),
+                    height: context.dynamicWidth(0.14),
                     decoration: BoxDecoration(
                       gradient: _gradient,
                       shape: BoxShape.circle,
@@ -293,7 +291,7 @@ class _BottomNavigationState extends State<BottomNavigation>
                             ? Icons.add_circle
                             : Icons.add_circle_outline,
                         key: ValueKey<bool>(isSelected),
-                        size: 32,
+                        size: context.dynamicWidth(0.08),
                         color: AppColors.white,
                       ),
                     ),
@@ -301,9 +299,9 @@ class _BottomNavigationState extends State<BottomNavigation>
                 );
               },
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: context.dynamicHeight(0.005)),
             _buildGradientText(
-              text: 'Create',
+              text: 'إضافة',
               isSelected: isSelected,
             ),
           ],
@@ -312,4 +310,3 @@ class _BottomNavigationState extends State<BottomNavigation>
     );
   }
 }
-

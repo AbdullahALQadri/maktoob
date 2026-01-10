@@ -54,6 +54,9 @@ import 'features/payment/domain/usecases/get_bank_details_usecase.dart';
 import 'features/payment/domain/usecases/upload_invoice_usecase.dart';
 import 'features/payment/presentation/cubit/payment_cubit.dart';
 
+// Settings Feature
+import 'features/settings/presentation/cubit/settings_cubit.dart';
+
 final GetIt sl = GetIt.instance;
 
 Future<void> init() async {
@@ -226,4 +229,8 @@ Future<void> init() async {
       getBankDetailsUseCase: sl(),
     ),
   );
+
+  //! ========== SETTINGS FEATURE ==========
+  // Cubit (no data/domain layer - simple local settings)
+  sl.registerFactory(() => SettingsCubit());
 }

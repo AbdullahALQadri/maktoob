@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/app_colors.dart';
+import '../../../../core/utils/media_query_values.dart';
 import '../screens/create_event_screen.dart';
 
 class EventDetailsWidget extends StatefulWidget {
@@ -135,17 +136,17 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
         Text(
           'Event Details',
           style: TextStyle(
-            fontSize: 20,
+            fontSize: context.dynamicWidth(0.05),
             fontWeight: FontWeight.bold,
             color: AppColors.gray900,
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: context.dynamicHeight(0.02)),
         Container(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(context.dynamicWidth(0.05)),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.05),
@@ -158,9 +159,10 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Event Name
-              _buildLabel('Event Name'),
-              const SizedBox(height: 8),
+              _buildLabel(context, 'Event Name'),
+              SizedBox(height: context.dynamicHeight(0.01)),
               _buildTextField(
+                context: context,
                 controller: _nameController,
                 hint: 'Enter event name',
                 onChanged: (v) => _updateDetails((d) => MutableEventDetails(
@@ -172,7 +174,7 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
                   allowCompanions: d.allowCompanions,
                 )),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: context.dynamicHeight(0.02)),
 
               // Date and Time
               Row(
@@ -181,23 +183,25 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildLabel('Date'),
-                        const SizedBox(height: 8),
+                        _buildLabel(context, 'Date'),
+                        SizedBox(height: context.dynamicHeight(0.01)),
                         _buildDateButton(
+                          context,
                           _formatDate(widget.eventDetails.date),
                           () => _selectDate(context, false),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: context.dynamicWidth(0.03)),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildLabel('Time'),
-                        const SizedBox(height: 8),
+                        _buildLabel(context, 'Time'),
+                        SizedBox(height: context.dynamicHeight(0.01)),
                         _buildDateButton(
+                          context,
                           _formatTime(widget.eventDetails.time),
                           () => _selectTime(context),
                         ),
@@ -206,23 +210,24 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: context.dynamicHeight(0.02)),
 
               // Response Deadline
-              _buildLabel('Response Deadline'),
-              const SizedBox(height: 8),
+              _buildLabel(context, 'Response Deadline'),
+              SizedBox(height: context.dynamicHeight(0.01)),
               _buildDateButton(
+                context,
                 _formatDate(widget.eventDetails.responseDeadline),
                 () => _selectDate(context, true),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: context.dynamicHeight(0.02)),
 
               // Companions Toggle
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(context.dynamicWidth(0.04)),
                 decoration: BoxDecoration(
                   color: AppColors.purple50,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
                 ),
                 child: Column(
                   children: [
@@ -235,16 +240,16 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
                             Text(
                               'Allow Companions',
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: context.dynamicWidth(0.035),
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.gray900,
                               ),
                             ),
-                            const SizedBox(height: 2),
+                            SizedBox(height: context.dynamicHeight(0.003)),
                             Text(
                               'Guests can bring +1',
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: context.dynamicWidth(0.03),
                                 color: AppColors.gray600,
                               ),
                             ),
@@ -261,13 +266,13 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
                           )),
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
-                            width: 56,
-                            height: 32,
+                            width: context.dynamicWidth(0.14),
+                            height: context.dynamicWidth(0.08),
                             decoration: BoxDecoration(
                               color: widget.eventDetails.allowCompanions
                                   ? AppColors.purple600
                                   : AppColors.gray300,
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
                             ),
                             child: AnimatedAlign(
                               duration: const Duration(milliseconds: 200),
@@ -275,9 +280,9 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
                                   ? Alignment.centerRight
                                   : Alignment.centerLeft,
                               child: Container(
-                                width: 24,
-                                height: 24,
-                                margin: const EdgeInsets.symmetric(horizontal: 4),
+                                width: context.dynamicWidth(0.06),
+                                height: context.dynamicWidth(0.06),
+                                margin: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.01)),
                                 decoration: const BoxDecoration(
                                   color: Colors.white,
                                   shape: BoxShape.circle,
@@ -289,8 +294,9 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
                       ],
                     ),
                     if (widget.eventDetails.allowCompanions) ...[
-                      const SizedBox(height: 12),
+                      SizedBox(height: context.dynamicHeight(0.015)),
                       _buildTextField(
+                        context: context,
                         controller: _maxCompanionsController,
                         hint: 'Max companions',
                         keyboardType: TextInputType.number,
@@ -317,11 +323,11 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
     );
   }
 
-  Widget _buildLabel(String text) {
+  Widget _buildLabel(BuildContext context, String text) {
     return Text(
       text,
       style: TextStyle(
-        fontSize: 14,
+        fontSize: context.dynamicWidth(0.035),
         fontWeight: FontWeight.w600,
         color: AppColors.gray700,
       ),
@@ -329,6 +335,7 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
   }
 
   Widget _buildTextField({
+    required BuildContext context,
     required TextEditingController controller,
     required String hint,
     TextInputType? keyboardType,
@@ -338,42 +345,50 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
       controller: controller,
       keyboardType: keyboardType,
       onChanged: onChanged,
+      style: TextStyle(fontSize: context.dynamicWidth(0.035)),
       decoration: InputDecoration(
         hintText: hint,
+        hintStyle: TextStyle(fontSize: context.dynamicWidth(0.035)),
         filled: true,
         fillColor: AppColors.gray100,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
           borderSide: BorderSide(color: AppColors.gray100, width: 2),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
           borderSide: BorderSide(color: AppColors.gray100, width: 2),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
           borderSide: BorderSide(color: AppColors.purple600, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: context.dynamicWidth(0.04),
+          vertical: context.dynamicHeight(0.018),
+        ),
       ),
     );
   }
 
-  Widget _buildDateButton(String text, VoidCallback onTap) {
+  Widget _buildDateButton(BuildContext context, String text, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.dynamicWidth(0.04),
+          vertical: context.dynamicHeight(0.018),
+        ),
         decoration: BoxDecoration(
           color: AppColors.gray100,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
           border: Border.all(color: AppColors.gray100, width: 2),
         ),
         child: Text(
           text,
           style: TextStyle(
-            fontSize: 14,
+            fontSize: context.dynamicWidth(0.035),
             color: text.startsWith('Select') ? AppColors.gray400 : AppColors.gray900,
           ),
         ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/app_colors.dart';
+import '../../../../core/utils/media_query_values.dart';
 import '../../data/models/event_models.dart';
 
 class PackageSelectionWidget extends StatelessWidget {
@@ -22,12 +23,12 @@ class PackageSelectionWidget extends StatelessWidget {
         Text(
           'Choose Your Package',
           style: TextStyle(
-            fontSize: 20,
+            fontSize: context.dynamicWidth(0.05),
             fontWeight: FontWeight.bold,
             color: AppColors.gray900,
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: context.dynamicHeight(0.02)),
         ...packages.asMap().entries.map((entry) {
           final index = entry.key;
           final pkg = entry.value;
@@ -72,8 +73,8 @@ class _PackageCard extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(20),
+        margin: EdgeInsets.only(bottom: context.dynamicHeight(0.015)),
+        padding: EdgeInsets.all(context.dynamicWidth(0.05)),
         decoration: BoxDecoration(
           gradient: isSelected
               ? LinearGradient(
@@ -83,7 +84,7 @@ class _PackageCard extends StatelessWidget {
                 )
               : null,
           color: isSelected ? null : Colors.white,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.06)),
           boxShadow: [
             BoxShadow(
               color: isSelected
@@ -99,15 +100,18 @@ class _PackageCard extends StatelessWidget {
           children: [
             if (package.recommended)
               Positioned(
-                top: -28,
-                right: 20,
+                top: -context.dynamicHeight(0.035),
+                right: context.dynamicWidth(0.05),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: context.dynamicWidth(0.03),
+                    vertical: context.dynamicHeight(0.008),
+                  ),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [AppColors.purple600, AppColors.pink600],
                     ),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(context.dynamicWidth(0.05)),
                     boxShadow: [
                       BoxShadow(
                         color: AppColors.purple600.withOpacity(0.3),
@@ -116,17 +120,17 @@ class _PackageCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         '⭐ ',
-                        style: TextStyle(fontSize: 10),
+                        style: TextStyle(fontSize: context.dynamicWidth(0.025)),
                       ),
                       Text(
                         'Recommended',
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: context.dynamicWidth(0.028),
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
@@ -141,8 +145,8 @@ class _PackageCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      width: 48,
-                      height: 48,
+                      width: context.dynamicWidth(0.12),
+                      height: context.dynamicWidth(0.12),
                       decoration: BoxDecoration(
                         color: isSelected
                             ? Colors.white.withOpacity(0.2)
@@ -154,15 +158,15 @@ class _PackageCard extends StatelessWidget {
                                 end: Alignment.bottomRight,
                                 colors: package.gradientColors,
                               ),
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
                       ),
                       child: Icon(
                         package.icon,
                         color: Colors.white,
-                        size: 24,
+                        size: context.dynamicWidth(0.06),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: context.dynamicWidth(0.03)),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,16 +174,16 @@ class _PackageCard extends StatelessWidget {
                           Text(
                             package.name,
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: context.dynamicWidth(0.045),
                               fontWeight: FontWeight.bold,
                               color: isSelected ? Colors.white : AppColors.gray900,
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          SizedBox(height: context.dynamicHeight(0.003)),
                           Text(
                             'Up to ${package.invitationsDisplay} invitations',
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: context.dynamicWidth(0.03),
                               color: isSelected
                                   ? Colors.white.withOpacity(0.8)
                                   : AppColors.gray600,
@@ -191,21 +195,21 @@ class _PackageCard extends StatelessWidget {
                     Text(
                       '\$${package.price}',
                       style: TextStyle(
-                        fontSize: 28,
+                        fontSize: context.dynamicWidth(0.07),
                         fontWeight: FontWeight.bold,
                         color: isSelected ? Colors.white : AppColors.gray900,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: context.dynamicHeight(0.02)),
                 ...package.features.map((feature) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
+                  padding: EdgeInsets.only(bottom: context.dynamicHeight(0.01)),
                   child: Row(
                     children: [
                       Container(
-                        width: 20,
-                        height: 20,
+                        width: context.dynamicWidth(0.05),
+                        height: context.dynamicWidth(0.05),
                         decoration: BoxDecoration(
                           color: isSelected
                               ? Colors.white.withOpacity(0.2)
@@ -214,15 +218,15 @@ class _PackageCard extends StatelessWidget {
                         ),
                         child: Icon(
                           Icons.check,
-                          size: 12,
+                          size: context.dynamicWidth(0.03),
                           color: isSelected ? Colors.white : AppColors.green600,
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      SizedBox(width: context.dynamicWidth(0.025)),
                       Text(
                         feature,
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: context.dynamicWidth(0.035),
                           fontWeight: FontWeight.w500,
                           color: isSelected ? Colors.white : AppColors.gray700,
                         ),

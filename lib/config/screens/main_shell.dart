@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 
 import '../../core/utils/app_colors.dart';
 import '../../core/widgets/bottom_navigation.dart';
-import '../../features/home/presentation/screens/home_screen.dart';
-import '../../features/events/presentation/screens/events_screen.dart';
 import '../../features/events/presentation/screens/create_event_screen.dart';
 import '../../features/events/presentation/screens/event_details_screen.dart';
 import '../../features/venues/presentation/screens/venue_screen.dart';
 import '../../features/scanner/presentation/screens/qr_scanner_screen.dart';
 import '../../features/payment/presentation/screens/payment_upload_screen.dart';
+import '../../features/settings/presentation/screens/settings_screen.dart';
 
 /// Main shell widget that contains all screens with bottom navigation.
 /// This acts as the root container for the app's main content.
+/// Navigation: Venue (0) -> Add Event (1) -> Scanner (2) -> Settings (3)
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
 
@@ -40,13 +40,6 @@ class _MainShellState extends State<MainShell> {
     });
   }
 
-  void _onUploadPayment(String eventId) {
-    setState(() {
-      _selectedEventId = eventId;
-      _showPaymentUpload = true;
-    });
-  }
-
   void _onBackFromDetails() {
     setState(() {
       _showEventDetails = false;
@@ -58,7 +51,7 @@ class _MainShellState extends State<MainShell> {
     setState(() {
       _showPaymentUpload = false;
       _selectedEventId = null;
-      _currentIndex = 1; // Go back to events
+      _currentIndex = 0; // Go back to venue
     });
   }
 
@@ -86,24 +79,20 @@ class _MainShellState extends State<MainShell> {
     }
 
     // Main navigation screens
+    // 0: Venue, 1: Create Event, 2: Scanner, 3: Settings
     switch (_currentIndex) {
       case 0:
-        return const HomeScreen();
+        return const VenueScreen();
       case 1:
-        return EventsScreen(
-          onViewEvent: _onViewEvent,
-          onUploadPayment: _onUploadPayment,
-        );
-      case 2:
         return CreateEventScreen(
           onComplete: _onEventCreated,
         );
-      case 3:
-        return const VenueScreen();
-      case 4:
+      case 2:
         return const QRScannerScreen();
+      case 3:
+        return const SettingsScreen();
       default:
-        return const HomeScreen();
+        return const VenueScreen();
     }
   }
 

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../../../core/utils/app_colors.dart';
+import '../../../../core/utils/media_query_values.dart';
 import '../../data/models/event_models.dart' hide GuestInfo;
 import '../screens/create_event_screen.dart';
 
@@ -46,7 +47,7 @@ class GuestMethodWidget extends StatelessWidget {
             Text(
               'Add Guests',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: context.dynamicWidth(0.05),
                 fontWeight: FontWeight.bold,
                 color: AppColors.gray900,
               ),
@@ -56,12 +57,15 @@ class GuestMethodWidget extends StatelessWidget {
               children: [
                 Text(
                   'Package Limit',
-                  style: TextStyle(fontSize: 12, color: AppColors.gray500),
+                  style: TextStyle(
+                    fontSize: context.dynamicWidth(0.03),
+                    color: AppColors.gray500,
+                  ),
                 ),
                 Text(
                   '$_currentGuestCount / ${_isUnlimited ? '∞' : packageLimit}',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: context.dynamicWidth(0.035),
                     fontWeight: FontWeight.bold,
                     color: AppColors.purple600,
                   ),
@@ -70,15 +74,15 @@ class GuestMethodWidget extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: context.dynamicHeight(0.02)),
 
         // Progress bar for package limit
         if (!_isUnlimited)
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(context.dynamicWidth(0.04)),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.05),
@@ -95,7 +99,7 @@ class GuestMethodWidget extends StatelessWidget {
                     Text(
                       'Guest Capacity',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: context.dynamicWidth(0.03),
                         fontWeight: FontWeight.w500,
                         color: AppColors.gray600,
                       ),
@@ -103,16 +107,16 @@ class GuestMethodWidget extends StatelessWidget {
                     Text(
                       '${_remainingSlots < 0 ? 0 : _remainingSlots} slots remaining',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: context.dynamicWidth(0.03),
                         fontWeight: FontWeight.bold,
                         color: AppColors.gray900,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: context.dynamicHeight(0.01)),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.01)),
                   child: LinearProgressIndicator(
                     value: (_currentGuestCount / packageLimit).clamp(0.0, 1.0),
                     backgroundColor: AppColors.gray200,
@@ -121,24 +125,24 @@ class GuestMethodWidget extends StatelessWidget {
                           ? AppColors.red500
                           : AppColors.purple600,
                     ),
-                    minHeight: 8,
+                    minHeight: context.dynamicHeight(0.01),
                   ),
                 ),
               ],
             ),
           ),
-        const SizedBox(height: 16),
+        SizedBox(height: context.dynamicHeight(0.02)),
 
         // Guest method label
         Text(
           'How would you like to add guests?',
           style: TextStyle(
-            fontSize: 14,
+            fontSize: context.dynamicWidth(0.035),
             fontWeight: FontWeight.w600,
             color: AppColors.gray700,
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: context.dynamicHeight(0.015)),
 
         // Method cards
         _GuestMethodCard(
@@ -149,7 +153,7 @@ class GuestMethodWidget extends StatelessWidget {
           isSelected: guestMethod == GuestMethod.invite,
           onTap: () => onGuestMethodSelected(GuestMethod.invite),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: context.dynamicHeight(0.015)),
         _GuestMethodCard(
           icon: Icons.table_chart_outlined,
           title: 'Upload Excel File',
@@ -158,7 +162,7 @@ class GuestMethodWidget extends StatelessWidget {
           isSelected: guestMethod == GuestMethod.excel,
           onTap: () => onGuestMethodSelected(GuestMethod.excel),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: context.dynamicHeight(0.015)),
         _GuestMethodCard(
           icon: Icons.person_add_outlined,
           title: 'Add One by One',
@@ -167,7 +171,7 @@ class GuestMethodWidget extends StatelessWidget {
           isSelected: guestMethod == GuestMethod.manual,
           onTap: () => onGuestMethodSelected(GuestMethod.manual),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: context.dynamicHeight(0.02)),
 
         // Method-specific content
         if (guestMethod == GuestMethod.invite)
@@ -213,7 +217,7 @@ class _GuestMethodCard extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(context.dynamicWidth(0.05)),
         decoration: BoxDecoration(
           gradient: isSelected
               ? LinearGradient(
@@ -223,7 +227,7 @@ class _GuestMethodCard extends StatelessWidget {
                 )
               : null,
           color: isSelected ? null : Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           boxShadow: [
             BoxShadow(
               color: isSelected
@@ -237,21 +241,21 @@ class _GuestMethodCard extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 48,
-              height: 48,
+              width: context.dynamicWidth(0.12),
+              height: context.dynamicWidth(0.12),
               decoration: BoxDecoration(
                 color: isSelected
                     ? Colors.white.withOpacity(0.2)
                     : gradientColors.first.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
               ),
               child: Icon(
                 icon,
                 color: isSelected ? Colors.white : gradientColors.first,
-                size: 24,
+                size: context.dynamicWidth(0.06),
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: context.dynamicWidth(0.04)),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -259,16 +263,16 @@ class _GuestMethodCard extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: context.dynamicWidth(0.038),
                       fontWeight: FontWeight.bold,
                       color: isSelected ? Colors.white : AppColors.gray900,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: context.dynamicHeight(0.003)),
                   Text(
                     subtitle,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: context.dynamicWidth(0.03),
                       color: isSelected
                           ? Colors.white.withOpacity(0.8)
                           : AppColors.gray600,
@@ -279,15 +283,15 @@ class _GuestMethodCard extends StatelessWidget {
             ),
             if (isSelected)
               Container(
-                width: 24,
-                height: 24,
+                width: context.dynamicWidth(0.06),
+                height: context.dynamicWidth(0.06),
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.check,
-                  size: 14,
+                  size: context.dynamicWidth(0.035),
                   color: gradientColors.first,
                 ),
               ),
@@ -302,14 +306,14 @@ class _InviteMethodContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(context.dynamicWidth(0.05)),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [AppColors.blue50, AppColors.cyan50],
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -322,23 +326,23 @@ class _InviteMethodContent extends StatelessWidget {
         children: [
           Icon(
             Icons.message_outlined,
-            size: 48,
+            size: context.dynamicWidth(0.12),
             color: AppColors.blue600,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: context.dynamicHeight(0.015)),
           Text(
             'Invite Guests Directly',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: context.dynamicWidth(0.04),
               fontWeight: FontWeight.bold,
               color: AppColors.gray900,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: context.dynamicHeight(0.01)),
           Text(
             "We'll help you reach out to your guests through multiple channels after event creation.",
             style: TextStyle(
-              fontSize: 14,
+              fontSize: context.dynamicWidth(0.035),
               color: AppColors.gray600,
             ),
             textAlign: TextAlign.center,
@@ -371,10 +375,10 @@ class _ExcelMethodContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(context.dynamicWidth(0.05)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -387,56 +391,60 @@ class _ExcelMethodContent extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.upload_file, size: 16, color: AppColors.gray700),
-              const SizedBox(width: 8),
+              Icon(
+                Icons.upload_file,
+                size: context.dynamicWidth(0.04),
+                color: AppColors.gray700,
+              ),
+              SizedBox(width: context.dynamicWidth(0.02)),
               Text(
                 'Upload Guest List',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: context.dynamicWidth(0.035),
                   fontWeight: FontWeight.w600,
                   color: AppColors.gray700,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: context.dynamicHeight(0.015)),
           GestureDetector(
             onTap: _pickFile,
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(context.dynamicWidth(0.06)),
               decoration: BoxDecoration(
                 border: Border.all(
                   color: AppColors.gray300,
                   width: 2,
                   style: BorderStyle.solid,
                 ),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
               ),
               child: Column(
                 children: [
                   Icon(
                     Icons.table_chart_outlined,
-                    size: 40,
+                    size: context.dynamicWidth(0.1),
                     color: AppColors.gray400,
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: context.dynamicHeight(0.01)),
                   Text(
                     excelFile != null
                         ? excelFile!.path.split('/').last
                         : 'Click to upload Excel file',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: context.dynamicWidth(0.035),
                       fontWeight: FontWeight.w500,
                       color: AppColors.gray700,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: context.dynamicHeight(0.005)),
                   Text(
                     '.xlsx or .xls format',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: context.dynamicWidth(0.03),
                       color: AppColors.gray500,
                     ),
                   ),
@@ -445,11 +453,11 @@ class _ExcelMethodContent extends StatelessWidget {
             ),
           ),
           if (excelFile != null) ...[
-            const SizedBox(height: 12),
+            SizedBox(height: context.dynamicHeight(0.015)),
             Text(
               '✓ File uploaded successfully',
               style: TextStyle(
-                fontSize: 12,
+                fontSize: context.dynamicWidth(0.03),
                 color: AppColors.green600,
               ),
             ),
@@ -527,10 +535,10 @@ class _ManualMethodContentState extends State<_ManualMethodContent> {
     final canAdd = widget.currentGuest.isValid;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(context.dynamicWidth(0.05)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -544,39 +552,46 @@ class _ManualMethodContentState extends State<_ManualMethodContent> {
         children: [
           Row(
             children: [
-              Icon(Icons.person_add_outlined, size: 16, color: AppColors.gray700),
-              const SizedBox(width: 8),
+              Icon(
+                Icons.person_add_outlined,
+                size: context.dynamicWidth(0.04),
+                color: AppColors.gray700,
+              ),
+              SizedBox(width: context.dynamicWidth(0.02)),
               Text(
                 'Add Guest Details',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: context.dynamicWidth(0.035),
                   fontWeight: FontWeight.w600,
                   color: AppColors.gray700,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: context.dynamicHeight(0.015)),
           _buildTextField(
+            context: context,
             controller: _nameController,
             hint: 'Full Name',
             onChanged: (_) => _updateGuest(),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: context.dynamicHeight(0.015)),
           _buildTextField(
+            context: context,
             controller: _emailController,
             hint: 'Email Address',
             keyboardType: TextInputType.emailAddress,
             onChanged: (_) => _updateGuest(),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: context.dynamicHeight(0.015)),
           _buildTextField(
+            context: context,
             controller: _phoneController,
             hint: 'Phone Number',
             keyboardType: TextInputType.phone,
             onChanged: (_) => _updateGuest(),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: context.dynamicHeight(0.02)),
           GestureDetector(
             onTap: canAdd
                 ? () {
@@ -588,7 +603,7 @@ class _ManualMethodContentState extends State<_ManualMethodContent> {
                 : null,
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.018)),
               decoration: BoxDecoration(
                 gradient: canAdd
                     ? LinearGradient(
@@ -596,7 +611,7 @@ class _ManualMethodContentState extends State<_ManualMethodContent> {
                       )
                     : null,
                 color: canAdd ? null : AppColors.gray200,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
                 boxShadow: canAdd
                     ? [
                         BoxShadow(
@@ -613,12 +628,13 @@ class _ManualMethodContentState extends State<_ManualMethodContent> {
                   Icon(
                     Icons.add,
                     color: canAdd ? Colors.white : AppColors.gray400,
-                    size: 20,
+                    size: context.dynamicWidth(0.05),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: context.dynamicWidth(0.02)),
                   Text(
                     'Add Guest',
                     style: TextStyle(
+                      fontSize: context.dynamicWidth(0.035),
                       fontWeight: FontWeight.bold,
                       color: canAdd ? Colors.white : AppColors.gray400,
                     ),
@@ -630,31 +646,31 @@ class _ManualMethodContentState extends State<_ManualMethodContent> {
 
           // Guest List
           if (widget.manualGuests.isNotEmpty) ...[
-            const SizedBox(height: 16),
+            SizedBox(height: context.dynamicHeight(0.02)),
             Divider(color: AppColors.gray100),
-            const SizedBox(height: 16),
+            SizedBox(height: context.dynamicHeight(0.02)),
             Text(
               'Added Guests (${widget.manualGuests.length})',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: context.dynamicWidth(0.035),
                 fontWeight: FontWeight.w600,
                 color: AppColors.gray700,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: context.dynamicHeight(0.015)),
             ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 200),
+              constraints: BoxConstraints(maxHeight: context.dynamicHeight(0.25)),
               child: ListView.builder(
                 shrinkWrap: true,
                 itemCount: widget.manualGuests.length,
                 itemBuilder: (context, index) {
                   final guest = widget.manualGuests[index];
                   return Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.all(12),
+                    margin: EdgeInsets.only(bottom: context.dynamicHeight(0.01)),
+                    padding: EdgeInsets.all(context.dynamicWidth(0.03)),
                     decoration: BoxDecoration(
                       color: AppColors.gray100,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
                     ),
                     child: Row(
                       children: [
@@ -665,23 +681,23 @@ class _ManualMethodContentState extends State<_ManualMethodContent> {
                               Text(
                                 guest.name,
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: context.dynamicWidth(0.035),
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.gray900,
                                 ),
                               ),
-                              const SizedBox(height: 2),
+                              SizedBox(height: context.dynamicHeight(0.003)),
                               Text(
                                 guest.email,
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: context.dynamicWidth(0.03),
                                   color: AppColors.gray600,
                                 ),
                               ),
                               Text(
                                 guest.phone,
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: context.dynamicWidth(0.03),
                                   color: AppColors.gray600,
                                 ),
                               ),
@@ -691,15 +707,15 @@ class _ManualMethodContentState extends State<_ManualMethodContent> {
                         GestureDetector(
                           onTap: () => widget.onRemoveGuest(index),
                           child: Container(
-                            width: 24,
-                            height: 24,
+                            width: context.dynamicWidth(0.06),
+                            height: context.dynamicWidth(0.06),
                             decoration: BoxDecoration(
                               color: AppColors.red500.withOpacity(0.1),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
                               Icons.close,
-                              size: 12,
+                              size: context.dynamicWidth(0.03),
                               color: AppColors.red500,
                             ),
                           ),
@@ -717,6 +733,7 @@ class _ManualMethodContentState extends State<_ManualMethodContent> {
   }
 
   Widget _buildTextField({
+    required BuildContext context,
     required TextEditingController controller,
     required String hint,
     TextInputType? keyboardType,
@@ -726,23 +743,28 @@ class _ManualMethodContentState extends State<_ManualMethodContent> {
       controller: controller,
       keyboardType: keyboardType,
       onChanged: onChanged,
+      style: TextStyle(fontSize: context.dynamicWidth(0.035)),
       decoration: InputDecoration(
         hintText: hint,
+        hintStyle: TextStyle(fontSize: context.dynamicWidth(0.035)),
         filled: true,
         fillColor: AppColors.gray100,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
           borderSide: BorderSide(color: AppColors.gray100, width: 2),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
           borderSide: BorderSide(color: AppColors.gray100, width: 2),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
           borderSide: BorderSide(color: AppColors.purple600, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: context.dynamicWidth(0.04),
+          vertical: context.dynamicHeight(0.018),
+        ),
       ),
     );
   }
