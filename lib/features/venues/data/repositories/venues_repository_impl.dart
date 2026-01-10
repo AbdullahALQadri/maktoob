@@ -28,14 +28,14 @@ class VenuesRepositoryImpl implements VenuesRepository {
         await localDataSource.cacheVenues(remoteVenues);
         return Right(remoteVenues.map((model) => model.toEntity()).toList());
       } on ServerException catch (e) {
-        return Left(ServerFailure(e.message));
+        return Left(ServerFailure(message: e.message));
       }
     } else {
       try {
         final localVenues = await localDataSource.getCachedVenues();
         return Right(localVenues.map((model) => model.toEntity()).toList());
       } on CacheException catch (e) {
-        return Left(CacheFailure(e.message));
+        return Left(CacheFailure(message: e.message));
       }
     }
   }
@@ -53,9 +53,9 @@ class VenuesRepositoryImpl implements VenuesRepository {
         return Right(result.toEntity());
       }
     } on ServerException catch (e) {
-      return Left(ServerFailure(e.message));
+      return Left(ServerFailure(message: e.message));
     } on CacheException catch (e) {
-      return Left(CacheFailure(e.message));
+      return Left(CacheFailure(message: e.message));
     }
   }
 
@@ -66,7 +66,7 @@ class VenuesRepositoryImpl implements VenuesRepository {
         final results = await remoteDataSource.searchVenues(query);
         return Right(results.map((model) => model.toEntity()).toList());
       } on ServerException catch (e) {
-        return Left(ServerFailure(e.message));
+        return Left(ServerFailure(message: e.message));
       }
     } else {
       try {
@@ -82,7 +82,7 @@ class VenuesRepositoryImpl implements VenuesRepository {
         }).toList();
         return Right(filtered.map((model) => model.toEntity()).toList());
       } on CacheException catch (e) {
-        return Left(CacheFailure(e.message));
+        return Left(CacheFailure(message: e.message));
       }
     }
   }
@@ -94,7 +94,7 @@ class VenuesRepositoryImpl implements VenuesRepository {
         final result = await remoteDataSource.getVenueById(id);
         return Right(result.toEntity());
       } on ServerException catch (e) {
-        return Left(ServerFailure(e.message));
+        return Left(ServerFailure(message: e.message));
       }
     } else {
       try {
@@ -105,7 +105,7 @@ class VenuesRepositoryImpl implements VenuesRepository {
         );
         return Right(venue.toEntity());
       } on CacheException catch (e) {
-        return Left(CacheFailure(e.message));
+        return Left(CacheFailure(message: e.message));
       }
     }
   }
@@ -118,10 +118,10 @@ class VenuesRepositoryImpl implements VenuesRepository {
         final result = await remoteDataSource.updateVenue(venueModel);
         return Right(result.toEntity());
       } else {
-        return Left(const ServerFailure('No internet connection'));
+        return Left(const ServerFailure(message: 'No internet connection'));
       }
     } on ServerException catch (e) {
-      return Left(ServerFailure(e.message));
+      return Left(ServerFailure(message: e.message));
     }
   }
 
@@ -132,10 +132,10 @@ class VenuesRepositoryImpl implements VenuesRepository {
         await remoteDataSource.deleteVenue(id);
         return const Right(unit);
       } on ServerException catch (e) {
-        return Left(ServerFailure(e.message));
+        return Left(ServerFailure(message: e.message));
       }
     } else {
-      return Left(const ServerFailure('No internet connection'));
+      return Left(const ServerFailure(message: 'No internet connection'));
     }
   }
 }

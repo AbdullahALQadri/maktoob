@@ -17,7 +17,7 @@ class ScannerRepositoryImpl implements ScannerRepository {
       final result = await remoteDataSource.scanQrCode();
       return Right(result);
     } catch (e) {
-      return Left(ScannerFailure(e.toString()));
+      return Left(ScannerFailure(message: e.toString()));
     }
   }
 
@@ -27,7 +27,7 @@ class ScannerRepositoryImpl implements ScannerRepository {
       final result = await remoteDataSource.checkInGuest(guestId);
       return Right(result);
     } catch (e) {
-      return Left(ScannerFailure(e.toString()));
+      return Left(ScannerFailure(message: e.toString()));
     }
   }
 
@@ -39,7 +39,7 @@ class ScannerRepositoryImpl implements ScannerRepository {
       final result = await remoteDataSource.getGuestList(searchQuery: searchQuery);
       return Right(result);
     } catch (e) {
-      return Left(ScannerFailure(e.toString()));
+      return Left(ScannerFailure(message: e.toString()));
     }
   }
 
@@ -49,7 +49,7 @@ class ScannerRepositoryImpl implements ScannerRepository {
       final result = await remoteDataSource.getGuestById(guestId);
       return Right(result);
     } catch (e) {
-      return Left(ScannerFailure(e.toString()));
+      return Left(ScannerFailure(message: e.toString()));
     }
   }
 }

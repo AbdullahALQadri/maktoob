@@ -30,9 +30,9 @@ class HomeRepositoryImpl implements HomeRepository {
         if (cachedStats.isNotEmpty) {
           return Right(cachedStats);
         }
-        return Left(CacheFailure('No cached stats available'));
+        return Left(CacheFailure(message: 'No cached stats available'));
       } catch (cacheError) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(message: e.toString()));
       }
     }
   }
@@ -49,9 +49,9 @@ class HomeRepositoryImpl implements HomeRepository {
         if (cachedEvents.isNotEmpty) {
           return Right(cachedEvents);
         }
-        return Left(CacheFailure('No cached events available'));
+        return Left(CacheFailure(message: 'No cached events available'));
       } catch (cacheError) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(message: e.toString()));
       }
     }
   }

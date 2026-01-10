@@ -28,16 +28,16 @@ class EventsRepositoryImpl implements EventsRepository {
         await localDataSource.cacheEvents(remoteEvents);
         return Right(remoteEvents.map((e) => e.toEntity()).toList());
       } on ServerException catch (e) {
-        return Left(ServerFailure(e.message));
+        return Left(ServerFailure(message: e.message));
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(message: e.toString()));
       }
     } else {
       try {
         final localEvents = await localDataSource.getCachedEvents();
         return Right(localEvents.map((e) => e.toEntity()).toList());
       } on CacheException catch (e) {
-        return Left(CacheFailure(e.message));
+        return Left(CacheFailure(message: e.message));
       }
     }
   }
@@ -49,9 +49,9 @@ class EventsRepositoryImpl implements EventsRepository {
         final event = await remoteDataSource.getEventDetails(eventId);
         return Right(event.toEntity());
       } on ServerException catch (e) {
-        return Left(ServerFailure(e.message));
+        return Left(ServerFailure(message: e.message));
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(message: e.toString()));
       }
     } else {
       try {
@@ -59,10 +59,10 @@ class EventsRepositoryImpl implements EventsRepository {
         if (event != null) {
           return Right(event.toEntity());
         } else {
-          return const Left(CacheFailure('Event not found in cache'));
+          return const Left(CacheFailure(message: 'Event not found in cache'));
         }
       } on CacheException catch (e) {
-        return Left(CacheFailure(e.message));
+        return Left(CacheFailure(message: e.message));
       }
     }
   }
@@ -75,12 +75,12 @@ class EventsRepositoryImpl implements EventsRepository {
         final guests = await remoteDataSource.getEventGuests(eventId);
         return Right(guests.map((g) => g.toEntity()).toList());
       } on ServerException catch (e) {
-        return Left(ServerFailure(e.message));
+        return Left(ServerFailure(message: e.message));
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(message: e.toString()));
       }
     } else {
-      return const Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
   }
 
@@ -92,12 +92,12 @@ class EventsRepositoryImpl implements EventsRepository {
         final event = await remoteDataSource.createEvent(params);
         return Right(event.toEntity());
       } on ServerException catch (e) {
-        return Left(ServerFailure(e.message));
+        return Left(ServerFailure(message: e.message));
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(message: e.toString()));
       }
     } else {
-      return const Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
   }
 
@@ -109,12 +109,12 @@ class EventsRepositoryImpl implements EventsRepository {
         final event = await remoteDataSource.updateEvent(eventId, params);
         return Right(event.toEntity());
       } on ServerException catch (e) {
-        return Left(ServerFailure(e.message));
+        return Left(ServerFailure(message: e.message));
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(message: e.toString()));
       }
     } else {
-      return const Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
   }
 
@@ -125,12 +125,12 @@ class EventsRepositoryImpl implements EventsRepository {
         await remoteDataSource.deleteEvent(eventId);
         return const Right(null);
       } on ServerException catch (e) {
-        return Left(ServerFailure(e.message));
+        return Left(ServerFailure(message: e.message));
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(message: e.toString()));
       }
     } else {
-      return const Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
   }
 
@@ -147,9 +147,9 @@ class EventsRepositoryImpl implements EventsRepository {
         );
         return Right(events.map((e) => e.toEntity()).toList());
       } on ServerException catch (e) {
-        return Left(ServerFailure(e.message));
+        return Left(ServerFailure(message: e.message));
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(message: e.toString()));
       }
     } else {
       try {
@@ -168,7 +168,7 @@ class EventsRepositoryImpl implements EventsRepository {
 
         return Right(filteredEvents.map((e) => e.toEntity()).toList());
       } on CacheException catch (e) {
-        return Left(CacheFailure(e.message));
+        return Left(CacheFailure(message: e.message));
       }
     }
   }
@@ -188,7 +188,7 @@ class EventsRepositoryImpl implements EventsRepository {
       await localDataSource.cacheEvents(eventModels);
       return const Right(null);
     } on CacheException catch (e) {
-      return Left(CacheFailure(e.message));
+      return Left(CacheFailure(message: e.message));
     }
   }
 
@@ -198,7 +198,7 @@ class EventsRepositoryImpl implements EventsRepository {
       final events = await localDataSource.getCachedEvents();
       return Right(events.map((e) => e.toEntity()).toList());
     } on CacheException catch (e) {
-      return Left(CacheFailure(e.message));
+      return Left(CacheFailure(message: e.message));
     }
   }
 }

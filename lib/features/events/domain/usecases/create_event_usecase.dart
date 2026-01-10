@@ -15,19 +15,19 @@ class CreateEventUseCase implements UseCase<EventEntity, CreateEventUseCaseParam
   Future<Either<Failure, EventEntity>> call(CreateEventUseCaseParams params) async {
     // Validate required fields
     if (params.name.isEmpty) {
-      return const Left(ValidationFailure('Event name is required'));
+      return const Left(ValidationFailure(message: 'Event name is required'));
     }
 
     if (params.type.isEmpty) {
-      return const Left(ValidationFailure('Event type is required'));
+      return const Left(ValidationFailure(message: 'Event type is required'));
     }
 
     if (params.venue.isEmpty) {
-      return const Left(ValidationFailure('Venue is required'));
+      return const Left(ValidationFailure(message: 'Venue is required'));
     }
 
     if (params.packageId.isEmpty) {
-      return const Left(ValidationFailure('Package selection is required'));
+      return const Left(ValidationFailure(message: 'Package selection is required'));
     }
 
     final createParams = CreateEventParams(
