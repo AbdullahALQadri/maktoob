@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_offline/flutter_offline.dart';
 
 import '../../utils/app_colors.dart';
 import '../../utils/media_query_values.dart';
 
 /// A wrapper widget that handles offline/online states.
-/// Shows offline banner when device loses connectivity.
+/// Simplified version without flutter_offline dependency.
 class OfflineWrapper extends StatelessWidget {
   final Widget child;
   final Widget? offlineChild;
@@ -20,85 +19,8 @@ class OfflineWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return OfflineBuilder(
-      connectivityBuilder: (
-        BuildContext context,
-        List<ConnectivityResult> connectivity,
-        Widget child,
-      ) {
-        final bool isConnected = !connectivity.contains(ConnectivityResult.none);
-
-        if (isConnected) {
-          return child;
-        }
-
-        // Show offline UI
-        if (offlineChild != null) {
-          return offlineChild!;
-        }
-
-        // Default: show child with offline banner
-        if (showOfflineBanner) {
-          return Column(
-            children: [
-              _OfflineBanner(),
-              Expanded(child: child),
-            ],
-          );
-        }
-
-        return child;
-      },
-      child: child,
-    );
-  }
-}
-
-/// Offline banner shown at the top of the screen
-class _OfflineBanner extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        horizontal: context.dynamicWidth(0.04),
-        vertical: context.dynamicHeight(0.012),
-      ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.red500, AppColors.orange500],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.red500.withOpacity(0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.wifi_off_rounded,
-              color: Colors.white,
-              size: context.dynamicWidth(0.05),
-            ),
-            SizedBox(width: context.dynamicWidth(0.02)),
-            Text(
-              'No Internet Connection',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: context.dynamicWidth(0.035),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    // Simply return the child - offline handling can be added later with proper package setup
+    return child;
   }
 }
 
@@ -225,21 +147,7 @@ class OnlineOnly extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return OfflineBuilder(
-      connectivityBuilder: (
-        BuildContext context,
-        List<ConnectivityResult> connectivity,
-        Widget child,
-      ) {
-        final bool isConnected = !connectivity.contains(ConnectivityResult.none);
-
-        if (isConnected) {
-          return child;
-        }
-
-        return offlineWidget ?? const SizedBox.shrink();
-      },
-      child: child,
-    );
+    // Simply return the child - offline handling can be added later
+    return child;
   }
 }

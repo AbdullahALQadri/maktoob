@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/media_query_values.dart';
 import '../cubit/settings_cubit.dart';
@@ -394,7 +394,7 @@ class SettingsScreen extends StatelessWidget {
               icon: Icons.email,
               title: isArabic ? 'البريد الإلكتروني' : 'Email',
               value: 'support@maktoob.app',
-              onTap: () => _launchEmail('support@maktoob.app'),
+              onTap: () => _copyToClipboard(context, 'support@maktoob.app', isArabic),
             ),
             SizedBox(height: context.dynamicHeight(0.02)),
             _buildContactOption(
@@ -402,7 +402,7 @@ class SettingsScreen extends StatelessWidget {
               icon: Icons.phone,
               title: isArabic ? 'الهاتف' : 'Phone',
               value: '+966 XX XXX XXXX',
-              onTap: () => _launchPhone('+966XXXXXXXX'),
+              onTap: () => _copyToClipboard(context, '+966XXXXXXXX', isArabic),
             ),
             SizedBox(height: context.dynamicHeight(0.02)),
             _buildContactOption(
@@ -410,7 +410,7 @@ class SettingsScreen extends StatelessWidget {
               icon: Icons.chat,
               title: isArabic ? 'واتساب' : 'WhatsApp',
               value: '+966 XX XXX XXXX',
-              onTap: () => _launchWhatsApp('+966XXXXXXXX'),
+              onTap: () => _copyToClipboard(context, '+966XXXXXXXX', isArabic),
             ),
             SizedBox(height: context.dynamicHeight(0.03)),
           ],
@@ -460,8 +460,23 @@ class SettingsScreen extends StatelessWidget {
                 ],
               ),
             ),
+            Icon(
+              Icons.copy,
+              color: AppColors.gray400,
+              size: context.dynamicWidth(0.04),
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _copyToClipboard(BuildContext context, String text, bool isArabic) {
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(isArabic ? 'تم النسخ إلى الحافظة' : 'Copied to clipboard'),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -520,26 +535,5 @@ class SettingsScreen extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  Future<void> _launchEmail(String email) async {
-    final uri = Uri.parse('mailto:$email');
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    }
-  }
-
-  Future<void> _launchPhone(String phone) async {
-    final uri = Uri.parse('tel:$phone');
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    }
-  }
-
-  Future<void> _launchWhatsApp(String phone) async {
-    final uri = Uri.parse('https://wa.me/$phone');
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
   }
 }
