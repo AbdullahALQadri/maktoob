@@ -2,18 +2,19 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../data/models/event_models.dart';
+import '../../data/models/event_models.dart' hide GuestInfo;
+import '../screens/create_event_screen.dart';
 
 class GuestMethodWidget extends StatelessWidget {
   final int packageLimit;
   final GuestMethod? guestMethod;
-  final List<GuestInfo> manualGuests;
-  final GuestInfo currentGuest;
+  final List<MutableGuestInfo> manualGuests;
+  final MutableGuestInfo currentGuest;
   final File? excelFile;
   final Function(GuestMethod) onGuestMethodSelected;
   final VoidCallback onAddGuest;
   final Function(int) onRemoveGuest;
-  final Function(GuestInfo) onCurrentGuestChanged;
+  final Function(MutableGuestInfo) onCurrentGuestChanged;
   final Function(File?) onExcelFileSelected;
 
   const GuestMethodWidget({
@@ -460,11 +461,11 @@ class _ExcelMethodContent extends StatelessWidget {
 }
 
 class _ManualMethodContent extends StatefulWidget {
-  final List<GuestInfo> manualGuests;
-  final GuestInfo currentGuest;
+  final List<MutableGuestInfo> manualGuests;
+  final MutableGuestInfo currentGuest;
   final VoidCallback onAddGuest;
   final Function(int) onRemoveGuest;
-  final Function(GuestInfo) onCurrentGuestChanged;
+  final Function(MutableGuestInfo) onCurrentGuestChanged;
 
   const _ManualMethodContent({
     required this.manualGuests,
@@ -514,7 +515,7 @@ class _ManualMethodContentState extends State<_ManualMethodContent> {
   }
 
   void _updateGuest() {
-    widget.onCurrentGuestChanged(GuestInfo(
+    widget.onCurrentGuestChanged(MutableGuestInfo(
       name: _nameController.text,
       email: _emailController.text,
       phone: _phoneController.text,

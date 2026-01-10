@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../data/models/event_models.dart';
+import '../../data/models/event_models.dart' hide CustomVenue;
+import '../screens/create_event_screen.dart';
 
 class VenueSelectionWidget extends StatelessWidget {
   final List<VenueModel> venues;
   final String? selectedVenue;
   final bool showCustomVenue;
-  final CustomVenue customVenue;
+  final MutableCustomVenue customVenue;
   final Function(String) onVenueSelected;
   final VoidCallback onToggleCustomVenue;
-  final Function(CustomVenue) onCustomVenueChanged;
+  final Function(MutableCustomVenue) onCustomVenueChanged;
 
   const VenueSelectionWidget({
     super.key,
@@ -195,8 +196,8 @@ class _CustomVenueButton extends StatelessWidget {
 }
 
 class _CustomVenueForm extends StatelessWidget {
-  final CustomVenue customVenue;
-  final Function(CustomVenue) onChanged;
+  final MutableCustomVenue customVenue;
+  final Function(MutableCustomVenue) onChanged;
 
   const _CustomVenueForm({
     required this.customVenue,
@@ -223,7 +224,7 @@ class _CustomVenueForm extends StatelessWidget {
           _buildTextField(
             hint: 'Venue Name',
             value: customVenue.name,
-            onChanged: (v) => onChanged(CustomVenue(
+            onChanged: (v) => onChanged(MutableCustomVenue(
               name: v,
               address: customVenue.address,
               capacity: customVenue.capacity,
@@ -233,7 +234,7 @@ class _CustomVenueForm extends StatelessWidget {
           _buildTextField(
             hint: 'Address',
             value: customVenue.address,
-            onChanged: (v) => onChanged(CustomVenue(
+            onChanged: (v) => onChanged(MutableCustomVenue(
               name: customVenue.name,
               address: v,
               capacity: customVenue.capacity,
@@ -244,7 +245,7 @@ class _CustomVenueForm extends StatelessWidget {
             hint: 'Capacity',
             value: customVenue.capacity,
             keyboardType: TextInputType.number,
-            onChanged: (v) => onChanged(CustomVenue(
+            onChanged: (v) => onChanged(MutableCustomVenue(
               name: customVenue.name,
               address: customVenue.address,
               capacity: v,

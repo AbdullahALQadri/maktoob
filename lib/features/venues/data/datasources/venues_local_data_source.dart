@@ -37,7 +37,7 @@ class VenuesLocalDataSourceImpl implements VenuesLocalDataSource {
       final List<dynamic> jsonList = json.decode(jsonString);
       return jsonList.map((json) => VenueModel.fromJson(json)).toList();
     } catch (e) {
-      throw const CacheException('Failed to get cached venues');
+      throw const CacheException(message: 'Failed to get cached venues');
     }
   }
 
@@ -48,7 +48,7 @@ class VenuesLocalDataSourceImpl implements VenuesLocalDataSource {
       final jsonString = json.encode(jsonList);
       await sharedPreferences.setString(cachedVenuesKey, jsonString);
     } catch (e) {
-      throw const CacheException('Failed to cache venues');
+      throw const CacheException(message: 'Failed to cache venues');
     }
   }
 
@@ -60,7 +60,7 @@ class VenuesLocalDataSourceImpl implements VenuesLocalDataSource {
       await cacheVenues(currentVenues);
       return venue;
     } catch (e) {
-      throw const CacheException('Failed to add venue to cache');
+      throw const CacheException(message: 'Failed to add venue to cache');
     }
   }
 
@@ -69,7 +69,7 @@ class VenuesLocalDataSourceImpl implements VenuesLocalDataSource {
     try {
       await sharedPreferences.remove(cachedVenuesKey);
     } catch (e) {
-      throw const CacheException('Failed to clear cache');
+      throw const CacheException(message: 'Failed to clear cache');
     }
   }
 }

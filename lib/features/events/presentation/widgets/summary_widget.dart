@@ -1,19 +1,20 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../data/models/event_models.dart';
+import '../../data/models/event_models.dart' hide CustomVenue, EventDetails, GuestInfo;
+import '../screens/create_event_screen.dart';
 
 class SummaryWidget extends StatelessWidget {
   final PackageModel selectedPackage;
   final VenueModel? selectedVenue;
-  final CustomVenue? customVenue;
+  final MutableCustomVenue? customVenue;
   final EventTypeModel? selectedEventType;
   final String? customEventType;
   final TemplateModel? selectedTemplate;
   final bool requestCustomTemplate;
-  final EventDetails eventDetails;
+  final MutableEventDetails eventDetails;
   final GuestMethod? guestMethod;
-  final List<GuestInfo> manualGuests;
+  final List<MutableGuestInfo> manualGuests;
   final File? excelFile;
 
   const SummaryWidget({

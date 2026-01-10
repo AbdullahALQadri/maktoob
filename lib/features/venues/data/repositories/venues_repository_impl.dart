@@ -101,7 +101,7 @@ class VenuesRepositoryImpl implements VenuesRepository {
         final localVenues = await localDataSource.getCachedVenues();
         final venue = localVenues.firstWhere(
           (v) => v.id == id,
-          orElse: () => throw const CacheException('Venue not found in cache'),
+          orElse: () => throw const CacheException(message: 'Venue not found in cache'),
         );
         return Right(venue.toEntity());
       } on CacheException catch (e) {

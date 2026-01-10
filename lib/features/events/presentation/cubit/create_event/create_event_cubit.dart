@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../data/models/event_models.dart';
+import '../../../data/models/event_models.dart' hide CustomVenue, EventDetails, GuestInfo;
 import '../../../domain/entities/guest_entity.dart';
 import '../../../domain/usecases/create_event_usecase.dart';
 import 'create_event_state.dart';

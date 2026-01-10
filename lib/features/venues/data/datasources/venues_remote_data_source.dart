@@ -103,7 +103,7 @@ class VenuesRemoteDataSourceImpl implements VenuesRemoteDataSource {
       await Future.delayed(const Duration(milliseconds: 500));
       return _mockVenues;
     } catch (e) {
-      throw const ServerException('Failed to fetch venues');
+      throw const ServerException(message: 'Failed to fetch venues');
     }
   }
 
@@ -115,7 +115,7 @@ class VenuesRemoteDataSourceImpl implements VenuesRemoteDataSource {
       _mockVenues.add(venue);
       return venue;
     } catch (e) {
-      throw const ServerException('Failed to add venue');
+      throw const ServerException(message: 'Failed to add venue');
     }
   }
 
@@ -134,7 +134,7 @@ class VenuesRemoteDataSourceImpl implements VenuesRemoteDataSource {
             venue.email.toLowerCase().contains(lowerQuery);
       }).toList();
     } catch (e) {
-      throw const ServerException('Failed to search venues');
+      throw const ServerException(message: 'Failed to search venues');
     }
   }
 
@@ -145,11 +145,11 @@ class VenuesRemoteDataSourceImpl implements VenuesRemoteDataSource {
       await Future.delayed(const Duration(milliseconds: 200));
       return _mockVenues.firstWhere(
         (venue) => venue.id == id,
-        orElse: () => throw const NotFoundException('Venue not found'),
+        orElse: () => throw const NotFoundException(message: 'Venue not found'),
       );
     } catch (e) {
       if (e is ServerException) rethrow;
-      throw const ServerException('Failed to get venue');
+      throw const ServerException(message: 'Failed to get venue');
     }
   }
 
@@ -160,13 +160,13 @@ class VenuesRemoteDataSourceImpl implements VenuesRemoteDataSource {
       await Future.delayed(const Duration(milliseconds: 300));
       final index = _mockVenues.indexWhere((v) => v.id == venue.id);
       if (index == -1) {
-        throw const NotFoundException('Venue not found');
+        throw const NotFoundException(message: 'Venue not found');
       }
       _mockVenues[index] = venue;
       return venue;
     } catch (e) {
       if (e is ServerException) rethrow;
-      throw const ServerException('Failed to update venue');
+      throw const ServerException(message: 'Failed to update venue');
     }
   }
 
@@ -177,7 +177,7 @@ class VenuesRemoteDataSourceImpl implements VenuesRemoteDataSource {
       await Future.delayed(const Duration(milliseconds: 300));
       _mockVenues.removeWhere((venue) => venue.id == id);
     } catch (e) {
-      throw const ServerException('Failed to delete venue');
+      throw const ServerException(message: 'Failed to delete venue');
     }
   }
 }

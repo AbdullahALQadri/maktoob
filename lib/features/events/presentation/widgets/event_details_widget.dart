@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../data/models/event_models.dart';
+import '../screens/create_event_screen.dart';
 
 class EventDetailsWidget extends StatefulWidget {
-  final EventDetails eventDetails;
-  final Function(EventDetails) onDetailsChanged;
+  final MutableEventDetails eventDetails;
+  final Function(MutableEventDetails) onDetailsChanged;
 
   const EventDetailsWidget({
     super.key,
@@ -36,7 +36,7 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
     super.dispose();
   }
 
-  void _updateDetails(EventDetails Function(EventDetails) update) {
+  void _updateDetails(MutableEventDetails Function(MutableEventDetails) update) {
     widget.onDetailsChanged(update(widget.eventDetails));
   }
 
@@ -63,7 +63,7 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
     if (picked != null) {
       _updateDetails((d) {
         if (isDeadline) {
-          return EventDetails(
+          return MutableEventDetails(
             name: d.name,
             date: d.date,
             time: d.time,
@@ -72,7 +72,7 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
             allowCompanions: d.allowCompanions,
           );
         } else {
-          return EventDetails(
+          return MutableEventDetails(
             name: d.name,
             date: picked,
             time: d.time,
@@ -104,7 +104,7 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
       },
     );
     if (picked != null) {
-      _updateDetails((d) => EventDetails(
+      _updateDetails((d) => MutableEventDetails(
         name: d.name,
         date: d.date,
         time: picked,
@@ -163,7 +163,7 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
               _buildTextField(
                 controller: _nameController,
                 hint: 'Enter event name',
-                onChanged: (v) => _updateDetails((d) => EventDetails(
+                onChanged: (v) => _updateDetails((d) => MutableEventDetails(
                   name: v,
                   date: d.date,
                   time: d.time,
@@ -251,7 +251,7 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
                           ],
                         ),
                         GestureDetector(
-                          onTap: () => _updateDetails((d) => EventDetails(
+                          onTap: () => _updateDetails((d) => MutableEventDetails(
                             name: d.name,
                             date: d.date,
                             time: d.time,
@@ -296,7 +296,7 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
                         keyboardType: TextInputType.number,
                         onChanged: (v) {
                           final value = int.tryParse(v) ?? 2;
-                          _updateDetails((d) => EventDetails(
+                          _updateDetails((d) => MutableEventDetails(
                             name: d.name,
                             date: d.date,
                             time: d.time,

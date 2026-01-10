@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../data/models/event_models.dart';
+import '../../data/models/event_models.dart' hide EventDetails, CustomVenue, GuestInfo;
 import '../cubit/create_event/create_event_cubit.dart';
 import '../cubit/create_event/create_event_state.dart';
 import '../widgets/step_header_widget.dart';
