@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/utils/responsive.dart';
+import '../../../../core/utils/responsive_extensions.dart';
 import '../../../../core/widgets/loading/scanning_indicator.dart';
 import '../../../../core/widgets/loading/skeleton_widgets.dart';
 import '../../domain/entities/check_in_guest_entity.dart';
@@ -211,8 +213,9 @@ class _QRScannerScreenState extends State<QRScannerScreen>
   }
 
   Widget _buildGradientHeader() {
+    final responsive = context.responsive;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(responsive.horizontalPadding),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -236,37 +239,41 @@ class _QRScannerScreenState extends State<QRScannerScreen>
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: EdgeInsets.all(responsive.scale(10)),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(responsive.borderRadius),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.event,
                   color: Colors.white,
-                  size: 28,
+                  size: responsive.iconSize(base: 28),
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: responsive.spacing(base: 16)),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       _event.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: 24,
+                        fontSize: responsive.sp(responsive.value(
+                          mobile: 24.0,
+                          tablet: 28.0,
+                          desktop: 32.0,
+                        )),
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: responsive.spacing(base: 4)),
                     Text(
                       _event.description,
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.9),
-                        fontSize: 14,
+                        fontSize: responsive.sp(14),
                       ),
                     ),
                   ],
@@ -274,42 +281,55 @@ class _QRScannerScreenState extends State<QRScannerScreen>
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: responsive.spacing(base: 16)),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: EdgeInsets.symmetric(
+              horizontal: responsive.scale(12),
+              vertical: responsive.scale(8),
+            ),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+            child: Wrap(
+              spacing: responsive.spacing(base: 16),
+              runSpacing: responsive.spacing(base: 8),
               children: [
-                Icon(
-                  Icons.location_on,
-                  color: Colors.white.withValues(alpha: 0.9),
-                  size: 16,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.location_on,
+                      color: Colors.white.withValues(alpha: 0.9),
+                      size: responsive.iconSize(base: 16),
+                    ),
+                    SizedBox(width: responsive.spacing(base: 6)),
+                    Text(
+                      _event.venue,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        fontSize: responsive.sp(13),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 6),
-                Text(
-                  _event.venue,
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    fontSize: 13,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Icon(
-                  Icons.calendar_today,
-                  color: Colors.white.withValues(alpha: 0.9),
-                  size: 16,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  '${_event.date} | ${_event.time}',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    fontSize: 13,
-                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.calendar_today,
+                      color: Colors.white.withValues(alpha: 0.9),
+                      size: responsive.iconSize(base: 16),
+                    ),
+                    SizedBox(width: responsive.spacing(base: 6)),
+                    Text(
+                      '${_event.date} | ${_event.time}',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        fontSize: responsive.sp(13),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

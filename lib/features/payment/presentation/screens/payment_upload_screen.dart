@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/app_colors.dart';
+import '../../../../core/utils/responsive.dart';
+import '../../../../core/utils/responsive_extensions.dart';
 import '../../../../core/widgets/loading/skeleton_widgets.dart';
 import '../cubit/payment_cubit.dart';
 import '../cubit/payment_state.dart';
@@ -128,13 +130,14 @@ class _PaymentUploadScreenState extends State<PaymentUploadScreen>
   }
 
   Widget _buildGradientHeader() {
+    final responsive = context.responsive;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 24,
-        left: 24,
-        right: 24,
-        bottom: 32,
+        top: MediaQuery.of(context).padding.top + responsive.scale(24),
+        left: responsive.horizontalPadding,
+        right: responsive.horizontalPadding,
+        bottom: responsive.scale(32),
       ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -145,9 +148,9 @@ class _PaymentUploadScreenState extends State<PaymentUploadScreen>
             AppColors.purple600,
           ],
         ),
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(32),
-          bottomRight: Radius.circular(32),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(responsive.borderRadius * 2.5),
+          bottomRight: Radius.circular(responsive.borderRadius * 2.5),
         ),
         boxShadow: [
           BoxShadow(
@@ -163,35 +166,39 @@ class _PaymentUploadScreenState extends State<PaymentUploadScreen>
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(responsive.scale(12)),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(responsive.borderRadius),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.receipt_long,
                   color: Colors.white,
-                  size: 28,
+                  size: responsive.iconSize(base: 28),
                 ),
               ),
-              const SizedBox(width: 16),
-              const Expanded(
+              SizedBox(width: responsive.spacing(base: 16)),
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Upload Invoice',
                       style: TextStyle(
-                        fontSize: 28,
+                        fontSize: responsive.sp(responsive.value(
+                          mobile: 28.0,
+                          tablet: 32.0,
+                          desktop: 36.0,
+                        )),
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    SizedBox(height: responsive.spacing(base: 4)),
                     Text(
                       'Submit your payment receipt',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: responsive.sp(14),
                         color: Colors.white70,
                       ),
                     ),

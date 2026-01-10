@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/app_colors.dart';
+import '../../../../core/utils/responsive.dart';
+import '../../../../core/utils/responsive_extensions.dart';
 import '../../../../core/widgets/loading/skeleton_widgets.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
@@ -44,7 +46,6 @@ class _HomeScreenState extends State<HomeScreen>
     return Scaffold(
       backgroundColor: AppColors.gray100,
       body: BlocBuilder<HomeCubit, HomeState>(
-        // Only rebuild when the state type changes to prevent unnecessary rebuilds
         buildWhen: (previous, current) {
           return previous.runtimeType != current.runtimeType ||
               (previous is HomeLoaded && current is HomeLoaded);
@@ -68,50 +69,55 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildErrorState(String message) {
+    final responsive = context.responsive;
+
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(responsive.horizontalPadding),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.error_outline,
-              size: 64,
+              size: responsive.iconSize(base: 64),
               color: AppColors.red500,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: responsive.spacing(base: 16)),
             Text(
               'Something went wrong',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: responsive.sp(20),
                 fontWeight: FontWeight.bold,
                 color: AppColors.gray900,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: responsive.spacing(base: 8)),
             Text(
               message,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.gray500,
-                fontSize: 14,
+                fontSize: responsive.sp(14),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: responsive.spacing(base: 24)),
             ElevatedButton(
               onPressed: () => context.read<HomeCubit>().refresh(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.purple600,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 12,
+                padding: EdgeInsets.symmetric(
+                  horizontal: responsive.scale(32),
+                  vertical: responsive.scale(12),
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(responsive.borderRadius),
                 ),
               ),
-              child: const Text('Try Again'),
+              child: Text(
+                'Try Again',
+                style: TextStyle(fontSize: responsive.sp(14)),
+              ),
             ),
           ],
         ),
@@ -120,40 +126,48 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildLoadedState(HomeLoaded state) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          // Gradient Header
-          _buildHeader(),
-          // Stats Grid - overlapping the header
-          Transform.translate(
-            offset: const Offset(0, -60),
-            child: _buildStatsGrid(state),
-          ),
-          // Response Rate Card
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: ResponseRateCardWidget(
-              responseRate: state.responseRate,
-              totalResponded: state.totalResponded,
-              totalGuests: state.totalGuests,
+    final responsive = context.responsive;
+
+    return ResponsiveContainer(
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Gradient Header
+            _buildHeader(responsive),
+            // Stats Grid - overlapping the header
+            Transform.translate(
+              offset: Offset(0, responsive.scale(-60)),
+              child: _buildStatsGrid(state, responsive),
             ),
-          ),
-          const SizedBox(height: 24),
-          // Recent Events
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: _buildRecentEventsSection(state),
-          ),
-          const SizedBox(height: 100), // Bottom padding for navigation
-        ],
+            // Response Rate Card
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: responsive.horizontalPadding),
+              child: ResponseRateCardWidget(
+                responseRate: state.responseRate,
+                totalResponded: state.totalResponded,
+                totalGuests: state.totalGuests,
+              ),
+            ),
+            SizedBox(height: responsive.spacing(base: 24)),
+            // Recent Events
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: responsive.horizontalPadding),
+              child: _buildRecentEventsSection(state, responsive),
+            ),
+            SizedBox(height: responsive.spacing(base: 100)), // Bottom padding for navigation
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(Responsive responsive) {
     return Container(
-      height: 220,
+      height: responsive.value(
+        mobile: 220.0,
+        tablet: 260.0,
+        desktop: 300.0,
+      ),
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -166,7 +180,7 @@ class _HomeScreenState extends State<HomeScreen>
         child: FadeTransition(
           opacity: _fadeController,
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(responsive.horizontalPadding),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -180,9 +194,9 @@ class _HomeScreenState extends State<HomeScreen>
                         return Transform.scale(
                           scale: value,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: responsive.scale(12),
+                              vertical: responsive.scale(6),
                             ),
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.2),
@@ -194,14 +208,14 @@ class _HomeScreenState extends State<HomeScreen>
                                 Icon(
                                   Icons.auto_awesome,
                                   color: AppColors.yellow400,
-                                  size: 16,
+                                  size: responsive.iconSize(base: 16),
                                 ),
-                                const SizedBox(width: 6),
-                                const Text(
+                                SizedBox(width: responsive.spacing(base: 6)),
+                                Text(
                                   'Welcome back!',
                                   style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 12,
+                                    fontSize: responsive.sp(12),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -213,7 +227,7 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: responsive.spacing(base: 16)),
                 TweenAnimationBuilder<Offset>(
                   tween: Tween(
                     begin: const Offset(0, 20),
@@ -227,11 +241,15 @@ class _HomeScreenState extends State<HomeScreen>
                       child: child,
                     );
                   },
-                  child: const Text(
+                  child: Text(
                     'Koroot Dashboard',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 32,
+                      fontSize: responsive.sp(responsive.value(
+                        mobile: 28.0,
+                        tablet: 36.0,
+                        desktop: 42.0,
+                      )),
                       fontWeight: FontWeight.bold,
                       letterSpacing: -0.5,
                     ),
@@ -245,17 +263,21 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildStatsGrid(HomeLoaded state) {
+  Widget _buildStatsGrid(HomeLoaded state, Responsive responsive) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: responsive.horizontalPadding),
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 1.4,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: responsive.gridColumns,
+          crossAxisSpacing: responsive.spacing(base: 12),
+          mainAxisSpacing: responsive.spacing(base: 12),
+          childAspectRatio: responsive.value(
+            mobile: 1.4,
+            tablet: 1.5,
+            desktop: 1.6,
+          ),
         ),
         itemCount: state.stats.length,
         itemBuilder: (context, index) {
@@ -268,20 +290,20 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildRecentEventsSection(HomeLoaded state) {
+  Widget _buildRecentEventsSection(HomeLoaded state, Responsive responsive) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Section header
         Padding(
-          padding: const EdgeInsets.only(bottom: 16),
+          padding: EdgeInsets.only(bottom: responsive.spacing(base: 16)),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Recent Events',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: responsive.sp(20),
                   fontWeight: FontWeight.bold,
                   color: AppColors.gray900,
                 ),
@@ -293,15 +315,15 @@ class _HomeScreenState extends State<HomeScreen>
                     Text(
                       'View All',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: responsive.sp(14),
                         fontWeight: FontWeight.w600,
                         color: AppColors.purple600,
                       ),
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: responsive.spacing(base: 4)),
                     Icon(
                       Icons.arrow_forward,
-                      size: 16,
+                      size: responsive.iconSize(base: 16),
                       color: AppColors.purple600,
                     ),
                   ],
@@ -310,20 +332,45 @@ class _HomeScreenState extends State<HomeScreen>
             ],
           ),
         ),
-        // Events list - using ListView.builder for better performance
-        // (only builds visible items)
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: state.recentEvents.length,
-          itemBuilder: (context, index) {
-            return RecentEventCardWidget(
-              event: state.recentEvents[index],
-              index: index,
-            );
-          },
-        ),
+        // Events list - responsive layout
+        responsive.isTablet || responsive.isDesktop
+            ? _buildEventsGrid(state, responsive)
+            : _buildEventsList(state, responsive),
       ],
+    );
+  }
+
+  Widget _buildEventsList(HomeLoaded state, Responsive responsive) {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: state.recentEvents.length,
+      itemBuilder: (context, index) {
+        return RecentEventCardWidget(
+          event: state.recentEvents[index],
+          index: index,
+        );
+      },
+    );
+  }
+
+  Widget _buildEventsGrid(HomeLoaded state, Responsive responsive) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: responsive.isDesktop ? 3 : 2,
+        crossAxisSpacing: responsive.spacing(base: 16),
+        mainAxisSpacing: responsive.spacing(base: 16),
+        childAspectRatio: 2.5,
+      ),
+      itemCount: state.recentEvents.length,
+      itemBuilder: (context, index) {
+        return RecentEventCardWidget(
+          event: state.recentEvents[index],
+          index: index,
+        );
+      },
     );
   }
 }

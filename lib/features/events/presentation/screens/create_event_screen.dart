@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/app_colors.dart';
+import '../../../../core/utils/responsive.dart';
+import '../../../../core/utils/responsive_extensions.dart';
 import '../../data/models/event_models.dart' hide EventDetails, CustomVenue, GuestInfo;
 import '../cubit/create_event/create_event_cubit.dart';
 import '../cubit/create_event/create_event_state.dart';
@@ -92,6 +94,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return BlocConsumer<CreateEventCubit, CreateEventState>(
       listener: (context, state) {
         if (state.isSuccess && state.createdEventId != null) {
@@ -117,7 +120,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
               ),
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
+                  padding: EdgeInsets.all(responsive.horizontalPadding),
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     child: _buildStepContent(state),
@@ -128,11 +131,16 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           ),
           bottomNavigationBar: SafeArea(
             child: Container(
-              padding: const EdgeInsets.all(16),
-              margin: const EdgeInsets.fromLTRB(16, 0, 16, 80),
+              padding: EdgeInsets.all(responsive.scale(16)),
+              margin: EdgeInsets.fromLTRB(
+                responsive.horizontalPadding,
+                0,
+                responsive.horizontalPadding,
+                responsive.scale(80),
+              ),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.9),
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(responsive.borderRadius * 2),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.1),
@@ -153,7 +161,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                             isPrimary: false,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: responsive.spacing(base: 12)),
                         Expanded(
                           child: _buildButton(
                             'Submit & Pay',
@@ -170,18 +178,19 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                       children: [
                         if (!state.isFirstStep)
                           Container(
-                            width: 56,
-                            height: 56,
-                            margin: const EdgeInsets.only(right: 12),
+                            width: responsive.scale(56),
+                            height: responsive.scale(56),
+                            margin: EdgeInsets.only(right: responsive.spacing(base: 12)),
                             child: Material(
                               color: AppColors.gray100,
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(responsive.borderRadius),
                               child: InkWell(
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(responsive.borderRadius),
                                 onTap: () => context.read<CreateEventCubit>().previousStep(),
                                 child: Icon(
                                   Icons.arrow_back,
                                   color: AppColors.gray700,
+                                  size: responsive.iconSize(base: 24),
                                 ),
                               ),
                             ),

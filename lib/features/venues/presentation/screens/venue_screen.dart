@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/utils/responsive.dart';
+import '../../../../core/utils/responsive_extensions.dart';
 import '../../../../core/widgets/loading/skeleton_widgets.dart';
 import '../../domain/entities/venue_entity.dart';
 import '../cubit/venues_cubit.dart';
@@ -141,6 +143,7 @@ class _VenueScreenState extends State<VenueScreen>
   }
 
   Widget _buildHeader(VenuesState state) {
+    final responsive = context.responsive;
     int venueCount = 0;
     bool showAddForm = false;
 
@@ -154,7 +157,10 @@ class _VenueScreenState extends State<VenueScreen>
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      padding: EdgeInsets.symmetric(
+        horizontal: responsive.horizontalPadding,
+        vertical: responsive.verticalPadding,
+      ),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -177,28 +183,35 @@ class _VenueScreenState extends State<VenueScreen>
         children: [
           Row(
             children: [
-              const Text(
+              Text(
                 'Venues',
                 style: TextStyle(
-                  fontSize: 28,
+                  fontSize: responsive.sp(responsive.value(
+                    mobile: 28.0,
+                    tablet: 32.0,
+                    desktop: 36.0,
+                  )),
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                   letterSpacing: -0.5,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: responsive.spacing(base: 12)),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: EdgeInsets.symmetric(
+                  horizontal: responsive.scale(12),
+                  vertical: responsive.scale(6),
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   '$venueCount',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
-                    fontSize: 14,
+                    fontSize: responsive.sp(14),
                   ),
                 ),
               ),
@@ -206,19 +219,19 @@ class _VenueScreenState extends State<VenueScreen>
           ),
           Material(
             color: Colors.white.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(responsive.borderRadius),
             child: InkWell(
               onTap: state is VenuesLoaded ? _toggleAddVenue : null,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(responsive.borderRadius),
               child: Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(responsive.scale(12)),
                 child: AnimatedRotation(
                   turns: showAddForm ? 0.125 : 0,
                   duration: const Duration(milliseconds: 200),
-                  child: const Icon(
+                  child: Icon(
                     Icons.add,
                     color: Colors.white,
-                    size: 24,
+                    size: responsive.iconSize(base: 24),
                   ),
                 ),
               ),
@@ -230,17 +243,18 @@ class _VenueScreenState extends State<VenueScreen>
   }
 
   Widget _buildSearchBar(VenuesState state) {
+    final responsive = context.responsive;
     String searchQuery = '';
     if (state is VenuesLoaded) {
       searchQuery = state.searchQuery;
     }
 
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(responsive.horizontalPadding),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(responsive.borderRadius),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -254,23 +268,24 @@ class _VenueScreenState extends State<VenueScreen>
           onChanged: (value) {
             context.read<VenuesCubit>().searchVenues(value);
           },
+          style: TextStyle(fontSize: responsive.sp(16)),
           decoration: InputDecoration(
             hintText: 'Search venues...',
             hintStyle: TextStyle(
               color: Colors.grey[400],
-              fontSize: 16,
+              fontSize: responsive.sp(16),
             ),
             prefixIcon: Icon(
               Icons.search,
               color: Colors.grey[400],
-              size: 22,
+              size: responsive.iconSize(base: 22),
             ),
             suffixIcon: searchQuery.isNotEmpty
                 ? IconButton(
                     icon: Icon(
                       Icons.clear,
                       color: Colors.grey[400],
-                      size: 20,
+                      size: responsive.iconSize(base: 20),
                     ),
                     onPressed: () {
                       _searchController.clear();
@@ -279,7 +294,10 @@ class _VenueScreenState extends State<VenueScreen>
                   )
                 : null,
             border: InputBorder.none,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: responsive.scale(20),
+              vertical: responsive.scale(16),
+            ),
           ),
         ),
       ),
@@ -309,6 +327,8 @@ class _VenueScreenState extends State<VenueScreen>
   }
 
   Widget _buildContent(VenuesState state) {
+    final responsive = context.responsive;
+
     if (state is VenuesLoading) {
       return const VenuesScreenSkeleton(itemCount: 5);
     }
@@ -320,27 +340,31 @@ class _VenueScreenState extends State<VenueScreen>
           children: [
             Icon(
               Icons.error_outline,
-              size: 64,
+              size: responsive.iconSize(base: 64),
               color: Colors.grey[300],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: responsive.spacing(base: 16)),
             Text(
               'Failed to load venues',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: responsive.sp(18),
                 color: Colors.grey[500],
                 fontWeight: FontWeight.w500,
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: responsive.spacing(base: 16)),
             ElevatedButton(
               onPressed: () {
                 context.read<VenuesCubit>().loadVenues();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF10B981),
+                padding: EdgeInsets.symmetric(
+                  horizontal: responsive.scale(24),
+                  vertical: responsive.scale(12),
+                ),
               ),
-              child: const Text('Retry'),
+              child: Text('Retry', style: TextStyle(fontSize: responsive.sp(14))),
             ),
           ],
         ),
@@ -363,23 +387,23 @@ class _VenueScreenState extends State<VenueScreen>
           children: [
             Icon(
               Icons.search_off,
-              size: 64,
+              size: responsive.iconSize(base: 64),
               color: Colors.grey[300],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: responsive.spacing(base: 16)),
             Text(
               'No venues found',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: responsive.sp(18),
                 color: Colors.grey[500],
                 fontWeight: FontWeight.w500,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: responsive.spacing(base: 8)),
             Text(
               'Try a different search term',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: responsive.sp(14),
                 color: Colors.grey[400],
               ),
             ),
@@ -388,8 +412,34 @@ class _VenueScreenState extends State<VenueScreen>
       );
     }
 
+    // Use grid layout for tablet and desktop
+    if (responsive.isTablet || responsive.isDesktop) {
+      return GridView.builder(
+        padding: EdgeInsets.symmetric(horizontal: responsive.horizontalPadding),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: responsive.isDesktop ? 3 : 2,
+          crossAxisSpacing: responsive.spacing(base: 16),
+          mainAxisSpacing: responsive.spacing(base: 16),
+          childAspectRatio: responsive.value(
+            mobile: 2.5,
+            tablet: 2.2,
+            desktop: 2.0,
+          ),
+        ),
+        itemCount: venues.length,
+        itemBuilder: (context, index) {
+          return VenueCardWidget(
+            venue: venues[index],
+            onTap: () {
+              // Handle venue tap
+            },
+          );
+        },
+      );
+    }
+
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: responsive.horizontalPadding),
       itemCount: venues.length,
       itemBuilder: (context, index) {
         return VenueCardWidget(
