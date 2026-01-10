@@ -544,9 +544,10 @@ class _EventCardState extends State<_EventCard> {
             ],
           ),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               _buildCardHeader(),
-              Expanded(child: _buildCardBody()),
+              _buildCardBody(),
               _buildCardFooter(),
             ],
           ),
