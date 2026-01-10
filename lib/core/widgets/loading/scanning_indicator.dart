@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
 import '../../utils/app_colors.dart';
-import 'shimmer_loading.dart' show AnimatedBuilder;
 
 /// A modern scanning indicator widget with gradient animation.
 ///

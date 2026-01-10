@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/widgets/loading/shimmer_loading.dart' show AnimatedBuilder;
 
 class ScanButtonWidget extends StatelessWidget {
   final bool isScanning;

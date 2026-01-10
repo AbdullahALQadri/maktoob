@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../utils/app_colors.dart';
-import 'shimmer_loading.dart' show AnimatedBuilder;
 
 /// A loading indicator widget with gradient styling.
 ///
