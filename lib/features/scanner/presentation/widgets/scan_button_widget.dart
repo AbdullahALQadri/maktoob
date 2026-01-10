@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/utils/app_colors.dart';
+import '../../../../core/widgets/loading/shimmer_loading.dart' show AnimatedBuilder;
+
 class ScanButtonWidget extends StatelessWidget {
   final bool isScanning;
   final Animation<double> scanAnimation;
@@ -27,21 +30,18 @@ class ScanButtonWidget extends StatelessWidget {
                 end: Alignment.bottomRight,
                 colors: isScanning
                     ? [
-                        Colors.grey.shade400,
-                        Colors.grey.shade500,
+                        AppColors.purple600.withOpacity(0.7),
+                        AppColors.pink600.withOpacity(0.7),
                       ]
                     : [
-                        const Color(0xFF6366F1),
-                        const Color(0xFFEC4899),
+                        AppColors.purple600,
+                        AppColors.pink600,
                       ],
               ),
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: (isScanning
-                          ? Colors.grey
-                          : const Color(0xFF6366F1))
-                      .withValues(alpha: 0.4),
+                  color: AppColors.purple600.withOpacity(isScanning ? 0.2 : 0.4),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -81,14 +81,26 @@ class ScanButtonWidget extends StatelessWidget {
                     if (isScanning)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
-                        child: SizedBox(
-                          width: 100,
-                          child: LinearProgressIndicator(
-                            backgroundColor: Colors.white.withValues(alpha: 0.3),
-                            valueColor: const AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
-                          ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(3, (index) {
+                            return TweenAnimationBuilder<double>(
+                              tween: Tween(begin: 0.3, end: 1.0),
+                              duration: Duration(milliseconds: 400 + (index * 200)),
+                              curve: Curves.easeInOut,
+                              builder: (context, value, child) {
+                                return Container(
+                                  width: 8,
+                                  height: 8,
+                                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(value),
+                                    shape: BoxShape.circle,
+                                  ),
+                                );
+                              },
+                            );
+                          }),
                         ),
                       ),
                   ],

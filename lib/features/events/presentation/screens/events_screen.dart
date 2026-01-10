@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/app_colors.dart';
+import '../../../../core/widgets/loading/skeleton_widgets.dart';
 import '../../data/models/event_model.dart';
 import '../../domain/entities/event_entity.dart';
 import '../cubit/events_list/events_list_cubit.dart';
@@ -40,6 +41,13 @@ class _EventsScreenState extends State<EventsScreen> {
     return Scaffold(
       backgroundColor: AppColors.gray100,
       body: BlocBuilder<EventsListCubit, EventsListState>(
+        // Only rebuild when relevant state properties change
+        buildWhen: (previous, current) {
+          return previous.status != current.status ||
+              previous.filteredEvents != current.filteredEvents ||
+              previous.filterStatus != current.filterStatus ||
+              previous.searchQuery != current.searchQuery;
+        },
         builder: (context, state) {
           return Column(
             children: [
@@ -222,9 +230,7 @@ class _EventsScreenState extends State<EventsScreen> {
 
   Widget _buildEventsList(EventsListState state) {
     if (state.isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const EventsScreenSkeleton(itemCount: 3);
     }
 
     if (state.isFailure) {

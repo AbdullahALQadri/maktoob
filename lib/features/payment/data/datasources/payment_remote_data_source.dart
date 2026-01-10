@@ -39,9 +39,9 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
     required String eventId,
   }) async {
     try {
-      // Simulate upload with progress updates
-      const totalDuration = 2000;
-      const steps = 20;
+      // Simulate upload with progress updates (reduced duration for better UX)
+      const totalDuration = 800;
+      const steps = 10;
       const stepDuration = totalDuration ~/ steps;
 
       for (int i = 1; i <= steps; i++) {
@@ -81,8 +81,8 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
       // final response = await apiConsumer.get(EndPoints.bankDetails);
       // return BankDetailsModel.fromJson(response);
 
-      // For now, return mock bank details
-      await Future.delayed(const Duration(milliseconds: 300));
+      // For now, return mock bank details (reduced delay for better performance)
+      await Future.delayed(const Duration(milliseconds: 100));
 
       return const BankDetailsModel(
         bankName: 'Al Rajhi Bank',

@@ -285,13 +285,44 @@ class UploadAreaWidget extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 20),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: LinearProgressIndicator(
-            value: uploadProgress,
-            backgroundColor: AppColors.gray200,
-            valueColor: AlwaysStoppedAnimation<Color>(AppColors.purple600),
-            minHeight: 8,
+        // Modern gradient progress bar
+        Stack(
+          children: [
+            Container(
+              height: 10,
+              decoration: BoxDecoration(
+                color: AppColors.gray200,
+                borderRadius: BorderRadius.circular(5),
+              ),
+            ),
+            FractionallySizedBox(
+              widthFactor: uploadProgress.clamp(0.0, 1.0),
+              child: Container(
+                height: 10,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppColors.purple600, AppColors.pink600],
+                  ),
+                  borderRadius: BorderRadius.circular(5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.purple600.withOpacity(0.4),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        // Upload status text
+        Text(
+          'Please wait while we upload your file...',
+          style: TextStyle(
+            fontSize: 12,
+            color: AppColors.gray500,
           ),
         ),
       ],

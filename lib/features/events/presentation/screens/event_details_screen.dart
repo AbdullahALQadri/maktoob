@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/app_colors.dart';
+import '../../../../core/widgets/loading/skeleton_widgets.dart';
 import '../../data/models/event_model.dart';
 import '../../data/models/guest_model.dart';
 import '../../domain/entities/event_entity.dart';
@@ -60,7 +61,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         if (state.isLoading) {
           return Scaffold(
             backgroundColor: AppColors.gray100,
-            body: const Center(child: CircularProgressIndicator()),
+            body: const EventDetailsSkeleton(),
           );
         }
 

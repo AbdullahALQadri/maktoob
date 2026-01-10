@@ -241,14 +241,14 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
 
   @override
   Future<List<EventModel>> getEvents() async {
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 500));
+    // Simulate network delay (reduced for better performance)
+    await Future.delayed(const Duration(milliseconds: 150));
     return _mockEvents;
   }
 
   @override
   Future<EventModel> getEventDetails(String eventId) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(const Duration(milliseconds: 100));
     final event = _mockEvents.firstWhere(
       (e) => e.id == eventId,
       orElse: () => throw Exception('Event not found'),
@@ -258,13 +258,13 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
 
   @override
   Future<List<GuestModel>> getEventGuests(String eventId) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(const Duration(milliseconds: 100));
     return _mockGuests;
   }
 
   @override
   Future<EventModel> createEvent(CreateEventParams params) async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 200));
 
     final newEvent = EventModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -295,7 +295,7 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
 
   @override
   Future<EventModel> updateEvent(String eventId, UpdateEventParams params) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(const Duration(milliseconds: 100));
 
     final index = _mockEvents.indexWhere((e) => e.id == eventId);
     if (index == -1) {
@@ -321,7 +321,7 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
 
   @override
   Future<void> deleteEvent(String eventId) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(const Duration(milliseconds: 100));
     // In real implementation, this would make an API call
   }
 
@@ -330,7 +330,7 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
     String? searchQuery,
     EventStatus? status,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(const Duration(milliseconds: 100));
 
     return _mockEvents.where((event) {
       final matchesSearch = searchQuery == null ||

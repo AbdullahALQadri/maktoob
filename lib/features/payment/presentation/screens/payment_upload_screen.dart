@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/app_colors.dart';
+import '../../../../core/widgets/loading/skeleton_widgets.dart';
 import '../cubit/payment_cubit.dart';
 import '../cubit/payment_state.dart';
 import '../widgets/bank_details_card_widget.dart';
@@ -99,9 +100,12 @@ class _PaymentUploadScreenState extends State<PaymentUploadScreen>
                             const SizedBox(height: 24),
                             _buildUploadArea(state),
                             const SizedBox(height: 24),
-                            BankDetailsCardWidget(
-                              bankDetails: state.bankDetails,
-                            ),
+                            // Show skeleton when bank details are loading
+                            state.bankDetails == null
+                                ? const BankDetailsCardSkeleton()
+                                : BankDetailsCardWidget(
+                                    bankDetails: state.bankDetails,
+                                  ),
                             const SizedBox(height: 24),
                             if (state.selectedFile != null) ...[
                               _buildSubmitButton(state),

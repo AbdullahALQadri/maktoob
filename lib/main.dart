@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:device_preview/device_preview.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,35 +11,43 @@ import 'bloc_observer.dart';
 import 'injection_container.dart' as di;
 
 void main() {
+  // Set up Flutter error handling early
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    if (kDebugMode) {
+      debugPrint('Flutter Error: ${details.exception}');
+    }
+  };
+
   runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
 
-      // Init Dependency Injection
-      await di.init();
-
-      // Lock device orientation
-      await SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
+      // Run orientation lock and DI initialization in parallel for faster startup
+      await Future.wait([
+        di.init(),
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ]),
       ]);
 
-      // Set up BLoC Observer
-      Bloc.observer = MyBlocObserver();
+      // Set up BLoC Observer only in debug mode to reduce overhead in release
+      if (kDebugMode) {
+        Bloc.observer = MyBlocObserver();
+      }
 
-      // Run the app (use DevicePreview if needed)
+      // Run the app (use DevicePreview only in debug mode)
       runApp(
-        DevicePreview(enabled: false, builder: (context) => const Maktoob()),
+        kDebugMode
+            ? DevicePreview(enabled: false, builder: (context) => const Maktoob())
+            : const Maktoob(),
       );
     },
     (error, stackTrace) {
-      debugPrint('Uncaught Zone Error: $error');
+      if (kDebugMode) {
+        debugPrint('Uncaught Zone Error: $error');
+      }
     },
   );
-
-  // Catch uncaught Flutter framework errors
-  FlutterError.onError = (FlutterErrorDetails details) {
-    FlutterError.presentError(details);
-    debugPrint('Flutter Error: ${details.exception}');
-  };
 }

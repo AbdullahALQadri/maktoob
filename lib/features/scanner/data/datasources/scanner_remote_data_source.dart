@@ -98,8 +98,8 @@ class ScannerRemoteDataSourceImpl implements ScannerRemoteDataSource {
 
   @override
   Future<ScanResultModel> scanQrCode() async {
-    // Simulate network delay for scanning
-    await Future.delayed(const Duration(seconds: 2));
+    // Simulate network delay for scanning (reduced for better UX)
+    await Future.delayed(const Duration(milliseconds: 800));
 
     // Select a random guest
     final random = Random();
@@ -114,8 +114,8 @@ class ScannerRemoteDataSourceImpl implements ScannerRemoteDataSource {
 
   @override
   Future<CheckInGuestModel> checkInGuest(String guestId) async {
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 500));
+    // Simulate network delay (reduced for better performance)
+    await Future.delayed(const Duration(milliseconds: 150));
 
     final guestIndex = _mockGuests.indexWhere((g) => g.id == guestId);
 
@@ -132,8 +132,8 @@ class ScannerRemoteDataSourceImpl implements ScannerRemoteDataSource {
 
   @override
   Future<List<CheckInGuestModel>> getGuestList({String? searchQuery}) async {
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 300));
+    // Simulate network delay (reduced for better performance)
+    await Future.delayed(const Duration(milliseconds: 150));
 
     // Get guests with current checked-in status
     List<CheckInGuestModel> guests = _mockGuests.map((guest) {
@@ -156,8 +156,8 @@ class ScannerRemoteDataSourceImpl implements ScannerRemoteDataSource {
 
   @override
   Future<CheckInGuestModel> getGuestById(String guestId) async {
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 200));
+    // Simulate network delay (reduced for better performance)
+    await Future.delayed(const Duration(milliseconds: 100));
 
     final guest = _mockGuests.firstWhere(
       (g) => g.id == guestId,

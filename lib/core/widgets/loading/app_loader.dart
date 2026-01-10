@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../utils/app_colors.dart';
+import 'shimmer_loading.dart' show AnimatedBuilder;
 
 /// A loading indicator widget with gradient styling.
 ///
@@ -277,41 +278,6 @@ enum LoaderType {
   circular,
   linear,
   dots,
-}
-
-/// A custom animated builder widget.
-class AnimatedBuilder extends StatelessWidget {
-  final Animation<double> animation;
-  final Widget Function(BuildContext, Widget?) builder;
-
-  const AnimatedBuilder({
-    super.key,
-    required this.animation,
-    required this.builder,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedWidget_(
-      animation: animation,
-      builder: builder,
-    );
-  }
-}
-
-class AnimatedWidget_ extends AnimatedWidget {
-  final Widget Function(BuildContext, Widget?) builder;
-
-  const AnimatedWidget_({
-    super.key,
-    required Animation<double> animation,
-    required this.builder,
-  }) : super(listenable: animation);
-
-  @override
-  Widget build(BuildContext context) {
-    return builder(context, null);
-  }
 }
 
 /// A dots loading indicator.

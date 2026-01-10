@@ -23,6 +23,9 @@ import 'features/events/domain/usecases/create_event_usecase.dart';
 import 'features/events/domain/usecases/filter_events_usecase.dart';
 import 'features/events/domain/usecases/get_event_details_usecase.dart';
 import 'features/events/domain/usecases/get_events_usecase.dart';
+import 'features/events/presentation/cubit/events_list/events_list_cubit.dart';
+import 'features/events/presentation/cubit/event_details/event_details_cubit.dart';
+import 'features/events/presentation/cubit/create_event/create_event_cubit.dart';
 
 // Venues Feature
 import 'features/venues/data/datasources/venues_local_data_source.dart';
@@ -121,6 +124,27 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetEventDetailsUseCase(sl()));
   sl.registerLazySingleton(() => CreateEventUseCase(sl()));
   sl.registerLazySingleton(() => FilterEventsUseCase(sl()));
+
+  // Cubits
+  sl.registerFactory(
+    () => EventsListCubit(
+      getEventsUseCase: sl(),
+      filterEventsUseCase: sl(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => EventDetailsCubit(
+      getEventDetailsUseCase: sl(),
+      eventsRepository: sl(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => CreateEventCubit(
+      createEventUseCase: sl(),
+    ),
+  );
 
   //! ========== VENUES FEATURE ==========
   // Data Sources

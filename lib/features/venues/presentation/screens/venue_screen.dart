@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/widgets/loading/skeleton_widgets.dart';
 import '../../domain/entities/venue_entity.dart';
 import '../cubit/venues_cubit.dart';
 import '../cubit/venues_state.dart';
@@ -89,6 +90,10 @@ class _VenueScreenState extends State<VenueScreen>
         ),
         child: SafeArea(
           child: BlocConsumer<VenuesCubit, VenuesState>(
+            // Only listen for error and success states to show snackbars
+            listenWhen: (previous, current) {
+              return current is VenuesError || current is VenueAdded;
+            },
             listener: (context, state) {
               if (state is VenuesError) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -106,6 +111,16 @@ class _VenueScreenState extends State<VenueScreen>
                   ),
                 );
               }
+            },
+            // Only rebuild when state type changes or venues list changes
+            buildWhen: (previous, current) {
+              if (previous.runtimeType != current.runtimeType) return true;
+              if (previous is VenuesLoaded && current is VenuesLoaded) {
+                return previous.filteredVenues != current.filteredVenues ||
+                    previous.showAddForm != current.showAddForm ||
+                    previous.searchQuery != current.searchQuery;
+              }
+              return true;
             },
             builder: (context, state) {
               return Column(
@@ -295,11 +310,7 @@ class _VenueScreenState extends State<VenueScreen>
 
   Widget _buildContent(VenuesState state) {
     if (state is VenuesLoading) {
-      return const Center(
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF10B981)),
-        ),
-      );
+      return const VenuesScreenSkeleton(itemCount: 5);
     }
 
     if (state is VenuesError) {

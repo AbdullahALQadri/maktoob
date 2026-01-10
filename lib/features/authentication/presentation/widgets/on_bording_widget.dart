@@ -22,6 +22,10 @@ Widget onBordingWidget({
         child: Image.asset(
           backgroundImage,
           fit: BoxFit.cover,
+          // Enable caching for better performance
+          cacheWidth: 1080, // Reasonable cache width for most devices
+          cacheHeight: 1920,
+          filterQuality: FilterQuality.medium,
         ),
       ),
 
@@ -35,6 +39,8 @@ Widget onBordingWidget({
               width: 30,
               height: 60,
               fit: BoxFit.contain,
+              // Use lower filter quality for small images
+              filterQuality: FilterQuality.low,
             ),
             InkWell(
               onTap: LangOnTap,

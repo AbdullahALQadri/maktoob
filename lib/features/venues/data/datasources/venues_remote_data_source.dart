@@ -99,8 +99,8 @@ class VenuesRemoteDataSourceImpl implements VenuesRemoteDataSource {
   @override
   Future<List<VenueModel>> getVenues() async {
     try {
-      // Simulate network delay
-      await Future.delayed(const Duration(milliseconds: 500));
+      // Simulate network delay (reduced for better performance)
+      await Future.delayed(const Duration(milliseconds: 150));
       return _mockVenues;
     } catch (e) {
       throw const ServerException(message: 'Failed to fetch venues');
@@ -110,8 +110,8 @@ class VenuesRemoteDataSourceImpl implements VenuesRemoteDataSource {
   @override
   Future<VenueModel> addVenue(VenueModel venue) async {
     try {
-      // Simulate network delay
-      await Future.delayed(const Duration(milliseconds: 300));
+      // Simulate network delay (reduced for better performance)
+      await Future.delayed(const Duration(milliseconds: 150));
       _mockVenues.add(venue);
       return venue;
     } catch (e) {
@@ -122,8 +122,8 @@ class VenuesRemoteDataSourceImpl implements VenuesRemoteDataSource {
   @override
   Future<List<VenueModel>> searchVenues(String query) async {
     try {
-      // Simulate network delay
-      await Future.delayed(const Duration(milliseconds: 200));
+      // Simulate network delay (reduced for better performance)
+      await Future.delayed(const Duration(milliseconds: 100));
       if (query.isEmpty) {
         return _mockVenues;
       }
@@ -141,8 +141,8 @@ class VenuesRemoteDataSourceImpl implements VenuesRemoteDataSource {
   @override
   Future<VenueModel> getVenueById(String id) async {
     try {
-      // Simulate network delay
-      await Future.delayed(const Duration(milliseconds: 200));
+      // Simulate network delay (reduced for better performance)
+      await Future.delayed(const Duration(milliseconds: 100));
       return _mockVenues.firstWhere(
         (venue) => venue.id == id,
         orElse: () => throw const NotFoundException(message: 'Venue not found'),
@@ -156,8 +156,8 @@ class VenuesRemoteDataSourceImpl implements VenuesRemoteDataSource {
   @override
   Future<VenueModel> updateVenue(VenueModel venue) async {
     try {
-      // Simulate network delay
-      await Future.delayed(const Duration(milliseconds: 300));
+      // Simulate network delay (reduced for better performance)
+      await Future.delayed(const Duration(milliseconds: 100));
       final index = _mockVenues.indexWhere((v) => v.id == venue.id);
       if (index == -1) {
         throw const NotFoundException(message: 'Venue not found');
@@ -173,8 +173,8 @@ class VenuesRemoteDataSourceImpl implements VenuesRemoteDataSource {
   @override
   Future<void> deleteVenue(String id) async {
     try {
-      // Simulate network delay
-      await Future.delayed(const Duration(milliseconds: 300));
+      // Simulate network delay (reduced for better performance)
+      await Future.delayed(const Duration(milliseconds: 100));
       _mockVenues.removeWhere((venue) => venue.id == id);
     } catch (e) {
       throw const ServerException(message: 'Failed to delete venue');

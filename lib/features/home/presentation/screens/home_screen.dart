@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/app_colors.dart';
+import '../../../../core/widgets/loading/skeleton_widgets.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 import '../widgets/recent_event_card_widget.dart';
@@ -43,6 +44,11 @@ class _HomeScreenState extends State<HomeScreen>
     return Scaffold(
       backgroundColor: AppColors.gray100,
       body: BlocBuilder<HomeCubit, HomeState>(
+        // Only rebuild when the state type changes to prevent unnecessary rebuilds
+        buildWhen: (previous, current) {
+          return previous.runtimeType != current.runtimeType ||
+              (previous is HomeLoaded && current is HomeLoaded);
+        },
         builder: (context, state) {
           if (state is HomeInitial || state is HomeLoading) {
             return _buildLoadingState();
@@ -58,24 +64,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildLoadingState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(
-            color: AppColors.purple600,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Loading...',
-            style: TextStyle(
-              color: AppColors.gray500,
-              fontSize: 16,
-            ),
-          ),
-        ],
-      ),
-    );
+    return const HomeScreenSkeleton();
   }
 
   Widget _buildErrorState(String message) {
@@ -321,13 +310,18 @@ class _HomeScreenState extends State<HomeScreen>
             ],
           ),
         ),
-        // Events list
-        ...List.generate(
-          state.recentEvents.length,
-          (index) => RecentEventCardWidget(
-            event: state.recentEvents[index],
-            index: index,
-          ),
+        // Events list - using ListView.builder for better performance
+        // (only builds visible items)
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: state.recentEvents.length,
+          itemBuilder: (context, index) {
+            return RecentEventCardWidget(
+              event: state.recentEvents[index],
+              index: index,
+            );
+          },
         ),
       ],
     );

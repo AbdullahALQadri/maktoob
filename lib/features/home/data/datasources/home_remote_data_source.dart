@@ -14,8 +14,8 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
 
   @override
   Future<List<StatModel>> getStats() async {
-    // Simulate API call delay
-    await Future.delayed(const Duration(milliseconds: 500));
+    // Simulate API call delay (reduced for better performance)
+    await Future.delayed(const Duration(milliseconds: 150));
 
     // TODO: Replace with actual API call
     return [
@@ -52,8 +52,8 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
 
   @override
   Future<List<RecentEventModel>> getRecentEvents() async {
-    // Simulate API call delay
-    await Future.delayed(const Duration(milliseconds: 500));
+    // Simulate API call delay (reduced for better performance)
+    await Future.delayed(const Duration(milliseconds: 150));
 
     // TODO: Replace with actual API call
     return [
