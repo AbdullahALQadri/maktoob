@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'config/routes/app_routes.dart';
 import 'config/themes/app_theme.dart';
 import 'core/utils/app_strings.dart';
+import 'core/widgets/network/offline_wrapper.dart';
 import 'features/events/presentation/cubit/events_list/events_list_cubit.dart';
 import 'features/events/presentation/cubit/event_details/event_details_cubit.dart';
 import 'features/events/presentation/cubit/create_event/create_event_cubit.dart';
@@ -60,7 +61,17 @@ class Maktoob extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        builder: kDebugMode ? DevicePreview.appBuilder : null,
+        builder: (context, child) {
+          // Apply DevicePreview in debug mode
+          Widget result = child ?? const SizedBox.shrink();
+
+          if (kDebugMode) {
+            result = DevicePreview.appBuilder(context, result);
+          }
+
+          // Wrap with OfflineWrapper to show offline banner
+          return OfflineWrapper(child: result);
+        },
         title: AppStrings.appName,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,

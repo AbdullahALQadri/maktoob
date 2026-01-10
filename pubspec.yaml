@@ -51,6 +51,7 @@ dependencies:
   # Networking
   dio: ^5.8.0+1
   internet_connection_checker: ^3.0.1
+  flutter_offline: ^4.0.0
 
   # Local Storage
   shared_preferences: ^2.5.3
