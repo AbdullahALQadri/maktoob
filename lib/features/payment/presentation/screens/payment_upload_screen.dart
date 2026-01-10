@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/responsive.dart';
-import '../../../../core/utils/responsive_extensions.dart';
+import '../../../../core/utils/media_query_values.dart';
 import '../../../../core/widgets/loading/skeleton_widgets.dart';
 import '../cubit/payment_cubit.dart';
 import '../cubit/payment_state.dart';
@@ -93,28 +92,28 @@ class _PaymentUploadScreenState extends State<PaymentUploadScreen>
                 _buildGradientHeader(),
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(24),
+                    padding: EdgeInsets.all(context.dynamicWidth(0.06)),
                     child: BlocBuilder<PaymentCubit, PaymentState>(
                       builder: (context, state) {
                         return Column(
                           children: [
                             _buildInfoCard(),
-                            const SizedBox(height: 24),
+                            SizedBox(height: context.dynamicHeight(0.03)),
                             _buildUploadArea(state),
-                            const SizedBox(height: 24),
+                            SizedBox(height: context.dynamicHeight(0.03)),
                             // Show skeleton when bank details are loading
                             state.bankDetails == null
                                 ? const BankDetailsCardSkeleton()
                                 : BankDetailsCardWidget(
                                     bankDetails: state.bankDetails,
                                   ),
-                            const SizedBox(height: 24),
+                            SizedBox(height: context.dynamicHeight(0.03)),
                             if (state.selectedFile != null) ...[
                               _buildSubmitButton(state),
-                              const SizedBox(height: 16),
+                              SizedBox(height: context.dynamicHeight(0.02)),
                             ],
                             _buildSkipLink(),
-                            const SizedBox(height: 32),
+                            SizedBox(height: context.dynamicHeight(0.04)),
                           ],
                         );
                       },
@@ -130,14 +129,13 @@ class _PaymentUploadScreenState extends State<PaymentUploadScreen>
   }
 
   Widget _buildGradientHeader() {
-    final responsive = context.responsive;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + responsive.scale(24),
-        left: responsive.horizontalPadding,
-        right: responsive.horizontalPadding,
-        bottom: responsive.scale(32),
+        top: context.topPadding + context.dynamicHeight(0.03),
+        left: context.dynamicWidth(0.04),
+        right: context.dynamicWidth(0.04),
+        bottom: context.dynamicHeight(0.04),
       ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -149,8 +147,8 @@ class _PaymentUploadScreenState extends State<PaymentUploadScreen>
           ],
         ),
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(responsive.borderRadius * 2.5),
-          bottomRight: Radius.circular(responsive.borderRadius * 2.5),
+          bottomLeft: Radius.circular(context.dynamicWidth(0.1)),
+          bottomRight: Radius.circular(context.dynamicWidth(0.1)),
         ),
         boxShadow: [
           BoxShadow(
@@ -166,18 +164,18 @@ class _PaymentUploadScreenState extends State<PaymentUploadScreen>
           Row(
             children: [
               Container(
-                padding: EdgeInsets.all(responsive.scale(12)),
+                padding: EdgeInsets.all(context.dynamicWidth(0.03)),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(responsive.borderRadius),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
                 ),
                 child: Icon(
                   Icons.receipt_long,
                   color: Colors.white,
-                  size: responsive.iconSize(base: 28),
+                  size: context.dynamicWidth(0.07),
                 ),
               ),
-              SizedBox(width: responsive.spacing(base: 16)),
+              SizedBox(width: context.dynamicWidth(0.04)),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,20 +183,16 @@ class _PaymentUploadScreenState extends State<PaymentUploadScreen>
                     Text(
                       'Upload Invoice',
                       style: TextStyle(
-                        fontSize: responsive.sp(responsive.value(
-                          mobile: 28.0,
-                          tablet: 32.0,
-                          desktop: 36.0,
-                        )),
+                        fontSize: context.dynamicWidth(0.07),
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
                     ),
-                    SizedBox(height: responsive.spacing(base: 4)),
+                    SizedBox(height: context.dynamicHeight(0.005)),
                     Text(
                       'Submit your payment receipt',
                       style: TextStyle(
-                        fontSize: responsive.sp(14),
+                        fontSize: context.dynamicWidth(0.035),
                         color: Colors.white70,
                       ),
                     ),
@@ -214,10 +208,10 @@ class _PaymentUploadScreenState extends State<PaymentUploadScreen>
 
   Widget _buildInfoCard() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(context.dynamicWidth(0.05)),
       decoration: BoxDecoration(
         color: AppColors.blue50,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.05)),
         border: Border.all(
           color: AppColors.blue500.withOpacity(0.2),
         ),
@@ -226,18 +220,18 @@ class _PaymentUploadScreenState extends State<PaymentUploadScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(context.dynamicWidth(0.025)),
             decoration: BoxDecoration(
               color: AppColors.blue500.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
             ),
             child: Icon(
               Icons.info_outline,
               color: AppColors.blue600,
-              size: 24,
+              size: context.dynamicWidth(0.06),
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: context.dynamicWidth(0.04)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,16 +239,16 @@ class _PaymentUploadScreenState extends State<PaymentUploadScreen>
                 Text(
                   'Payment Instructions',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: context.dynamicWidth(0.04),
                     fontWeight: FontWeight.bold,
                     color: AppColors.gray900,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: context.dynamicHeight(0.01)),
                 Text(
                   'Please transfer the payment amount to the bank account below and upload your transfer receipt or invoice as proof of payment.',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: context.dynamicWidth(0.035),
                     color: AppColors.gray600,
                     height: 1.5,
                   ),
@@ -289,15 +283,15 @@ class _PaymentUploadScreenState extends State<PaymentUploadScreen>
 
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         onTap: canSubmit ? () => _handleSubmit(state) : null,
         child: Container(
           width: double.infinity,
-          height: 56,
+          height: context.dynamicHeight(0.07),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
             gradient: canSubmit
                 ? LinearGradient(
                     colors: uploadSuccess
@@ -322,10 +316,10 @@ class _PaymentUploadScreenState extends State<PaymentUploadScreen>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (isUploading)
-                const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
+                SizedBox(
+                  width: context.dynamicWidth(0.05),
+                  height: context.dynamicWidth(0.05),
+                  child: const CircularProgressIndicator(
                     strokeWidth: 2,
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
@@ -334,13 +328,13 @@ class _PaymentUploadScreenState extends State<PaymentUploadScreen>
                 Icon(
                   uploadSuccess ? Icons.check : Icons.upload,
                   color: Colors.white,
-                  size: 20,
+                  size: context.dynamicWidth(0.05),
                 ),
-              const SizedBox(width: 12),
+              SizedBox(width: context.dynamicWidth(0.03)),
               Text(
                 uploadSuccess ? 'Continue' : 'Submit Payment',
-                style: const TextStyle(
-                  fontSize: 16,
+                style: TextStyle(
+                  fontSize: context.dynamicWidth(0.04),
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
@@ -358,7 +352,7 @@ class _PaymentUploadScreenState extends State<PaymentUploadScreen>
       child: Text(
         'Skip for now',
         style: TextStyle(
-          fontSize: 14,
+          fontSize: context.dynamicWidth(0.035),
           fontWeight: FontWeight.w500,
           color: AppColors.gray500,
           decoration: TextDecoration.underline,

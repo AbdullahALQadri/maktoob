@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/responsive.dart';
-import '../../../../core/utils/responsive_extensions.dart';
+import '../../../../core/utils/media_query_values.dart';
 import '../../../../core/widgets/loading/skeleton_widgets.dart';
 import '../../data/models/event_model.dart';
 import '../../data/models/guest_model.dart';
@@ -305,14 +304,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
   }
 
   Widget _buildQuickStats(EventDetailsState state) {
-    final responsive = context.responsive;
     final event = state.event!;
     return Container(
-      margin: EdgeInsets.all(responsive.horizontalPadding),
-      padding: EdgeInsets.all(responsive.scale(20)),
+      margin: EdgeInsets.all(context.dynamicWidth(0.04)),
+      padding: EdgeInsets.all(context.dynamicWidth(0.05)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(responsive.borderRadius * 2),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.06)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -331,7 +329,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
               Icons.mail_outline,
             ),
           ),
-          Container(width: 1, height: responsive.scale(50), color: AppColors.gray200),
+          Container(width: 1, height: context.dynamicWidth(0.12), color: AppColors.gray200),
           Expanded(
             child: _buildStatItem(
               'Attending',
@@ -340,7 +338,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
               Icons.check_circle_outline,
             ),
           ),
-          Container(width: 1, height: responsive.scale(50), color: AppColors.gray200),
+          Container(width: 1, height: context.dynamicWidth(0.12), color: AppColors.gray200),
           Expanded(
             child: _buildStatItem(
               'Declined',
@@ -355,43 +353,41 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
   }
 
   Widget _buildStatItem(String label, String value, Color color, IconData icon) {
-    final responsive = context.responsive;
     return Column(
       children: [
         Container(
-          width: responsive.scale(40),
-          height: responsive.scale(40),
+          width: context.dynamicWidth(0.1),
+          height: context.dynamicWidth(0.1),
           decoration: BoxDecoration(
             color: color.withOpacity(0.1),
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: color, size: responsive.iconSize(base: 20)),
+          child: Icon(icon, color: color, size: context.dynamicWidth(0.05)),
         ),
-        SizedBox(height: responsive.spacing(base: 8)),
+        SizedBox(height: context.dynamicHeight(0.01)),
         Text(
           value,
           style: TextStyle(
-            fontSize: responsive.sp(24),
+            fontSize: context.dynamicWidth(0.06),
             fontWeight: FontWeight.bold,
             color: AppColors.gray900,
           ),
         ),
-        SizedBox(height: responsive.spacing(base: 2)),
+        SizedBox(height: context.dynamicHeight(0.003)),
         Text(
           label,
-          style: TextStyle(fontSize: responsive.sp(12), color: AppColors.gray500),
+          style: TextStyle(fontSize: context.dynamicWidth(0.03), color: AppColors.gray500),
         ),
       ],
     );
   }
 
   Widget _buildTabBar() {
-    final responsive = context.responsive;
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: responsive.horizontalPadding),
+      margin: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(responsive.borderRadius),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -406,14 +402,14 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           gradient: LinearGradient(
             colors: [AppColors.purple600, AppColors.pink600],
           ),
-          borderRadius: BorderRadius.circular(responsive.borderRadius),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         ),
         indicatorSize: TabBarIndicatorSize.tab,
-        indicatorPadding: EdgeInsets.all(responsive.scale(4)),
+        indicatorPadding: EdgeInsets.all(context.dynamicWidth(0.01)),
         labelColor: Colors.white,
         unselectedLabelColor: AppColors.gray600,
-        labelStyle: TextStyle(fontWeight: FontWeight.w600, fontSize: responsive.sp(14)),
-        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: responsive.sp(14)),
+        labelStyle: TextStyle(fontWeight: FontWeight.w600, fontSize: context.dynamicWidth(0.035)),
+        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: context.dynamicWidth(0.035)),
         dividerColor: Colors.transparent,
         tabs: const [
           Tab(text: 'Overview'),

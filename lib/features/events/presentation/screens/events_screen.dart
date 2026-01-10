@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/responsive.dart';
-import '../../../../core/utils/responsive_extensions.dart';
+import '../../../../core/utils/media_query_values.dart';
 import '../../../../core/widgets/loading/skeleton_widgets.dart';
 import '../../data/models/event_model.dart';
 import '../../domain/entities/event_entity.dart';
@@ -43,7 +42,6 @@ class _EventsScreenState extends State<EventsScreen> {
     return Scaffold(
       backgroundColor: AppColors.gray100,
       body: BlocBuilder<EventsListCubit, EventsListState>(
-        // Only rebuild when relevant state properties change
         buildWhen: (previous, current) {
           return previous.status != current.status ||
               previous.filteredEvents != current.filteredEvents ||
@@ -66,8 +64,6 @@ class _EventsScreenState extends State<EventsScreen> {
   }
 
   Widget _buildHeader(EventsListState state) {
-    final responsive = context.responsive;
-
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -76,8 +72,8 @@ class _EventsScreenState extends State<EventsScreen> {
           colors: [AppColors.blue600, AppColors.purple600],
         ),
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(responsive.borderRadius * 2),
-          bottomRight: Radius.circular(responsive.borderRadius * 2),
+          bottomLeft: Radius.circular(context.dynamicWidth(0.08)),
+          bottomRight: Radius.circular(context.dynamicWidth(0.08)),
         ),
         boxShadow: [
           BoxShadow(
@@ -91,10 +87,10 @@ class _EventsScreenState extends State<EventsScreen> {
         bottom: false,
         child: Padding(
           padding: EdgeInsets.fromLTRB(
-            responsive.horizontalPadding,
-            responsive.spacing(base: 16),
-            responsive.horizontalPadding,
-            responsive.horizontalPadding,
+            context.dynamicWidth(0.04),
+            context.dynamicHeight(0.02),
+            context.dynamicWidth(0.04),
+            context.dynamicWidth(0.04),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,19 +101,15 @@ class _EventsScreenState extends State<EventsScreen> {
                   Text(
                     'My Events',
                     style: TextStyle(
-                      fontSize: responsive.sp(responsive.value(
-                        mobile: 28.0,
-                        tablet: 32.0,
-                        desktop: 36.0,
-                      )),
+                      fontSize: context.dynamicWidth(0.07),
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
                   Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: responsive.scale(12),
-                      vertical: responsive.scale(6),
+                      horizontal: context.dynamicWidth(0.03),
+                      vertical: context.dynamicHeight(0.008),
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.2),
@@ -128,13 +120,13 @@ class _EventsScreenState extends State<EventsScreen> {
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
-                        fontSize: responsive.sp(14),
+                        fontSize: context.dynamicWidth(0.035),
                       ),
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: responsive.spacing(base: 20)),
+              SizedBox(height: context.dynamicHeight(0.025)),
               _buildSearchBar(state),
             ],
           ),
@@ -144,8 +136,6 @@ class _EventsScreenState extends State<EventsScreen> {
   }
 
   Widget _buildSearchBar(EventsListState state) {
-    final responsive = context.responsive;
-
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
       duration: const Duration(milliseconds: 500),
@@ -162,7 +152,7 @@ class _EventsScreenState extends State<EventsScreen> {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(responsive.borderRadius),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
@@ -176,24 +166,24 @@ class _EventsScreenState extends State<EventsScreen> {
           onChanged: (value) {
             context.read<EventsListCubit>().searchEvents(value);
           },
-          style: TextStyle(fontSize: responsive.sp(16)),
+          style: TextStyle(fontSize: context.dynamicWidth(0.04)),
           decoration: InputDecoration(
             hintText: 'Search events...',
             hintStyle: TextStyle(
               color: AppColors.gray400,
-              fontSize: responsive.sp(16),
+              fontSize: context.dynamicWidth(0.04),
             ),
             prefixIcon: Icon(
               Icons.search,
               color: AppColors.gray400,
-              size: responsive.iconSize(base: 24),
+              size: context.dynamicWidth(0.06),
             ),
             suffixIcon: state.searchQuery.isNotEmpty
                 ? IconButton(
                     icon: Icon(
                       Icons.clear,
                       color: AppColors.gray400,
-                      size: responsive.iconSize(base: 20),
+                      size: context.dynamicWidth(0.05),
                     ),
                     onPressed: () {
                       _searchController.clear();
@@ -203,8 +193,8 @@ class _EventsScreenState extends State<EventsScreen> {
                 : null,
             border: InputBorder.none,
             contentPadding: EdgeInsets.symmetric(
-              horizontal: responsive.scale(20),
-              vertical: responsive.scale(16),
+              horizontal: context.dynamicWidth(0.05),
+              vertical: context.dynamicHeight(0.02),
             ),
           ),
         ),
@@ -213,7 +203,6 @@ class _EventsScreenState extends State<EventsScreen> {
   }
 
   Widget _buildFilterTabs(EventsListState state) {
-    final responsive = context.responsive;
     final filters = [
       {'status': null, 'label': 'All'},
       {'status': EventStatus.active, 'label': 'Active'},
@@ -222,19 +211,18 @@ class _EventsScreenState extends State<EventsScreen> {
     ];
 
     return Container(
-      padding: EdgeInsets.symmetric(vertical: responsive.spacing(base: 16)),
+      padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.02)),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: responsive.horizontalPadding),
+        padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.04)),
         child: Row(
           children: filters.map((filter) {
             final isSelected = state.filterStatus == filter['status'];
             return Padding(
-              padding: EdgeInsets.only(right: responsive.spacing(base: 12)),
+              padding: EdgeInsets.only(right: context.dynamicWidth(0.03)),
               child: _FilterTab(
                 label: filter['label'] as String,
                 isSelected: isSelected,
-                responsive: responsive,
                 onTap: () {
                   context
                       .read<EventsListCubit>()
@@ -249,8 +237,6 @@ class _EventsScreenState extends State<EventsScreen> {
   }
 
   Widget _buildEventsList(EventsListState state) {
-    final responsive = context.responsive;
-
     if (state.isLoading) {
       return const EventsScreenSkeleton(itemCount: 3);
     }
@@ -262,38 +248,38 @@ class _EventsScreenState extends State<EventsScreen> {
           children: [
             Icon(
               Icons.error_outline,
-              size: responsive.iconSize(base: 64),
+              size: context.dynamicWidth(0.16),
               color: AppColors.red500,
             ),
-            SizedBox(height: responsive.spacing(base: 16)),
+            SizedBox(height: context.dynamicHeight(0.02)),
             Text(
               'Error loading events',
               style: TextStyle(
-                fontSize: responsive.sp(18),
+                fontSize: context.dynamicWidth(0.045),
                 fontWeight: FontWeight.w600,
                 color: AppColors.gray700,
               ),
             ),
-            SizedBox(height: responsive.spacing(base: 8)),
+            SizedBox(height: context.dynamicHeight(0.01)),
             Text(
               state.errorMessage ?? 'Please try again',
               style: TextStyle(
-                fontSize: responsive.sp(14),
+                fontSize: context.dynamicWidth(0.035),
                 color: AppColors.gray500,
               ),
             ),
-            SizedBox(height: responsive.spacing(base: 16)),
+            SizedBox(height: context.dynamicHeight(0.02)),
             ElevatedButton(
               onPressed: () {
                 context.read<EventsListCubit>().loadEvents();
               },
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(
-                  horizontal: responsive.scale(24),
-                  vertical: responsive.scale(12),
+                  horizontal: context.dynamicWidth(0.06),
+                  vertical: context.dynamicHeight(0.015),
                 ),
               ),
-              child: Text('Retry', style: TextStyle(fontSize: responsive.sp(14))),
+              child: Text('Retry', style: TextStyle(fontSize: context.dynamicWidth(0.035))),
             ),
           ],
         ),
@@ -309,23 +295,23 @@ class _EventsScreenState extends State<EventsScreen> {
           children: [
             Icon(
               Icons.event_busy,
-              size: responsive.iconSize(base: 64),
+              size: context.dynamicWidth(0.16),
               color: AppColors.gray400,
             ),
-            SizedBox(height: responsive.spacing(base: 16)),
+            SizedBox(height: context.dynamicHeight(0.02)),
             Text(
               'No events found',
               style: TextStyle(
-                fontSize: responsive.sp(18),
+                fontSize: context.dynamicWidth(0.045),
                 fontWeight: FontWeight.w600,
                 color: AppColors.gray500,
               ),
             ),
-            SizedBox(height: responsive.spacing(base: 8)),
+            SizedBox(height: context.dynamicHeight(0.01)),
             Text(
               'Try adjusting your search or filters',
               style: TextStyle(
-                fontSize: responsive.sp(14),
+                fontSize: context.dynamicWidth(0.035),
                 color: AppColors.gray400,
               ),
             ),
@@ -334,66 +320,14 @@ class _EventsScreenState extends State<EventsScreen> {
       );
     }
 
-    // Use grid layout for tablet and desktop
-    if (responsive.isTablet || responsive.isDesktop) {
-      return RefreshIndicator(
-        onRefresh: () => context.read<EventsListCubit>().refreshEvents(),
-        child: GridView.builder(
-          padding: EdgeInsets.fromLTRB(
-            responsive.horizontalPadding,
-            0,
-            responsive.horizontalPadding,
-            responsive.horizontalPadding,
-          ),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: responsive.isDesktop ? 3 : 2,
-            crossAxisSpacing: responsive.spacing(base: 16),
-            mainAxisSpacing: responsive.spacing(base: 16),
-            childAspectRatio: responsive.value(
-              mobile: 0.75,
-              tablet: 0.72,
-              desktop: 0.7,
-            ),
-          ),
-          itemCount: events.length,
-          itemBuilder: (context, index) {
-            return TweenAnimationBuilder<double>(
-              tween: Tween(begin: 0.0, end: 1.0),
-              duration: Duration(milliseconds: 300 + (index * 50)),
-              curve: Curves.easeOut,
-              builder: (context, value, child) {
-                return Transform.translate(
-                  offset: Offset(0, 30 * (1 - value)),
-                  child: Opacity(
-                    opacity: value,
-                    child: child,
-                  ),
-                );
-              },
-              child: _EventCard(
-                event: events[index],
-                responsive: responsive,
-                onUploadPayment: () {
-                  widget.onUploadPayment?.call(events[index].id);
-                },
-                onViewEvent: () {
-                  widget.onViewEvent?.call(events[index].id);
-                },
-              ),
-            );
-          },
-        ),
-      );
-    }
-
     return RefreshIndicator(
       onRefresh: () => context.read<EventsListCubit>().refreshEvents(),
       child: ListView.builder(
         padding: EdgeInsets.fromLTRB(
-          responsive.horizontalPadding,
+          context.dynamicWidth(0.04),
           0,
-          responsive.horizontalPadding,
-          responsive.horizontalPadding,
+          context.dynamicWidth(0.04),
+          context.dynamicWidth(0.04),
         ),
         itemCount: events.length,
         itemBuilder: (context, index) {
@@ -411,10 +345,9 @@ class _EventsScreenState extends State<EventsScreen> {
               );
             },
             child: Padding(
-              padding: EdgeInsets.only(bottom: responsive.spacing(base: 16)),
+              padding: EdgeInsets.only(bottom: context.dynamicHeight(0.02)),
               child: _EventCard(
                 event: events[index],
-                responsive: responsive,
                 onUploadPayment: () {
                   widget.onUploadPayment?.call(events[index].id);
                 },
@@ -434,13 +367,11 @@ class _FilterTab extends StatelessWidget {
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
-  final Responsive responsive;
 
   const _FilterTab({
     required this.label,
     required this.isSelected,
     required this.onTap,
-    required this.responsive,
   });
 
   @override
@@ -450,8 +381,8 @@ class _FilterTab extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: EdgeInsets.symmetric(
-          horizontal: responsive.scale(20),
-          vertical: responsive.scale(10),
+          horizontal: context.dynamicWidth(0.05),
+          vertical: context.dynamicHeight(0.012),
         ),
         decoration: BoxDecoration(
           gradient: isSelected
@@ -474,7 +405,7 @@ class _FilterTab extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            fontSize: responsive.sp(14),
+            fontSize: context.dynamicWidth(0.035),
             fontWeight: FontWeight.w600,
             color: isSelected ? Colors.white : AppColors.gray600,
           ),
@@ -488,13 +419,11 @@ class _EventCard extends StatefulWidget {
   final EventEntity event;
   final VoidCallback onUploadPayment;
   final VoidCallback onViewEvent;
-  final Responsive responsive;
 
   const _EventCard({
     required this.event,
     required this.onUploadPayment,
     required this.onViewEvent,
-    required this.responsive,
   });
 
   @override
@@ -503,8 +432,6 @@ class _EventCard extends StatefulWidget {
 
 class _EventCardState extends State<_EventCard> {
   bool _isHovered = false;
-
-  Responsive get _responsive => widget.responsive;
 
   List<Color> get _gradient {
     if (widget.event is EventModel) {
@@ -532,7 +459,7 @@ class _EventCardState extends State<_EventCard> {
           transform: Matrix4.identity()..scale(_isHovered ? 1.02 : 1.0),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(_responsive.borderRadius * 1.5),
+            borderRadius: BorderRadius.circular(context.dynamicWidth(0.06)),
             boxShadow: [
               BoxShadow(
                 color: _isHovered
@@ -546,9 +473,9 @@ class _EventCardState extends State<_EventCard> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildCardHeader(),
-              _buildCardBody(),
-              _buildCardFooter(),
+              _buildCardHeader(context),
+              _buildCardBody(context),
+              _buildCardFooter(context),
             ],
           ),
         ),
@@ -556,9 +483,9 @@ class _EventCardState extends State<_EventCard> {
     );
   }
 
-  Widget _buildCardHeader() {
+  Widget _buildCardHeader(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(_responsive.scale(16)),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -566,26 +493,26 @@ class _EventCardState extends State<_EventCard> {
           colors: _gradient,
         ),
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(_responsive.borderRadius * 1.5),
-          topRight: Radius.circular(_responsive.borderRadius * 1.5),
+          topLeft: Radius.circular(context.dynamicWidth(0.06)),
+          topRight: Radius.circular(context.dynamicWidth(0.06)),
         ),
       ),
       child: Row(
         children: [
           Container(
-            width: _responsive.scale(48),
-            height: _responsive.scale(48),
+            width: context.dynamicWidth(0.12),
+            height: context.dynamicWidth(0.12),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(_responsive.borderRadius),
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
             ),
             child: Icon(
               _icon,
               color: Colors.white,
-              size: _responsive.iconSize(base: 24),
+              size: context.dynamicWidth(0.06),
             ),
           ),
-          SizedBox(width: _responsive.spacing(base: 12)),
+          SizedBox(width: context.dynamicWidth(0.03)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -593,18 +520,18 @@ class _EventCardState extends State<_EventCard> {
                 Text(
                   widget.event.name,
                   style: TextStyle(
-                    fontSize: _responsive.sp(18),
+                    fontSize: context.dynamicWidth(0.045),
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: _responsive.spacing(base: 4)),
+                SizedBox(height: context.dynamicHeight(0.005)),
                 Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: _responsive.scale(10),
-                    vertical: _responsive.scale(4),
+                    horizontal: context.dynamicWidth(0.025),
+                    vertical: context.dynamicHeight(0.005),
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.2),
@@ -613,7 +540,7 @@ class _EventCardState extends State<_EventCard> {
                   child: Text(
                     widget.event.type,
                     style: TextStyle(
-                      fontSize: _responsive.sp(12),
+                      fontSize: context.dynamicWidth(0.03),
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
                     ),
@@ -622,13 +549,13 @@ class _EventCardState extends State<_EventCard> {
               ],
             ),
           ),
-          _buildStatusBadge(),
+          _buildStatusBadge(context),
         ],
       ),
     );
   }
 
-  Widget _buildStatusBadge() {
+  Widget _buildStatusBadge(BuildContext context) {
     Color bgColor;
     Color textColor;
     String label;
@@ -653,8 +580,8 @@ class _EventCardState extends State<_EventCard> {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: _responsive.scale(12),
-        vertical: _responsive.scale(6),
+        horizontal: context.dynamicWidth(0.03),
+        vertical: context.dynamicHeight(0.008),
       ),
       decoration: BoxDecoration(
         color: bgColor,
@@ -663,7 +590,7 @@ class _EventCardState extends State<_EventCard> {
       child: Text(
         label,
         style: TextStyle(
-          fontSize: _responsive.sp(12),
+          fontSize: context.dynamicWidth(0.03),
           fontWeight: FontWeight.w600,
           color: textColor,
         ),
@@ -671,49 +598,40 @@ class _EventCardState extends State<_EventCard> {
     );
   }
 
-  Widget _buildCardBody() {
+  Widget _buildCardBody(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(_responsive.scale(16)),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildInfoRow(
-            Icons.calendar_today,
-            '${widget.event.date} at ${widget.event.time}',
-          ),
-          SizedBox(height: _responsive.spacing(base: 8)),
-          _buildInfoRow(
-            Icons.location_on,
-            widget.event.venue,
-          ),
-          SizedBox(height: _responsive.spacing(base: 8)),
-          _buildInfoRow(
-            Icons.mail_outline,
-            '${widget.event.invitations} invitations sent',
-          ),
-          SizedBox(height: _responsive.spacing(base: 16)),
-          _buildProgressSection(),
-          SizedBox(height: _responsive.spacing(base: 16)),
-          _buildStatsRow(),
+          _buildInfoRow(context, Icons.calendar_today, '${widget.event.date} at ${widget.event.time}'),
+          SizedBox(height: context.dynamicHeight(0.01)),
+          _buildInfoRow(context, Icons.location_on, widget.event.venue),
+          SizedBox(height: context.dynamicHeight(0.01)),
+          _buildInfoRow(context, Icons.mail_outline, '${widget.event.invitations} invitations sent'),
+          SizedBox(height: context.dynamicHeight(0.02)),
+          _buildProgressSection(context),
+          SizedBox(height: context.dynamicHeight(0.02)),
+          _buildStatsRow(context),
         ],
       ),
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String text) {
+  Widget _buildInfoRow(BuildContext context, IconData icon, String text) {
     return Row(
       children: [
         Icon(
           icon,
-          size: _responsive.iconSize(base: 18),
+          size: context.dynamicWidth(0.045),
           color: AppColors.gray400,
         ),
-        SizedBox(width: _responsive.spacing(base: 10)),
+        SizedBox(width: context.dynamicWidth(0.025)),
         Expanded(
           child: Text(
             text,
             style: TextStyle(
-              fontSize: _responsive.sp(14),
+              fontSize: context.dynamicWidth(0.035),
               color: AppColors.gray600,
             ),
             maxLines: 1,
@@ -724,7 +642,7 @@ class _EventCardState extends State<_EventCard> {
     );
   }
 
-  Widget _buildProgressSection() {
+  Widget _buildProgressSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -734,7 +652,7 @@ class _EventCardState extends State<_EventCard> {
             Text(
               'Response Rate',
               style: TextStyle(
-                fontSize: _responsive.sp(13),
+                fontSize: context.dynamicWidth(0.032),
                 fontWeight: FontWeight.w600,
                 color: AppColors.gray700,
               ),
@@ -742,21 +660,21 @@ class _EventCardState extends State<_EventCard> {
             Text(
               '${widget.event.responseRate.toStringAsFixed(0)}%',
               style: TextStyle(
-                fontSize: _responsive.sp(13),
+                fontSize: context.dynamicWidth(0.032),
                 fontWeight: FontWeight.bold,
                 color: AppColors.purple600,
               ),
             ),
           ],
         ),
-        SizedBox(height: _responsive.spacing(base: 8)),
+        SizedBox(height: context.dynamicHeight(0.01)),
         TweenAnimationBuilder<double>(
           tween: Tween(begin: 0, end: widget.event.responseRate / 100),
           duration: const Duration(milliseconds: 800),
           curve: Curves.easeOutCubic,
           builder: (context, value, child) {
             return Container(
-              height: _responsive.scale(8),
+              height: context.dynamicHeight(0.01),
               decoration: BoxDecoration(
                 color: AppColors.gray200,
                 borderRadius: BorderRadius.circular(4),
@@ -780,52 +698,44 @@ class _EventCardState extends State<_EventCard> {
     );
   }
 
-  Widget _buildStatsRow() {
+  Widget _buildStatsRow(BuildContext context) {
     return Row(
       children: [
         Expanded(
-          child: _buildStatItem(
-            'Attending',
-            widget.event.attending,
-            AppColors.green600,
-          ),
+          child: _buildStatItem(context, 'Attending', widget.event.attending, AppColors.green600),
         ),
         Container(
           width: 1,
-          height: _responsive.scale(40),
+          height: context.dynamicHeight(0.05),
           color: AppColors.gray200,
         ),
         Expanded(
-          child: _buildStatItem(
-            'Other',
-            widget.event.other,
-            AppColors.amber500,
-          ),
+          child: _buildStatItem(context, 'Other', widget.event.other, AppColors.amber500),
         ),
       ],
     );
   }
 
-  Widget _buildStatItem(String label, int value, Color dotColor) {
+  Widget _buildStatItem(BuildContext context, String label, int value, Color dotColor) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          width: _responsive.scale(10),
-          height: _responsive.scale(10),
+          width: context.dynamicWidth(0.025),
+          height: context.dynamicWidth(0.025),
           decoration: BoxDecoration(
             color: dotColor,
             shape: BoxShape.circle,
           ),
         ),
-        SizedBox(width: _responsive.spacing(base: 8)),
+        SizedBox(width: context.dynamicWidth(0.02)),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               value.toString(),
               style: TextStyle(
-                fontSize: _responsive.sp(18),
+                fontSize: context.dynamicWidth(0.045),
                 fontWeight: FontWeight.bold,
                 color: AppColors.gray900,
               ),
@@ -833,7 +743,7 @@ class _EventCardState extends State<_EventCard> {
             Text(
               label,
               style: TextStyle(
-                fontSize: _responsive.sp(12),
+                fontSize: context.dynamicWidth(0.03),
                 color: AppColors.gray500,
               ),
             ),
@@ -843,32 +753,32 @@ class _EventCardState extends State<_EventCard> {
     );
   }
 
-  Widget _buildCardFooter() {
+  Widget _buildCardFooter(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(_responsive.scale(16)),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
         color: AppColors.gray100,
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(_responsive.borderRadius * 1.5),
-          bottomRight: Radius.circular(_responsive.borderRadius * 1.5),
+          bottomLeft: Radius.circular(context.dynamicWidth(0.06)),
+          bottomRight: Radius.circular(context.dynamicWidth(0.06)),
         ),
       ),
       child: widget.event.isInactive
-          ? _buildUploadButton()
-          : _buildViewButton(),
+          ? _buildUploadButton(context)
+          : _buildViewButton(context),
     );
   }
 
-  Widget _buildUploadButton() {
+  Widget _buildUploadButton(BuildContext context) {
     return GestureDetector(
       onTap: widget.onUploadPayment,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: _responsive.scale(14)),
+        padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.018)),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(_responsive.borderRadius),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
           border: Border.all(
             color: AppColors.purple600,
             width: 2,
@@ -887,13 +797,13 @@ class _EventCardState extends State<_EventCard> {
             Icon(
               Icons.upload_file,
               color: AppColors.purple600,
-              size: _responsive.iconSize(base: 20),
+              size: context.dynamicWidth(0.05),
             ),
-            SizedBox(width: _responsive.spacing(base: 8)),
+            SizedBox(width: context.dynamicWidth(0.02)),
             Text(
               'Upload Invoice',
               style: TextStyle(
-                fontSize: _responsive.sp(14),
+                fontSize: context.dynamicWidth(0.035),
                 fontWeight: FontWeight.bold,
                 color: AppColors.purple600,
               ),
@@ -904,18 +814,18 @@ class _EventCardState extends State<_EventCard> {
     );
   }
 
-  Widget _buildViewButton() {
+  Widget _buildViewButton(BuildContext context) {
     return GestureDetector(
       onTap: widget.onViewEvent,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: _responsive.scale(14)),
+        padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.018)),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [AppColors.purple600, AppColors.pink600],
           ),
-          borderRadius: BorderRadius.circular(_responsive.borderRadius),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
           boxShadow: [
             BoxShadow(
               color: AppColors.purple600.withOpacity(0.3),
@@ -930,13 +840,13 @@ class _EventCardState extends State<_EventCard> {
             Icon(
               Icons.visibility,
               color: Colors.white,
-              size: _responsive.iconSize(base: 20),
+              size: context.dynamicWidth(0.05),
             ),
-            SizedBox(width: _responsive.spacing(base: 8)),
+            SizedBox(width: context.dynamicWidth(0.02)),
             Text(
               'View Event',
               style: TextStyle(
-                fontSize: _responsive.sp(14),
+                fontSize: context.dynamicWidth(0.035),
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),

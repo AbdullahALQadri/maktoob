@@ -3,8 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/responsive.dart';
-import '../../../../core/utils/responsive_extensions.dart';
+import '../../../../core/utils/media_query_values.dart';
 import '../../data/models/event_models.dart' hide EventDetails, CustomVenue, GuestInfo;
 import '../cubit/create_event/create_event_cubit.dart';
 import '../cubit/create_event/create_event_state.dart';
@@ -94,7 +93,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final responsive = context.responsive;
     return BlocConsumer<CreateEventCubit, CreateEventState>(
       listener: (context, state) {
         if (state.isSuccess && state.createdEventId != null) {
@@ -120,7 +118,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
               ),
               Expanded(
                 child: SingleChildScrollView(
-                  padding: EdgeInsets.all(responsive.horizontalPadding),
+                  padding: EdgeInsets.all(context.dynamicWidth(0.04)),
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     child: _buildStepContent(state),
@@ -131,16 +129,16 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           ),
           bottomNavigationBar: SafeArea(
             child: Container(
-              padding: EdgeInsets.all(responsive.scale(16)),
+              padding: EdgeInsets.all(context.dynamicWidth(0.04)),
               margin: EdgeInsets.fromLTRB(
-                responsive.horizontalPadding,
+                context.dynamicWidth(0.04),
                 0,
-                responsive.horizontalPadding,
-                responsive.scale(80),
+                context.dynamicWidth(0.04),
+                context.dynamicWidth(0.2),
               ),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.9),
-                borderRadius: BorderRadius.circular(responsive.borderRadius * 2),
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.08)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.1),
@@ -161,7 +159,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                             isPrimary: false,
                           ),
                         ),
-                        SizedBox(width: responsive.spacing(base: 12)),
+                        SizedBox(width: context.dynamicWidth(0.03)),
                         Expanded(
                           child: _buildButton(
                             'Submit & Pay',
@@ -178,19 +176,19 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                       children: [
                         if (!state.isFirstStep)
                           Container(
-                            width: responsive.scale(56),
-                            height: responsive.scale(56),
-                            margin: EdgeInsets.only(right: responsive.spacing(base: 12)),
+                            width: context.dynamicWidth(0.14),
+                            height: context.dynamicWidth(0.14),
+                            margin: EdgeInsets.only(right: context.dynamicWidth(0.03)),
                             child: Material(
                               color: AppColors.gray100,
-                              borderRadius: BorderRadius.circular(responsive.borderRadius),
+                              borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
                               child: InkWell(
-                                borderRadius: BorderRadius.circular(responsive.borderRadius),
+                                borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
                                 onTap: () => context.read<CreateEventCubit>().previousStep(),
                                 child: Icon(
                                   Icons.arrow_back,
                                   color: AppColors.gray700,
-                                  size: responsive.iconSize(base: 24),
+                                  size: context.dynamicWidth(0.06),
                                 ),
                               ),
                             ),

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/utils/responsive.dart';
-import '../../../../core/utils/responsive_extensions.dart';
+import '../../../../core/utils/media_query_values.dart';
 import '../../../../core/widgets/loading/scanning_indicator.dart';
 import '../../../../core/widgets/loading/skeleton_widgets.dart';
 import '../../domain/entities/check_in_guest_entity.dart';
@@ -213,9 +212,8 @@ class _QRScannerScreenState extends State<QRScannerScreen>
   }
 
   Widget _buildGradientHeader() {
-    final responsive = context.responsive;
     return Container(
-      padding: EdgeInsets.all(responsive.horizontalPadding),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -239,18 +237,18 @@ class _QRScannerScreenState extends State<QRScannerScreen>
           Row(
             children: [
               Container(
-                padding: EdgeInsets.all(responsive.scale(10)),
+                padding: EdgeInsets.all(context.dynamicWidth(0.025)),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(responsive.borderRadius),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
                 ),
                 child: Icon(
                   Icons.event,
                   color: Colors.white,
-                  size: responsive.iconSize(base: 28),
+                  size: context.dynamicWidth(0.07),
                 ),
               ),
-              SizedBox(width: responsive.spacing(base: 16)),
+              SizedBox(width: context.dynamicWidth(0.04)),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -259,21 +257,17 @@ class _QRScannerScreenState extends State<QRScannerScreen>
                       _event.name,
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: responsive.sp(responsive.value(
-                          mobile: 24.0,
-                          tablet: 28.0,
-                          desktop: 32.0,
-                        )),
+                        fontSize: context.dynamicWidth(0.06),
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5,
                       ),
                     ),
-                    SizedBox(height: responsive.spacing(base: 4)),
+                    SizedBox(height: context.dynamicHeight(0.005)),
                     Text(
                       _event.description,
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.9),
-                        fontSize: responsive.sp(14),
+                        fontSize: context.dynamicWidth(0.035),
                       ),
                     ),
                   ],
@@ -281,19 +275,19 @@ class _QRScannerScreenState extends State<QRScannerScreen>
               ),
             ],
           ),
-          SizedBox(height: responsive.spacing(base: 16)),
+          SizedBox(height: context.dynamicHeight(0.02)),
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: responsive.scale(12),
-              vertical: responsive.scale(8),
+              horizontal: context.dynamicWidth(0.03),
+              vertical: context.dynamicHeight(0.01),
             ),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Wrap(
-              spacing: responsive.spacing(base: 16),
-              runSpacing: responsive.spacing(base: 8),
+              spacing: context.dynamicWidth(0.04),
+              runSpacing: context.dynamicHeight(0.01),
               children: [
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -301,14 +295,14 @@ class _QRScannerScreenState extends State<QRScannerScreen>
                     Icon(
                       Icons.location_on,
                       color: Colors.white.withValues(alpha: 0.9),
-                      size: responsive.iconSize(base: 16),
+                      size: context.dynamicWidth(0.04),
                     ),
-                    SizedBox(width: responsive.spacing(base: 6)),
+                    SizedBox(width: context.dynamicWidth(0.015)),
                     Text(
                       _event.venue,
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.9),
-                        fontSize: responsive.sp(13),
+                        fontSize: context.dynamicWidth(0.033),
                       ),
                     ),
                   ],
@@ -319,14 +313,14 @@ class _QRScannerScreenState extends State<QRScannerScreen>
                     Icon(
                       Icons.calendar_today,
                       color: Colors.white.withValues(alpha: 0.9),
-                      size: responsive.iconSize(base: 16),
+                      size: context.dynamicWidth(0.04),
                     ),
-                    SizedBox(width: responsive.spacing(base: 6)),
+                    SizedBox(width: context.dynamicWidth(0.015)),
                     Text(
                       '${_event.date} | ${_event.time}',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.9),
-                        fontSize: responsive.sp(13),
+                        fontSize: context.dynamicWidth(0.033),
                       ),
                     ),
                   ],

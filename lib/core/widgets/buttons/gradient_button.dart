@@ -148,7 +148,7 @@ class _GradientButtonState extends State<GradientButton>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
+    return GradientAnimatedBuilder(
       animation: _scaleAnimation,
       builder: (context, child) {
         return Transform.scale(
@@ -260,11 +260,11 @@ class _GradientButtonState extends State<GradientButton>
 }
 
 /// A custom animated builder widget for smoother animations.
-class AnimatedBuilder extends StatelessWidget {
+class GradientAnimatedBuilder extends StatelessWidget {
   final Animation<double> animation;
   final Widget Function(BuildContext, Widget?) builder;
 
-  const AnimatedBuilder({
+  const GradientAnimatedBuilder({
     super.key,
     required this.animation,
     required this.builder,

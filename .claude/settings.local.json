@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(flutter pub get:*)",
-      "Bash(flutter analyze:*)"
+      "Bash(flutter analyze:*)",
+      "Bash(cmd /c \"flutter analyze --no-fatal-infos\")"
     ]
   }
 }
