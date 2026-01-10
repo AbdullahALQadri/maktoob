@@ -134,11 +134,11 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 context.dynamicWidth(0.04),
                 0,
                 context.dynamicWidth(0.04),
-                context.dynamicWidth(0.2),
+                context.dynamicHeight(0.1),
               ),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.9),
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.08)),
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.06)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.1),
@@ -176,8 +176,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                       children: [
                         if (!state.isFirstStep)
                           Container(
-                            width: context.dynamicWidth(0.14),
-                            height: context.dynamicWidth(0.14),
+                            width: context.dynamicHeight(0.065),
+                            height: context.dynamicHeight(0.065),
                             margin: EdgeInsets.only(right: context.dynamicWidth(0.03)),
                             child: Material(
                               color: AppColors.gray100,
@@ -356,15 +356,15 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       color: enabled
           ? (isPrimary ? null : AppColors.gray200)
           : AppColors.gray200,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         onTap: onTap,
         child: Container(
-          height: 56,
+          height: context.dynamicHeight(0.065),
           decoration: enabled && isPrimary
               ? BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
                   gradient: LinearGradient(
                     colors: [AppColors.purple600, AppColors.pink600],
                   ),
@@ -378,11 +378,11 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 )
               : null,
           child: isLoading
-              ? const Center(
+              ? Center(
                   child: SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
+                    width: context.dynamicWidth(0.06),
+                    height: context.dynamicWidth(0.06),
+                    child: const CircularProgressIndicator(
                       strokeWidth: 2,
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
@@ -395,18 +395,18 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                       text,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontSize: context.dynamicWidth(0.04),
                         color: enabled
                             ? (isPrimary ? Colors.white : AppColors.gray700)
                             : AppColors.gray400,
                       ),
                     ),
                     if (trailing != null) ...[
-                      const SizedBox(width: 8),
+                      SizedBox(width: context.dynamicWidth(0.02)),
                       Icon(
                         trailing,
                         color: enabled ? Colors.white : AppColors.gray400,
-                        size: 20,
+                        size: context.dynamicWidth(0.05),
                       ),
                     ],
                   ],
