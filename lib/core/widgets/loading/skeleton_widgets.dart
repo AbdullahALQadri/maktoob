@@ -58,10 +58,10 @@ class StatCardSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ShimmerLoading(
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
               color: AppColors.gray300.withOpacity(0.3),
@@ -72,29 +72,23 @@ class StatCardSkeleton extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const SkeletonBox.circle(size: 40),
-                SkeletonBox(
-                  width: 50,
-                  height: 20,
-                  borderRadius: 10,
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
             SkeletonBox(
-              width: 60,
-              height: 28,
-              borderRadius: 6,
+              width: 36,
+              height: 36,
+              borderRadius: 10,
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             SkeletonBox(
-              width: 80,
-              height: 14,
+              width: 50,
+              height: 22,
+              borderRadius: 4,
+            ),
+            const SizedBox(height: 4),
+            SkeletonBox(
+              width: 70,
+              height: 12,
               borderRadius: 4,
             ),
           ],
