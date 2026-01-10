@@ -1,9 +1,1 @@
-{
-  "settings": "Налаштування",
-  "notifications": "Сповіщення",
-  "ask_before_buy": "Питати перед покупкою",
-  "Color_blind_mode": "Режим для дальтоніків",
-  "language": "Мова",
-  "change_language": "Змінити мову",
-  "save_changes": "Зберегти зміни"
-}
+{app_name: Maktoob}
