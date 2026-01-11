@@ -118,7 +118,12 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
               ),
               Expanded(
                 child: SingleChildScrollView(
-                  padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+                  padding: EdgeInsets.fromLTRB(
+                    context.dynamicWidth(0.04),
+                    context.dynamicWidth(0.04),
+                    context.dynamicWidth(0.04),
+                    context.dynamicHeight(0.02),
+                  ),
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     child: _buildStepContent(state),
@@ -134,7 +139,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 context.dynamicWidth(0.04),
                 0,
                 context.dynamicWidth(0.04),
-                context.dynamicHeight(0.1),
+                context.dynamicHeight(0.02),
               ),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.9),
