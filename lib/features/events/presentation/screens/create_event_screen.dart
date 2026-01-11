@@ -110,36 +110,122 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       builder: (context, state) {
         return Scaffold(
           backgroundColor: AppColors.gray100,
-          body: SafeArea(
-            child: Column(
-              children: [
-                StepHeaderWidget(
-                  currentStep: state.currentStepNumber,
-                  totalSteps: state.totalSteps,
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(
-                      context.dynamicWidth(0.04),
-                      context.dynamicWidth(0.02),
-                      context.dynamicWidth(0.04),
-                      context.dynamicHeight(0.12),
-                    ),
-                    child: Column(
-                      children: [
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 300),
-                          child: _buildStepContent(state),
-                        ),
-                        SizedBox(height: context.dynamicHeight(0.03)),
-                        _buildNavigationButtons(context, state),
-                      ],
-                    ),
+          body: Column(
+            children: [
+              StepHeaderWidget(
+                currentStep: state.currentStepNumber,
+                totalSteps: state.totalSteps,
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(
+                    context.dynamicWidth(0.04),
+                    context.dynamicWidth(0.04),
+                    context.dynamicWidth(0.04),
+                    context.dynamicHeight(0.02),
+                  ),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: _buildStepContent(state),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
+          bottomNavigationBar: (state.canProceed || state.isLastStep || !state.isFirstStep)
+              ? AnimatedSlide(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOut,
+                  offset: Offset.zero,
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 300),
+                    opacity: 1.0,
+                    child: SafeArea(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: context.dynamicWidth(0.04),
+                          vertical: context.dynamicHeight(0.015),
+                        ),
+                        margin: EdgeInsets.fromLTRB(
+                          context.dynamicWidth(0.04),
+                          0,
+                          context.dynamicWidth(0.04),
+                          context.dynamicHeight(0.02),
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 16,
+                              offset: const Offset(0, -2),
+                            ),
+                          ],
+                        ),
+                        child: state.isLastStep
+                            ? Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildButton(
+                                      'Save as Draft',
+                                      onTap: state.isLoading
+                                          ? null
+                                          : () => context.read<CreateEventCubit>().saveDraft(),
+                                      isPrimary: false,
+                                    ),
+                                  ),
+                                  SizedBox(width: context.dynamicWidth(0.03)),
+                                  Expanded(
+                                    child: _buildButton(
+                                      'Submit & Pay',
+                                      onTap: state.isLoading
+                                          ? null
+                                          : () => context.read<CreateEventCubit>().submitEvent(),
+                                      isPrimary: true,
+                                      isLoading: state.isLoading,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Row(
+                                children: [
+                                  if (!state.isFirstStep)
+                                    Container(
+                                      width: context.dynamicHeight(0.055),
+                                      height: context.dynamicHeight(0.055),
+                                      margin: EdgeInsets.only(right: context.dynamicWidth(0.03)),
+                                      child: Material(
+                                        color: AppColors.gray100,
+                                        borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+                                        child: InkWell(
+                                          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+                                          onTap: () => context.read<CreateEventCubit>().previousStep(),
+                                          child: Icon(
+                                            Icons.arrow_back,
+                                            color: AppColors.gray700,
+                                            size: context.dynamicWidth(0.05),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  Expanded(
+                                    child: _buildButton(
+                                      'Continue',
+                                      onTap: state.canProceed
+                                          ? () => context.read<CreateEventCubit>().nextStep()
+                                          : null,
+                                      isPrimary: true,
+                                      trailing: Icons.arrow_forward,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                      ),
+                    ),
+                  ),
+                )
+              : null,
         );
       },
     );
@@ -246,69 +332,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     }
   }
 
-  Widget _buildNavigationButtons(BuildContext context, CreateEventState state) {
-    if (state.isLastStep) {
-      return Row(
-        children: [
-          Expanded(
-            child: _buildButton(
-              'Save as Draft',
-              onTap: state.isLoading
-                  ? null
-                  : () => context.read<CreateEventCubit>().saveDraft(),
-              isPrimary: false,
-            ),
-          ),
-          SizedBox(width: context.dynamicWidth(0.03)),
-          Expanded(
-            child: _buildButton(
-              'Submit & Pay',
-              onTap: state.isLoading
-                  ? null
-                  : () => context.read<CreateEventCubit>().submitEvent(),
-              isPrimary: true,
-              isLoading: state.isLoading,
-            ),
-          ),
-        ],
-      );
-    }
-
-    return Row(
-      children: [
-        if (!state.isFirstStep)
-          Container(
-            width: context.dynamicHeight(0.06),
-            height: context.dynamicHeight(0.06),
-            margin: EdgeInsets.only(right: context.dynamicWidth(0.03)),
-            child: Material(
-              color: AppColors.gray200,
-              borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
-                onTap: () => context.read<CreateEventCubit>().previousStep(),
-                child: Icon(
-                  Icons.arrow_back,
-                  color: AppColors.gray700,
-                  size: context.dynamicWidth(0.05),
-                ),
-              ),
-            ),
-          ),
-        Expanded(
-          child: _buildButton(
-            'Continue',
-            onTap: state.canProceed
-                ? () => context.read<CreateEventCubit>().nextStep()
-                : null,
-            isPrimary: true,
-            trailing: Icons.arrow_forward,
-          ),
-        ),
-      ],
-    );
-  }
-
   // Helper methods to convert between immutable state objects and mutable widget objects
   MutableCustomVenue _convertToMutableCustomVenue(CustomVenue venue) {
     return MutableCustomVenue(
@@ -357,7 +380,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
         onTap: onTap,
         child: Container(
-          height: context.dynamicHeight(0.06),
+          height: context.dynamicHeight(0.055),
           decoration: enabled && isPrimary
               ? BoxDecoration(
                   borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
@@ -366,7 +389,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.purple600.withOpacity(0.2),
+                      color: AppColors.purple600.withOpacity(0.25),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
