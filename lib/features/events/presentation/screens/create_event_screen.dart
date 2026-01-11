@@ -109,6 +109,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       },
       builder: (context, state) {
         final progress = state.currentStepNumber / state.totalSteps;
+        final showBottomBar = state.canProceed || state.isLastStep || !state.isFirstStep;
 
         return Scaffold(
           backgroundColor: AppColors.gray100,
@@ -116,90 +117,123 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
             slivers: [
               // Collapsible Header
               SliverAppBar(
-                expandedHeight: context.dynamicHeight(0.22),
-                collapsedHeight: context.dynamicHeight(0.08),
+                expandedHeight: context.dynamicHeight(0.18),
+                collapsedHeight: kToolbarHeight,
                 pinned: true,
                 automaticallyImplyLeading: false,
                 backgroundColor: AppColors.purple600,
-                flexibleSpace: FlexibleSpaceBar(
-                  collapseMode: CollapseMode.pin,
-                  background: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [AppColors.purple600, AppColors.pink600],
-                      ),
-                    ),
-                    child: SafeArea(
-                      bottom: false,
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          context.dynamicWidth(0.05),
-                          context.dynamicHeight(0.01),
-                          context.dynamicWidth(0.05),
-                          context.dynamicHeight(0.02),
+                surfaceTintColor: Colors.transparent,
+                flexibleSpace: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final expandRatio = ((constraints.maxHeight - kToolbarHeight) /
+                            (context.dynamicHeight(0.18) - kToolbarHeight))
+                        .clamp(0.0, 1.0);
+                    final isCollapsed = expandRatio < 0.3;
+
+                    return Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [AppColors.purple600, AppColors.pink600],
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.end,
+                      ),
+                      child: SafeArea(
+                        bottom: false,
+                        child: Stack(
                           children: [
-                            // Step badge
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: context.dynamicWidth(0.025),
-                                vertical: context.dynamicHeight(0.006),
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
-                              ),
-                              child: Text(
-                                'Step ${state.currentStepNumber} of ${state.totalSteps}',
-                                style: TextStyle(
-                                  fontSize: context.dynamicWidth(0.028),
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white,
+                            // Expanded content
+                            if (!isCollapsed)
+                              Opacity(
+                                opacity: expandRatio,
+                                child: Padding(
+                                  padding: EdgeInsets.fromLTRB(
+                                    context.dynamicWidth(0.05),
+                                    context.dynamicHeight(0.01),
+                                    context.dynamicWidth(0.05),
+                                    context.dynamicHeight(0.015),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      // Step badge
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: context.dynamicWidth(0.025),
+                                          vertical: context.dynamicHeight(0.005),
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.2),
+                                          borderRadius: BorderRadius.circular(20),
+                                        ),
+                                        child: Text(
+                                          'Step ${state.currentStepNumber} of ${state.totalSteps}',
+                                          style: TextStyle(
+                                            fontSize: context.dynamicWidth(0.028),
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: context.dynamicHeight(0.008)),
+                                      Text(
+                                        'Create Event',
+                                        style: TextStyle(
+                                          fontSize: context.dynamicWidth(0.06),
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: context.dynamicHeight(0.012)),
+                                      // Progress bar
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadius.circular(4),
+                                              child: LinearProgressIndicator(
+                                                value: progress,
+                                                minHeight: 6,
+                                                backgroundColor: Colors.white.withOpacity(0.2),
+                                                valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(width: context.dynamicWidth(0.03)),
+                                          Text(
+                                            '${(progress * 100).round()}%',
+                                            style: TextStyle(
+                                              fontSize: context.dynamicWidth(0.03),
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                            SizedBox(height: context.dynamicHeight(0.01)),
-                            Text(
-                              'Create Event',
-                              style: TextStyle(
-                                fontSize: context.dynamicWidth(0.055),
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                            // Collapsed title
+                            if (isCollapsed)
+                              Positioned(
+                                left: context.dynamicWidth(0.05),
+                                bottom: 12,
+                                child: Text(
+                                  'Create Event • Step ${state.currentStepNumber}/${state.totalSteps}',
+                                  style: TextStyle(
+                                    fontSize: context.dynamicWidth(0.04),
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
                               ),
-                            ),
-                            SizedBox(height: context.dynamicHeight(0.015)),
-                            // Progress bar
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(context.dynamicWidth(0.01)),
-                              child: LinearProgressIndicator(
-                                value: progress,
-                                minHeight: context.dynamicHeight(0.006),
-                                backgroundColor: Colors.white.withOpacity(0.2),
-                                valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            ),
                           ],
                         ),
                       ),
-                    ),
-                  ),
-                  titlePadding: EdgeInsets.only(
-                    left: context.dynamicWidth(0.05),
-                    bottom: context.dynamicHeight(0.015),
-                  ),
-                  title: Text(
-                    'Step ${state.currentStepNumber}/${state.totalSteps}',
-                    style: TextStyle(
-                      fontSize: context.dynamicWidth(0.04),
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
               // Content
@@ -208,7 +242,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                   context.dynamicWidth(0.04),
                   context.dynamicHeight(0.02),
                   context.dynamicWidth(0.04),
-                  context.dynamicHeight(0.12),
+                  context.dynamicHeight(0.15),
                 ),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
@@ -216,14 +250,36 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                       duration: const Duration(milliseconds: 300),
                       child: _buildStepContent(state),
                     ),
-                    SizedBox(height: context.dynamicHeight(0.03)),
-                    // Navigation buttons inside scroll
-                    _buildNavigationButtons(context, state),
                   ]),
                 ),
               ),
             ],
           ),
+          // Fixed bottom navigation bar - only show when valid
+          bottomNavigationBar: showBottomBar
+              ? Container(
+                  padding: EdgeInsets.fromLTRB(
+                    context.dynamicWidth(0.04),
+                    context.dynamicHeight(0.015),
+                    context.dynamicWidth(0.04),
+                    context.dynamicHeight(0.03),
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 10,
+                        offset: const Offset(0, -2),
+                      ),
+                    ],
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: _buildNavigationButtons(context, state),
+                  ),
+                )
+              : null,
         );
       },
     );
@@ -361,11 +417,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   }
 
   Widget _buildNavigationButtons(BuildContext context, CreateEventState state) {
-    // Only show when valid or has back button or is last step
-    if (!state.canProceed && state.isFirstStep && !state.isLastStep) {
-      return const SizedBox.shrink();
-    }
-
     if (state.isLastStep) {
       return Row(
         children: [
