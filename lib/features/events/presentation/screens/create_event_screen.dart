@@ -110,106 +110,34 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       builder: (context, state) {
         return Scaffold(
           backgroundColor: AppColors.gray100,
-          body: Column(
-            children: [
-              StepHeaderWidget(
-                currentStep: state.currentStepNumber,
-                totalSteps: state.totalSteps,
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(
-                    context.dynamicWidth(0.04),
-                    context.dynamicWidth(0.04),
-                    context.dynamicWidth(0.04),
-                    context.dynamicHeight(0.02),
-                  ),
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: _buildStepContent(state),
-                  ),
+          body: SafeArea(
+            child: Column(
+              children: [
+                StepHeaderWidget(
+                  currentStep: state.currentStepNumber,
+                  totalSteps: state.totalSteps,
                 ),
-              ),
-            ],
-          ),
-          bottomNavigationBar: SafeArea(
-            child: Container(
-              padding: EdgeInsets.all(context.dynamicWidth(0.04)),
-              margin: EdgeInsets.fromLTRB(
-                context.dynamicWidth(0.04),
-                0,
-                context.dynamicWidth(0.04),
-                context.dynamicHeight(0.02),
-              ),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.9),
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.06)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 20,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: state.isLastStep
-                  ? Row(
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(
+                      context.dynamicWidth(0.04),
+                      context.dynamicWidth(0.02),
+                      context.dynamicWidth(0.04),
+                      context.dynamicHeight(0.12),
+                    ),
+                    child: Column(
                       children: [
-                        Expanded(
-                          child: _buildButton(
-                            'Save as Draft',
-                            onTap: state.isLoading
-                                ? null
-                                : () => context.read<CreateEventCubit>().saveDraft(),
-                            isPrimary: false,
-                          ),
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          child: _buildStepContent(state),
                         ),
-                        SizedBox(width: context.dynamicWidth(0.03)),
-                        Expanded(
-                          child: _buildButton(
-                            'Submit & Pay',
-                            onTap: state.isLoading
-                                ? null
-                                : () => context.read<CreateEventCubit>().submitEvent(),
-                            isPrimary: true,
-                            isLoading: state.isLoading,
-                          ),
-                        ),
-                      ],
-                    )
-                  : Row(
-                      children: [
-                        if (!state.isFirstStep)
-                          Container(
-                            width: context.dynamicHeight(0.065),
-                            height: context.dynamicHeight(0.065),
-                            margin: EdgeInsets.only(right: context.dynamicWidth(0.03)),
-                            child: Material(
-                              color: AppColors.gray100,
-                              borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
-                                onTap: () => context.read<CreateEventCubit>().previousStep(),
-                                child: Icon(
-                                  Icons.arrow_back,
-                                  color: AppColors.gray700,
-                                  size: context.dynamicWidth(0.06),
-                                ),
-                              ),
-                            ),
-                          ),
-                        Expanded(
-                          child: _buildButton(
-                            'Continue',
-                            onTap: state.canProceed
-                                ? () => context.read<CreateEventCubit>().nextStep()
-                                : null,
-                            isPrimary: true,
-                            trailing: Icons.arrow_forward,
-                          ),
-                        ),
+                        SizedBox(height: context.dynamicHeight(0.03)),
+                        _buildNavigationButtons(context, state),
                       ],
                     ),
+                  ),
+                ),
+              ],
             ),
           ),
         );
@@ -318,6 +246,69 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     }
   }
 
+  Widget _buildNavigationButtons(BuildContext context, CreateEventState state) {
+    if (state.isLastStep) {
+      return Row(
+        children: [
+          Expanded(
+            child: _buildButton(
+              'Save as Draft',
+              onTap: state.isLoading
+                  ? null
+                  : () => context.read<CreateEventCubit>().saveDraft(),
+              isPrimary: false,
+            ),
+          ),
+          SizedBox(width: context.dynamicWidth(0.03)),
+          Expanded(
+            child: _buildButton(
+              'Submit & Pay',
+              onTap: state.isLoading
+                  ? null
+                  : () => context.read<CreateEventCubit>().submitEvent(),
+              isPrimary: true,
+              isLoading: state.isLoading,
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Row(
+      children: [
+        if (!state.isFirstStep)
+          Container(
+            width: context.dynamicHeight(0.06),
+            height: context.dynamicHeight(0.06),
+            margin: EdgeInsets.only(right: context.dynamicWidth(0.03)),
+            child: Material(
+              color: AppColors.gray200,
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+                onTap: () => context.read<CreateEventCubit>().previousStep(),
+                child: Icon(
+                  Icons.arrow_back,
+                  color: AppColors.gray700,
+                  size: context.dynamicWidth(0.05),
+                ),
+              ),
+            ),
+          ),
+        Expanded(
+          child: _buildButton(
+            'Continue',
+            onTap: state.canProceed
+                ? () => context.read<CreateEventCubit>().nextStep()
+                : null,
+            isPrimary: true,
+            trailing: Icons.arrow_forward,
+          ),
+        ),
+      ],
+    );
+  }
+
   // Helper methods to convert between immutable state objects and mutable widget objects
   MutableCustomVenue _convertToMutableCustomVenue(CustomVenue venue) {
     return MutableCustomVenue(
@@ -361,23 +352,23 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       color: enabled
           ? (isPrimary ? null : AppColors.gray200)
           : AppColors.gray200,
-      borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+      borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
       child: InkWell(
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
         onTap: onTap,
         child: Container(
-          height: context.dynamicHeight(0.065),
+          height: context.dynamicHeight(0.06),
           decoration: enabled && isPrimary
               ? BoxDecoration(
-                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
                   gradient: LinearGradient(
                     colors: [AppColors.purple600, AppColors.pink600],
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.purple600.withOpacity(0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
+                      color: AppColors.purple600.withOpacity(0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 )
@@ -385,8 +376,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           child: isLoading
               ? Center(
                   child: SizedBox(
-                    width: context.dynamicWidth(0.06),
-                    height: context.dynamicWidth(0.06),
+                    width: context.dynamicWidth(0.05),
+                    height: context.dynamicWidth(0.05),
                     child: const CircularProgressIndicator(
                       strokeWidth: 2,
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
@@ -399,8 +390,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     Text(
                       text,
                       style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: context.dynamicWidth(0.04),
+                        fontWeight: FontWeight.w600,
+                        fontSize: context.dynamicWidth(0.038),
                         color: enabled
                             ? (isPrimary ? Colors.white : AppColors.gray700)
                             : AppColors.gray400,
@@ -411,7 +402,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                       Icon(
                         trailing,
                         color: enabled ? Colors.white : AppColors.gray400,
-                        size: context.dynamicWidth(0.05),
+                        size: context.dynamicWidth(0.045),
                       ),
                     ],
                   ],
