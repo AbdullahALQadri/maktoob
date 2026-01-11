@@ -11,7 +11,9 @@ import '../widgets/response_rate_card_widget.dart';
 import '../widgets/stat_card_widget.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final Function(String)? onViewEvent;
+
+  const HomeScreen({super.key, this.onViewEvent});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -325,9 +327,13 @@ class _HomeScreenState extends State<HomeScreen>
       physics: const NeverScrollableScrollPhysics(),
       itemCount: state.recentEvents.length,
       itemBuilder: (context, index) {
+        final event = state.recentEvents[index];
         return RecentEventCardWidget(
-          event: state.recentEvents[index],
+          event: event,
           index: index,
+          onTap: widget.onViewEvent != null
+              ? () => widget.onViewEvent!(event.id.toString())
+              : null,
         );
       },
     );

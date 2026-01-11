@@ -7,11 +7,13 @@ import '../../domain/entities/recent_event_entity.dart';
 class RecentEventCardWidget extends StatelessWidget {
   final RecentEventEntity event;
   final int index;
+  final VoidCallback? onTap;
 
   const RecentEventCardWidget({
     super.key,
     required this.event,
     required this.index,
+    this.onTap,
   });
 
   @override
@@ -31,7 +33,10 @@ class RecentEventCardWidget extends StatelessWidget {
       },
       child: Padding(
         padding: EdgeInsets.only(bottom: context.dynamicHeight(0.015)),
-        child: _buildEventCard(context),
+        child: GestureDetector(
+          onTap: onTap,
+          child: _buildEventCard(context),
+        ),
       ),
     );
   }
