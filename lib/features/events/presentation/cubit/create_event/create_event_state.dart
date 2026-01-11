@@ -116,6 +116,7 @@ class CreateEventState extends Equatable {
     String? createdEventId,
     // Step 1
     String? selectedPackageId,
+    bool clearPackage = false,
     // Step 2
     String? selectedVenueId,
     bool? showCustomVenue,
@@ -145,7 +146,7 @@ class CreateEventState extends Equatable {
       errorMessage: errorMessage ?? this.errorMessage,
       createdEventId: createdEventId ?? this.createdEventId,
       // Step 1
-      selectedPackageId: selectedPackageId ?? this.selectedPackageId,
+      selectedPackageId: clearPackage ? null : (selectedPackageId ?? this.selectedPackageId),
       // Step 2
       selectedVenueId: clearVenue ? null : (selectedVenueId ?? this.selectedVenueId),
       showCustomVenue: showCustomVenue ?? this.showCustomVenue,

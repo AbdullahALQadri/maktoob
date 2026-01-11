@@ -34,17 +34,25 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     emit(state.copyWith(currentStep: step));
   }
 
-  // Step 1: Package
+  // Step 1: Package (toggle selection)
   void selectPackage(String packageId) {
-    emit(state.copyWith(selectedPackageId: packageId));
+    if (state.selectedPackageId == packageId) {
+      emit(state.copyWith(clearPackage: true));
+    } else {
+      emit(state.copyWith(selectedPackageId: packageId));
+    }
   }
 
-  // Step 2: Venue
+  // Step 2: Venue (toggle selection)
   void selectVenue(String venueId) {
-    emit(state.copyWith(
-      selectedVenueId: venueId,
-      showCustomVenue: false,
-    ));
+    if (state.selectedVenueId == venueId) {
+      emit(state.copyWith(clearVenue: true));
+    } else {
+      emit(state.copyWith(
+        selectedVenueId: venueId,
+        showCustomVenue: false,
+      ));
+    }
   }
 
   void toggleCustomVenue() {
@@ -76,12 +84,16 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     ));
   }
 
-  // Step 3: Event Type
+  // Step 3: Event Type (toggle selection)
   void selectEventType(String eventTypeId) {
-    emit(state.copyWith(
-      selectedEventTypeId: eventTypeId,
-      showCustomEventType: false,
-    ));
+    if (state.selectedEventTypeId == eventTypeId) {
+      emit(state.copyWith(clearEventType: true));
+    } else {
+      emit(state.copyWith(
+        selectedEventTypeId: eventTypeId,
+        showCustomEventType: false,
+      ));
+    }
   }
 
   void toggleCustomEventType() {
@@ -95,12 +107,16 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     emit(state.copyWith(customEventType: eventType));
   }
 
-  // Step 4: Template
+  // Step 4: Template (toggle selection)
   void selectTemplate(String templateId) {
-    emit(state.copyWith(
-      selectedTemplateId: templateId,
-      requestCustomTemplate: false,
-    ));
+    if (state.selectedTemplateId == templateId) {
+      emit(state.copyWith(clearTemplate: true));
+    } else {
+      emit(state.copyWith(
+        selectedTemplateId: templateId,
+        requestCustomTemplate: false,
+      ));
+    }
   }
 
   void toggleCustomTemplate() {

@@ -108,124 +108,122 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         }
       },
       builder: (context, state) {
+        final progress = state.currentStepNumber / state.totalSteps;
+
         return Scaffold(
           backgroundColor: AppColors.gray100,
-          body: Column(
-            children: [
-              StepHeaderWidget(
-                currentStep: state.currentStepNumber,
-                totalSteps: state.totalSteps,
+          body: CustomScrollView(
+            slivers: [
+              // Collapsible Header
+              SliverAppBar(
+                expandedHeight: context.dynamicHeight(0.22),
+                collapsedHeight: context.dynamicHeight(0.08),
+                pinned: true,
+                automaticallyImplyLeading: false,
+                backgroundColor: AppColors.purple600,
+                flexibleSpace: FlexibleSpaceBar(
+                  collapseMode: CollapseMode.pin,
+                  background: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [AppColors.purple600, AppColors.pink600],
+                      ),
+                    ),
+                    child: SafeArea(
+                      bottom: false,
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          context.dynamicWidth(0.05),
+                          context.dynamicHeight(0.01),
+                          context.dynamicWidth(0.05),
+                          context.dynamicHeight(0.02),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            // Step badge
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: context.dynamicWidth(0.025),
+                                vertical: context.dynamicHeight(0.006),
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+                              ),
+                              child: Text(
+                                'Step ${state.currentStepNumber} of ${state.totalSteps}',
+                                style: TextStyle(
+                                  fontSize: context.dynamicWidth(0.028),
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: context.dynamicHeight(0.01)),
+                            Text(
+                              'Create Event',
+                              style: TextStyle(
+                                fontSize: context.dynamicWidth(0.055),
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: context.dynamicHeight(0.015)),
+                            // Progress bar
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(context.dynamicWidth(0.01)),
+                              child: LinearProgressIndicator(
+                                value: progress,
+                                minHeight: context.dynamicHeight(0.006),
+                                backgroundColor: Colors.white.withOpacity(0.2),
+                                valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  titlePadding: EdgeInsets.only(
+                    left: context.dynamicWidth(0.05),
+                    bottom: context.dynamicHeight(0.015),
+                  ),
+                  title: Text(
+                    'Step ${state.currentStepNumber}/${state.totalSteps}',
+                    style: TextStyle(
+                      fontSize: context.dynamicWidth(0.04),
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
               ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(
-                    context.dynamicWidth(0.04),
-                    context.dynamicWidth(0.04),
-                    context.dynamicWidth(0.04),
-                    context.dynamicHeight(0.02),
-                  ),
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: _buildStepContent(state),
-                  ),
+              // Content
+              SliverPadding(
+                padding: EdgeInsets.fromLTRB(
+                  context.dynamicWidth(0.04),
+                  context.dynamicHeight(0.02),
+                  context.dynamicWidth(0.04),
+                  context.dynamicHeight(0.12),
+                ),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: _buildStepContent(state),
+                    ),
+                    SizedBox(height: context.dynamicHeight(0.03)),
+                    // Navigation buttons inside scroll
+                    _buildNavigationButtons(context, state),
+                  ]),
                 ),
               ),
             ],
           ),
-          bottomNavigationBar: (state.canProceed || state.isLastStep || !state.isFirstStep)
-              ? AnimatedSlide(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeOut,
-                  offset: Offset.zero,
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 300),
-                    opacity: 1.0,
-                    child: SafeArea(
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: context.dynamicWidth(0.04),
-                          vertical: context.dynamicHeight(0.015),
-                        ),
-                        margin: EdgeInsets.fromLTRB(
-                          context.dynamicWidth(0.04),
-                          0,
-                          context.dynamicWidth(0.04),
-                          context.dynamicHeight(0.02),
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
-                              blurRadius: 16,
-                              offset: const Offset(0, -2),
-                            ),
-                          ],
-                        ),
-                        child: state.isLastStep
-                            ? Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildButton(
-                                      'Save as Draft',
-                                      onTap: state.isLoading
-                                          ? null
-                                          : () => context.read<CreateEventCubit>().saveDraft(),
-                                      isPrimary: false,
-                                    ),
-                                  ),
-                                  SizedBox(width: context.dynamicWidth(0.03)),
-                                  Expanded(
-                                    child: _buildButton(
-                                      'Submit & Pay',
-                                      onTap: state.isLoading
-                                          ? null
-                                          : () => context.read<CreateEventCubit>().submitEvent(),
-                                      isPrimary: true,
-                                      isLoading: state.isLoading,
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : Row(
-                                children: [
-                                  if (!state.isFirstStep)
-                                    Container(
-                                      width: context.dynamicHeight(0.055),
-                                      height: context.dynamicHeight(0.055),
-                                      margin: EdgeInsets.only(right: context.dynamicWidth(0.03)),
-                                      child: Material(
-                                        color: AppColors.gray100,
-                                        borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
-                                        child: InkWell(
-                                          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
-                                          onTap: () => context.read<CreateEventCubit>().previousStep(),
-                                          child: Icon(
-                                            Icons.arrow_back,
-                                            color: AppColors.gray700,
-                                            size: context.dynamicWidth(0.05),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  Expanded(
-                                    child: _buildButton(
-                                      'Continue',
-                                      onTap: state.canProceed
-                                          ? () => context.read<CreateEventCubit>().nextStep()
-                                          : null,
-                                      isPrimary: true,
-                                      trailing: Icons.arrow_forward,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                      ),
-                    ),
-                  ),
-                )
-              : null,
         );
       },
     );
@@ -359,6 +357,74 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       name: guest.name,
       email: guest.email,
       phone: guest.phone,
+    );
+  }
+
+  Widget _buildNavigationButtons(BuildContext context, CreateEventState state) {
+    // Only show when valid or has back button or is last step
+    if (!state.canProceed && state.isFirstStep && !state.isLastStep) {
+      return const SizedBox.shrink();
+    }
+
+    if (state.isLastStep) {
+      return Row(
+        children: [
+          Expanded(
+            child: _buildButton(
+              'Save as Draft',
+              onTap: state.isLoading
+                  ? null
+                  : () => context.read<CreateEventCubit>().saveDraft(),
+              isPrimary: false,
+            ),
+          ),
+          SizedBox(width: context.dynamicWidth(0.03)),
+          Expanded(
+            child: _buildButton(
+              'Submit & Pay',
+              onTap: state.isLoading
+                  ? null
+                  : () => context.read<CreateEventCubit>().submitEvent(),
+              isPrimary: true,
+              isLoading: state.isLoading,
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Row(
+      children: [
+        if (!state.isFirstStep)
+          Container(
+            width: context.dynamicHeight(0.055),
+            height: context.dynamicHeight(0.055),
+            margin: EdgeInsets.only(right: context.dynamicWidth(0.03)),
+            child: Material(
+              color: AppColors.gray200,
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+                onTap: () => context.read<CreateEventCubit>().previousStep(),
+                child: Icon(
+                  Icons.arrow_back,
+                  color: AppColors.gray700,
+                  size: context.dynamicWidth(0.05),
+                ),
+              ),
+            ),
+          ),
+        Expanded(
+          child: _buildButton(
+            'Continue',
+            onTap: state.canProceed
+                ? () => context.read<CreateEventCubit>().nextStep()
+                : null,
+            isPrimary: true,
+            trailing: Icons.arrow_forward,
+          ),
+        ),
+      ],
     );
   }
 
