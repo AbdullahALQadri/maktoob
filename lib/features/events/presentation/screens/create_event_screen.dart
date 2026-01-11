@@ -156,12 +156,13 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.end,
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
                                       // Step badge
                                       Container(
                                         padding: EdgeInsets.symmetric(
                                           horizontal: context.dynamicWidth(0.025),
-                                          vertical: context.dynamicHeight(0.005),
+                                          vertical: context.dynamicHeight(0.004),
                                         ),
                                         decoration: BoxDecoration(
                                           color: Colors.white.withOpacity(0.2),
@@ -176,16 +177,16 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                                           ),
                                         ),
                                       ),
-                                      SizedBox(height: context.dynamicHeight(0.008)),
+                                      SizedBox(height: context.dynamicHeight(0.005)),
                                       Text(
                                         'Create Event',
                                         style: TextStyle(
-                                          fontSize: context.dynamicWidth(0.06),
+                                          fontSize: context.dynamicWidth(0.055),
                                           fontWeight: FontWeight.bold,
                                           color: Colors.white,
                                         ),
                                       ),
-                                      SizedBox(height: context.dynamicHeight(0.012)),
+                                      SizedBox(height: context.dynamicHeight(0.008)),
                                       // Progress bar
                                       Row(
                                         children: [
