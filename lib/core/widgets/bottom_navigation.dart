@@ -6,13 +6,13 @@ import '../utils/media_query_values.dart';
 /// A custom bottom navigation bar widget for the Maktoob app.
 ///
 /// Features:
-/// - 4 navigation tabs: Venue, Create (FAB style), Scanner, Settings
+/// - 5 navigation tabs: Home, Venue, Create (FAB style), Scanner, Settings
 /// - Gradient purple-pink color for selected items
 /// - Floating center button with gradient background
 /// - Smooth animations for selection changes
 /// - White background with rounded top corners and top shadow
 class BottomNavigation extends StatefulWidget {
-  /// The index of the currently selected tab (0-3)
+  /// The index of the currently selected tab (0-4)
   final int currentIndex;
 
   /// Callback function when a tab is tapped
@@ -41,7 +41,7 @@ class _BottomNavigationState extends State<BottomNavigation>
 
   void _initializeAnimations() {
     _controllers = List.generate(
-      4,
+      5,
       (index) => AnimationController(
         duration: const Duration(milliseconds: 200),
         vsync: this,
@@ -55,7 +55,7 @@ class _BottomNavigationState extends State<BottomNavigation>
     }).toList();
 
     // Start animation for initially selected tab
-    if (widget.currentIndex >= 0 && widget.currentIndex < 4) {
+    if (widget.currentIndex >= 0 && widget.currentIndex < 5) {
       _controllers[widget.currentIndex].forward();
     }
   }
@@ -65,11 +65,11 @@ class _BottomNavigationState extends State<BottomNavigation>
     super.didUpdateWidget(oldWidget);
     if (oldWidget.currentIndex != widget.currentIndex) {
       // Reverse animation for previously selected tab
-      if (oldWidget.currentIndex >= 0 && oldWidget.currentIndex < 4) {
+      if (oldWidget.currentIndex >= 0 && oldWidget.currentIndex < 5) {
         _controllers[oldWidget.currentIndex].reverse();
       }
       // Forward animation for newly selected tab
-      if (widget.currentIndex >= 0 && widget.currentIndex < 4) {
+      if (widget.currentIndex >= 0 && widget.currentIndex < 5) {
         _controllers[widget.currentIndex].forward();
       }
     }
@@ -120,19 +120,25 @@ class _BottomNavigationState extends State<BottomNavigation>
             children: [
               _buildNavItem(
                 index: 0,
+                label: 'الرئيسية',
+                outlinedIcon: Icons.home_outlined,
+                filledIcon: Icons.home,
+              ),
+              _buildNavItem(
+                index: 1,
                 label: 'الأماكن',
                 outlinedIcon: Icons.location_on_outlined,
                 filledIcon: Icons.location_on,
               ),
               _buildCreateButton(),
               _buildNavItem(
-                index: 2,
+                index: 3,
                 label: 'الماسح',
                 outlinedIcon: Icons.qr_code_scanner_outlined,
                 filledIcon: Icons.qr_code_scanner,
               ),
               _buildNavItem(
-                index: 3,
+                index: 4,
                 label: 'الإعدادات',
                 outlinedIcon: Icons.settings_outlined,
                 filledIcon: Icons.settings,
@@ -240,19 +246,19 @@ class _BottomNavigationState extends State<BottomNavigation>
 
   /// Builds the center Create button with floating FAB style
   Widget _buildCreateButton() {
-    final isSelected = widget.currentIndex == 1;
+    final isSelected = widget.currentIndex == 2;
 
     return Expanded(
       child: GestureDetector(
-        onTap: () => widget.onTap(1),
+        onTap: () => widget.onTap(2),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             AnimatedBuilder(
-              animation: _scaleAnimations[1],
+              animation: _scaleAnimations[2],
               builder: (context, child) {
                 return Transform.scale(
-                  scale: _scaleAnimations[1].value,
+                  scale: _scaleAnimations[2].value,
                   child: Container(
                     width: context.dynamicWidth(0.14),
                     height: context.dynamicWidth(0.14),
