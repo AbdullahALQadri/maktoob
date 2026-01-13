@@ -94,22 +94,22 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
 
         return Scaffold(
           backgroundColor: AppColors.gray100,
-          body: Column(
-            children: [
-              _buildHeader(state),
-              _buildQuickStats(state),
-              _buildTabBar(),
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildOverviewTab(state),
-                    _buildGuestsTab(state),
-                    _buildDetailsTab(state),
-                  ],
-                ),
-              ),
-            ],
+          body: NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) {
+              return [
+                SliverToBoxAdapter(child: _buildHeader(state)),
+                SliverToBoxAdapter(child: _buildQuickStats(state)),
+                SliverToBoxAdapter(child: _buildTabBar()),
+              ];
+            },
+            body: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildOverviewTab(state),
+                _buildGuestsTab(state),
+                _buildDetailsTab(state),
+              ],
+            ),
           ),
         );
       },
