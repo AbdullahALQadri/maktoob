@@ -144,19 +144,19 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                           children: [
                             // Expanded content
                             if (!isCollapsed)
-                              Opacity(
-                                opacity: expandRatio,
-                                child: Padding(
-                                  padding: EdgeInsets.fromLTRB(
-                                    context.dynamicWidth(0.05),
-                                    context.dynamicHeight(0.01),
-                                    context.dynamicWidth(0.05),
-                                    context.dynamicHeight(0.015),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    mainAxisSize: MainAxisSize.min,
+                              Positioned.fill(
+                                child: Opacity(
+                                  opacity: expandRatio,
+                                  child: Padding(
+                                    padding: EdgeInsets.fromLTRB(
+                                      context.dynamicWidth(0.05),
+                                      context.dynamicHeight(0.01),
+                                      context.dynamicWidth(0.05),
+                                      context.dynamicHeight(0.01),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       // Step badge
                                       Container(
@@ -216,6 +216,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                                   ),
                                 ),
                               ),
+                            ),
                             // Collapsed title
                             if (isCollapsed)
                               Positioned(

@@ -311,10 +311,10 @@ class DioConsumer implements ApiConsumer {
         throw const NoInternetConnectionException();
 
       case DioExceptionType.badCertificate:
-        throw const ServerException("Invalid certificate");
+        throw const ServerException(message: "Invalid certificate");
 
       default:
-        throw const ServerException("Unknown error occurred");
+        throw const ServerException(message: "Unknown error occurred");
     }
   }
 }
