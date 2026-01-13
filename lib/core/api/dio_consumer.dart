@@ -287,20 +287,20 @@ class DioConsumer implements ApiConsumer {
 
         switch (statusCode) {
           case StatusCode.badRequest:
-            throw BadRequestException(message);
+            throw BadRequestException(message: message);
           case StatusCode.unauthorized:
           case StatusCode.forbidden:
-            throw UnauthorizedException(message);
+            throw UnauthorizedException(message: message);
           case StatusCode.notFound:
-            throw NotFoundException(message);
+            throw NotFoundException(message: message);
           case StatusCode.conflict:
-            throw ConflictException(message);
+            throw ConflictException(message: message);
           case StatusCode.unprocessableEntity:
-            throw ValidationException(message);
+            throw ValidationException(message: message);
           case StatusCode.internalServerError:
-            throw InternalServerErrorException(message);
+            throw InternalServerErrorException(message: message);
           default:
-            throw ServerException(message ?? "Unexpected error: $statusCode");
+            throw ServerException(message: message ?? "Unexpected error: $statusCode");
         }
 
       case DioExceptionType.cancel:
