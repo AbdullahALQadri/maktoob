@@ -124,15 +124,15 @@ class _VenueScreenState extends State<VenueScreen>
               return true;
             },
             builder: (context, state) {
-              return Column(
-                children: [
-                  _buildHeader(state),
-                  _buildSearchBar(state),
-                  _buildAddVenueForm(state),
-                  Expanded(
-                    child: _buildContent(state),
-                  ),
-                ],
+              return NestedScrollView(
+                headerSliverBuilder: (context, innerBoxIsScrolled) {
+                  return [
+                    SliverToBoxAdapter(child: _buildHeader(state)),
+                    SliverToBoxAdapter(child: _buildSearchBar(state)),
+                    SliverToBoxAdapter(child: _buildAddVenueForm(state)),
+                  ];
+                },
+                body: _buildContent(state),
               );
             },
           ),
