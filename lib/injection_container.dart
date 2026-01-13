@@ -1,9 +1,20 @@
+import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Core
+import 'core/api/api_consumer.dart';
+import 'core/api/app_interceptors.dart';
+import 'core/api/dio_consumer.dart';
 import 'core/network/network_info.dart';
+import 'core/utils/storage/shared_preferences.dart';
+
+// Authentication Feature
+import 'features/authentication/data/datasources/auth_remote_data_source.dart';
+import 'features/authentication/data/repositories/auth_repository_impl.dart';
+import 'features/authentication/domain/repositories/auth_repository.dart';
+import 'features/authentication/presentation/cubit/auth_cubit.dart';
 
 // Home Feature
 import 'features/home/data/datasources/home_local_data_source.dart';
@@ -71,6 +82,43 @@ Future<void> init() async {
   //! ========== Core ==========
   sl.registerLazySingleton<NetworkInfo>(
     () => NetworkInfoImpl(connectionChecker: sl()),
+  );
+
+  // Dio & API Consumer
+  sl.registerLazySingleton(() => Dio());
+  sl.registerLazySingleton(() => AppIntercepters());
+  sl.registerLazySingleton(() => LogInterceptor(
+        request: true,
+        requestBody: true,
+        requestHeader: true,
+        responseBody: true,
+        responseHeader: true,
+        error: true,
+      ));
+  sl.registerLazySingleton<ApiConsumer>(
+    () => DioConsumer(client: sl()),
+  );
+
+  // SharedPref Controller
+  await SharedPrefController().initPreferences();
+
+  //! ========== AUTHENTICATION FEATURE ==========
+  // Data Sources
+  sl.registerLazySingleton<AuthRemoteDataSource>(
+    () => AuthRemoteDataSourceImpl(apiConsumer: sl()),
+  );
+
+  // Repository
+  sl.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl(
+      remoteDataSource: sl(),
+      sharedPrefController: SharedPrefController(),
+    ),
+  );
+
+  // Cubit
+  sl.registerFactory(
+    () => AuthCubit(authRepository: sl()),
   );
 
   //! ========== HOME FEATURE ==========

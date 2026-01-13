@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../core/utils/app_strings.dart';
+import '../../features/authentication/presentation/screens/login_screen.dart';
+import '../../features/authentication/presentation/screens/register_screen.dart';
 import '../../features/authentication/presentation/screens/splash_screen.dart';
 import '../../features/events/presentation/screens/create_event_screen.dart';
 import '../../features/events/presentation/screens/events_screen.dart';
@@ -15,6 +17,8 @@ import '../screens/main_shell.dart';
 class Routes {
   static const String initial = '/';
   static const String splash = '/splash';
+  static const String login = '/login';
+  static const String register = '/register';
   static const String main = '/main';
   static const String home = '/home';
   static const String events = '/events';
@@ -36,6 +40,28 @@ class AppRoutes {
       // Splash Screen
       case Routes.splash:
         return _buildRoute(const SplashScreen(), settings);
+
+      // Login Screen
+      case Routes.login:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return _buildRoute(
+          LoginScreen(
+            onRegisterTap: args?['onRegisterTap'],
+            onLoginSuccess: args?['onLoginSuccess'],
+          ),
+          settings,
+        );
+
+      // Register Screen
+      case Routes.register:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return _buildRoute(
+          RegisterScreen(
+            onLoginTap: args?['onLoginTap'],
+            onRegisterSuccess: args?['onRegisterSuccess'],
+          ),
+          settings,
+        );
 
       // Main Shell with navigation
       case Routes.main:

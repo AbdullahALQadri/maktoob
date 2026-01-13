@@ -4,9 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'config/routes/app_routes.dart';
+import 'config/screens/main_shell.dart';
 import 'config/themes/app_theme.dart';
 import 'core/utils/app_strings.dart';
 import 'core/widgets/network/offline_wrapper.dart';
+import 'features/authentication/presentation/cubit/auth_cubit.dart';
+import 'features/authentication/presentation/cubit/auth_state.dart';
+import 'features/authentication/presentation/screens/login_screen.dart';
+import 'features/authentication/presentation/screens/register_screen.dart';
 import 'features/events/presentation/cubit/events_list/events_list_cubit.dart';
 import 'features/events/presentation/cubit/event_details/event_details_cubit.dart';
 import 'features/events/presentation/cubit/create_event/create_event_cubit.dart';
@@ -24,15 +29,20 @@ class Maktoob extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        // Home is the first screen, load eagerly
-        BlocProvider<HomeCubit>(
+        // Auth is checked first on app start
+        BlocProvider<AuthCubit>(
           lazy: false,
-          create: (_) => di.sl<HomeCubit>()..loadHomeData(),
+          create: (_) => di.sl<AuthCubit>()..checkAuthStatus(),
         ),
-        // Events list is accessed from bottom nav, load eagerly
+        // Home is loaded after authentication
+        BlocProvider<HomeCubit>(
+          lazy: true,
+          create: (_) => di.sl<HomeCubit>(),
+        ),
+        // Events list is accessed from bottom nav
         BlocProvider<EventsListCubit>(
-          lazy: false,
-          create: (_) => di.sl<EventsListCubit>()..loadEvents(),
+          lazy: true,
+          create: (_) => di.sl<EventsListCubit>(),
         ),
         // Lazy load - only create when event details screen is accessed
         BlocProvider<EventDetailsCubit>(
@@ -81,8 +91,78 @@ class Maktoob extends StatelessWidget {
         title: AppStrings.appName,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
-        onGenerateRoute: AppRoutes.onGenerateRoute,
+        home: const AuthWrapper(),
       ),
+    );
+  }
+}
+
+/// Wrapper widget that handles authentication state and navigation
+class AuthWrapper extends StatefulWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
+
+class _AuthWrapperState extends State<AuthWrapper> {
+  bool _showRegister = false;
+
+  void _goToRegister() {
+    setState(() {
+      _showRegister = true;
+    });
+  }
+
+  void _goToLogin() {
+    setState(() {
+      _showRegister = false;
+    });
+  }
+
+  void _onAuthSuccess() {
+    // Load data after successful authentication
+    context.read<HomeCubit>().loadHomeData();
+    context.read<EventsListCubit>().loadEvents();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<AuthCubit, AuthState>(
+      listener: (context, state) {
+        if (state is AuthRegistered) {
+          // After registration, go to login
+          _goToLogin();
+        }
+      },
+      builder: (context, state) {
+        // Show loading while checking auth status
+        if (state is AuthInitial) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        // User is authenticated - show main app
+        if (state is AuthAuthenticated) {
+          return const MainShell();
+        }
+
+        // User is not authenticated - show login or register
+        if (_showRegister) {
+          return RegisterScreen(
+            onLoginTap: _goToLogin,
+            onRegisterSuccess: _goToLogin,
+          );
+        }
+
+        return LoginScreen(
+          onRegisterTap: _goToRegister,
+          onLoginSuccess: _onAuthSuccess,
+        );
+      },
     );
   }
 }
