@@ -5,14 +5,13 @@ import '../../core/widgets/bottom_navigation.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/events/presentation/screens/create_event_screen.dart';
 import '../../features/events/presentation/screens/event_details_screen.dart';
-import '../../features/venues/presentation/screens/venue_screen.dart';
 import '../../features/scanner/presentation/screens/qr_scanner_screen.dart';
 import '../../features/payment/presentation/screens/payment_upload_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
 
 /// Main shell widget that contains all screens with bottom navigation.
 /// This acts as the root container for the app's main content.
-/// Navigation: Home (0) -> Venue (1) -> Add Event (2) -> Scanner (3) -> Settings (4)
+/// Navigation: Home (0) -> Scanner (1) -> Settings (2) -> Add Event (3)
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
 
@@ -80,20 +79,18 @@ class _MainShellState extends State<MainShell> {
     }
 
     // Main navigation screens
-    // 0: Home, 1: Venue, 2: Create Event, 3: Scanner, 4: Settings
+    // 0: Home, 1: Scanner, 2: Settings, 3: Create Event
     switch (_currentIndex) {
       case 0:
         return HomeScreen(onViewEvent: _onViewEvent);
       case 1:
-        return const VenueScreen();
+        return const QRScannerScreen();
       case 2:
+        return const SettingsScreen();
+      case 3:
         return CreateEventScreen(
           onComplete: _onEventCreated,
         );
-      case 3:
-        return const QRScannerScreen();
-      case 4:
-        return const SettingsScreen();
       default:
         return HomeScreen(onViewEvent: _onViewEvent);
     }

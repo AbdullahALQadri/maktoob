@@ -6,13 +6,11 @@ import '../utils/media_query_values.dart';
 /// A custom bottom navigation bar widget for the Maktoob app.
 ///
 /// Features:
-/// - 5 navigation tabs: Home, Venue, Create (FAB style), Scanner, Settings
-/// - Gradient purple-pink color for selected items
-/// - Floating center button with gradient background
+/// - Floating pill-shaped dark container with 3 tabs: Home, Scanner, Settings
+/// - Separate circular "+" button on the right for adding events
 /// - Smooth animations for selection changes
-/// - White background with rounded top corners and top shadow
 class BottomNavigation extends StatefulWidget {
-  /// The index of the currently selected tab (0-4)
+  /// The index of the currently selected tab (0-2 for main tabs, 3 for add event)
   final int currentIndex;
 
   /// Callback function when a tab is tapped
@@ -41,7 +39,7 @@ class _BottomNavigationState extends State<BottomNavigation>
 
   void _initializeAnimations() {
     _controllers = List.generate(
-      5,
+      4, // 3 main tabs + 1 add button
       (index) => AnimationController(
         duration: const Duration(milliseconds: 200),
         vsync: this,
@@ -49,13 +47,13 @@ class _BottomNavigationState extends State<BottomNavigation>
     );
 
     _scaleAnimations = _controllers.map((controller) {
-      return Tween<double>(begin: 1.0, end: 1.15).animate(
+      return Tween<double>(begin: 1.0, end: 1.1).animate(
         CurvedAnimation(parent: controller, curve: Curves.easeOutBack),
       );
     }).toList();
 
     // Start animation for initially selected tab
-    if (widget.currentIndex >= 0 && widget.currentIndex < 5) {
+    if (widget.currentIndex >= 0 && widget.currentIndex < 4) {
       _controllers[widget.currentIndex].forward();
     }
   }
@@ -65,11 +63,11 @@ class _BottomNavigationState extends State<BottomNavigation>
     super.didUpdateWidget(oldWidget);
     if (oldWidget.currentIndex != widget.currentIndex) {
       // Reverse animation for previously selected tab
-      if (oldWidget.currentIndex >= 0 && oldWidget.currentIndex < 5) {
+      if (oldWidget.currentIndex >= 0 && oldWidget.currentIndex < 4) {
         _controllers[oldWidget.currentIndex].reverse();
       }
       // Forward animation for newly selected tab
-      if (widget.currentIndex >= 0 && widget.currentIndex < 5) {
+      if (widget.currentIndex >= 0 && widget.currentIndex < 4) {
         _controllers[widget.currentIndex].forward();
       }
     }
@@ -83,66 +81,55 @@ class _BottomNavigationState extends State<BottomNavigation>
     super.dispose();
   }
 
-  /// Creates the gradient used for selected items and the Create button
-  LinearGradient get _gradient => LinearGradient(
-        colors: [AppColors.purple600, AppColors.pink600],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
-
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(context.dynamicWidth(0.06)),
-          topRight: Radius.circular(context.dynamicWidth(0.06)),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.1),
-            blurRadius: 20,
-            offset: const Offset(0, -5),
-            spreadRadius: 0,
-          ),
-        ],
-      ),
+      color: Colors.transparent,
       child: SafeArea(
         top: false,
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: context.dynamicWidth(0.02),
-            vertical: context.dynamicHeight(0.01),
+            horizontal: context.dynamicWidth(0.04),
+            vertical: context.dynamicHeight(0.015),
           ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(
-                index: 0,
-                label: 'الرئيسية',
-                outlinedIcon: Icons.home_outlined,
-                filledIcon: Icons.home,
+              // Main pill-shaped navigation container
+              Expanded(
+                child: Container(
+                  height: context.dynamicHeight(0.08),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1C1C1E),
+                    borderRadius: BorderRadius.circular(context.dynamicWidth(0.08)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildNavItem(
+                        index: 0,
+                        label: 'الرئيسية',
+                        outlinedIcon: Icons.grid_view_outlined,
+                        filledIcon: Icons.grid_view_rounded,
+                      ),
+                      _buildNavItem(
+                        index: 1,
+                        label: 'الماسح',
+                        outlinedIcon: Icons.crop_free_outlined,
+                        filledIcon: Icons.crop_free_rounded,
+                      ),
+                      _buildNavItem(
+                        index: 2,
+                        label: 'الإعدادات',
+                        outlinedIcon: Icons.bookmark_border_outlined,
+                        filledIcon: Icons.bookmark,
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              _buildNavItem(
-                index: 1,
-                label: 'الأماكن',
-                outlinedIcon: Icons.location_on_outlined,
-                filledIcon: Icons.location_on,
-              ),
-              _buildCreateButton(),
-              _buildNavItem(
-                index: 3,
-                label: 'الماسح',
-                outlinedIcon: Icons.qr_code_scanner_outlined,
-                filledIcon: Icons.qr_code_scanner,
-              ),
-              _buildNavItem(
-                index: 4,
-                label: 'الإعدادات',
-                outlinedIcon: Icons.settings_outlined,
-                filledIcon: Icons.settings,
-              ),
+              SizedBox(width: context.dynamicWidth(0.03)),
+              // Separate circular add button
+              _buildAddButton(),
             ],
           ),
         ),
@@ -159,159 +146,80 @@ class _BottomNavigationState extends State<BottomNavigation>
   }) {
     final isSelected = widget.currentIndex == index;
 
-    return Expanded(
-      child: InkWell(
-        onTap: () => widget.onTap(index),
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
-        splashColor: AppColors.purple600.withValues(alpha: 0.1),
-        highlightColor: AppColors.purple600.withValues(alpha: 0.05),
-        child: AnimatedBuilder(
-          animation: _scaleAnimations[index],
-          builder: (context, child) {
-            return Transform.scale(
-              scale: _scaleAnimations[index].value,
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.01)),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _buildGradientIcon(
-                      icon: isSelected ? filledIcon : outlinedIcon,
-                      isSelected: isSelected,
-                    ),
-                    SizedBox(height: context.dynamicHeight(0.005)),
-                    _buildGradientText(
-                      text: label,
-                      isSelected: isSelected,
-                    ),
-                  ],
-                ),
+    return GestureDetector(
+      onTap: () => widget.onTap(index),
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedBuilder(
+        animation: _scaleAnimations[index],
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _scaleAnimations[index].value,
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: context.dynamicWidth(0.04),
+                vertical: context.dynamicHeight(0.01),
               ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  /// Builds an icon with gradient color when selected
-  Widget _buildGradientIcon({
-    required IconData icon,
-    required bool isSelected,
-  }) {
-    if (isSelected) {
-      return ShaderMask(
-        shaderCallback: (bounds) => _gradient.createShader(bounds),
-        child: Icon(
-          icon,
-          size: context.dynamicWidth(0.065),
-          color: AppColors.white,
-        ),
-      );
-    }
-    return Icon(
-      icon,
-      size: context.dynamicWidth(0.065),
-      color: AppColors.gray400,
-    );
-  }
-
-  /// Builds text with gradient color when selected
-  Widget _buildGradientText({
-    required String text,
-    required bool isSelected,
-  }) {
-    if (isSelected) {
-      return ShaderMask(
-        shaderCallback: (bounds) => _gradient.createShader(bounds),
-        child: Text(
-          text,
-          style: TextStyle(
-            fontSize: context.dynamicWidth(0.03),
-            fontWeight: FontWeight.w600,
-            color: AppColors.white,
-          ),
-        ),
-      );
-    }
-    return Text(
-      text,
-      style: TextStyle(
-        fontSize: context.dynamicWidth(0.03),
-        fontWeight: FontWeight.w500,
-        color: AppColors.gray400,
-      ),
-    );
-  }
-
-  /// Builds the center Create button with floating FAB style
-  Widget _buildCreateButton() {
-    final isSelected = widget.currentIndex == 2;
-
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => widget.onTap(2),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AnimatedBuilder(
-              animation: _scaleAnimations[2],
-              builder: (context, child) {
-                return Transform.scale(
-                  scale: _scaleAnimations[2].value,
-                  child: Container(
-                    width: context.dynamicWidth(0.14),
-                    height: context.dynamicWidth(0.14),
-                    decoration: BoxDecoration(
-                      gradient: _gradient,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.purple600.withValues(alpha: 0.4),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                          spreadRadius: 0,
-                        ),
-                        BoxShadow(
-                          color: AppColors.pink600.withValues(alpha: 0.3),
-                          blurRadius: 16,
-                          offset: const Offset(0, 6),
-                          spreadRadius: 0,
-                        ),
-                      ],
-                    ),
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 200),
-                      transitionBuilder: (child, animation) {
-                        return RotationTransition(
-                          turns: Tween<double>(begin: 0.75, end: 1.0)
-                              .animate(animation),
-                          child: ScaleTransition(
-                            scale: animation,
-                            child: child,
-                          ),
-                        );
-                      },
-                      child: Icon(
-                        isSelected
-                            ? Icons.add_circle
-                            : Icons.add_circle_outline,
-                        key: ValueKey<bool>(isSelected),
-                        size: context.dynamicWidth(0.08),
-                        color: AppColors.white,
-                      ),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? const Color(0xFF2C2C2E)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.05)),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    isSelected ? filledIcon : outlinedIcon,
+                    size: context.dynamicWidth(0.055),
+                    color: AppColors.white,
+                  ),
+                  SizedBox(height: context.dynamicHeight(0.005)),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: context.dynamicWidth(0.025),
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                      color: AppColors.white,
                     ),
                   ),
-                );
-              },
+                ],
+              ),
             ),
-            SizedBox(height: context.dynamicHeight(0.005)),
-            _buildGradientText(
-              text: 'إضافة',
-              isSelected: isSelected,
+          );
+        },
+      ),
+    );
+  }
+
+  /// Builds the separate circular add button
+  Widget _buildAddButton() {
+    final isSelected = widget.currentIndex == 3;
+
+    return GestureDetector(
+      onTap: () => widget.onTap(3),
+      child: AnimatedBuilder(
+        animation: _scaleAnimations[3],
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _scaleAnimations[3].value,
+            child: Container(
+              width: context.dynamicHeight(0.08),
+              height: context.dynamicHeight(0.08),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? const Color(0xFF2C2C2E)
+                    : const Color(0xFF1C1C1E),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.add,
+                size: context.dynamicWidth(0.07),
+                color: AppColors.white,
+              ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
