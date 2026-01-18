@@ -68,6 +68,9 @@ import 'features/payment/presentation/cubit/payment_cubit.dart';
 // Settings Feature
 import 'features/settings/presentation/cubit/settings_cubit.dart';
 
+// Invitation Feature (Golden Scenario)
+import 'features/invitation/presentation/cubit/invitation_cubit.dart';
+
 final GetIt sl = GetIt.instance;
 
 Future<void> init() async {
@@ -281,4 +284,8 @@ Future<void> init() async {
   //! ========== SETTINGS FEATURE ==========
   // Cubit (no data/domain layer - simple local settings)
   sl.registerFactory(() => SettingsCubit());
+
+  //! ========== INVITATION FEATURE (Golden Scenario) ==========
+  // Cubit - manages the entire invitation creation flow
+  sl.registerFactory(() => InvitationCubit());
 }

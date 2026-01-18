@@ -42,7 +42,10 @@ class AppColors {
   static Color rose500 = HexColor('#F43F5E');
   static Color red500 = HexColor('#EF4444');
   static Color purple50 = HexColor('#FAF5FF');
+  static Color purple100 = HexColor('#F3E8FF');
   static Color blue50 = HexColor('#EFF6FF');
   static Color green50 = HexColor('#F0FDF4');
   static Color cyan50 = HexColor('#ECFEFF');
+  static Color gray50 = HexColor('#F9FAFB');
+  static Color gray800 = HexColor('#1F2937');
 }

@@ -16,6 +16,8 @@ import 'features/events/presentation/cubit/events_list/events_list_cubit.dart';
 import 'features/events/presentation/cubit/event_details/event_details_cubit.dart';
 import 'features/events/presentation/cubit/create_event/create_event_cubit.dart';
 import 'features/home/presentation/cubit/home_cubit.dart';
+import 'features/invitation/presentation/cubit/invitation_cubit.dart';
+import 'features/invitation/presentation/screens/invitation_flow_shell.dart';
 import 'features/payment/presentation/cubit/payment_cubit.dart';
 import 'features/scanner/presentation/cubit/scanner_cubit.dart';
 import 'features/venues/presentation/cubit/venues_cubit.dart';
@@ -74,6 +76,11 @@ class Maktoob extends StatelessWidget {
           lazy: true,
           create: (_) => di.sl<SettingsCubit>(),
         ),
+        // Invitation feature - Golden Scenario flow
+        BlocProvider<InvitationCubit>(
+          lazy: true,
+          create: (_) => di.sl<InvitationCubit>(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -98,6 +105,7 @@ class Maktoob extends StatelessWidget {
 }
 
 /// Wrapper widget that handles authentication state and navigation
+/// Modified for Golden Scenario: shows invitation flow for unauthenticated users
 class AuthWrapper extends StatefulWidget {
   const AuthWrapper({super.key});
 
@@ -107,16 +115,25 @@ class AuthWrapper extends StatefulWidget {
 
 class _AuthWrapperState extends State<AuthWrapper> {
   bool _showRegister = false;
+  bool _showAuthScreens = false; // True when user explicitly wants to login
 
   void _goToRegister() {
     setState(() {
       _showRegister = true;
+      _showAuthScreens = true;
     });
   }
 
   void _goToLogin() {
     setState(() {
       _showRegister = false;
+      _showAuthScreens = true;
+    });
+  }
+
+  void _goToGoldenFlow() {
+    setState(() {
+      _showAuthScreens = false;
     });
   }
 
@@ -150,17 +167,25 @@ class _AuthWrapperState extends State<AuthWrapper> {
           return const MainShell();
         }
 
-        // User is not authenticated - show login or register
-        if (_showRegister) {
-          return RegisterScreen(
-            onLoginTap: _goToLogin,
-            onRegisterSuccess: _goToLogin,
+        // User is not authenticated
+        // If user explicitly requested auth screens, show them
+        if (_showAuthScreens) {
+          if (_showRegister) {
+            return RegisterScreen(
+              onLoginTap: _goToLogin,
+              onRegisterSuccess: _goToLogin,
+            );
+          }
+          return LoginScreen(
+            onRegisterTap: _goToRegister,
+            onLoginSuccess: _onAuthSuccess,
           );
         }
 
-        return LoginScreen(
-          onRegisterTap: _goToRegister,
-          onLoginSuccess: _onAuthSuccess,
+        // Otherwise, show Golden Scenario flow (Landing page first)
+        return InvitationFlowShell(
+          onLogin: _goToLogin,
+          onGoToDashboard: _goToLogin, // Prompt login when going to dashboard
         );
       },
     );
