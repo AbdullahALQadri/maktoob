@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 import '../utils/app_colors.dart';
@@ -96,34 +98,40 @@ class _BottomNavigationState extends State<BottomNavigation>
             children: [
               // Main pill-shaped navigation container
               Expanded(
-                child: Container(
-                  height: context.dynamicHeight(0.08),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1C1C1E),
-                    borderRadius: BorderRadius.circular(context.dynamicWidth(0.08)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildNavItem(
-                        index: 0,
-                        label: 'الرئيسية',
-                        outlinedIcon: Icons.grid_view_outlined,
-                        filledIcon: Icons.grid_view_rounded,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.08)),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                    child: Container(
+                      height: context.dynamicHeight(0.08),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1C1C1E).withValues(alpha: 0.85),
+                        borderRadius: BorderRadius.circular(context.dynamicWidth(0.08)),
                       ),
-                      _buildNavItem(
-                        index: 1,
-                        label: 'الماسح',
-                        outlinedIcon: Icons.crop_free_outlined,
-                        filledIcon: Icons.crop_free_rounded,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _buildNavItem(
+                            index: 0,
+                            label: 'الرئيسية',
+                            outlinedIcon: Icons.grid_view_outlined,
+                            filledIcon: Icons.grid_view_rounded,
+                          ),
+                          _buildNavItem(
+                            index: 1,
+                            label: 'الماسح',
+                            outlinedIcon: Icons.crop_free_outlined,
+                            filledIcon: Icons.crop_free_rounded,
+                          ),
+                          _buildNavItem(
+                            index: 2,
+                            label: 'الإعدادات',
+                            outlinedIcon: Icons.bookmark_border_outlined,
+                            filledIcon: Icons.bookmark,
+                          ),
+                        ],
                       ),
-                      _buildNavItem(
-                        index: 2,
-                        label: 'الإعدادات',
-                        outlinedIcon: Icons.bookmark_border_outlined,
-                        filledIcon: Icons.bookmark,
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -203,19 +211,24 @@ class _BottomNavigationState extends State<BottomNavigation>
         builder: (context, child) {
           return Transform.scale(
             scale: _scaleAnimations[3].value,
-            child: Container(
-              width: context.dynamicHeight(0.08),
-              height: context.dynamicHeight(0.08),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? const Color(0xFF2C2C2E)
-                    : const Color(0xFF1C1C1E),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.add,
-                size: context.dynamicWidth(0.07),
-                color: AppColors.white,
+            child: ClipOval(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                child: Container(
+                  width: context.dynamicHeight(0.08),
+                  height: context.dynamicHeight(0.08),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? const Color(0xFF2C2C2E).withValues(alpha: 0.85)
+                        : const Color(0xFF1C1C1E).withValues(alpha: 0.85),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.add,
+                    size: context.dynamicWidth(0.07),
+                    color: AppColors.white,
+                  ),
+                ),
               ),
             ),
           );

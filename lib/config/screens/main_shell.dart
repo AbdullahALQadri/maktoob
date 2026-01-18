@@ -100,6 +100,7 @@ class _MainShellState extends State<MainShell> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.gray100,
+      extendBody: true,
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
         child: _buildCurrentScreen(),
