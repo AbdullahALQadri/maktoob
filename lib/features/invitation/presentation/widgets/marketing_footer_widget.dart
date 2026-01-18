@@ -47,7 +47,7 @@ class MarketingFooterWidget extends StatelessWidget {
             width: screenWidth * 0.08,
             height: screenWidth * 0.08,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 colors: [AppColors.purple600, AppColors.pink600],
               ),
               borderRadius: BorderRadius.circular(screenWidth * 0.02),

@@ -267,7 +267,7 @@ class InvitationPreviewWidget extends StatelessWidget {
       default:
         // Default to event type colors or purple
         return eventType?.gradientColors ??
-            const [AppColors.purple600, AppColors.pink600];
+            [AppColors.purple600, AppColors.pink600];
     }
   }
 

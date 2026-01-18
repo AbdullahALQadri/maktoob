@@ -72,13 +72,13 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.gray800),
+          icon: Icon(Icons.arrow_back, color: AppColors.gray800),
           onPressed: () {
             context.read<InvitationCubit>().previousStep();
             widget.onBack?.call();
           },
         ),
-        title: const Text(
+        title: Text(
           'Create Invitation',
           style: TextStyle(
             color: AppColors.gray900,
@@ -394,7 +394,7 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
+            colorScheme: ColorScheme.light(
               primary: AppColors.purple600,
               onPrimary: Colors.white,
               surface: Colors.white,
@@ -418,7 +418,7 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
+            colorScheme: ColorScheme.light(
               primary: AppColors.purple600,
               onPrimary: Colors.white,
               surface: Colors.white,

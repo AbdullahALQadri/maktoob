@@ -99,7 +99,7 @@ class TemplateSelectorWidget extends StatelessWidget {
                         child: Container(
                           width: screenWidth * 0.05,
                           height: screenWidth * 0.05,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             color: AppColors.purple600,
                             shape: BoxShape.circle,
                           ),

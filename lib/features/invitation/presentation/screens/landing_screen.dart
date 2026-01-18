@@ -71,7 +71,7 @@ class _LandingScreenState extends State<LandingScreen>
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -172,7 +172,11 @@ class _LandingScreenState extends State<LandingScreen>
                         text: 'Create Your Invitation',
                         onPressed: _onGetStarted,
                         gradientColors: const [Colors.white, Colors.white],
-                        textColor: AppColors.purple600,
+                        textStyle: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.purple600,
+                        ),
                       ),
                     ),
                   ),

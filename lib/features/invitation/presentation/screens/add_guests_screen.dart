@@ -48,13 +48,13 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.gray800),
+          icon: Icon(Icons.arrow_back, color: AppColors.gray800),
           onPressed: () {
             context.read<InvitationCubit>().previousStep();
             widget.onBack?.call();
           },
         ),
-        title: const Text(
+        title: Text(
           'Add Guests',
           style: TextStyle(
             color: AppColors.gray900,
@@ -153,7 +153,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
                           label: const Text('Add Guest'),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AppColors.purple600,
-                            side: const BorderSide(color: AppColors.purple600),
+                            side: BorderSide(color: AppColors.purple600),
                             padding: EdgeInsets.symmetric(
                               vertical: screenHeight * 0.015,
                             ),
@@ -184,7 +184,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
                               onPressed: () {
                                 context.read<InvitationCubit>().clearGuests();
                               },
-                              child: const Text(
+                              child: Text(
                                 'Clear All',
                                 style: TextStyle(color: AppColors.red500),
                               ),
@@ -275,7 +275,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
             width: screenWidth * 0.1,
             height: screenWidth * 0.1,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 colors: [AppColors.purple600, AppColors.pink600],
               ),
               borderRadius: BorderRadius.circular(screenWidth * 0.025),

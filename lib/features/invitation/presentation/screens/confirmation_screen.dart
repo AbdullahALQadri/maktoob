@@ -88,8 +88,8 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                       width: screenWidth * 0.25,
                       height: screenWidth * 0.25,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [AppColors.green600, Color(0xFF10B981)],
+                        gradient: LinearGradient(
+                          colors: [AppColors.green600, const Color(0xFF10B981)],
                         ),
                         shape: BoxShape.circle,
                         boxShadow: [
@@ -160,11 +160,11 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                             version: QrVersions.auto,
                             size: screenWidth * 0.45,
                             backgroundColor: Colors.white,
-                            eyeStyle: const QrEyeStyle(
+                            eyeStyle: QrEyeStyle(
                               eyeShape: QrEyeShape.square,
                               color: AppColors.purple600,
                             ),
-                            dataModuleStyle: const QrDataModuleStyle(
+                            dataModuleStyle: QrDataModuleStyle(
                               dataModuleShape: QrDataModuleShape.square,
                               color: AppColors.gray800,
                             ),

@@ -31,7 +31,7 @@ class EventTypeScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.gray800),
+          icon: Icon(Icons.arrow_back, color: AppColors.gray800),
           onPressed: () {
             context.read<InvitationCubit>().previousStep();
             onBack?.call();

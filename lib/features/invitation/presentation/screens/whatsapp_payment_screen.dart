@@ -34,13 +34,13 @@ class WhatsAppPaymentScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.gray800),
+          icon: Icon(Icons.arrow_back, color: AppColors.gray800),
           onPressed: () {
             context.read<InvitationCubit>().previousStep();
             onBack?.call();
           },
         ),
-        title: const Text(
+        title: Text(
           'Complete Payment',
           style: TextStyle(
             color: AppColors.gray900,
@@ -343,7 +343,7 @@ class WhatsAppPaymentScreen extends StatelessWidget {
             label: const Text('Choose File'),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.purple600,
-              side: const BorderSide(color: AppColors.purple600),
+              side: BorderSide(color: AppColors.purple600),
               padding: EdgeInsets.symmetric(
                 horizontal: screenWidth * 0.06,
                 vertical: screenWidth * 0.025,
