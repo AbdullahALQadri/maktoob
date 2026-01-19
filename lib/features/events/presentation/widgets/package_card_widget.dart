@@ -109,12 +109,12 @@ class _PackageCard extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [AppColors.purple600, AppColors.pink600],
+                      colors: [AppColors.primaryColor, AppColors.tertiaryColor],
                     ),
                     borderRadius: BorderRadius.circular(context.dynamicWidth(0.05)),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.purple600.withOpacity(0.3),
+                        color: AppColors.primaryColor.withOpacity(0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),

@@ -143,7 +143,7 @@ class _PaymentUploadScreenState extends State<PaymentUploadScreen>
           end: Alignment.bottomRight,
           colors: [
             AppColors.blue600,
-            AppColors.purple600,
+            AppColors.primaryColor,
           ],
         ),
         borderRadius: BorderRadius.only(
@@ -152,7 +152,7 @@ class _PaymentUploadScreenState extends State<PaymentUploadScreen>
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.purple600.withOpacity(0.3),
+            color: AppColors.primaryColor.withOpacity(0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -296,7 +296,7 @@ class _PaymentUploadScreenState extends State<PaymentUploadScreen>
                 ? LinearGradient(
                     colors: uploadSuccess
                         ? [AppColors.green600, AppColors.emerald500]
-                        : [AppColors.purple600, AppColors.pink600],
+                        : [AppColors.primaryColor, AppColors.tertiaryColor],
                   )
                 : null,
             color: canSubmit ? null : AppColors.gray300,
@@ -305,7 +305,7 @@ class _PaymentUploadScreenState extends State<PaymentUploadScreen>
                     BoxShadow(
                       color: uploadSuccess
                           ? AppColors.green600.withOpacity(0.3)
-                          : AppColors.purple600.withOpacity(0.3),
+                          : AppColors.primaryColor.withOpacity(0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),

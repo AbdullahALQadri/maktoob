@@ -103,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen>
             ElevatedButton(
               onPressed: () => context.read<HomeCubit>().refresh(),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.purple600,
+                backgroundColor: AppColors.primaryColor,
                 foregroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(
                   horizontal: context.dynamicWidth(0.08),
@@ -164,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen>
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.purple600, AppColors.pink600],
+          colors: [AppColors.primaryColor, AppColors.tertiaryColor],
         ),
       ),
       child: SafeArea(
@@ -301,14 +301,14 @@ class _HomeScreenState extends State<HomeScreen>
                       style: TextStyle(
                         fontSize: context.dynamicWidth(0.035),
                         fontWeight: FontWeight.w600,
-                        color: AppColors.purple600,
+                        color: AppColors.primaryColor,
                       ),
                     ),
                     SizedBox(width: context.dynamicWidth(0.01)),
                     Icon(
                       Icons.arrow_forward,
                       size: context.dynamicWidth(0.04),
-                      color: AppColors.purple600,
+                      color: AppColors.primaryColor,
                     ),
                   ],
                 ),

@@ -30,7 +30,7 @@ class MarketingFooterWidget extends StatelessWidget {
         gradient: LinearGradient(
           colors: [
             AppColors.purple50,
-            AppColors.pink600.withOpacity(0.1),
+            AppColors.tertiaryColor.withOpacity(0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(screenWidth * 0.03),
@@ -48,7 +48,7 @@ class MarketingFooterWidget extends StatelessWidget {
             height: screenWidth * 0.08,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [AppColors.purple600, AppColors.pink600],
+                colors: [AppColors.primaryColor, AppColors.tertiaryColor],
               ),
               borderRadius: BorderRadius.circular(screenWidth * 0.02),
             ),
@@ -68,7 +68,7 @@ class MarketingFooterWidget extends StatelessWidget {
               Text(
                 'Created with Maktoob',
                 style: TextStyle(
-                  color: AppColors.purple600,
+                  color: AppColors.primaryColor,
                   fontWeight: FontWeight.w600,
                   fontSize: screenWidth * 0.035,
                 ),
@@ -78,7 +78,7 @@ class MarketingFooterWidget extends StatelessWidget {
                 child: Text(
                   'Create your invitation now',
                   style: TextStyle(
-                    color: AppColors.pink600,
+                    color: AppColors.tertiaryColor,
                     fontSize: screenWidth * 0.03,
                     decoration: TextDecoration.underline,
                   ),

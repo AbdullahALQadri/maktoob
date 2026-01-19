@@ -91,12 +91,12 @@ class OfflineScreen extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [AppColors.purple600, AppColors.pink600],
+                            colors: [AppColors.primaryColor, AppColors.tertiaryColor],
                           ),
                           borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.purple600.withOpacity(0.3),
+                              color: AppColors.primaryColor.withOpacity(0.3),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),

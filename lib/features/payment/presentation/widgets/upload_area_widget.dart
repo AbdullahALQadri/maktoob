@@ -44,7 +44,7 @@ class UploadAreaWidget extends StatelessWidget {
           color: uploadSuccess
               ? AppColors.green600.withOpacity(0.5)
               : selectedFile != null
-                  ? AppColors.purple600.withOpacity(0.3)
+                  ? AppColors.primaryColor.withOpacity(0.3)
                   : AppColors.gray200,
           width: 2,
         ),
@@ -89,7 +89,7 @@ class UploadAreaWidget extends StatelessWidget {
               child: Icon(
                 Icons.cloud_upload_outlined,
                 size: 48,
-                color: AppColors.purple600,
+                color: AppColors.primaryColor,
               ),
             ),
             const SizedBox(height: 20),
@@ -279,7 +279,7 @@ class UploadAreaWidget extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: AppColors.purple600,
+                color: AppColors.primaryColor,
               ),
             ),
           ],
@@ -301,12 +301,12 @@ class UploadAreaWidget extends StatelessWidget {
                 height: 10,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [AppColors.purple600, AppColors.pink600],
+                    colors: [AppColors.primaryColor, AppColors.tertiaryColor],
                   ),
                   borderRadius: BorderRadius.circular(5),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.purple600.withOpacity(0.4),
+                      color: AppColors.primaryColor.withOpacity(0.4),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
                     ),

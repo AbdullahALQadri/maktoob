@@ -154,8 +154,8 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
                           icon: const Icon(Icons.add),
                           label: const Text('Add Guest'),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.purple600,
-                            side: BorderSide(color: AppColors.purple600),
+                            foregroundColor: AppColors.primaryColor,
+                            side: BorderSide(color: AppColors.primaryColor),
                             padding: EdgeInsets.symmetric(
                               vertical: screenHeight * 0.015,
                             ),
@@ -282,7 +282,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
             height: screenWidth * 0.1,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [AppColors.purple600, AppColors.pink600],
+                colors: [AppColors.primaryColor, AppColors.tertiaryColor],
               ),
               borderRadius: BorderRadius.circular(screenWidth * 0.025),
             ),

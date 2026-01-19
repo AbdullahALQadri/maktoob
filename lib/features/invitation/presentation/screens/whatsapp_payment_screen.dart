@@ -253,7 +253,7 @@ class WhatsAppPaymentScreen extends StatelessWidget {
             children: [
               Icon(
                 Icons.account_balance,
-                color: AppColors.purple600,
+                color: AppColors.primaryColor,
                 size: screenWidth * 0.06,
               ),
               SizedBox(width: screenWidth * 0.02),
@@ -307,15 +307,15 @@ class WhatsAppPaymentScreen extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(screenWidth * 0.04),
       decoration: BoxDecoration(
-        color: AppColors.purple50,
+        color: AppColors.blue50,
         borderRadius: BorderRadius.circular(screenWidth * 0.035),
-        border: Border.all(color: AppColors.purple100),
+        border: Border.all(color: AppColors.blue50),
       ),
       child: Column(
         children: [
           Icon(
             Icons.cloud_upload_outlined,
-            color: AppColors.purple600,
+            color: AppColors.primaryColor,
             size: screenWidth * 0.12,
           ),
           SizedBox(height: screenWidth * 0.02),
@@ -324,7 +324,7 @@ class WhatsAppPaymentScreen extends StatelessWidget {
             style: TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: screenWidth * 0.04,
-              color: AppColors.purple600,
+              color: AppColors.primaryColor,
             ),
           ),
           SizedBox(height: screenWidth * 0.01),
@@ -344,8 +344,8 @@ class WhatsAppPaymentScreen extends StatelessWidget {
             icon: const Icon(Icons.attach_file),
             label: const Text('Choose File'),
             style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.purple600,
-              side: BorderSide(color: AppColors.purple600),
+              foregroundColor: AppColors.primaryColor,
+              side: BorderSide(color: AppColors.primaryColor),
               padding: EdgeInsets.symmetric(
                 horizontal: screenWidth * 0.06,
                 vertical: screenWidth * 0.025,
@@ -385,14 +385,14 @@ class WhatsAppPaymentScreen extends StatelessWidget {
                     width: screenWidth * 0.07,
                     height: screenWidth * 0.07,
                     decoration: BoxDecoration(
-                      color: AppColors.purple100,
+                      color: AppColors.blue50,
                       shape: BoxShape.circle,
                     ),
                     child: Center(
                       child: Text(
                         step['num']!,
                         style: TextStyle(
-                          color: AppColors.purple600,
+                          color: AppColors.primaryColor,
                           fontWeight: FontWeight.bold,
                           fontSize: screenWidth * 0.035,
                         ),

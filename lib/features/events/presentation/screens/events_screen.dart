@@ -69,7 +69,7 @@ class _EventsScreenState extends State<EventsScreen> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.blue600, AppColors.purple600],
+          colors: [AppColors.blue600, AppColors.primaryColor],
         ),
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(context.dynamicWidth(0.08)),
@@ -77,7 +77,7 @@ class _EventsScreenState extends State<EventsScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.purple600.withOpacity(0.3),
+            color: AppColors.primaryColor.withOpacity(0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -387,7 +387,7 @@ class _FilterTab extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: isSelected
               ? LinearGradient(
-                  colors: [AppColors.purple600, AppColors.pink600],
+                  colors: [AppColors.primaryColor, AppColors.tertiaryColor],
                 )
               : null,
           color: isSelected ? null : Colors.white,
@@ -395,7 +395,7 @@ class _FilterTab extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? AppColors.purple600.withOpacity(0.3)
+                  ? AppColors.primaryColor.withOpacity(0.3)
                   : Colors.black.withOpacity(0.05),
               blurRadius: isSelected ? 12 : 8,
               offset: const Offset(0, 4),
@@ -662,7 +662,7 @@ class _EventCardState extends State<_EventCard> {
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.032),
                 fontWeight: FontWeight.bold,
-                color: AppColors.purple600,
+                color: AppColors.primaryColor,
               ),
             ),
           ],
@@ -780,12 +780,12 @@ class _EventCardState extends State<_EventCard> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
           border: Border.all(
-            color: AppColors.purple600,
+            color: AppColors.primaryColor,
             width: 2,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.purple600.withOpacity(0.1),
+              color: AppColors.primaryColor.withOpacity(0.1),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -796,7 +796,7 @@ class _EventCardState extends State<_EventCard> {
           children: [
             Icon(
               Icons.upload_file,
-              color: AppColors.purple600,
+              color: AppColors.primaryColor,
               size: context.dynamicWidth(0.05),
             ),
             SizedBox(width: context.dynamicWidth(0.02)),
@@ -805,7 +805,7 @@ class _EventCardState extends State<_EventCard> {
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.035),
                 fontWeight: FontWeight.bold,
-                color: AppColors.purple600,
+                color: AppColors.primaryColor,
               ),
             ),
           ],
@@ -823,12 +823,12 @@ class _EventCardState extends State<_EventCard> {
         padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.018)),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [AppColors.purple600, AppColors.pink600],
+            colors: [AppColors.primaryColor, AppColors.tertiaryColor],
           ),
           borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
           boxShadow: [
             BoxShadow(
-              color: AppColors.purple600.withOpacity(0.3),
+              color: AppColors.primaryColor.withOpacity(0.3),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),

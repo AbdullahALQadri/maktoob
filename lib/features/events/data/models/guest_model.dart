@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/app_colors.dart';
 import '../../domain/entities/guest_entity.dart';
 
 class GuestModel extends GuestEntity {
@@ -24,7 +25,7 @@ class GuestModel extends GuestEntity {
       status: _parseStatus(json['status'] as String),
       companions: json['companions'] as int? ?? 0,
       isCheckedIn: json['is_checked_in'] as bool? ?? false,
-      avatarColor: Color(json['avatar_color'] as int? ?? 0xFF9C27B0),
+      avatarColor: Color(json['avatar_color'] as int? ?? AppColors.primaryColor.value),
     );
   }
 

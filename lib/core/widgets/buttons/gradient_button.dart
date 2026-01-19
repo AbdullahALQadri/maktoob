@@ -125,7 +125,7 @@ class _GradientButtonState extends State<GradientButton>
       !widget.isLoading && !widget.isDisabled && widget.onPressed != null;
 
   List<Color> get _effectiveGradientColors => widget.gradientColors.isEmpty
-      ? [AppColors.purple600, AppColors.pink600]
+      ? [AppColors.primaryColor, AppColors.tertiaryColor]
       : widget.gradientColors;
 
   void _handleTapDown(TapDownDetails details) {

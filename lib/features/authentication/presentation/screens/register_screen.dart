@@ -101,7 +101,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.purple600, AppColors.pink600],
+          colors: [AppColors.primaryColor, AppColors.tertiaryColor],
         ),
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(32),
@@ -316,7 +316,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Text(
                     'Login',
                     style: TextStyle(
-                      color: AppColors.purple600,
+                      color: AppColors.primaryColor,
                       fontWeight: FontWeight.w600,
                       fontSize: context.dynamicWidth(0.035),
                     ),
@@ -390,7 +390,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppColors.purple600, width: 2),
+              borderSide: BorderSide(color: AppColors.primaryColor, width: 2),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),

@@ -142,7 +142,7 @@ class _TemplateCard extends StatelessWidget {
                   child: Icon(
                     Icons.check,
                     size: context.dynamicWidth(0.035),
-                    color: AppColors.purple600,
+                    color: AppColors.primaryColor,
                   ),
                 ),
               ),
@@ -175,7 +175,7 @@ class _CustomTemplateButton extends StatelessWidget {
               ? LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [AppColors.purple600, AppColors.pink600],
+                  colors: [AppColors.primaryColor, AppColors.tertiaryColor],
                 )
               : null,
           color: isActive ? null : Colors.white,
@@ -186,7 +186,7 @@ class _CustomTemplateButton extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: isActive
-                  ? AppColors.purple600.withOpacity(0.3)
+                  ? AppColors.primaryColor.withOpacity(0.3)
                   : Colors.black.withOpacity(0.05),
               blurRadius: isActive ? 16 : 8,
               offset: const Offset(0, 4),
@@ -197,7 +197,7 @@ class _CustomTemplateButton extends StatelessWidget {
           children: [
             Icon(
               Icons.star,
-              color: isActive ? Colors.white : AppColors.purple600,
+              color: isActive ? Colors.white : AppColors.primaryColor,
               size: context.dynamicWidth(0.07),
             ),
             SizedBox(height: context.dynamicHeight(0.01)),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/app_colors.dart';
 import '../../domain/entities/venue_entity.dart';
 
 /// Data model for Venue that extends the domain entity
@@ -64,17 +65,17 @@ class VenueModel extends VenueEntity {
   /// Helper method to parse gradient colors from JSON
   static List<Color> _parseGradient(dynamic gradientData) {
     if (gradientData == null) {
-      return [const Color(0xFF667eea), const Color(0xFF764ba2)];
+      return [AppColors.primaryColor, AppColors.tertiaryColor];
     }
     if (gradientData is List) {
       return gradientData.map((colorValue) {
         if (colorValue is int) {
           return Color(colorValue);
         }
-        return const Color(0xFF667eea);
+        return AppColors.primaryColor;
       }).toList();
     }
-    return [const Color(0xFF667eea), const Color(0xFF764ba2)];
+    return [AppColors.primaryColor, AppColors.tertiaryColor];
   }
 
   /// Helper method to parse icon from JSON

@@ -98,8 +98,8 @@ class SettingsScreen extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppColors.purple600,
-            AppColors.pink600,
+            AppColors.primaryColor,
+            AppColors.tertiaryColor,
             AppColors.rose600,
           ],
         ),
@@ -212,7 +212,7 @@ class SettingsScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: isSelected
                     ? LinearGradient(
-                        colors: [AppColors.purple600, AppColors.pink600],
+                        colors: [AppColors.primaryColor, AppColors.tertiaryColor],
                       )
                     : null,
                 color: isSelected ? null : AppColors.gray100,
@@ -234,7 +234,7 @@ class SettingsScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: context.dynamicWidth(0.04),
                       fontWeight: FontWeight.bold,
-                      color: isSelected ? AppColors.purple600 : AppColors.gray900,
+                      color: isSelected ? AppColors.primaryColor : AppColors.gray900,
                     ),
                   ),
                   Text(
@@ -253,7 +253,7 @@ class SettingsScreen extends StatelessWidget {
                 height: context.dynamicWidth(0.06),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [AppColors.purple600, AppColors.pink600],
+                    colors: [AppColors.primaryColor, AppColors.tertiaryColor],
                   ),
                   shape: BoxShape.circle,
                 ),
@@ -302,7 +302,7 @@ class SettingsScreen extends StatelessWidget {
               ),
               child: Icon(
                 icon,
-                color: AppColors.purple600,
+                color: AppColors.primaryColor,
                 size: context.dynamicWidth(0.06),
               ),
             ),
@@ -436,7 +436,7 @@ class SettingsScreen extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon, color: AppColors.purple600, size: context.dynamicWidth(0.06)),
+            Icon(icon, color: AppColors.primaryColor, size: context.dynamicWidth(0.06)),
             SizedBox(width: context.dynamicWidth(0.04)),
             Expanded(
               child: Column(

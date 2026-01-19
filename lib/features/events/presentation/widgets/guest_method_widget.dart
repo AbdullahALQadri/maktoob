@@ -67,7 +67,7 @@ class GuestMethodWidget extends StatelessWidget {
                   style: TextStyle(
                     fontSize: context.dynamicWidth(0.035),
                     fontWeight: FontWeight.bold,
-                    color: AppColors.purple600,
+                    color: AppColors.primaryColor,
                   ),
                 ),
               ],
@@ -123,7 +123,7 @@ class GuestMethodWidget extends StatelessWidget {
                     valueColor: AlwaysStoppedAnimation(
                       _currentGuestCount >= packageLimit
                           ? AppColors.red500
-                          : AppColors.purple600,
+                          : AppColors.primaryColor,
                     ),
                     minHeight: context.dynamicHeight(0.01),
                   ),
@@ -167,7 +167,7 @@ class GuestMethodWidget extends StatelessWidget {
           icon: Icons.person_add_outlined,
           title: 'Add One by One',
           subtitle: "Manually enter each guest's details",
-          gradientColors: [AppColors.purple600, AppColors.pink600],
+          gradientColors: [AppColors.primaryColor, AppColors.tertiaryColor],
           isSelected: guestMethod == GuestMethod.manual,
           onTap: () => onGuestMethodSelected(GuestMethod.manual),
         ),
@@ -607,7 +607,7 @@ class _ManualMethodContentState extends State<_ManualMethodContent> {
               decoration: BoxDecoration(
                 gradient: canAdd
                     ? LinearGradient(
-                        colors: [AppColors.purple600, AppColors.pink600],
+                        colors: [AppColors.primaryColor, AppColors.tertiaryColor],
                       )
                     : null,
                 color: canAdd ? null : AppColors.gray200,
@@ -615,7 +615,7 @@ class _ManualMethodContentState extends State<_ManualMethodContent> {
                 boxShadow: canAdd
                     ? [
                         BoxShadow(
-                          color: AppColors.purple600.withOpacity(0.3),
+                          color: AppColors.primaryColor.withOpacity(0.3),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -759,7 +759,7 @@ class _ManualMethodContentState extends State<_ManualMethodContent> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
-          borderSide: BorderSide(color: AppColors.purple600, width: 2),
+          borderSide: BorderSide(color: AppColors.primaryColor, width: 2),
         ),
         contentPadding: EdgeInsets.symmetric(
           horizontal: context.dynamicWidth(0.04),

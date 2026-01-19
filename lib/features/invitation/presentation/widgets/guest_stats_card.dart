@@ -27,12 +27,12 @@ class GuestStatsCard extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.purple600, AppColors.pink600],
+          colors: [AppColors.primaryColor, AppColors.tertiaryColor],
         ),
         borderRadius: BorderRadius.circular(screenWidth * 0.04),
         boxShadow: [
           BoxShadow(
-            color: AppColors.purple600.withOpacity(0.3),
+            color: AppColors.primaryColor.withOpacity(0.3),
             blurRadius: 15,
             offset: const Offset(0, 6),
           ),

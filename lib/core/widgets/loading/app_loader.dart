@@ -118,7 +118,7 @@ class _AppLoaderState extends State<AppLoader>
   }
 
   List<Color> get _gradientColors =>
-      widget.gradientColors ?? [AppColors.purple600, AppColors.pink600];
+      widget.gradientColors ?? [AppColors.primaryColor, AppColors.tertiaryColor];
 
   @override
   Widget build(BuildContext context) {

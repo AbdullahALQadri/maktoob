@@ -121,7 +121,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 collapsedHeight: kToolbarHeight,
                 pinned: true,
                 automaticallyImplyLeading: false,
-                backgroundColor: AppColors.purple600,
+                backgroundColor: AppColors.primaryColor,
                 surfaceTintColor: Colors.transparent,
                 flexibleSpace: LayoutBuilder(
                   builder: (context, constraints) {
@@ -132,11 +132,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
                     return Container(
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [AppColors.purple600, AppColors.pink600],
-                        ),
+                        color: AppColors.primaryColor,
                       ),
                       child: SafeArea(
                         bottom: false,
@@ -498,12 +494,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           decoration: enabled && isPrimary
               ? BoxDecoration(
                   borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
-                  gradient: LinearGradient(
-                    colors: [AppColors.purple600, AppColors.pink600],
-                  ),
+                  color: AppColors.primaryColor,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.purple600.withOpacity(0.25),
+                      color: AppColors.primaryColor.withOpacity(0.25),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),

@@ -89,7 +89,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                       height: screenWidth * 0.25,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [AppColors.green600, const Color(0xFF10B981)],
+                          colors: [AppColors.green600, AppColors.emerald500],
                         ),
                         shape: BoxShape.circle,
                         boxShadow: [
@@ -162,7 +162,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                             backgroundColor: Colors.white,
                             eyeStyle: QrEyeStyle(
                               eyeShape: QrEyeShape.square,
-                              color: AppColors.purple600,
+                              color: AppColors.primaryColor,
                             ),
                             dataModuleStyle: QrDataModuleStyle(
                               dataModuleShape: QrDataModuleShape.square,
@@ -230,7 +230,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                           child: Text(
                             'Create Another Invitation',
                             style: TextStyle(
-                              color: AppColors.purple600,
+                              color: AppColors.primaryColor,
                               fontSize: screenWidth * 0.038,
                             ),
                           ),
@@ -289,7 +289,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
             onPressed: () => _copyLink(link),
             icon: Icon(
               Icons.copy,
-              color: AppColors.purple600,
+              color: AppColors.primaryColor,
               size: screenWidth * 0.06,
             ),
           ),
@@ -313,7 +313,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
           screenWidth,
           icon: Icons.copy,
           label: 'Copy Link',
-          color: AppColors.purple600,
+          color: AppColors.primaryColor,
           onTap: () => _copyLink(state.shareLink ?? ''),
         ),
         _buildShareButton(

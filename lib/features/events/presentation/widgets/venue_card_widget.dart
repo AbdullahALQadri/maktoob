@@ -98,7 +98,7 @@ class _VenueCard extends StatelessWidget {
               ? LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [AppColors.purple600, AppColors.pink600],
+                  colors: [AppColors.primaryColor, AppColors.tertiaryColor],
                 )
               : null,
           color: isSelected ? null : Colors.white,
@@ -106,7 +106,7 @@ class _VenueCard extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? AppColors.purple600.withOpacity(0.3)
+                  ? AppColors.primaryColor.withOpacity(0.3)
                   : Colors.black.withOpacity(0.05),
               blurRadius: isSelected ? 16 : 8,
               offset: const Offset(0, 4),
@@ -168,7 +168,7 @@ class _CustomVenueButton extends StatelessWidget {
           color: isActive ? AppColors.purple50 : Colors.white,
           borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           border: Border.all(
-            color: isActive ? AppColors.purple600 : AppColors.gray300,
+            color: isActive ? AppColors.primaryColor : AppColors.gray300,
             width: 2,
             style: BorderStyle.solid,
           ),
@@ -177,7 +177,7 @@ class _CustomVenueButton extends StatelessWidget {
           children: [
             Icon(
               Icons.add,
-              color: AppColors.purple600,
+              color: AppColors.primaryColor,
               size: context.dynamicWidth(0.06),
             ),
             SizedBox(height: context.dynamicHeight(0.005)),
@@ -287,7 +287,7 @@ class _CustomVenueForm extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
-          borderSide: BorderSide(color: AppColors.purple600, width: 2),
+          borderSide: BorderSide(color: AppColors.primaryColor, width: 2),
         ),
         contentPadding: EdgeInsets.symmetric(
           horizontal: context.dynamicWidth(0.04),

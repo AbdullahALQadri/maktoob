@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/utils/app_colors.dart';
 import '../models/venue_model.dart';
 
 /// Abstract interface for remote data source
@@ -28,7 +29,7 @@ abstract class VenuesRemoteDataSource {
 class VenuesRemoteDataSourceImpl implements VenuesRemoteDataSource {
   // Mock data for demonstration
   final List<VenueModel> _mockVenues = [
-    const VenueModel(
+    VenueModel(
       id: '1',
       name: 'Grand Conference Hall',
       address: '123 Business District, Downtown',
@@ -36,10 +37,10 @@ class VenuesRemoteDataSourceImpl implements VenuesRemoteDataSource {
       email: 'booking@grandconference.com',
       capacity: 500,
       events: 24,
-      gradient: [Color(0xFF667eea), Color(0xFF764ba2)],
+      gradient: [AppColors.primaryColor, AppColors.tertiaryColor],
       icon: Icons.business,
     ),
-    const VenueModel(
+    VenueModel(
       id: '2',
       name: 'Riverside Event Center',
       address: '456 River Road, Waterfront',
@@ -47,10 +48,10 @@ class VenuesRemoteDataSourceImpl implements VenuesRemoteDataSource {
       email: 'events@riverside.com',
       capacity: 300,
       events: 18,
-      gradient: [Color(0xFFf093fb), Color(0xFFf5576c)],
+      gradient: [AppColors.tertiaryColor, AppColors.primaryColor],
       icon: Icons.water,
     ),
-    const VenueModel(
+    VenueModel(
       id: '3',
       name: 'Tech Innovation Hub',
       address: '789 Silicon Avenue, Tech Park',
@@ -58,10 +59,10 @@ class VenuesRemoteDataSourceImpl implements VenuesRemoteDataSource {
       email: 'hello@techhub.com',
       capacity: 150,
       events: 42,
-      gradient: [Color(0xFF4facfe), Color(0xFF00f2fe)],
+      gradient: [AppColors.primaryColor, AppColors.blue500],
       icon: Icons.computer,
     ),
-    const VenueModel(
+    VenueModel(
       id: '4',
       name: 'Garden Pavilion',
       address: '321 Botanical Gardens, Green District',
@@ -69,10 +70,10 @@ class VenuesRemoteDataSourceImpl implements VenuesRemoteDataSource {
       email: 'reserve@gardenpavilion.com',
       capacity: 200,
       events: 15,
-      gradient: [Color(0xFF43e97b), Color(0xFF38f9d7)],
+      gradient: [AppColors.emerald500, AppColors.primaryColor],
       icon: Icons.local_florist,
     ),
-    const VenueModel(
+    VenueModel(
       id: '5',
       name: 'Skyline Rooftop Lounge',
       address: '555 High Tower, Uptown',
@@ -80,10 +81,10 @@ class VenuesRemoteDataSourceImpl implements VenuesRemoteDataSource {
       email: 'info@skylinelounge.com',
       capacity: 120,
       events: 31,
-      gradient: [Color(0xFFfa709a), Color(0xFFfee140)],
+      gradient: [AppColors.primaryColor, AppColors.cyan500],
       icon: Icons.nightlife,
     ),
-    const VenueModel(
+    VenueModel(
       id: '6',
       name: 'Historic Arts Theater',
       address: '888 Culture Street, Arts District',
@@ -91,7 +92,7 @@ class VenuesRemoteDataSourceImpl implements VenuesRemoteDataSource {
       email: 'tickets@artstheater.com',
       capacity: 450,
       events: 56,
-      gradient: [Color(0xFFa18cd1), Color(0xFFfbc2eb)],
+      gradient: [AppColors.tertiaryColor, AppColors.primaryColor],
       icon: Icons.theater_comedy,
     ),
   ];
