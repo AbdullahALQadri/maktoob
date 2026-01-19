@@ -51,7 +51,7 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
-              primary: AppColors.purple600,
+              primary: AppColors.primaryColor,
               onPrimary: Colors.white,
               surface: Colors.white,
               onSurface: AppColors.gray900,
@@ -94,7 +94,7 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
-              primary: AppColors.purple600,
+              primary: AppColors.primaryColor,
               onPrimary: Colors.white,
               surface: Colors.white,
               onSurface: AppColors.gray900,
@@ -270,7 +270,7 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
                             height: context.dynamicWidth(0.08),
                             decoration: BoxDecoration(
                               color: widget.eventDetails.allowCompanions
-                                  ? AppColors.purple600
+                                  ? AppColors.primaryColor
                                   : AppColors.gray300,
                               borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
                             ),
@@ -361,7 +361,7 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
-          borderSide: BorderSide(color: AppColors.purple600, width: 2),
+          borderSide: BorderSide(color: AppColors.primaryColor, width: 2),
         ),
         contentPadding: EdgeInsets.symmetric(
           horizontal: context.dynamicWidth(0.04),

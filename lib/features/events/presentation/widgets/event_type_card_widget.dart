@@ -154,7 +154,7 @@ class _EventTypeCard extends StatelessWidget {
                   child: Icon(
                     Icons.check,
                     size: context.dynamicWidth(0.035),
-                    color: AppColors.purple600,
+                    color: AppColors.primaryColor,
                   ),
                 ),
               ),
@@ -185,7 +185,7 @@ class _CustomEventTypeButton extends StatelessWidget {
           color: isActive ? AppColors.purple50 : Colors.white,
           borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           border: Border.all(
-            color: isActive ? AppColors.purple600 : AppColors.gray300,
+            color: isActive ? AppColors.primaryColor : AppColors.gray300,
             width: 2,
           ),
         ),
@@ -193,7 +193,7 @@ class _CustomEventTypeButton extends StatelessWidget {
           children: [
             Icon(
               Icons.add,
-              color: AppColors.purple600,
+              color: AppColors.primaryColor,
               size: context.dynamicWidth(0.06),
             ),
             SizedBox(height: context.dynamicHeight(0.005)),
@@ -255,7 +255,7 @@ class _CustomEventTypeForm extends StatelessWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
-            borderSide: BorderSide(color: AppColors.purple600, width: 2),
+            borderSide: BorderSide(color: AppColors.primaryColor, width: 2),
           ),
           contentPadding: EdgeInsets.symmetric(
             horizontal: context.dynamicWidth(0.04),

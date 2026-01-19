@@ -23,8 +23,8 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         label: 'Total Events',
         value: '24',
         icon: Icons.calendar_today,
-        gradientColors: [AppColors.purple500, AppColors.purple600],
-        bgColor: AppColors.purple500,
+        gradientColors: [AppColors.primaryColor, AppColors.primaryColor],
+        bgColor: AppColors.primaryColor,
       ),
       StatModel(
         label: 'Total Guests',

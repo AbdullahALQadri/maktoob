@@ -150,7 +150,7 @@ class _SearchTextFieldState extends State<SearchTextField> {
         borderRadius: BorderRadius.circular(widget.borderRadius),
         border: Border.all(
           color: _isFocused
-              ? AppColors.purple600
+              ? AppColors.primaryColor
               : (widget.borderColor ?? AppColors.gray200),
           width: _isFocused ? 1.5 : 1,
         ),
@@ -165,7 +165,7 @@ class _SearchTextFieldState extends State<SearchTextField> {
               child: Icon(
                 widget.searchIcon,
                 size: 22,
-                color: _isFocused ? AppColors.purple600 : AppColors.gray400,
+                color: _isFocused ? AppColors.primaryColor : AppColors.gray400,
               ),
             ),
           ),
@@ -180,7 +180,7 @@ class _SearchTextFieldState extends State<SearchTextField> {
               textInputAction: TextInputAction.search,
               onChanged: widget.onChanged,
               onSubmitted: widget.onSubmitted,
-              cursorColor: AppColors.purple600,
+              cursorColor: AppColors.primaryColor,
               style: TextStyle(
                 fontFamily: AppStrings.fontFamily,
                 fontSize: 16,

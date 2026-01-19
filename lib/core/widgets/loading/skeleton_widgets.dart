@@ -277,8 +277,8 @@ class HomeScreenSkeleton extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AppColors.purple600.withOpacity(0.7),
-                  AppColors.pink600.withOpacity(0.7),
+                  AppColors.primaryColor.withOpacity(0.7),
+                  AppColors.tertiaryColor.withOpacity(0.7),
                 ],
               ),
             ),
@@ -677,8 +677,8 @@ class EventDetailsSkeleton extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AppColors.purple600.withOpacity(0.7),
-                  AppColors.pink600.withOpacity(0.7),
+                  AppColors.primaryColor.withOpacity(0.7),
+                  AppColors.tertiaryColor.withOpacity(0.7),
                 ],
               ),
             ),

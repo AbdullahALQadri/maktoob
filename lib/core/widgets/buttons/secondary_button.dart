@@ -83,8 +83,8 @@ class SecondaryButton extends StatelessWidget {
   bool get _isEnabled => !isLoading && !isDisabled && onPressed != null;
 
   List<Color> get _defaultGradientColors => [
-        AppColors.purple600,
-        AppColors.pink600,
+        AppColors.primaryColor,
+        AppColors.tertiaryColor,
       ];
 
   @override
@@ -124,8 +124,8 @@ class SecondaryButton extends StatelessWidget {
               onTap: _isEnabled ? onPressed : null,
               borderRadius: BorderRadius.circular(
                   borderRadius - (useGradientBorder ? borderWidth : 0)),
-              splashColor: AppColors.purple600.withValues(alpha: 0.1),
-              highlightColor: AppColors.purple600.withValues(alpha: 0.05),
+              splashColor: AppColors.primaryColor.withValues(alpha: 0.1),
+              highlightColor: AppColors.primaryColor.withValues(alpha: 0.05),
               child: Center(
                 child: isLoading
                     ? SizedBox(
@@ -134,7 +134,7 @@ class SecondaryButton extends StatelessWidget {
                         child: CircularProgressIndicator(
                           strokeWidth: 2.5,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            textColor ?? AppColors.purple600,
+                            textColor ?? AppColors.primaryColor,
                           ),
                         ),
                       )
@@ -148,7 +148,7 @@ class SecondaryButton extends StatelessWidget {
   }
 
   Widget _buildContent() {
-    final effectiveTextColor = textColor ?? AppColors.purple600;
+    final effectiveTextColor = textColor ?? AppColors.primaryColor;
     final defaultTextStyle = TextStyle(
       fontFamily: AppStrings.fontFamily,
       fontSize: 16,

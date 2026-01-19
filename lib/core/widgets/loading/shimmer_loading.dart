@@ -214,9 +214,9 @@ class _GradientShimmerState extends State<GradientShimmer>
   List<Color> get _gradientColors =>
       widget.gradientColors ??
       [
-        AppColors.purple600.withOpacity(0.1),
-        AppColors.pink600.withOpacity(0.2),
-        AppColors.purple600.withOpacity(0.1),
+        AppColors.primaryColor.withOpacity(0.1),
+        AppColors.tertiaryColor.withOpacity(0.2),
+        AppColors.primaryColor.withOpacity(0.1),
       ];
 
   @override

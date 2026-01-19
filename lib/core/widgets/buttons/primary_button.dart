@@ -69,8 +69,8 @@ class PrimaryButton extends StatelessWidget {
   bool get _isEnabled => !isLoading && !isDisabled && onPressed != null;
 
   List<Color> get _defaultGradientColors => [
-        AppColors.purple600,
-        AppColors.pink600,
+        AppColors.primaryColor,
+        AppColors.tertiaryColor,
       ];
 
   @override
@@ -91,7 +91,7 @@ class PrimaryButton extends StatelessWidget {
           boxShadow: _isEnabled
               ? [
                   BoxShadow(
-                    color: (gradientColors?.first ?? AppColors.purple600)
+                    color: (gradientColors?.first ?? AppColors.primaryColor)
                         .withValues(alpha: 0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 4),

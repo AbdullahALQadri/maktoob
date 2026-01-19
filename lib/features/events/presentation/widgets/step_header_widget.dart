@@ -22,8 +22,8 @@ class StepHeaderWidget extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppColors.purple600,
-            AppColors.pink600,
+            AppColors.primaryColor,
+            AppColors.tertiaryColor,
             AppColors.rose600,
           ],
         ),

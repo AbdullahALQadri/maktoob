@@ -46,7 +46,7 @@ class TemplateSelectorWidget extends StatelessWidget {
                   borderRadius: BorderRadius.circular(screenWidth * 0.03),
                   border: isSelected
                       ? Border.all(
-                          color: AppColors.purple600,
+                          color: AppColors.primaryColor,
                           width: 3,
                         )
                       : null,
@@ -100,7 +100,7 @@ class TemplateSelectorWidget extends StatelessWidget {
                           width: screenWidth * 0.05,
                           height: screenWidth * 0.05,
                           decoration: BoxDecoration(
-                            color: AppColors.purple600,
+                            color: AppColors.primaryColor,
                             shape: BoxShape.circle,
                           ),
                           child: Icon(

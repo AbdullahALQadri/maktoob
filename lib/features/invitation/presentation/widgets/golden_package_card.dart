@@ -105,7 +105,7 @@ class GoldenPackageCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: screenWidth * 0.055,
                             fontWeight: FontWeight.bold,
-                            color: isSelected ? Colors.white : AppColors.purple600,
+                            color: isSelected ? Colors.white : AppColors.primaryColor,
                           ),
                         ),
                         if (!package.isFree)

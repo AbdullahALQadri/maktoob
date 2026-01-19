@@ -102,14 +102,14 @@ class ShareScreen extends StatelessWidget {
                     children: [
                       Icon(
                         Icons.people_outline,
-                        color: AppColors.purple600,
+                        color: AppColors.primaryColor,
                         size: screenWidth * 0.06,
                       ),
                       SizedBox(width: screenWidth * 0.02),
                       Text(
                         '${state.totalGuests} guests will receive this invitation',
                         style: TextStyle(
-                          color: AppColors.purple600,
+                          color: AppColors.primaryColor,
                           fontSize: screenWidth * 0.038,
                           fontWeight: FontWeight.w500,
                         ),
@@ -281,7 +281,7 @@ class ShareScreen extends StatelessWidget {
           ),
           child: Icon(
             icon,
-            color: AppColors.purple600,
+            color: AppColors.primaryColor,
             size: screenWidth * 0.07,
           ),
         ),

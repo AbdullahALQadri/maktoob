@@ -29,18 +29,18 @@ class ScanButtonWidget extends StatelessWidget {
                 end: Alignment.bottomRight,
                 colors: isScanning
                     ? [
-                        AppColors.purple600.withOpacity(0.7),
-                        AppColors.pink600.withOpacity(0.7),
+                        AppColors.primaryColor.withOpacity(0.7),
+                        AppColors.tertiaryColor.withOpacity(0.7),
                       ]
                     : [
-                        AppColors.purple600,
-                        AppColors.pink600,
+                        AppColors.primaryColor,
+                        AppColors.tertiaryColor,
                       ],
               ),
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.purple600.withOpacity(isScanning ? 0.2 : 0.4),
+                  color: AppColors.primaryColor.withOpacity(isScanning ? 0.2 : 0.4),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),

@@ -597,7 +597,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           const SizedBox(height: 16),
           _buildProgressBar('Declined', event.declined, total, declinedPercent, AppColors.red500),
           const SizedBox(height: 16),
-          _buildProgressBar('Checked In', event.checkedIn, event.attending, checkedInPercent, AppColors.purple600),
+          _buildProgressBar('Checked In', event.checkedIn, event.attending, checkedInPercent, AppColors.primaryColor),
         ],
       ),
     );
@@ -1102,7 +1102,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppColors.purple600.withOpacity(0.1),
+                    color: AppColors.primaryColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -1110,7 +1110,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.purple600,
+                      color: AppColors.primaryColor,
                     ),
                   ),
                 ),

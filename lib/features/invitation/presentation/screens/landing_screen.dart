@@ -76,8 +76,8 @@ class _LandingScreenState extends State<LandingScreen>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppColors.purple600,
-              AppColors.pink600,
+              AppColors.primaryColor,
+              AppColors.tertiaryColor,
             ],
           ),
         ),
@@ -175,7 +175,7 @@ class _LandingScreenState extends State<LandingScreen>
                         textStyle: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.purple600,
+                          color: AppColors.primaryColor,
                         ),
                       ),
                     ),

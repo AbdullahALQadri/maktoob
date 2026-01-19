@@ -395,7 +395,7 @@ class _ConfirmSheet extends StatelessWidget {
                 onPressed: () => Navigator.of(context).pop(true),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  backgroundColor: confirmColor ?? AppColors.purple600,
+                  backgroundColor: confirmColor ?? AppColors.primaryColor,
                   foregroundColor: AppColors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

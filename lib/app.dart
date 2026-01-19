@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'config/routes/app_routes.dart';
+import 'core/utils/app_colors.dart';
 import 'config/screens/main_shell.dart';
 import 'config/themes/app_theme.dart';
 import 'core/utils/app_strings.dart';
@@ -156,9 +157,11 @@ class _AuthWrapperState extends State<AuthWrapper> {
       builder: (context, state) {
         // Show loading while checking auth status
         if (state is AuthInitial) {
-          return const Scaffold(
+          return Scaffold(
             body: Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
+              ),
             ),
           );
         }

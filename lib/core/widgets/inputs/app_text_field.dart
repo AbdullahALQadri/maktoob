@@ -226,7 +226,7 @@ class _AppTextFieldState extends State<AppTextField> {
           textAlign: widget.textAlign,
           inputFormatters: widget.inputFormatters,
           autovalidateMode: AutovalidateMode.onUserInteraction,
-          cursorColor: AppColors.purple600,
+          cursorColor: AppColors.primaryColor,
           style: TextStyle(
             fontFamily: AppStrings.fontFamily,
             fontSize: 16,
@@ -258,7 +258,7 @@ class _AppTextFieldState extends State<AppTextField> {
             border: _buildBorder(AppColors.gray200),
             enabledBorder: _buildBorder(widget.borderColor ?? AppColors.gray200),
             focusedBorder: _buildBorder(
-              widget.focusedBorderColor ?? AppColors.purple600,
+              widget.focusedBorderColor ?? AppColors.primaryColor,
               width: 1.5,
             ),
             errorBorder: _buildBorder(AppColors.red500),
@@ -283,7 +283,7 @@ class _AppTextFieldState extends State<AppTextField> {
         child: Icon(
           widget.prefixIcon,
           size: 22,
-          color: _isFocused ? AppColors.purple600 : AppColors.gray400,
+          color: _isFocused ? AppColors.primaryColor : AppColors.gray400,
         ),
       );
     }

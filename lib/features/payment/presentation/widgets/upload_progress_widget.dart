@@ -25,7 +25,7 @@ class UploadProgressWidget extends StatelessWidget {
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [AppColors.blue500, AppColors.purple500],
+                  colors: [AppColors.primaryColor, AppColors.tertiaryColor],
                 ),
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -72,7 +72,7 @@ class UploadProgressWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.purple600,
+                  color: AppColors.primaryColor,
                 ),
               ),
           ],
@@ -83,7 +83,7 @@ class UploadProgressWidget extends StatelessWidget {
           child: LinearProgressIndicator(
             value: progress,
             backgroundColor: AppColors.gray200,
-            valueColor: AlwaysStoppedAnimation<Color>(AppColors.purple600),
+            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
             minHeight: 8,
           ),
         ),
@@ -119,7 +119,7 @@ class CircularUploadProgressWidget extends StatelessWidget {
               value: progress,
               strokeWidth: strokeWidth,
               backgroundColor: AppColors.gray200,
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.purple600),
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
             ),
           ),
           Text(
@@ -127,7 +127,7 @@ class CircularUploadProgressWidget extends StatelessWidget {
             style: TextStyle(
               fontSize: size / 4,
               fontWeight: FontWeight.bold,
-              color: AppColors.purple600,
+              color: AppColors.primaryColor,
             ),
           ),
         ],

@@ -326,7 +326,7 @@ class AppDialog extends StatelessWidget {
       case DialogType.info:
         return AppColors.blue600;
       case DialogType.confirmation:
-        return AppColors.purple600;
+        return AppColors.primaryColor;
     }
   }
 
