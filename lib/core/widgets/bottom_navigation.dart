@@ -202,8 +202,6 @@ class _BottomNavigationState extends State<BottomNavigation>
 
   /// Builds the separate circular add button
   Widget _buildAddButton() {
-    final isSelected = widget.currentIndex == 3;
-
     return GestureDetector(
       onTap: () => widget.onTap(3),
       child: AnimatedBuilder(
@@ -218,9 +216,7 @@ class _BottomNavigationState extends State<BottomNavigation>
                   width: context.dynamicHeight(0.08),
                   height: context.dynamicHeight(0.08),
                   decoration: BoxDecoration(
-                    color: isSelected
-                        ? AppColors.primaryColor.withValues(alpha: 0.85)
-                        : AppColors.tertiaryColor.withValues(alpha: 0.85),
+                    color: AppColors.primaryColor.withValues(alpha: 0.85),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
