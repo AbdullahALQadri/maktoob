@@ -98,7 +98,8 @@ class Maktoob extends StatelessWidget {
         title: AppStrings.appName,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
-        home: const AuthWrapper(),
+        home: const MainShell(),
+        // home: const AuthWrapper(),
       ),
     );
   }

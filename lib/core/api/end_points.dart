@@ -4,7 +4,7 @@ class Endpoints {
   // Base URL - Update this based on your environment
   // For local development: http://10.5.50.103:8000/api/v1
   // For production: https://your-domain.com/api/v1
-  static String baseUrl = "http://10.5.50.103:8000/api/v1";
+  static String baseUrl = "https://maktoob.owqy.tech/api/v1";
 
   // ============================================================
   // PUBLIC ENDPOINTS (No Authentication Required)

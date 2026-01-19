@@ -285,36 +285,38 @@ class HomeScreenSkeleton extends StatelessWidget {
             child: SafeArea(
               child: Padding(
                 padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ShimmerLoading(
-                      baseColor: Colors.white.withOpacity(0.2),
-                      highlightColor: Colors.white.withOpacity(0.4),
-                      child: Container(
-                        width: 120,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(20),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ShimmerLoading(
+                        baseColor: Colors.white.withOpacity(0.2),
+                        highlightColor: Colors.white.withOpacity(0.4),
+                        child: Container(
+                          width: 120,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    ShimmerLoading(
-                      baseColor: Colors.white.withOpacity(0.2),
-                      highlightColor: Colors.white.withOpacity(0.4),
-                      child: Container(
-                        width: 200,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(8),
+                      const SizedBox(height: 16),
+                      ShimmerLoading(
+                        baseColor: Colors.white.withOpacity(0.2),
+                        highlightColor: Colors.white.withOpacity(0.4),
+                        child: Container(
+                          width: 200,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

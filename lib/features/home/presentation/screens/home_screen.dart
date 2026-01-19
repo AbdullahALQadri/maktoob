@@ -110,7 +110,9 @@ class _HomeScreenState extends State<HomeScreen>
                   vertical: context.dynamicHeight(0.015),
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+                  borderRadius: BorderRadius.circular(
+                    context.dynamicWidth(0.03),
+                  ),
                 ),
               ),
               child: Text(
@@ -137,7 +139,9 @@ class _HomeScreenState extends State<HomeScreen>
           ),
           // Response Rate Card
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.04)),
+            padding: EdgeInsets.symmetric(
+              horizontal: context.dynamicWidth(0.04),
+            ),
             child: ResponseRateCardWidget(
               responseRate: state.responseRate,
               totalResponded: state.totalResponded,
@@ -147,10 +151,13 @@ class _HomeScreenState extends State<HomeScreen>
           SizedBox(height: context.dynamicHeight(0.03)),
           // Recent Events
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.04)),
+            padding: EdgeInsets.symmetric(
+              horizontal: context.dynamicWidth(0.04),
+            ),
             child: _buildRecentEventsSection(state),
           ),
-          SizedBox(height: context.dynamicHeight(0.12)), // Bottom padding for navigation
+          SizedBox(height: context.dynamicHeight(0.12)),
+          // Bottom padding for navigation
         ],
       ),
     );
@@ -171,7 +178,11 @@ class _HomeScreenState extends State<HomeScreen>
         child: FadeTransition(
           opacity: _fadeController,
           child: Padding(
-            padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+            // padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+            padding: EdgeInsets.symmetric(
+              horizontal: context.dynamicWidth(0.04),
+              vertical: context.dynamicHeight(0.01),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -221,17 +232,11 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
                 SizedBox(height: context.dynamicHeight(0.02)),
                 TweenAnimationBuilder<Offset>(
-                  tween: Tween(
-                    begin: const Offset(0, 20),
-                    end: Offset.zero,
-                  ),
+                  tween: Tween(begin: const Offset(0, 20), end: Offset.zero),
                   duration: const Duration(milliseconds: 500),
                   curve: Curves.easeOut,
                   builder: (context, offset, child) {
-                    return Transform.translate(
-                      offset: offset,
-                      child: child,
-                    );
+                    return Transform.translate(offset: offset, child: child);
                   },
                   child: Text(
                     'Koroot Dashboard',
@@ -265,10 +270,7 @@ class _HomeScreenState extends State<HomeScreen>
         ),
         itemCount: state.stats.length,
         itemBuilder: (context, index) {
-          return StatCardWidget(
-            stat: state.stats[index],
-            index: index,
-          );
+          return StatCardWidget(stat: state.stats[index], index: index);
         },
       ),
     );
