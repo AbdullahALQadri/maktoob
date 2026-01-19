@@ -95,116 +95,114 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
             children: [
               // Scrollable content (Preview + Form)
               Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Live Preview
-                      Container(
-                        height: screenHeight * 0.28,
-                        width: double.infinity,
-                        margin: EdgeInsets.symmetric(
-                          horizontal: screenWidth * 0.04,
-                          vertical: screenWidth * 0.02,
-                        ),
-                        child: InvitationPreviewWidget(
-                          eventType: state.eventType,
-                          names: state.names,
-                          eventDate: state.eventDate,
-                          eventTime: state.eventTime,
-                          location: state.location,
-                          templateId: state.selectedTemplateId,
-                          showMarketingFooter: true,
-                        ),
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: [
+                    // Live Preview
+                    Container(
+                      height: screenHeight * 0.28,
+                      width: double.infinity,
+                      margin: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.04,
+                        vertical: screenWidth * 0.02,
                       ),
-
-                      // Form section
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height: screenHeight * 0.02),
-
-                            // Name fields (dynamic based on event type)
-                            ..._buildNameFields(state, screenWidth),
-
-                            SizedBox(height: screenHeight * 0.025),
-
-                            // Date and Time row
-                            Row(
-                              children: [
-                                // Date picker
-                                Expanded(
-                                  child: _buildDatePicker(state, screenWidth),
-                                ),
-                                SizedBox(width: screenWidth * 0.04),
-                                // Time picker
-                                Expanded(
-                                  child: _buildTimePicker(state, screenWidth),
-                                ),
-                              ],
-                            ),
-
-                            SizedBox(height: screenHeight * 0.025),
-
-                            // Location
-                            Text(
-                              'Location',
-                              style: TextStyle(
-                                fontSize: screenWidth * 0.04,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.gray800,
-                              ),
-                            ),
-                            SizedBox(height: screenHeight * 0.01),
-                            AppTextField(
-                              controller: _locationController,
-                              hintText: 'Venue name',
-                              prefixIcon: Icons.location_on_outlined,
-                              onChanged: (value) {
-                                context.read<InvitationCubit>().updateLocation(value);
-                              },
-                            ),
-                            SizedBox(height: screenHeight * 0.015),
-                            AppTextField(
-                              controller: _addressController,
-                              hintText: 'Full address',
-                              prefixIcon: Icons.map_outlined,
-                              onChanged: (value) {
-                                context
-                                    .read<InvitationCubit>()
-                                    .updateLocationAddress(value);
-                              },
-                            ),
-
-                            SizedBox(height: screenHeight * 0.03),
-
-                            // Template selection
-                            Text(
-                              'Choose Template',
-                              style: TextStyle(
-                                fontSize: screenWidth * 0.04,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.gray800,
-                              ),
-                            ),
-                            SizedBox(height: screenHeight * 0.015),
-                            TemplateSelectorWidget(
-                              selectedTemplateId: state.selectedTemplateId,
-                              onTemplateSelected: (templateId) {
-                                context
-                                    .read<InvitationCubit>()
-                                    .selectTemplate(templateId);
-                              },
-                            ),
-
-                            SizedBox(height: screenHeight * 0.1),
-                          ],
-                        ),
+                      child: InvitationPreviewWidget(
+                        eventType: state.eventType,
+                        names: state.names,
+                        eventDate: state.eventDate,
+                        eventTime: state.eventTime,
+                        location: state.location,
+                        templateId: state.selectedTemplateId,
+                        showMarketingFooter: true,
                       ),
-                    ],
-                  ),
+                    ),
+
+                    // Form section
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: screenHeight * 0.02),
+
+                          // Name fields (dynamic based on event type)
+                          ..._buildNameFields(state, screenWidth),
+
+                          SizedBox(height: screenHeight * 0.025),
+
+                          // Date and Time row
+                          Row(
+                            children: [
+                              // Date picker
+                              Expanded(
+                                child: _buildDatePicker(state, screenWidth),
+                              ),
+                              SizedBox(width: screenWidth * 0.04),
+                              // Time picker
+                              Expanded(
+                                child: _buildTimePicker(state, screenWidth),
+                              ),
+                            ],
+                          ),
+
+                          SizedBox(height: screenHeight * 0.025),
+
+                          // Location
+                          Text(
+                            'Location',
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.04,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.gray800,
+                            ),
+                          ),
+                          SizedBox(height: screenHeight * 0.01),
+                          AppTextField(
+                            controller: _locationController,
+                            hintText: 'Venue name',
+                            prefixIcon: Icons.location_on_outlined,
+                            onChanged: (value) {
+                              context.read<InvitationCubit>().updateLocation(value);
+                            },
+                          ),
+                          SizedBox(height: screenHeight * 0.015),
+                          AppTextField(
+                            controller: _addressController,
+                            hintText: 'Full address',
+                            prefixIcon: Icons.map_outlined,
+                            onChanged: (value) {
+                              context
+                                  .read<InvitationCubit>()
+                                  .updateLocationAddress(value);
+                            },
+                          ),
+
+                          SizedBox(height: screenHeight * 0.03),
+
+                          // Template selection
+                          Text(
+                            'Choose Template',
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.04,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.gray800,
+                            ),
+                          ),
+                          SizedBox(height: screenHeight * 0.015),
+                          TemplateSelectorWidget(
+                            selectedTemplateId: state.selectedTemplateId,
+                            onTemplateSelected: (templateId) {
+                              context
+                                  .read<InvitationCubit>()
+                                  .selectTemplate(templateId);
+                            },
+                          ),
+
+                          SizedBox(height: screenHeight * 0.1),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
