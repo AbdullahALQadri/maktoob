@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -413,48 +415,52 @@ class WhatsAppPaymentScreen extends StatelessWidget {
   }
 
   Widget _buildBottomBar(BuildContext context, double screenWidth) {
-    return Container(
-      padding: EdgeInsets.all(screenWidth * 0.04),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -4),
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          padding: EdgeInsets.all(screenWidth * 0.04),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.85),
+            border: Border(
+              top: BorderSide(
+                color: AppColors.gray200.withOpacity(0.5),
+                width: 0.5,
+              ),
+            ),
           ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: double.infinity,
-              child: PrimaryButton(
-                text: 'I\'ve Completed Payment',
-                onPressed: () {
-                  context.read<InvitationCubit>().submitInvitation();
-                  onComplete?.call();
-                },
-              ),
-            ),
-            SizedBox(height: screenWidth * 0.02),
-            TextButton(
-              onPressed: () {
-                context.read<InvitationCubit>().saveDraft();
-                onSkip?.call();
-              },
-              child: Text(
-                'I\'ll pay later (save as draft)',
-                style: TextStyle(
-                  color: AppColors.gray500,
-                  fontSize: screenWidth * 0.035,
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: PrimaryButton(
+                    text: 'I\'ve Completed Payment',
+                    onPressed: () {
+                      context.read<InvitationCubit>().submitInvitation();
+                      onComplete?.call();
+                    },
+                  ),
                 ),
-              ),
+                SizedBox(height: screenWidth * 0.02),
+                TextButton(
+                  onPressed: () {
+                    context.read<InvitationCubit>().saveDraft();
+                    onSkip?.call();
+                  },
+                  child: Text(
+                    'I\'ll pay later (save as draft)',
+                    style: TextStyle(
+                      color: AppColors.gray500,
+                      fontSize: screenWidth * 0.035,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

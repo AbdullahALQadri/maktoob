@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -198,32 +200,36 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
                 ),
               ),
 
-              // Bottom button
-              Container(
-                padding: EdgeInsets.all(screenWidth * 0.04),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, -4),
+              // Bottom button with BackdropFilter
+              ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                  child: Container(
+                    padding: EdgeInsets.all(screenWidth * 0.04),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.85),
+                      border: Border(
+                        top: BorderSide(
+                          color: AppColors.gray200.withOpacity(0.5),
+                          width: 0.5,
+                        ),
+                      ),
                     ),
-                  ],
-                ),
-                child: SafeArea(
-                  top: false,
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: PrimaryButton(
-                      text: 'Continue to Add Guests',
-                      onPressed: state.canProceedFromCreation
-                          ? () {
-                              context.read<InvitationCubit>().nextStep();
-                              widget.onContinue?.call();
-                            }
-                          : null,
-                      isDisabled: !state.canProceedFromCreation,
+                    child: SafeArea(
+                      top: false,
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: PrimaryButton(
+                          text: 'Continue to Add Guests',
+                          onPressed: state.canProceedFromCreation
+                              ? () {
+                                  context.read<InvitationCubit>().nextStep();
+                                  widget.onContinue?.call();
+                                }
+                              : null,
+                          isDisabled: !state.canProceedFromCreation,
+                        ),
+                      ),
                     ),
                   ),
                 ),

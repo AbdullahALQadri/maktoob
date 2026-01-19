@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -205,49 +207,53 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
                 ),
               ),
 
-              // Bottom button
-              Container(
-                padding: EdgeInsets.all(screenWidth * 0.04),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, -4),
-                    ),
-                  ],
-                ),
-                child: SafeArea(
-                  top: false,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Skip option
-                      if (state.guests.isEmpty)
-                        Padding(
-                          padding: EdgeInsets.only(bottom: screenHeight * 0.01),
-                          child: Text(
-                            'You can add guests later',
-                            style: TextStyle(
-                              color: AppColors.gray500,
-                              fontSize: screenWidth * 0.035,
-                            ),
-                          ),
-                        ),
-                      SizedBox(
-                        width: double.infinity,
-                        child: PrimaryButton(
-                          text: state.guests.isEmpty
-                              ? 'Skip for Now'
-                              : 'Continue to Share',
-                          onPressed: () {
-                            context.read<InvitationCubit>().nextStep();
-                            widget.onContinue?.call();
-                          },
+              // Bottom button with BackdropFilter
+              ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                  child: Container(
+                    padding: EdgeInsets.all(screenWidth * 0.04),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.85),
+                      border: Border(
+                        top: BorderSide(
+                          color: AppColors.gray200.withOpacity(0.5),
+                          width: 0.5,
                         ),
                       ),
-                    ],
+                    ),
+                    child: SafeArea(
+                      top: false,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Skip option
+                          if (state.guests.isEmpty)
+                            Padding(
+                              padding: EdgeInsets.only(bottom: screenHeight * 0.01),
+                              child: Text(
+                                'You can add guests later',
+                                style: TextStyle(
+                                  color: AppColors.gray500,
+                                  fontSize: screenWidth * 0.035,
+                                ),
+                              ),
+                            ),
+                          SizedBox(
+                            width: double.infinity,
+                            child: PrimaryButton(
+                              text: state.guests.isEmpty
+                                  ? 'Skip for Now'
+                                  : 'Continue to Share',
+                              onPressed: () {
+                                context.read<InvitationCubit>().nextStep();
+                                widget.onContinue?.call();
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
