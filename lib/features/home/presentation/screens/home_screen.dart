@@ -174,6 +174,7 @@ class _HomeScreenState extends State<HomeScreen>
             padding: EdgeInsets.all(context.dynamicWidth(0.04)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
                   children: [

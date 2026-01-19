@@ -287,6 +287,7 @@ class HomeScreenSkeleton extends StatelessWidget {
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     ShimmerLoading(
                       baseColor: Colors.white.withOpacity(0.2),
