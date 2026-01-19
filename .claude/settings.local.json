@@ -11,7 +11,15 @@
       "Bash(/c/flutter/flutter-main/bin/flutter pub get:*)",
       "Bash(where:*)",
       "Bash(powershell -Command:*)",
-      "Bash(/c/Users/CYPORG/flutter/bin/flutter.bat pub get:*)"
+      "Bash(/c/Users/CYPORG/flutter/bin/flutter.bat pub get:*)",
+      "Bash(cmd.exe /c \"flutter pub get\")",
+      "Bash(powershell.exe -Command \"flutter pub get\")",
+      "Bash(powershell.exe -Command \"& ''C:\\\\flutter\\\\bin\\\\flutter.bat'' pub get\")",
+      "Bash(powershell.exe -Command \"Get-ChildItem -Path C:\\\\ -Filter flutter.bat -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName\")",
+      "Bash(powershell.exe -Command \"where.exe flutter 2>$null\")",
+      "Bash(powershell.exe -Command \"where.exe flutter\")",
+      "Bash(powershell.exe -Command \"$env:PATH -split '';'' | Where-Object { $_-like ''*flutter*'' }\")",
+      "Bash(powershell.exe -Command:*)"
     ]
   }
 }
