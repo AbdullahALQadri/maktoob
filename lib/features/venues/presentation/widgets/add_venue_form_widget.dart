@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/utils/app_colors.dart';
 import '../cubit/venues_cubit.dart';
 import '../cubit/venues_state.dart';
 
@@ -83,8 +84,8 @@ class _AddVenueFormWidgetState extends State<AddVenueFormWidget> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF10B981), Color(0xFF14B8A6)],
+            gradient: LinearGradient(
+              colors: [AppColors.primaryColor, AppColors.primaryColor.withValues(alpha: 0.7)],
             ),
             borderRadius: BorderRadius.circular(12),
           ),
@@ -95,12 +96,12 @@ class _AddVenueFormWidgetState extends State<AddVenueFormWidget> {
           ),
         ),
         const SizedBox(width: 12),
-        const Text(
+        Text(
           'Add New Venue',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF1F2937),
+            color: AppColors.tertiaryColor,
           ),
         ),
       ],
@@ -177,13 +178,13 @@ class _AddVenueFormWidgetState extends State<AddVenueFormWidget> {
           width: double.infinity,
           child: Container(
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF10B981), Color(0xFF14B8A6)],
+              gradient: LinearGradient(
+                colors: [AppColors.primaryColor, AppColors.primaryColor.withValues(alpha: 0.7)],
               ),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF10B981).withValues(alpha: 0.4),
+                  color: AppColors.primaryColor.withValues(alpha: 0.4),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -255,10 +256,10 @@ class _FormField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
+        color: AppColors.gray50,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFFE5E7EB),
+          color: AppColors.gray200,
           width: 1,
         ),
       ),
@@ -274,7 +275,7 @@ class _FormField extends StatelessWidget {
           ),
           prefixIcon: Icon(
             icon,
-            color: const Color(0xFF10B981),
+            color: AppColors.primaryColor,
             size: 20,
           ),
           border: InputBorder.none,

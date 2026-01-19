@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/app_colors.dart';
 import '../../domain/entities/venue_entity.dart';
 
 /// Widget for displaying a single venue card
@@ -84,10 +85,10 @@ class VenueCardWidget extends StatelessWidget {
             children: [
               Text(
                 venue.name,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1F2937),
+                  color: AppColors.tertiaryColor,
                 ),
               ),
               const SizedBox(height: 4),
@@ -122,7 +123,7 @@ class VenueCardWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
+        color: AppColors.gray50,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -178,7 +179,7 @@ class VenueCardWidget extends StatelessWidget {
             icon: Icons.people,
             label: 'Capacity',
             value: venue.capacity.toString(),
-            gradient: const [Color(0xFF10B981), Color(0xFF14B8A6)],
+            gradient: [AppColors.primaryColor, AppColors.primaryColor.withValues(alpha: 0.7)],
           ),
         ),
         const SizedBox(width: 12),
@@ -187,7 +188,7 @@ class VenueCardWidget extends StatelessWidget {
             icon: Icons.event,
             label: 'Events',
             value: venue.events.toString(),
-            gradient: const [Color(0xFF8B5CF6), Color(0xFFA78BFA)],
+            gradient: [AppColors.tertiaryColor, AppColors.tertiaryColor.withValues(alpha: 0.7)],
           ),
         ),
       ],

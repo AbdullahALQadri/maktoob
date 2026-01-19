@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import 'hex_color.dart';
 
 class AppColors {
-  static Color primaryColor = HexColor('#3AA4DB');
-  static Color secondaryColor = HexColor('#FFFFFF');
+  // Main Brand Colors
+  static Color primaryColor = HexColor('#3AA4DB');    // Primary blue
+  static Color secondaryColor = HexColor('#FFFFFF');   // White
+  static Color tertiaryColor = HexColor('#032855');    // Dark navy blue
+
   static Color transparent = Colors.transparent;
   static Color black = Colors.black;
   static Color white = Colors.white;
@@ -48,4 +51,6 @@ class AppColors {
   static Color cyan50 = HexColor('#ECFEFF');
   static Color gray50 = HexColor('#F9FAFB');
   static Color gray800 = HexColor('#1F2937');
+  static Color red100 = HexColor('#FEE2E2');
+  static Color amber100 = HexColor('#FEF3C7');
 }

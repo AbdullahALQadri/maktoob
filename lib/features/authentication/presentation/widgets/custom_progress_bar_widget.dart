@@ -35,8 +35,8 @@ class CustomProgressBar extends StatelessWidget {
             width: width * progress.clamp(0.0, 1.0),
             height: height,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF006E7F), Color(0xFFFB8801)],
+              gradient: LinearGradient(
+                colors: [AppColors.primaryColor, AppColors.tertiaryColor],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
               ),

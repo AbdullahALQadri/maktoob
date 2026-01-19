@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/utils/app_colors.dart';
 import '../../domain/entities/check_in_guest_entity.dart';
 
 class GuestListWidget extends StatelessWidget {
@@ -308,7 +309,7 @@ class _GuestItemWidget extends StatelessWidget {
             ElevatedButton(
               onPressed: onCheckIn,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6366F1),
+                backgroundColor: AppColors.primaryColor,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 shape: RoundedRectangleBorder(

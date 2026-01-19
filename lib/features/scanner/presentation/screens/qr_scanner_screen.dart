@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/media_query_values.dart';
 import '../../../../core/widgets/loading/scanning_indicator.dart';
 import '../../../../core/widgets/loading/skeleton_widgets.dart';
@@ -215,17 +216,17 @@ class _QRScannerScreenState extends State<QRScannerScreen>
     return Container(
       padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF6366F1), // Indigo
-            Color(0xFFEC4899), // Pink
+            AppColors.primaryColor,
+            AppColors.tertiaryColor,
           ],
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF6366F1).withValues(alpha: 0.4),
+            color: AppColors.primaryColor.withValues(alpha: 0.4),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),

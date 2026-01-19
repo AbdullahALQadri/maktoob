@@ -265,9 +265,9 @@ class InvitationPreviewWidget extends StatelessWidget {
       case 'colorful_joy':
         return const [Color(0xFF9333EA), Color(0xFFDB2777)];
       default:
-        // Default to event type colors or purple
+        // Default to event type colors or brand colors
         return eventType?.gradientColors ??
-            [AppColors.purple600, AppColors.pink600];
+            [AppColors.primaryColor, AppColors.tertiaryColor];
     }
   }
 

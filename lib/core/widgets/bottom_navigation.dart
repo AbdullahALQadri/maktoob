@@ -105,7 +105,7 @@ class _BottomNavigationState extends State<BottomNavigation>
                     child: Container(
                       height: context.dynamicHeight(0.08),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1C1C1E).withValues(alpha: 0.85),
+                        color: AppColors.tertiaryColor.withValues(alpha: 0.85),
                         borderRadius: BorderRadius.circular(context.dynamicWidth(0.08)),
                       ),
                       child: Row(
@@ -169,7 +169,7 @@ class _BottomNavigationState extends State<BottomNavigation>
               ),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? const Color(0xFF2C2C2E)
+                    ? AppColors.primaryColor.withValues(alpha: 0.3)
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(context.dynamicWidth(0.05)),
               ),
@@ -219,8 +219,8 @@ class _BottomNavigationState extends State<BottomNavigation>
                   height: context.dynamicHeight(0.08),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? const Color(0xFF2C2C2E).withValues(alpha: 0.85)
-                        : const Color(0xFF1C1C1E).withValues(alpha: 0.85),
+                        ? AppColors.primaryColor.withValues(alpha: 0.85)
+                        : AppColors.tertiaryColor.withValues(alpha: 0.85),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(

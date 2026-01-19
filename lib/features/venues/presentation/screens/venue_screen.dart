@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/media_query_values.dart';
 import '../../../../core/widgets/loading/skeleton_widgets.dart';
 import '../../domain/entities/venue_entity.dart';
@@ -76,7 +77,7 @@ class _VenueScreenState extends State<VenueScreen>
 
   void _handleSubmit() {
     context.read<VenuesCubit>().addVenue(
-          gradient: const [Color(0xFF667eea), Color(0xFF764ba2)],
+          gradient: [AppColors.primaryColor, AppColors.tertiaryColor],
           icon: Icons.business,
         );
     _animationController.reverse();
@@ -86,8 +87,8 @@ class _VenueScreenState extends State<VenueScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          color: Color(0xFFF5F7FA),
+        decoration: BoxDecoration(
+          color: AppColors.gray50,
         ),
         child: SafeArea(
           child: BlocConsumer<VenuesCubit, VenuesState>(
@@ -108,7 +109,7 @@ class _VenueScreenState extends State<VenueScreen>
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('${state.venue.name} added successfully'),
-                    backgroundColor: const Color(0xFF10B981),
+                    backgroundColor: AppColors.primaryColor,
                   ),
                 );
               }
@@ -159,20 +160,20 @@ class _VenueScreenState extends State<VenueScreen>
         horizontal: context.dynamicWidth(0.04),
         vertical: context.dynamicHeight(0.02),
       ),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF10B981),
-            Color(0xFF14B8A6),
+            AppColors.primaryColor,
+            AppColors.tertiaryColor,
           ],
         ),
         boxShadow: [
           BoxShadow(
-            color: Color(0x4010B981),
+            color: AppColors.primaryColor.withValues(alpha: 0.4),
             blurRadius: 20,
-            offset: Offset(0, 10),
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -353,7 +354,7 @@ class _VenueScreenState extends State<VenueScreen>
                 context.read<VenuesCubit>().loadVenues();
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF10B981),
+                backgroundColor: AppColors.primaryColor,
                 padding: EdgeInsets.symmetric(
                   horizontal: context.dynamicWidth(0.06),
                   vertical: context.dynamicHeight(0.015),

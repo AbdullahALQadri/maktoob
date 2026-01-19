@@ -120,7 +120,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     if (event is EventModel) {
       return event.gradient;
     }
-    return [AppColors.purple600, AppColors.pink600];
+    return [AppColors.primaryColor, AppColors.tertiaryColor];
   }
 
   IconData _getIcon(EventEntity? event) {
@@ -400,7 +400,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         controller: _tabController,
         indicator: BoxDecoration(
           gradient: LinearGradient(
-            colors: [AppColors.purple600, AppColors.pink600],
+            colors: [AppColors.primaryColor, AppColors.tertiaryColor],
           ),
           borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         ),
@@ -457,7 +457,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [AppColors.purple600, AppColors.pink600],
+                    colors: [AppColors.primaryColor, AppColors.tertiaryColor],
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -861,12 +861,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         label = 'Attending';
         break;
       case GuestStatus.declined:
-        backgroundColor = const Color(0xFFFEE2E2);
+        backgroundColor = AppColors.red100;
         textColor = AppColors.red500;
         label = 'Declined';
         break;
       case GuestStatus.pending:
-        backgroundColor = const Color(0xFFFEF3C7);
+        backgroundColor = AppColors.amber100;
         textColor = AppColors.amber600;
         label = 'Pending';
         break;
@@ -1269,7 +1269,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           child: _buildActionButton(
             'Edit Event',
             Icons.edit_outlined,
-            [AppColors.purple600, AppColors.pink600],
+            [AppColors.primaryColor, AppColors.tertiaryColor],
             () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Edit event tapped')),
