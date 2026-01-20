@@ -137,9 +137,9 @@ class _ManualGuestFormState extends State<ManualGuestForm> {
               focusNode: _nameFocusNode,
               labelText: 'اسم المدعو',
               hintText: 'أدخل اسم المدعو',
-              prefixIcon: const Icon(Icons.person_outline),
+              prefixIcon: Icons.person_outline,
               textInputAction: TextInputAction.next,
-              onFieldSubmitted: (_) {
+              onSubmitted: (_) {
                 _phoneFocusNode.requestFocus();
               },
               validator: (value) {
@@ -160,13 +160,13 @@ class _ManualGuestFormState extends State<ManualGuestForm> {
               focusNode: _phoneFocusNode,
               labelText: 'رقم الهاتف',
               hintText: '+972 أو +970',
-              prefixIcon: const Icon(Icons.phone_outlined),
+              prefixIcon: Icons.phone_outlined,
               keyboardType: TextInputType.phone,
               textInputAction: TextInputAction.done,
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'[\d+\s-]')),
               ],
-              onFieldSubmitted: (_) => _addGuest(),
+              onSubmitted: (_) => _addGuest(),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return 'يرجى إدخال رقم الهاتف';

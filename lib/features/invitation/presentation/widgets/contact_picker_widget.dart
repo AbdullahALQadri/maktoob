@@ -221,7 +221,7 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
             child: AppTextField(
               controller: _searchController,
               hintText: 'بحث عن جهة اتصال...',
-              prefixIcon: const Icon(Icons.search),
+              prefixIcon: Icons.search,
               onChanged: _filterContacts,
             ),
           ),
