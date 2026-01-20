@@ -49,6 +49,7 @@ class InvitationFlowShell extends StatelessWidget {
 
   Widget _buildCurrentScreen(InvitationState state) {
     switch (state.currentStep) {
+      // Legacy flow steps
       case InvitationStep.landing:
         return LandingScreen(
           key: const ValueKey('landing'),
@@ -88,6 +89,46 @@ class InvitationFlowShell extends StatelessWidget {
       case InvitationStep.confirmation:
         return ConfirmationScreen(
           key: const ValueKey('confirmation'),
+          onGoToDashboard: onGoToDashboard,
+          onCreateAnother: () {
+            // Reset happens in the screen itself
+          },
+        );
+
+      // New wizard steps (map to closest legacy equivalents for this shell)
+      case InvitationStep.eventTypeSelection:
+        return const EventTypeScreen(
+          key: ValueKey('eventTypeSelection'),
+        );
+
+      case InvitationStep.eventDetails:
+        return const CreateInvitationScreen(
+          key: ValueKey('eventDetails'),
+        );
+
+      case InvitationStep.invitationPreview:
+        return const ShareScreen(
+          key: ValueKey('invitationPreview'),
+        );
+
+      case InvitationStep.guestManagement:
+        return const AddGuestsScreen(
+          key: ValueKey('guestManagement'),
+        );
+
+      case InvitationStep.extraServices:
+        return const PackageSelectionScreen(
+          key: ValueKey('extraServices'),
+        );
+
+      case InvitationStep.packageSelection:
+        return const PackageSelectionScreen(
+          key: ValueKey('packageSelection'),
+        );
+
+      case InvitationStep.invoiceSummary:
+        return ConfirmationScreen(
+          key: const ValueKey('invoiceSummary'),
           onGoToDashboard: onGoToDashboard,
           onCreateAnother: () {
             // Reset happens in the screen itself

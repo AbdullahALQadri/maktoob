@@ -1084,4 +1084,106 @@ class InvitationCubit extends Cubit<InvitationState> {
       ));
     }
   }
+
+  // ============ Legacy Methods (backward compatibility) ============
+
+  /// Legacy: Generate share link (mock implementation)
+  @Deprecated('Use new sharing flow instead')
+  void generateShareLink() {
+    final link = 'https://maktoob.app/invite/${state.savedEventId ?? 'preview'}';
+    emit(state.copyWith(shareLink: link));
+  }
+
+  /// Legacy: Update location string
+  @Deprecated('Use setCustomLocation instead')
+  void updateLocation(String location) {
+    // Create a simple custom location from the string
+    emit(state.copyWith(
+      customLocation: LocationModel(
+        latitude: 31.5,
+        longitude: 34.45,
+        address: location,
+        placeName: location,
+      ),
+    ));
+  }
+
+  /// Legacy: Update location address
+  @Deprecated('Use setCustomLocation instead')
+  void updateLocationAddress(String address) {
+    if (state.customLocation != null) {
+      emit(state.copyWith(
+        customLocation: state.customLocation!.copyWith(address: address),
+      ));
+    } else {
+      emit(state.copyWith(
+        customLocation: LocationModel(
+          latitude: 31.5,
+          longitude: 34.45,
+          address: address,
+        ),
+      ));
+    }
+  }
+
+  /// Legacy: Update name at index (maps to eventName for index 0)
+  @Deprecated('Use updateEventName instead')
+  void updateName(int index, String name) {
+    if (index == 0) {
+      updateEventName(name);
+    }
+  }
+
+  /// Legacy: Skip to confirmation step
+  @Deprecated('Use goToStep instead')
+  void skipToConfirmation() {
+    emit(state.copyWith(currentStep: InvitationStep.confirmation));
+  }
+
+  /// Legacy: Submit invitation (maps to saveAndSubmit)
+  @Deprecated('Use saveAndSubmit instead')
+  Future<void> submitInvitation() async {
+    await saveAndSubmit();
+  }
+
+  /// Legacy: Get WhatsApp URL for a phone number
+  @Deprecated('Use WhatsAppService directly instead')
+  String getWhatsAppUrl(String phoneNumber) {
+    final cleanedPhone = phoneNumber.replaceAll(RegExp(r'[^\d]'), '');
+    final message = 'Payment confirmation for event: ${state.eventName ?? "Event"}';
+    return 'https://wa.me/$cleanedPhone?text=${Uri.encodeComponent(message)}';
+  }
+
+  /// Legacy: Select event type from GoldenEventType
+  @Deprecated('Use selectEventType(EventTypeModel) instead')
+  void selectEventTypeFromGolden(GoldenEventType type) {
+    final eventTypeModel = EventTypeModel(
+      id: type.index + 1,
+      name: type.name,
+      nameAr: type.nameAr,
+      emoji: type.emoji,
+      gradientColors: type.gradientColors,
+    );
+    selectEventType(eventTypeModel);
+  }
+
+  /// Legacy: Select package by ID string
+  @Deprecated('Use selectPackage(PackageModel) instead')
+  void selectPackageById(String packageId) {
+    final package = state.availablePackages.firstWhere(
+      (p) => p.id.toString() == packageId,
+      orElse: () => state.availablePackages.first,
+    );
+    selectPackage(package);
+  }
+
+  /// Legacy: Select template by ID string
+  @Deprecated('Use selectTemplate(TemplateModel) instead')
+  void selectTemplateById(String templateId) {
+    final template = state.availableTemplates.firstWhere(
+      (t) => t.id?.toString() == templateId,
+      orElse: () => state.availableTemplates.first,
+    );
+    selectTemplate(template);
+  }
 }

@@ -840,6 +840,58 @@ class InvitationState extends Equatable {
   double get servicesTotalPrice =>
       selectedServices.fold(0, (sum, s) => sum + s.price);
 
+  // ============ Legacy Getters (backward compatibility) ============
+
+  /// Legacy: Get event type as GoldenEventType (maps from selectedEventType)
+  @Deprecated('Use selectedEventType instead')
+  GoldenEventType? get eventType {
+    if (selectedEventType == null) return null;
+    // Map EventTypeModel to GoldenEventType by name
+    switch (selectedEventType!.name.toLowerCase()) {
+      case 'birthday':
+        return GoldenEventType.birthday;
+      case 'wedding':
+        return GoldenEventType.wedding;
+      case 'aqiqah':
+        return GoldenEventType.aqiqah;
+      case 'store opening':
+      case 'storeopening':
+        return GoldenEventType.storeOpening;
+      default:
+        return GoldenEventType.custom;
+    }
+  }
+
+  /// Legacy: Get names list (maps from eventName)
+  @Deprecated('Use eventName instead')
+  List<String> get names => eventName != null ? [eventName!] : [];
+
+  /// Legacy: Get location string (maps from selectedVenue or customLocation)
+  @Deprecated('Use selectedVenue or customLocation instead')
+  String? get location =>
+      selectedVenue?.name ?? customLocation?.placeName ?? customLocation?.address;
+
+  /// Legacy: Get location address
+  @Deprecated('Use selectedVenue or customLocation instead')
+  String? get locationAddress =>
+      selectedVenue?.address ?? customLocation?.address;
+
+  /// Legacy: Get selected template ID as string
+  @Deprecated('Use selectedTemplate instead')
+  String? get selectedTemplateId => selectedTemplate?.id?.toString();
+
+  /// Legacy: Get selected package ID as string
+  @Deprecated('Use selectedPackage instead')
+  String? get selectedPackageId => selectedPackage?.id.toString();
+
+  /// Legacy: Check if free plan is selected
+  @Deprecated('Use selectedPackage?.price == 0 instead')
+  bool get isFreePlanSelected => selectedPackage?.price == 0;
+
+  /// Legacy: Check if can proceed from creation step
+  @Deprecated('Use canProceedFromEventDetails instead')
+  bool get canProceedFromCreation => canProceedFromEventDetails;
+
   @override
   List<Object?> get props => [
         // Navigation
