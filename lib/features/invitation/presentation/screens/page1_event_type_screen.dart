@@ -81,10 +81,9 @@ class Page1EventTypeScreen extends StatelessWidget {
   }
 
   Widget _buildEventTypesGrid(BuildContext context, InvitationState state) {
-    // Combine API types with custom type option
+    // Custom type at the beginning of the list
     final eventTypes = [
-      ...state.availableEventTypes,
-      // Custom type placeholder if not in list
+      // Custom type placeholder first
       if (!state.availableEventTypes.any((e) => e.isCustom))
         const EventTypeModel(
           id: null,
@@ -92,6 +91,7 @@ class Page1EventTypeScreen extends StatelessWidget {
           nameAr: 'مخصص',
           emoji: '➕',
         ),
+      ...state.availableEventTypes,
     ];
 
     return GridView.builder(
@@ -651,23 +651,54 @@ class _CustomTemplateBottomSheetContentState
     extends State<_CustomTemplateBottomSheetContent> {
   File? _selectedFile;
   final _descriptionController = TextEditingController();
+  bool _hasDescription = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _descriptionController.addListener(_onDescriptionChanged);
+  }
+
+  void _onDescriptionChanged() {
+    final hasText = _descriptionController.text.trim().isNotEmpty;
+    if (hasText != _hasDescription) {
+      setState(() {
+        _hasDescription = hasText;
+      });
+    }
+  }
 
   @override
   void dispose() {
+    _descriptionController.removeListener(_onDescriptionChanged);
     _descriptionController.dispose();
     super.dispose();
   }
 
   Future<void> _pickFile() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      allowMultiple: false,
-    );
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        allowMultiple: false,
+      );
 
-    if (result != null && result.files.isNotEmpty) {
-      setState(() {
-        _selectedFile = File(result.files.first.path!);
-      });
+      if (result != null &&
+          result.files.isNotEmpty &&
+          result.files.first.path != null) {
+        setState(() {
+          _selectedFile = File(result.files.first.path!);
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking file: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to pick image. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -765,20 +796,32 @@ class _CustomTemplateBottomSheetContentState
           // Confirm Button
           PrimaryButton(
             text: 'Confirm',
-            onPressed: () {
-              if (_selectedFile != null) {
-                context
-                    .read<InvitationCubit>()
-                    .uploadCustomTemplate(_selectedFile!);
-              }
-              if (_descriptionController.text.isNotEmpty) {
-                context
-                    .read<InvitationCubit>()
-                    .setCustomTemplateDescription(_descriptionController.text);
-              }
-              Navigator.pop(context);
-            },
+            onPressed: (_selectedFile != null || _hasDescription)
+                ? () {
+                    if (_selectedFile != null) {
+                      context
+                          .read<InvitationCubit>()
+                          .uploadCustomTemplate(_selectedFile!);
+                    }
+                    if (_hasDescription) {
+                      context.read<InvitationCubit>().setCustomTemplateDescription(
+                          _descriptionController.text.trim());
+                    }
+                    Navigator.pop(context);
+                  }
+                : null,
           ),
+          if (_selectedFile == null && !_hasDescription) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Please upload an image or enter a description',
+              style: TextStyle(
+                fontSize: 12,
+                color: AppColors.gray500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ],
       ),
     );

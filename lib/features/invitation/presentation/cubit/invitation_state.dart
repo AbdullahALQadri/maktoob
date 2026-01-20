@@ -724,8 +724,10 @@ class InvitationState extends Equatable {
     if (selectedEventType!.isCustom && (customEventTypeName?.isEmpty ?? true)) {
       return false;
     }
-    // Must have template selected or uploaded
-    return selectedTemplate != null || uploadedTemplateFile != null;
+    // Must have template selected, uploaded file, OR description for custom
+    return selectedTemplate != null ||
+        uploadedTemplateFile != null ||
+        (uploadedTemplateDescription?.isNotEmpty ?? false);
   }
 
   /// Check if page 2 is complete
