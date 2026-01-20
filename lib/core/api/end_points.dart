@@ -17,6 +17,50 @@ class Endpoints {
   static String publicInvitationRespond(String qrCode) => '/public/invitation/$qrCode/respond';
 
   // ============================================================
+  // EVENT WIZARD ENDPOINTS
+  // ============================================================
+
+  // Page 1 - Event Type & Template Selection
+  static const String wizardEventTypes = '/event-wizard/event-types';
+  static String wizardEventTypeTemplates(int typeId) => '/event-wizard/event-types/$typeId/templates';
+  static const String wizardCustomEventType = '/event-wizard/custom-event-type';
+  static const String wizardInitialize = '/event-wizard/initialize';
+  static const String wizardCustomTemplate = '/event-wizard/custom-template';
+
+  // Page 2 - Event Details
+  static String wizardFormFields(int eventId) => '/event-wizard/$eventId/form-fields';
+  static String wizardSaveDetails(int eventId) => '/event-wizard/$eventId/details';
+
+  // Page 3 - Invitation Preview
+  static String wizardPreview(int eventId) => '/event-wizard/$eventId/preview';
+
+  // Page 4 - Guest Management
+  static String wizardGuests(int eventId) => '/event-wizard/$eventId/guests';
+  static String wizardGuestsContacts(int eventId) => '/event-wizard/$eventId/guests/contacts';
+  static String wizardGuestsExcel(int eventId) => '/event-wizard/$eventId/guests/excel';
+  static String wizardGuestsManual(int eventId) => '/event-wizard/$eventId/guests/manual';
+  static String wizardGuestsContactsSelected(int eventId) => '/event-wizard/$eventId/guests/contacts-selected';
+  static String wizardGuestDelete(int eventId, int guestId) => '/event-wizard/$eventId/guests/$guestId';
+  static String wizardGuestsBulkRemove(int eventId) => '/event-wizard/$eventId/guests/bulk-remove';
+  static String wizardGuestsRemoveDuplicates(int eventId) => '/event-wizard/$eventId/guests/remove-duplicates';
+  static const String wizardExcelFormat = '/event-wizard/excel-format';
+
+  // Page 5 - Extra Services
+  static String wizardServices(int eventId) => '/event-wizard/$eventId/services';
+
+  // Page 6 - Packages
+  static String wizardPackages(int eventId) => '/event-wizard/$eventId/packages';
+  static String wizardSelectPackage(int eventId) => '/event-wizard/$eventId/package';
+
+  // Page 7 - Invoice & Save
+  static String wizardInvoice(int eventId) => '/event-wizard/$eventId/invoice';
+  static String wizardSave(int eventId) => '/event-wizard/$eventId/save';
+  static String wizardState(int eventId) => '/event-wizard/$eventId/state';
+
+  // WhatsApp Configuration
+  static const String whatsappConfig = '/config/whatsapp';
+
+  // ============================================================
   // CLIENT AUTHENTICATION
   // ============================================================
   static const String clientRegister = '/auth/register';

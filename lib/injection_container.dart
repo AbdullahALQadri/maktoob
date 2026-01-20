@@ -69,6 +69,9 @@ import 'features/payment/presentation/cubit/payment_cubit.dart';
 import 'features/settings/presentation/cubit/settings_cubit.dart';
 
 // Invitation Feature (Golden Scenario)
+import 'features/invitation/data/services/excel_parser_service.dart';
+import 'features/invitation/data/services/invoice_generator.dart';
+import 'features/invitation/data/services/whatsapp_service.dart';
 import 'features/invitation/presentation/cubit/invitation_cubit.dart';
 
 final GetIt sl = GetIt.instance;
@@ -286,6 +289,17 @@ Future<void> init() async {
   sl.registerFactory(() => SettingsCubit());
 
   //! ========== INVITATION FEATURE (Golden Scenario) ==========
-  // Cubit - manages the entire invitation creation flow
-  sl.registerFactory(() => InvitationCubit());
+  // Services
+  sl.registerLazySingleton(() => ExcelParserService());
+  sl.registerLazySingleton(() => WhatsAppService());
+  sl.registerLazySingleton(() => InvoiceGenerator());
+
+  // Cubit - manages the entire 7-page event creation wizard
+  sl.registerFactory(
+    () => InvitationCubit(
+      excelParserService: sl(),
+      whatsAppService: sl(),
+      invoiceGenerator: sl(),
+    ),
+  );
 }

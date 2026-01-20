@@ -65,6 +65,23 @@ dependencies:
   # Sharing
   share_plus: ^7.2.1
 
+  # Google Maps
+  google_maps_flutter: ^2.5.0
+  geocoding: ^2.1.1
+
+  # Contacts & Permissions
+  flutter_contacts: ^1.1.7+1
+  permission_handler: ^11.0.1
+
+  # Excel Parsing
+  excel: ^4.0.2
+
+  # Screenshot for invoice generation
+  screenshot: ^2.1.0
+
+  # Path provider for file operations
+  path_provider: ^2.1.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
