@@ -31,7 +31,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
     super.initState();
     // Initialize controllers with existing state
     final state = context.read<InvitationCubit>().state;
-    _nameController.text = state.eventName;
+    _nameController.text = state.eventName ?? '';
     _descriptionController.text = state.eventDescription ?? '';
     if (state.partnerWithGuests != null) {
       _partnerController.text = state.partnerWithGuests.toString();
@@ -478,7 +478,13 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
       MaterialPageRoute(
         builder: (_) => BlocProvider.value(
           value: context.read<InvitationCubit>(),
-          child: const GoogleMapsPickerWidget(),
+          child: GoogleMapsPickerWidget(
+            initialLocation: context.read<InvitationCubit>().state.customLocation,
+            onLocationSelected: (location) {
+              context.read<InvitationCubit>().setCustomLocation(location);
+              Navigator.pop(context);
+            },
+          ),
         ),
       ),
     );

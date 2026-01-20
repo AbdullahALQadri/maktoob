@@ -8,6 +8,9 @@ class AppColors {
   static Color secondaryColor = HexColor('#FFFFFF');   // White
   static Color tertiaryColor = HexColor('#032855');    // Dark navy blue
 
+  // Alias for primary color (for convenience)
+  static Color get primary => primaryColor;
+
   static Color transparent = Colors.transparent;
   static Color black = Colors.black;
   static Color white = Colors.white;
@@ -30,8 +33,11 @@ class AppColors {
   static Color green100 = HexColor('#DCFCE7');
   static Color green600 = HexColor('#16A34A');
   static Color yellow400 = HexColor('#FACC15');
+  static Color amber50 = HexColor('#FFFBEB');
+  static Color amber200 = HexColor('#FDE68A');
   static Color amber500 = HexColor('#F59E0B');
   static Color amber600 = HexColor('#D97706');
+  static Color amber700 = HexColor('#B45309');
   static Color blue500 = HexColor('#3B82F6');
   static Color blue600 = HexColor('#2563EB');
   static Color cyan500 = HexColor('#06B6D4');

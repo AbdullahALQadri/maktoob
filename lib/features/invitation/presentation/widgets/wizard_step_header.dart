@@ -7,7 +7,7 @@ class WizardStepHeader extends StatelessWidget {
   final int currentStep;
   final int totalSteps;
   final String title;
-  final String titleAr;
+  final String? titleAr;
   final String? subtitle;
   final String? subtitleAr;
 
@@ -16,7 +16,7 @@ class WizardStepHeader extends StatelessWidget {
     required this.currentStep,
     required this.totalSteps,
     required this.title,
-    required this.titleAr,
+    this.titleAr,
     this.subtitle,
     this.subtitleAr,
   });
