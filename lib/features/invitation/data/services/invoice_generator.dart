@@ -1,18 +1,17 @@
 import 'dart:io';
-import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:screenshot/screenshot.dart';
 
 import '../../../../core/utils/app_colors.dart';
 import '../models/invoice_model.dart';
 
-/// Service for generating invoice images
+/// Service for generating invoice images using Flutter's built-in rendering
 class InvoiceGenerator {
-  final ScreenshotController _screenshotController = ScreenshotController();
-
   /// Generate an invoice image from invoice data
+  /// Returns a File containing the PNG image
   Future<File> generateInvoiceImage({
     required InvoiceSummaryModel invoice,
     required String eventName,
@@ -20,20 +19,27 @@ class InvoiceGenerator {
     required int guestCount,
     String? eventType,
   }) async {
-    final widget = _InvoiceWidget(
-      invoice: invoice,
-      eventName: eventName,
-      packageName: packageName,
-      guestCount: guestCount,
-      eventType: eventType,
+    // Create the widget to render
+    final widget = MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: InvoiceWidget(
+            invoice: invoice,
+            eventName: eventName,
+            packageName: packageName,
+            guestCount: guestCount,
+            eventType: eventType,
+          ),
+        ),
+      ),
     );
 
-    final Uint8List bytes = await _screenshotController.captureFromWidget(
-      widget,
-      delay: const Duration(milliseconds: 100),
-      pixelRatio: 2.0,
-    );
+    // Render the widget to an image using the picture recorder approach
+    final bytes = await _captureWidget(widget);
 
+    // Save to file
     final directory = await getTemporaryDirectory();
     final file = File(
         '${directory.path}/maktoob_invoice_${DateTime.now().millisecondsSinceEpoch}.png');
@@ -41,17 +47,60 @@ class InvoiceGenerator {
 
     return file;
   }
+
+  /// Capture a widget as PNG bytes using dart:ui
+  Future<List<int>> _captureWidget(Widget widget) async {
+    final repaintBoundary = RenderRepaintBoundary();
+
+    final renderView = RenderView(
+      view: ui.PlatformDispatcher.instance.implicitView!,
+      child: RenderPositionedBox(
+        alignment: Alignment.center,
+        child: repaintBoundary,
+      ),
+      configuration: ViewConfiguration(
+        devicePixelRatio: 2.0,
+      ),
+    );
+
+    final pipelineOwner = PipelineOwner();
+    pipelineOwner.rootNode = renderView;
+    renderView.prepareInitialFrame();
+
+    final buildOwner = BuildOwner(focusManager: FocusManager());
+    final rootElement = RenderObjectToWidgetAdapter<RenderBox>(
+      container: repaintBoundary,
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: MediaQuery(
+          data: const MediaQueryData(),
+          child: widget,
+        ),
+      ),
+    ).attachToRenderTree(buildOwner);
+
+    buildOwner.buildScope(rootElement);
+    pipelineOwner.flushLayout();
+    pipelineOwner.flushCompositingBits();
+    pipelineOwner.flushPaint();
+
+    final image = await repaintBoundary.toImage(pixelRatio: 2.0);
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+
+    return byteData!.buffer.asUint8List();
+  }
 }
 
-/// Widget for invoice rendering (for screenshot)
-class _InvoiceWidget extends StatelessWidget {
+/// Widget for invoice rendering - made public for use in screens
+class InvoiceWidget extends StatelessWidget {
   final InvoiceSummaryModel invoice;
   final String eventName;
   final String packageName;
   final int guestCount;
   final String? eventType;
 
-  const _InvoiceWidget({
+  const InvoiceWidget({
+    super.key,
     required this.invoice,
     required this.eventName,
     required this.packageName,

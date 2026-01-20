@@ -76,9 +76,6 @@ dependencies:
   # Excel Parsing
   excel: ^4.0.2
 
-  # Screenshot for invoice generation
-  screenshot: ^2.1.0
-
   # Path provider for file operations
   path_provider: ^2.1.1
 
