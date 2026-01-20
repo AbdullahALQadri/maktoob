@@ -1,6 +1,9 @@
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:screenshot/screenshot.dart';
 
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -9,14 +12,15 @@ import '../cubit/invitation_state.dart';
 import '../widgets/wizard_step_header.dart';
 
 class Page7InvoiceScreen extends StatefulWidget {
-  const Page7InvoiceScreen({super.key});
+  final VoidCallback? onComplete;
+
+  const Page7InvoiceScreen({super.key, this.onComplete});
 
   @override
   State<Page7InvoiceScreen> createState() => _Page7InvoiceScreenState();
 }
 
 class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
-  final ScreenshotController _screenshotController = ScreenshotController();
   final GlobalKey _invoiceKey = GlobalKey();
 
   @override
@@ -147,10 +151,9 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
-      child: Screenshot(
-        controller: _screenshotController,
+      child: RepaintBoundary(
+        key: _invoiceKey,
         child: Container(
-          key: _invoiceKey,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
@@ -184,6 +187,22 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
         ),
       ),
     );
+  }
+
+  /// Capture the invoice widget as PNG bytes
+  Future<Uint8List?> _captureInvoice() async {
+    try {
+      final boundary = _invoiceKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
+      if (boundary == null) return null;
+
+      final image = await boundary.toImage(pixelRatio: 2.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      return byteData?.buffer.asUint8List();
+    } catch (e) {
+      debugPrint('Error capturing invoice: $e');
+      return null;
+    }
   }
 
   Widget _buildInvoiceHeader(InvitationState state) {
@@ -647,8 +666,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
                       ? null
                       : () async {
                           // Capture invoice screenshot first
-                          final image =
-                              await _screenshotController.capture();
+                          final image = await _captureInvoice();
                           if (mounted && image != null) {
                             await context
                                 .read<InvitationCubit>()
@@ -670,7 +688,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -712,8 +730,13 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
           AppButton(
             text: 'العودة للرئيسية',
             onPressed: () {
-              Navigator.of(context).pop(); // Close dialog
-              Navigator.of(context).pop(); // Close wizard
+              Navigator.of(dialogContext).pop(); // Close dialog
+              // Call onComplete callback if provided, otherwise pop wizard
+              if (widget.onComplete != null) {
+                widget.onComplete!();
+              } else if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop(); // Close wizard
+              }
             },
             width: double.infinity,
           ),

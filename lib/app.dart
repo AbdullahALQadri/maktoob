@@ -18,7 +18,7 @@ import 'features/events/presentation/cubit/event_details/event_details_cubit.dar
 import 'features/events/presentation/cubit/create_event/create_event_cubit.dart';
 import 'features/home/presentation/cubit/home_cubit.dart';
 import 'features/invitation/presentation/cubit/invitation_cubit.dart';
-import 'features/invitation/presentation/screens/invitation_flow_shell.dart';
+import 'features/invitation/presentation/screens/invitation_wizard_screen.dart';
 import 'features/payment/presentation/cubit/payment_cubit.dart';
 import 'features/scanner/presentation/cubit/scanner_cubit.dart';
 import 'features/venues/presentation/cubit/venues_cubit.dart';
@@ -186,10 +186,10 @@ class _AuthWrapperState extends State<AuthWrapper> {
           );
         }
 
-        // Otherwise, show Golden Scenario flow (Landing page first)
-        return InvitationFlowShell(
+        // Otherwise, show new 7-page event wizard
+        return InvitationWizardScreen(
           onLogin: _goToLogin,
-          onGoToDashboard: _goToLogin, // Prompt login when going to dashboard
+          onComplete: _goToLogin, // Prompt login when wizard completes
         );
       },
     );

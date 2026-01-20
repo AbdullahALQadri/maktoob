@@ -18,27 +18,63 @@ class InvitationWizardScreen extends StatelessWidget {
   /// Optional draft event ID to resume editing
   final int? draftEventId;
 
+  /// Callback when user wants to login (optional)
+  final VoidCallback? onLogin;
+
+  /// Callback when user completes the wizard (optional)
+  final VoidCallback? onComplete;
+
   const InvitationWizardScreen({
     super.key,
     this.draftEventId,
+    this.onLogin,
+    this.onComplete,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Try to find existing cubit from parent context
+    InvitationCubit? existingCubit;
+    try {
+      existingCubit = context.read<InvitationCubit>();
+    } catch (_) {
+      // No cubit in context, will create one
+    }
+
+    if (existingCubit != null) {
+      // Use existing cubit, just initialize wizard
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        existingCubit!.initializeWizard(draftEventId: draftEventId);
+      });
+      return _InvitationWizardView(
+        onLogin: onLogin,
+        onComplete: onComplete,
+      );
+    }
+
+    // Create new cubit if none exists
     return BlocProvider(
       create: (context) {
         final cubit = sl<InvitationCubit>();
-        // Initialize wizard (loads event types and optionally draft data)
         cubit.initializeWizard(draftEventId: draftEventId);
         return cubit;
       },
-      child: const _InvitationWizardView(),
+      child: _InvitationWizardView(
+        onLogin: onLogin,
+        onComplete: onComplete,
+      ),
     );
   }
 }
 
 class _InvitationWizardView extends StatelessWidget {
-  const _InvitationWizardView();
+  final VoidCallback? onLogin;
+  final VoidCallback? onComplete;
+
+  const _InvitationWizardView({
+    this.onLogin,
+    this.onComplete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -57,14 +93,15 @@ class _InvitationWizardView extends StatelessWidget {
               context.read<InvitationCubit>().previousStep();
             }
           },
-          child: _buildCurrentPage(state.currentStep),
+          child: _buildCurrentPage(context, state.currentStep),
         );
       },
     );
   }
 
-  Widget _buildCurrentPage(InvitationStep step) {
+  Widget _buildCurrentPage(BuildContext context, InvitationStep step) {
     switch (step) {
+      // New wizard steps (7-page flow)
       case InvitationStep.eventTypeSelection:
         return const Page1EventTypeScreen();
       case InvitationStep.eventDetails:
@@ -78,7 +115,32 @@ class _InvitationWizardView extends StatelessWidget {
       case InvitationStep.packageSelection:
         return const Page6PackageSelectionScreen();
       case InvitationStep.invoiceSummary:
-        return const Page7InvoiceScreen();
+        return Page7InvoiceScreen(onComplete: onComplete);
+
+      // Legacy steps - redirect to first page (these should not be used with new wizard)
+      // ignore: deprecated_member_use_from_same_package
+      case InvitationStep.landing:
+      // ignore: deprecated_member_use_from_same_package
+      case InvitationStep.eventType:
+      // ignore: deprecated_member_use_from_same_package
+      case InvitationStep.creation:
+      // ignore: deprecated_member_use_from_same_package
+      case InvitationStep.guests:
+      // ignore: deprecated_member_use_from_same_package
+      case InvitationStep.share:
+      // ignore: deprecated_member_use_from_same_package
+      case InvitationStep.package:
+      // ignore: deprecated_member_use_from_same_package
+      case InvitationStep.payment:
+      // ignore: deprecated_member_use_from_same_package
+      case InvitationStep.confirmation:
+        // Reset to first wizard step
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          context
+              .read<InvitationCubit>()
+              .goToStep(InvitationStep.eventTypeSelection);
+        });
+        return const Page1EventTypeScreen();
     }
   }
 }
