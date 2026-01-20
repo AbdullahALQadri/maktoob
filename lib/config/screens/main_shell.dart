@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/utils/app_colors.dart';
 import '../../core/widgets/bottom_navigation.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
-import '../../features/events/presentation/screens/create_event_screen.dart';
 import '../../features/events/presentation/screens/event_details_screen.dart';
 import '../../features/scanner/presentation/screens/qr_scanner_screen.dart';
 import '../../features/payment/presentation/screens/payment_upload_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
+import '../../features/invitation/presentation/cubit/invitation_cubit.dart';
+import '../../features/invitation/presentation/screens/invitation_wizard_screen.dart';
+import '../../injection_container.dart' as di;
 
 /// Main shell widget that contains all screens with bottom navigation.
 /// This acts as the root container for the app's main content.
@@ -88,8 +91,14 @@ class _MainShellState extends State<MainShell> {
       case 2:
         return const SettingsScreen();
       case 3:
-        return CreateEventScreen(
-          onComplete: _onEventCreated,
+        return BlocProvider(
+          create: (_) => di.sl<InvitationCubit>(),
+          child: InvitationWizardScreen(
+            onComplete: () {
+              // After wizard completion, go back to home
+              _onNavigationTap(0);
+            },
+          ),
         );
       default:
         return HomeScreen(onViewEvent: _onViewEvent);
