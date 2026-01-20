@@ -78,7 +78,7 @@ class EventTypeScreen extends StatelessWidget {
                           eventType: type,
                           isSelected: state.eventType == type,
                           onTap: () {
-                            context.read<InvitationCubit>().selectEventType(type);
+                            context.read<InvitationCubit>().selectEventTypeFromGolden(type);
                           },
                         );
                       }).toList(),

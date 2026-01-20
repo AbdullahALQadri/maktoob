@@ -194,7 +194,7 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
                             onTemplateSelected: (templateId) {
                               context
                                   .read<InvitationCubit>()
-                                  .selectTemplate(templateId);
+                                  .selectTemplateById(templateId);
                             },
                           ),
 

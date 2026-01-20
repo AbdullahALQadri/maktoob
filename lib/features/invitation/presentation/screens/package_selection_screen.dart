@@ -89,7 +89,7 @@ class PackageSelectionScreen extends StatelessWidget {
                         onTap: () {
                           context
                               .read<InvitationCubit>()
-                              .selectPackage(package.id);
+                              .selectPackageById(package.id);
                         },
                       ),
                     );
