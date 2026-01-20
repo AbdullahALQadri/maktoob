@@ -100,6 +100,7 @@ class InvitationCubit extends Cubit<InvitationState> {
   /// Navigate to the next step
   void nextStep() {
     final nextStepMap = {
+      // New wizard steps
       InvitationStep.eventTypeSelection: InvitationStep.eventDetails,
       InvitationStep.eventDetails: InvitationStep.invitationPreview,
       InvitationStep.invitationPreview: InvitationStep.guestManagement,
@@ -107,6 +108,15 @@ class InvitationCubit extends Cubit<InvitationState> {
       InvitationStep.extraServices: InvitationStep.packageSelection,
       InvitationStep.packageSelection: InvitationStep.invoiceSummary,
       InvitationStep.invoiceSummary: InvitationStep.invoiceSummary,
+      // Legacy steps (for backward compatibility)
+      InvitationStep.landing: InvitationStep.eventType,
+      InvitationStep.eventType: InvitationStep.creation,
+      InvitationStep.creation: InvitationStep.guests,
+      InvitationStep.guests: InvitationStep.share,
+      InvitationStep.share: InvitationStep.package,
+      InvitationStep.package: InvitationStep.payment,
+      InvitationStep.payment: InvitationStep.confirmation,
+      InvitationStep.confirmation: InvitationStep.confirmation,
     };
 
     // Special case: Skip preview if custom type or uploaded template
@@ -126,6 +136,7 @@ class InvitationCubit extends Cubit<InvitationState> {
   /// Navigate to the previous step
   void previousStep() {
     final prevStepMap = {
+      // New wizard steps
       InvitationStep.eventTypeSelection: InvitationStep.eventTypeSelection,
       InvitationStep.eventDetails: InvitationStep.eventTypeSelection,
       InvitationStep.invitationPreview: InvitationStep.eventDetails,
@@ -133,6 +144,15 @@ class InvitationCubit extends Cubit<InvitationState> {
       InvitationStep.extraServices: InvitationStep.guestManagement,
       InvitationStep.packageSelection: InvitationStep.extraServices,
       InvitationStep.invoiceSummary: InvitationStep.packageSelection,
+      // Legacy steps (for backward compatibility)
+      InvitationStep.landing: InvitationStep.landing,
+      InvitationStep.eventType: InvitationStep.landing,
+      InvitationStep.creation: InvitationStep.eventType,
+      InvitationStep.guests: InvitationStep.creation,
+      InvitationStep.share: InvitationStep.guests,
+      InvitationStep.package: InvitationStep.share,
+      InvitationStep.payment: InvitationStep.package,
+      InvitationStep.confirmation: InvitationStep.payment,
     };
 
     // Special case: Skip preview if custom type or uploaded template
@@ -395,6 +415,14 @@ class InvitationCubit extends Cubit<InvitationState> {
     ));
   }
 
+  /// Alias for clearAllGuests (backward compatibility)
+  @Deprecated('Use clearAllGuests instead')
+  void clearGuests() => clearAllGuests();
+
+  /// Alias for addManualGuest (backward compatibility)
+  @Deprecated('Use addManualGuest instead')
+  void addGuestDirect(GuestInfoModel guest) => addManualGuest(guest);
+
   /// Merge guests from all sources and remove duplicates
   /// Priority: manual > excel > contacts
   void _mergeAndDeduplicateGuests() {
@@ -638,19 +666,22 @@ class InvitationCubit extends Cubit<InvitationState> {
 
     try {
       // Generate invoice image
-      final invoiceImage = await invoiceGenerator!.generateInvoiceImage(
+      final invoiceImageFile = await invoiceGenerator!.generateInvoiceImage(
         invoice: state.invoiceSummary ?? InvoiceSummaryModel.empty(),
-        eventName: state.eventName,
+        eventName: state.eventName ?? 'حدث',
         packageName: state.selectedPackage?.name ?? 'Unknown',
         guestCount: state.totalGuestCount,
         eventType: state.selectedEventType?.name,
       );
 
-      emit(state.copyWith(generatedInvoiceImage: invoiceImage));
+      emit(state.copyWith(generatedInvoiceImage: invoiceImageFile));
+
+      // Read file bytes for WhatsApp sharing
+      final invoiceImageBytes = await invoiceImageFile.readAsBytes();
 
       // Generate message
       final message = whatsAppService!.generateInvoiceMessage(
-        eventName: state.eventName,
+        eventName: state.eventName ?? 'حدث',
         packageName: state.selectedPackage?.name ?? 'Unknown',
         totalPrice: state.invoiceSummary?.totalPrice ?? 0,
         guestCount: state.totalGuestCount,
@@ -659,7 +690,7 @@ class InvitationCubit extends Cubit<InvitationState> {
       // Open WhatsApp
       await whatsAppService!.openWhatsAppWithInvoice(
         phoneNumber: state.whatsappNumber!,
-        invoiceImage: invoiceImage,
+        invoiceImage: invoiceImageBytes,
         message: message,
       );
 
@@ -740,8 +771,8 @@ class InvitationCubit extends Cubit<InvitationState> {
     }
   }
 
-  /// Remove a guest by object reference
-  void removeGuest(GuestInfoModel guest) {
+  /// Remove a guest by object reference (alias for removeGuestByModel)
+  void removeGuestByModel(GuestInfoModel guest) {
     final phone = guest.normalizedPhone;
 
     switch (guest.source) {
@@ -955,7 +986,7 @@ class InvitationCubit extends Cubit<InvitationState> {
       // Open WhatsApp if service available
       if (whatsAppService != null && state.whatsappNumber != null) {
         final message = whatsAppService!.generateInvoiceMessage(
-          eventName: state.eventName,
+          eventName: state.eventName ?? 'حدث',
           packageName: state.selectedPackage?.nameAr ?? 'غير محدد',
           totalPrice: state.invoiceSummary?.totalPrice ?? 0,
           guestCount: state.totalGuestCount,

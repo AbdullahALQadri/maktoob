@@ -480,7 +480,7 @@ class _Page4GuestManagementScreenState
         icon: const Icon(Icons.remove_circle_outline),
         color: Colors.red.shade400,
         onPressed: () {
-          context.read<InvitationCubit>().removeGuest(guest);
+          context.read<InvitationCubit>().removeGuestByModel(guest);
         },
       ),
     );

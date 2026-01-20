@@ -10,6 +10,7 @@ import '../../data/models/location_model.dart';
 
 /// Steps in the 7-page event creation wizard
 enum InvitationStep {
+  // New wizard steps (7-page flow)
   eventTypeSelection, // Page 1: Event type + template selection
   eventDetails, // Page 2: Event name, date, location, etc.
   invitationPreview, // Page 3: Template preview
@@ -17,6 +18,24 @@ enum InvitationStep {
   extraServices, // Page 5: Paid extra services
   packageSelection, // Page 6: Package selection
   invoiceSummary, // Page 7: Invoice & save
+
+  // Legacy steps (for backward compatibility with old flow)
+  @Deprecated('Use eventTypeSelection instead')
+  landing,
+  @Deprecated('Use eventTypeSelection instead')
+  eventType,
+  @Deprecated('Use eventDetails instead')
+  creation,
+  @Deprecated('Use guestManagement instead')
+  guests,
+  @Deprecated('Use invoiceSummary instead')
+  share,
+  @Deprecated('Use packageSelection instead')
+  package,
+  @Deprecated('Use invoiceSummary instead')
+  payment,
+  @Deprecated('Use invoiceSummary instead')
+  confirmation,
 }
 
 /// Status of invitation operations
@@ -511,11 +530,17 @@ class InvitationState extends Equatable {
   /// Total guest count from all sources
   int get totalGuestCount => guests.length;
 
+  /// Alias for totalGuestCount (backward compatibility)
+  @Deprecated('Use totalGuestCount instead')
+  int get totalGuests => totalGuestCount;
+
   /// Check if package limit is exceeded
   bool get isPackageLimitExceeded {
     if (selectedPackage == null) return false;
     if (selectedPackage!.hasUnlimitedInvitations) return false;
-    return totalGuestCount > selectedPackage!.invitationLimit;
+    final limit = selectedPackage!.invitationLimit;
+    if (limit == null) return false;
+    return totalGuestCount > limit;
   }
 
   /// Copy with method for immutable state updates
@@ -705,7 +730,7 @@ class InvitationState extends Equatable {
 
   /// Check if page 2 is complete
   bool get canProceedFromEventDetails {
-    if (eventName.isEmpty) return false;
+    if (eventName == null || eventName!.isEmpty) return false;
     if (eventDate == null) return false;
     // Must have location (venue or custom)
     if (selectedVenue == null && customLocation == null) return false;
@@ -743,6 +768,23 @@ class InvitationState extends Equatable {
         return 0.85;
       case InvitationStep.invoiceSummary:
         return 1.0;
+      // Legacy steps (for backward compatibility)
+      case InvitationStep.landing:
+        return 0.0;
+      case InvitationStep.eventType:
+        return 0.14;
+      case InvitationStep.creation:
+        return 0.28;
+      case InvitationStep.guests:
+        return 0.42;
+      case InvitationStep.share:
+        return 0.57;
+      case InvitationStep.package:
+        return 0.71;
+      case InvitationStep.payment:
+        return 0.85;
+      case InvitationStep.confirmation:
+        return 1.0;
     }
   }
 
@@ -763,6 +805,23 @@ class InvitationState extends Equatable {
         return 6;
       case InvitationStep.invoiceSummary:
         return 7;
+      // Legacy steps (for backward compatibility)
+      case InvitationStep.landing:
+        return 1;
+      case InvitationStep.eventType:
+        return 2;
+      case InvitationStep.creation:
+        return 3;
+      case InvitationStep.guests:
+        return 4;
+      case InvitationStep.share:
+        return 5;
+      case InvitationStep.package:
+        return 6;
+      case InvitationStep.payment:
+        return 7;
+      case InvitationStep.confirmation:
+        return 8;
     }
   }
 

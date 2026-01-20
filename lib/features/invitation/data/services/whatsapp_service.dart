@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -6,6 +7,14 @@ import 'package:url_launcher/url_launcher.dart';
 
 /// Service for WhatsApp integration
 class WhatsAppService {
+  /// Open WhatsApp with pre-filled message (alias)
+  Future<bool> openWhatsApp({
+    required String phoneNumber,
+    required String message,
+  }) async {
+    return openWhatsAppWithMessage(phoneNumber: phoneNumber, message: message);
+  }
+
   /// Open WhatsApp with pre-filled message
   Future<bool> openWhatsAppWithMessage({
     required String phoneNumber,
@@ -59,12 +68,18 @@ class WhatsAppService {
     }
   }
 
-  /// Open WhatsApp and then share invoice image
+  /// Open WhatsApp and then share invoice image (accepts Uint8List)
   Future<bool> openWhatsAppWithInvoice({
     required String phoneNumber,
-    required File invoiceImage,
+    required Uint8List invoiceImage,
     required String message,
   }) async {
+    // Save Uint8List to temp file first
+    final tempDir = await getTemporaryDirectory();
+    final tempFile = File(
+        '${tempDir.path}/invoice_${DateTime.now().millisecondsSinceEpoch}.png');
+    await tempFile.writeAsBytes(invoiceImage);
+
     // First open WhatsApp with message
     final opened = await openWhatsAppWithMessage(
       phoneNumber: phoneNumber,
@@ -75,7 +90,7 @@ class WhatsAppService {
       // Small delay then share image
       await Future.delayed(const Duration(milliseconds: 500));
       await shareInvoiceImage(
-        invoiceImage: invoiceImage,
+        invoiceImage: tempFile,
         message: message,
       );
     }
