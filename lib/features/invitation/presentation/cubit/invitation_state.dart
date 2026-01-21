@@ -621,6 +621,7 @@ class InvitationState extends Equatable {
     bool clearSelectedEventType = false,
     bool clearSelectedTemplate = false,
     bool clearUploadedTemplate = false,
+    bool clearUploadedTemplateDescription = false,
     bool clearSelectedVenue = false,
     bool clearCustomLocation = false,
     bool clearSelectedPackage = false,
@@ -666,8 +667,9 @@ class InvitationState extends Equatable {
       uploadedTemplateFile: clearUploadedTemplate
           ? null
           : (uploadedTemplateFile ?? this.uploadedTemplateFile),
-      uploadedTemplateDescription:
-          uploadedTemplateDescription ?? this.uploadedTemplateDescription,
+      uploadedTemplateDescription: clearUploadedTemplateDescription
+          ? null
+          : (uploadedTemplateDescription ?? this.uploadedTemplateDescription),
       // Page 2
       eventName: eventName ?? this.eventName,
       eventDescription: eventDescription ?? this.eventDescription,

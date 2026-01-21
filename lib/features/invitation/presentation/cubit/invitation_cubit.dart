@@ -230,8 +230,27 @@ class InvitationCubit extends Cubit<InvitationState> {
   void clearUploadedTemplate() {
     emit(state.copyWith(
       clearUploadedTemplate: true,
-      uploadedTemplateDescription: null,
+      clearUploadedTemplateDescription: true,
     ));
+  }
+
+  /// Clear all custom template data (file, description, and template selection)
+  void clearCustomTemplate() {
+    emit(state.copyWith(
+      clearUploadedTemplate: true,
+      clearSelectedTemplate: true,
+      clearUploadedTemplateDescription: true,
+    ));
+  }
+
+  /// Clear uploaded template file only
+  void clearUploadedTemplateFile() {
+    emit(state.copyWith(clearUploadedTemplate: true));
+  }
+
+  /// Clear custom template description only
+  void clearCustomTemplateDescription() {
+    emit(state.copyWith(clearUploadedTemplateDescription: true));
   }
 
   // ============ Page 2: Event Details ============

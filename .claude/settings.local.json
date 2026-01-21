@@ -19,7 +19,11 @@
       "Bash(powershell.exe -Command \"where.exe flutter 2>$null\")",
       "Bash(powershell.exe -Command \"where.exe flutter\")",
       "Bash(powershell.exe -Command \"$env:PATH -split '';'' | Where-Object { $_-like ''*flutter*'' }\")",
-      "Bash(powershell.exe -Command:*)"
+      "Bash(powershell.exe -Command:*)",
+      "Bash(xargs ls:*)",
+      "Bash(C:flutterflutter-3.10.5binflutter.bat analyze lib/features/invitation --no-fatal-warnings --no-fatal-infos)",
+      "Bash(flutter clean:*)",
+      "Bash(C:devflutterbinflutter.bat pub get)"
     ]
   }
 }
