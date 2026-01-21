@@ -23,7 +23,9 @@
       "Bash(xargs ls:*)",
       "Bash(C:flutterflutter-3.10.5binflutter.bat analyze lib/features/invitation --no-fatal-warnings --no-fatal-infos)",
       "Bash(flutter clean:*)",
-      "Bash(C:devflutterbinflutter.bat pub get)"
+      "Bash(C:devflutterbinflutter.bat pub get)",
+      "Bash(find:*)",
+      "Bash(flutter pub outdated:*)"
     ]
   }
 }
