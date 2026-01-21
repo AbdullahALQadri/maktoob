@@ -45,5 +45,49 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<!-- Camera Permission -->
+	<key>NSCameraUsageDescription</key>
+	<string>يحتاج التطبيق إلى الوصول إلى الكاميرا لالتقاط الصور ومسح رموز QR</string>
+
+	<!-- Contacts Permission -->
+	<key>NSContactsUsageDescription</key>
+	<string>يحتاج التطبيق إلى الوصول إلى جهات الاتصال لدعوة الأصدقاء والعائلة</string>
+
+	<!-- Photo Library Permissions -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>يحتاج التطبيق إلى الوصول إلى مكتبة الصور لاختيار وتحميل الصور</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>يحتاج التطبيق إلى إذن لحفظ الصور في مكتبة الصور</string>
+
+	<!-- Location Permissions -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>يحتاج التطبيق إلى موقعك لعرض الأماكن القريبة والخرائط</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>يحتاج التطبيق إلى موقعك لتتبع الموقع وإرسال التنبيهات</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>يحتاج التطبيق إلى موقعك في الخلفية لإرسال التنبيهات المستندة إلى الموقع</string>
+
+	<!-- Microphone Permission -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>يحتاج التطبيق إلى الوصول إلى الميكروفون لتسجيل الصوت</string>
+
+	<!-- Calendar Permission -->
+	<key>NSCalendarsUsageDescription</key>
+	<string>يحتاج التطبيق إلى الوصول إلى التقويم لإضافة الأحداث والمناسبات</string>
+
+	<!-- Bluetooth Permission -->
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>يحتاج التطبيق إلى البلوتوث للاتصال بالأجهزة القريبة</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>يحتاج التطبيق إلى البلوتوث للاتصال بالأجهزة الطرفية</string>
+
+	<!-- Motion/Sensors Permission -->
+	<key>NSMotionUsageDescription</key>
+	<string>يحتاج التطبيق إلى الوصول إلى مستشعرات الحركة</string>
+
+	<!-- Face ID Permission -->
+	<key>NSFaceIDUsageDescription</key>
+	<string>يحتاج التطبيق إلى Face ID للمصادقة الآمنة</string>
 </dict>
 </plist>

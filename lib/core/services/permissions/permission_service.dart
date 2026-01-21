@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:permission_handler/permission_handler.dart' as ph;
 
 /// A service class for managing app permissions.
 ///
@@ -27,17 +28,56 @@ class PermissionService {
 
   PermissionService._internal();
 
+  /// Maps AppPermission to permission_handler Permission.
+  ph.Permission _mapPermission(AppPermission permission) {
+    switch (permission) {
+      case AppPermission.camera:
+        return ph.Permission.camera;
+      case AppPermission.microphone:
+        return ph.Permission.microphone;
+      case AppPermission.locationWhenInUse:
+        return ph.Permission.locationWhenInUse;
+      case AppPermission.locationAlways:
+        return ph.Permission.locationAlways;
+      case AppPermission.storage:
+        return ph.Permission.storage;
+      case AppPermission.photos:
+        return ph.Permission.photos;
+      case AppPermission.contacts:
+        return ph.Permission.contacts;
+      case AppPermission.calendar:
+        return ph.Permission.calendar;
+      case AppPermission.notification:
+        return ph.Permission.notification;
+      case AppPermission.bluetooth:
+        return ph.Permission.bluetooth;
+      case AppPermission.phone:
+        return ph.Permission.phone;
+      case AppPermission.sms:
+        return ph.Permission.sms;
+      case AppPermission.sensors:
+        return ph.Permission.sensors;
+      case AppPermission.mediaLibrary:
+        return ph.Permission.mediaLibrary;
+    }
+  }
+
+  /// Converts permission_handler PermissionStatus to our PermissionStatus.
+  PermissionStatus _mapStatus(ph.PermissionStatus status) {
+    if (status.isGranted) return PermissionStatus.granted;
+    if (status.isDenied) return PermissionStatus.denied;
+    if (status.isPermanentlyDenied) return PermissionStatus.permanentlyDenied;
+    if (status.isRestricted) return PermissionStatus.restricted;
+    if (status.isLimited) return PermissionStatus.limited;
+    return PermissionStatus.unknown;
+  }
+
   /// Checks if a permission is granted.
   Future<bool> hasPermission(AppPermission permission) async {
     try {
-      // Implementation depends on permission_handler package
-      // Uncomment and implement when the package is added
-      /*
-      final Permission p = _mapPermission(permission);
+      final ph.Permission p = _mapPermission(permission);
       final status = await p.status;
-      return status.isGranted;
-      */
-      return true;
+      return status.isGranted || status.isLimited;
     } catch (e) {
       debugPrint('Check permission error: $e');
       return false;
@@ -49,15 +89,10 @@ class PermissionService {
   /// Returns `true` if the permission was granted, `false` otherwise.
   Future<bool> requestPermission(AppPermission permission) async {
     try {
-      // Implementation depends on permission_handler package
-      // Uncomment and implement when the package is added
-      /*
-      final Permission p = _mapPermission(permission);
+      final ph.Permission p = _mapPermission(permission);
       final status = await p.request();
-      return status.isGranted;
-      */
-      debugPrint('Requested permission: ${permission.name}');
-      return true;
+      debugPrint('Requested permission: ${permission.name}, status: $status');
+      return status.isGranted || status.isLimited;
     } catch (e) {
       debugPrint('Request permission error: $e');
       return false;
@@ -72,8 +107,25 @@ class PermissionService {
   ) async {
     final results = <AppPermission, bool>{};
 
-    for (final permission in permissions) {
-      results[permission] = await requestPermission(permission);
+    // Convert to permission_handler permissions
+    final phPermissions = permissions.map((p) => _mapPermission(p)).toList();
+
+    try {
+      // Request all permissions at once
+      final statuses = await phPermissions.request();
+
+      // Map results back
+      for (int i = 0; i < permissions.length; i++) {
+        final status = statuses[phPermissions[i]];
+        results[permissions[i]] =
+            status?.isGranted == true || status?.isLimited == true;
+      }
+    } catch (e) {
+      debugPrint('Request permissions error: $e');
+      // Fallback to individual requests
+      for (final permission in permissions) {
+        results[permission] = await requestPermission(permission);
+      }
     }
 
     return results;
@@ -82,13 +134,9 @@ class PermissionService {
   /// Checks if a permission is permanently denied.
   Future<bool> isPermanentlyDenied(AppPermission permission) async {
     try {
-      // Implementation depends on permission_handler package
-      /*
-      final Permission p = _mapPermission(permission);
+      final ph.Permission p = _mapPermission(permission);
       final status = await p.status;
       return status.isPermanentlyDenied;
-      */
-      return false;
     } catch (e) {
       debugPrint('Check permanently denied error: $e');
       return false;
@@ -98,10 +146,7 @@ class PermissionService {
   /// Opens app settings where the user can grant permissions.
   Future<bool> openAppSettings() async {
     try {
-      // Implementation depends on permission_handler package
-      // return await openAppSettings();
-      debugPrint('Opening app settings');
-      return true;
+      return await ph.openAppSettings();
     } catch (e) {
       debugPrint('Open app settings error: $e');
       return false;
@@ -111,18 +156,9 @@ class PermissionService {
   /// Gets the current status of a permission.
   Future<PermissionStatus> getPermissionStatus(AppPermission permission) async {
     try {
-      // Implementation depends on permission_handler package
-      /*
-      final Permission p = _mapPermission(permission);
+      final ph.Permission p = _mapPermission(permission);
       final status = await p.status;
-
-      if (status.isGranted) return PermissionStatus.granted;
-      if (status.isDenied) return PermissionStatus.denied;
-      if (status.isPermanentlyDenied) return PermissionStatus.permanentlyDenied;
-      if (status.isRestricted) return PermissionStatus.restricted;
-      if (status.isLimited) return PermissionStatus.limited;
-      */
-      return PermissionStatus.granted;
+      return _mapStatus(status);
     } catch (e) {
       debugPrint('Get permission status error: $e');
       return PermissionStatus.unknown;
@@ -132,12 +168,8 @@ class PermissionService {
   /// Checks if should show rationale for a permission.
   Future<bool> shouldShowRationale(AppPermission permission) async {
     try {
-      // Implementation depends on permission_handler package
-      /*
-      final Permission p = _mapPermission(permission);
+      final ph.Permission p = _mapPermission(permission);
       return await p.shouldShowRequestRationale;
-      */
-      return false;
     } catch (e) {
       debugPrint('Should show rationale error: $e');
       return false;
