@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/api/event_wizard_api_service.dart';
 import '../../data/models/extra_service_model.dart';
 import '../../data/models/invitation_draft_model.dart';
 import '../../data/models/invoice_model.dart';
@@ -15,11 +16,13 @@ import 'invitation_state.dart';
 
 /// Cubit for managing the 7-page event creation wizard
 class InvitationCubit extends Cubit<InvitationState> {
+  final EventWizardApiService? apiService;
   final ExcelParserService? excelParserService;
   final WhatsAppService? whatsAppService;
   final InvoiceGenerator? invoiceGenerator;
 
   InvitationCubit({
+    this.apiService,
     this.excelParserService,
     this.whatsAppService,
     this.invoiceGenerator,
@@ -35,21 +38,27 @@ class InvitationCubit extends Cubit<InvitationState> {
     ));
 
     try {
-      // TODO: Load event types from API
-      // For now, use mock data
-      await Future.delayed(const Duration(milliseconds: 300));
+      List<EventTypeModel> eventTypes;
 
-      final mockEventTypes = [
-        const EventTypeModel(id: 1, name: 'Wedding', nameAr: 'زفاف'),
-        const EventTypeModel(id: 2, name: 'Birthday', nameAr: 'عيد ميلاد'),
-        const EventTypeModel(id: 3, name: 'Engagement', nameAr: 'خطوبة'),
-        const EventTypeModel(id: 4, name: 'Graduation', nameAr: 'تخرج'),
-        const EventTypeModel(id: 5, name: 'Conference', nameAr: 'مؤتمر'),
-      ];
+      if (apiService != null) {
+        // Load event types from API
+        final response = await apiService!.getEventTypes();
+        final eventTypesData = response['data']['event_types'] as List;
+        eventTypes = eventTypesData.map((e) => EventTypeModel.fromJson(e)).toList();
+      } else {
+        // Fallback to mock data
+        eventTypes = [
+          const EventTypeModel(id: 1, name: 'Wedding', nameAr: 'زفاف'),
+          const EventTypeModel(id: 2, name: 'Birthday', nameAr: 'عيد ميلاد'),
+          const EventTypeModel(id: 3, name: 'Engagement', nameAr: 'خطوبة'),
+          const EventTypeModel(id: 4, name: 'Graduation', nameAr: 'تخرج'),
+          const EventTypeModel(id: 5, name: 'Conference', nameAr: 'مؤتمر'),
+        ];
+      }
 
       emit(state.copyWith(
         isLoading: false,
-        availableEventTypes: mockEventTypes,
+        availableEventTypes: eventTypes,
       ));
 
       // If draft ID provided, load draft data
@@ -65,8 +74,22 @@ class InvitationCubit extends Cubit<InvitationState> {
   }
 
   Future<void> _loadDraftData(int draftEventId) async {
-    // TODO: Load draft data from API
-    // This would populate the state with saved draft values
+    if (apiService == null) return;
+
+    try {
+      final response = await apiService!.getWizardState(draftEventId);
+      final eventData = response['data']['event'];
+      // Populate state from draft data
+      if (eventData != null) {
+        emit(state.copyWith(
+          draftEventId: eventData['id'],
+          eventName: eventData['title_ar'],
+          // Add more fields as needed
+        ));
+      }
+    } catch (e) {
+      emit(state.copyWith(errorMessage: 'Failed to load draft: ${e.toString()}'));
+    }
   }
 
   /// Load templates for selected event type
@@ -74,18 +97,24 @@ class InvitationCubit extends Cubit<InvitationState> {
     emit(state.copyWith(isLoadingTemplates: true));
 
     try {
-      // TODO: Call API to get templates
-      await Future.delayed(const Duration(milliseconds: 300));
+      List<TemplateModel> templates;
 
-      final mockTemplates = [
-        const TemplateModel(id: 1, name: 'Classic', nameAr: 'كلاسيكي', imageUrl: ''),
-        const TemplateModel(id: 2, name: 'Modern', nameAr: 'عصري', imageUrl: ''),
-        const TemplateModel(id: 3, name: 'Elegant', nameAr: 'أنيق', imageUrl: ''),
-      ];
+      if (apiService != null) {
+        final response = await apiService!.getTemplatesForEventType(eventTypeId);
+        final templatesData = response['data']['templates'] as List;
+        templates = templatesData.map((t) => TemplateModel.fromJson(t)).toList();
+      } else {
+        // Fallback to mock data
+        templates = [
+          const TemplateModel(id: 1, name: 'Classic', nameAr: 'كلاسيكي', imageUrl: ''),
+          const TemplateModel(id: 2, name: 'Modern', nameAr: 'عصري', imageUrl: ''),
+          const TemplateModel(id: 3, name: 'Elegant', nameAr: 'أنيق', imageUrl: ''),
+        ];
+      }
 
       emit(state.copyWith(
         isLoadingTemplates: false,
-        availableTemplates: mockTemplates,
+        availableTemplates: templates,
       ));
     } catch (e) {
       emit(state.copyWith(
@@ -633,13 +662,24 @@ class InvitationCubit extends Cubit<InvitationState> {
     emit(state.copyWith(status: InvitationStatus.loading));
 
     try {
-      // TODO: Call API to save draft
-      await Future.delayed(const Duration(milliseconds: 500));
+      if (apiService != null && state.draftEventId != null) {
+        // Save event as draft
+        final response = await apiService!.saveEvent(
+          state.draftEventId!,
+          isDraft: true,
+        );
 
-      emit(state.copyWith(
-        status: InvitationStatus.success,
-        savedEventId: 'draft_${DateTime.now().millisecondsSinceEpoch}',
-      ));
+        emit(state.copyWith(
+          status: InvitationStatus.success,
+          savedEventId: response['data']['event']['id'].toString(),
+        ));
+      } else {
+        // Fallback for when no API service
+        emit(state.copyWith(
+          status: InvitationStatus.success,
+          savedEventId: 'draft_${DateTime.now().millisecondsSinceEpoch}',
+        ));
+      }
     } catch (e) {
       emit(state.copyWith(
         status: InvitationStatus.failure,
@@ -658,16 +698,96 @@ class InvitationCubit extends Cubit<InvitationState> {
         generateInvoiceSummary();
       }
 
-      // TODO: Call API to save event
-      await Future.delayed(const Duration(milliseconds: 800));
+      if (apiService != null) {
+        int eventId;
 
-      final eventId = 'EVT-${DateTime.now().millisecondsSinceEpoch}';
+        // Step 1: Initialize wizard if no draft exists
+        if (state.draftEventId == null) {
+          final initResponse = await apiService!.initializeWizard(
+            eventTypeId: state.selectedEventType?.id,
+            customEventTypeName: state.customEventTypeName,
+            templateId: state.selectedTemplate?.id,
+          );
+          eventId = initResponse['data']['event_id'];
+          emit(state.copyWith(draftEventId: eventId));
+        } else {
+          eventId = state.draftEventId!;
+        }
 
-      emit(state.copyWith(
-        status: InvitationStatus.success,
-        savedEventId: eventId,
-        invitationId: eventId,
-      ));
+        // Step 2: Save event details
+        await apiService!.saveEventDetails(
+          eventId,
+          titleAr: state.eventName ?? 'حدث جديد',
+          titleEn: state.eventName,
+          descriptionAr: state.eventDescription,
+          eventDate: state.eventDate ?? DateTime.now().add(const Duration(days: 30)),
+          eventTime: state.eventTime != null
+              ? '${state.eventTime!.hour.toString().padLeft(2, '0')}:${state.eventTime!.minute.toString().padLeft(2, '0')}'
+              : null,
+          venueId: state.selectedVenue?.id,
+          customVenueNameAr: state.customLocation?.placeName,
+          customVenueAddressAr: state.customLocation?.address,
+          customVenueLat: state.customLocation?.latitude,
+          customVenueLng: state.customLocation?.longitude,
+          partnerCount: state.partnerWithGuests,
+          eventTypeFormValues: state.eventTypeFormData,
+        );
+
+        // Step 3: Add guests
+        if (state.guests.isNotEmpty) {
+          await apiService!.addManualGuests(
+            eventId,
+            state.guests.map((g) => {
+              'name': g.name,
+              'phone': g.phone,
+            }).toList(),
+          );
+        }
+
+        // Step 4: Save invitation configuration
+        await apiService!.saveInvitationConfig(
+          eventId,
+          defaultDeliveryMethod: 'whatsapp',
+          allowCompanions: true,
+          maxCompanions: 2,
+          requireResponse: true,
+        );
+
+        // Step 5: Save extra services
+        if (state.selectedServices.isNotEmpty) {
+          await apiService!.saveExtraServices(
+            eventId,
+            state.selectedServices.map((s) => s.id).toList(),
+          );
+        }
+
+        // Step 6: Select package
+        if (state.selectedPackage != null) {
+          await apiService!.selectPackage(
+            eventId,
+            packageId: state.selectedPackage!.isCustom ? null : state.selectedPackage!.id,
+            isCustomPackage: state.selectedPackage!.isCustom,
+            customGuestCount: state.selectedPackage!.isCustom ? state.customPackageLimit : null,
+          );
+        }
+
+        // Step 7: Final save
+        final saveResponse = await apiService!.saveEvent(eventId, isDraft: false);
+
+        emit(state.copyWith(
+          status: InvitationStatus.success,
+          savedEventId: eventId.toString(),
+          invitationId: eventId.toString(),
+        ));
+      } else {
+        // Fallback for when no API service
+        final eventId = 'EVT-${DateTime.now().millisecondsSinceEpoch}';
+        emit(state.copyWith(
+          status: InvitationStatus.success,
+          savedEventId: eventId,
+          invitationId: eventId,
+        ));
+      }
     } catch (e) {
       emit(state.copyWith(
         status: InvitationStatus.failure,
@@ -749,11 +869,16 @@ class InvitationCubit extends Cubit<InvitationState> {
     ));
 
     try {
-      // TODO: Call API to get preview
-      await Future.delayed(const Duration(milliseconds: 500));
+      String? previewUrl;
 
-      // Mock preview URL
-      final previewUrl = 'https://example.com/preview/${state.selectedTemplate?.id ?? 1}';
+      if (apiService != null && state.draftEventId != null) {
+        final response = await apiService!.getInvitationPreview(state.draftEventId!);
+        final data = response['data'];
+        previewUrl = data['preview_url'];
+      } else {
+        // Mock preview URL
+        previewUrl = 'https://example.com/preview/${state.selectedTemplate?.id ?? 1}';
+      }
 
       emit(state.copyWith(
         isLoadingPreview: false,
@@ -830,43 +955,49 @@ class InvitationCubit extends Cubit<InvitationState> {
     ));
 
     try {
-      // TODO: Call API to get services based on event type
-      await Future.delayed(const Duration(milliseconds: 400));
+      List<ExtraServiceModel> services;
 
-      final mockServices = [
-        const ExtraServiceModel(
-          id: 1,
-          name: 'Photography',
-          nameAr: 'تصوير فوتوغرافي',
-          price: 500,
-          eventTypeId: 1,
-        ),
-        const ExtraServiceModel(
-          id: 2,
-          name: 'Video Recording',
-          nameAr: 'تصوير فيديو',
-          price: 800,
-          eventTypeId: 1,
-        ),
-        const ExtraServiceModel(
-          id: 3,
-          name: 'Decoration',
-          nameAr: 'تزيين القاعة',
-          price: 300,
-          eventTypeId: 1,
-        ),
-        const ExtraServiceModel(
-          id: 4,
-          name: 'Music',
-          nameAr: 'موسيقى',
-          price: 400,
-          eventTypeId: 1,
-        ),
-      ];
+      if (apiService != null && state.draftEventId != null) {
+        final response = await apiService!.getExtraServices(state.draftEventId!);
+        final servicesData = response['data']['services'] as List? ?? [];
+        services = servicesData.map((s) => ExtraServiceModel.fromJson(s)).toList();
+      } else {
+        // Fallback to mock data
+        services = [
+          const ExtraServiceModel(
+            id: 1,
+            name: 'Photography',
+            nameAr: 'تصوير فوتوغرافي',
+            price: 500,
+            eventTypeId: 1,
+          ),
+          const ExtraServiceModel(
+            id: 2,
+            name: 'Video Recording',
+            nameAr: 'تصوير فيديو',
+            price: 800,
+            eventTypeId: 1,
+          ),
+          const ExtraServiceModel(
+            id: 3,
+            name: 'Decoration',
+            nameAr: 'تزيين القاعة',
+            price: 300,
+            eventTypeId: 1,
+          ),
+          const ExtraServiceModel(
+            id: 4,
+            name: 'Music',
+            nameAr: 'موسيقى',
+            price: 400,
+            eventTypeId: 1,
+          ),
+        ];
+      }
 
       emit(state.copyWith(
         isLoadingServices: false,
-        availableServices: mockServices,
+        availableServices: services,
       ));
     } catch (e) {
       emit(state.copyWith(
@@ -886,48 +1017,54 @@ class InvitationCubit extends Cubit<InvitationState> {
     ));
 
     try {
-      // TODO: Call API to get packages
-      await Future.delayed(const Duration(milliseconds: 400));
+      List<PackageModel> packages;
 
-      final mockPackages = [
-        PackageModel(
-          id: 1,
-          name: 'Basic',
-          nameAr: 'الأساسية',
-          price: 100,
-          invitationLimit: 50,
-          features: ['50 دعوة', 'قالب أساسي', 'دعم فني'],
-        ),
-        PackageModel(
-          id: 2,
-          name: 'Standard',
-          nameAr: 'القياسية',
-          price: 200,
-          invitationLimit: 150,
-          features: ['150 دعوة', 'قوالب متعددة', 'دعم فني 24/7', 'تقارير'],
-        ),
-        PackageModel(
-          id: 3,
-          name: 'Premium',
-          nameAr: 'المميزة',
-          price: 400,
-          invitationLimit: 500,
-          features: ['500 دعوة', 'جميع القوالب', 'دعم VIP', 'تقارير متقدمة', 'تخصيص كامل'],
-        ),
-        PackageModel(
-          id: 4,
-          name: 'Custom',
-          nameAr: 'مخصصة',
-          price: 0,
-          invitationLimit: null,
-          features: ['عدد دعوات مخصص', 'تسعير حسب العدد'],
-          isCustom: true,
-        ),
-      ];
+      if (apiService != null && state.draftEventId != null) {
+        final response = await apiService!.getPackages(state.draftEventId!);
+        final packagesData = response['data']['packages'] as List? ?? [];
+        packages = packagesData.map((p) => PackageModel.fromJson(p)).toList();
+      } else {
+        // Fallback to mock data
+        packages = [
+          PackageModel(
+            id: 1,
+            name: 'Basic',
+            nameAr: 'الأساسية',
+            price: 100,
+            invitationLimit: 50,
+            features: ['50 دعوة', 'قالب أساسي', 'دعم فني'],
+          ),
+          PackageModel(
+            id: 2,
+            name: 'Standard',
+            nameAr: 'القياسية',
+            price: 200,
+            invitationLimit: 150,
+            features: ['150 دعوة', 'قوالب متعددة', 'دعم فني 24/7', 'تقارير'],
+          ),
+          PackageModel(
+            id: 3,
+            name: 'Premium',
+            nameAr: 'المميزة',
+            price: 400,
+            invitationLimit: 500,
+            features: ['500 دعوة', 'جميع القوالب', 'دعم VIP', 'تقارير متقدمة', 'تخصيص كامل'],
+          ),
+          PackageModel(
+            id: 4,
+            name: 'Custom',
+            nameAr: 'مخصصة',
+            price: 0,
+            invitationLimit: null,
+            features: ['عدد دعوات مخصص', 'تسعير حسب العدد'],
+            isCustom: true,
+          ),
+        ];
+      }
 
       emit(state.copyWith(
         isLoadingPackages: false,
-        availablePackages: mockPackages,
+        availablePackages: packages,
       ));
     } catch (e) {
       emit(state.copyWith(
@@ -970,16 +1107,44 @@ class InvitationCubit extends Cubit<InvitationState> {
     ));
 
     try {
-      // Generate invoice summary
-      generateInvoiceSummary();
+      if (apiService != null && state.draftEventId != null) {
+        final response = await apiService!.getInvoiceSummary(state.draftEventId!);
+        final data = response['data'];
 
-      // TODO: Optionally load WhatsApp number from API
-      await Future.delayed(const Duration(milliseconds: 300));
+        // Parse invoice data from API
+        final items = (data['items'] as List? ?? []).map((item) => InvoiceLineItem(
+          description: item['name_en'] ?? item['name_ar'] ?? '',
+          descriptionAr: item['name_ar'] ?? '',
+          amount: (item['price'] as num?)?.toDouble() ?? 0,
+        )).toList();
 
-      emit(state.copyWith(
-        isLoadingInvoice: false,
-        whatsappNumber: '+972599999999', // Mock WhatsApp number
-      ));
+        final invoice = InvoiceSummaryModel(
+          invoiceNumber: data['invoice_number'] ?? 'INV-${DateTime.now().millisecondsSinceEpoch}',
+          basePrice: (data['subtotal'] as num?)?.toDouble() ?? 0,
+          servicesTotal: 0,
+          templateFee: 0,
+          totalPrice: (data['total'] as num?)?.toDouble() ?? 0,
+          lineItems: items,
+          createdAt: DateTime.now(),
+          eventName: data['event']?['title'] ?? state.eventName,
+          packageName: state.selectedPackage?.name,
+          guestCount: data['guest_count'] ?? state.totalGuestCount,
+        );
+
+        emit(state.copyWith(
+          isLoadingInvoice: false,
+          invoiceSummary: invoice,
+          whatsappNumber: data['whatsapp_number'] ?? '+972599999999',
+        ));
+      } else {
+        // Generate invoice summary locally
+        generateInvoiceSummary();
+
+        emit(state.copyWith(
+          isLoadingInvoice: false,
+          whatsappNumber: '+972599999999',
+        ));
+      }
     } catch (e) {
       emit(state.copyWith(
         isLoadingInvoice: false,
@@ -1042,18 +1207,25 @@ class InvitationCubit extends Cubit<InvitationState> {
     emit(state.copyWith(isLoadingVenues: true));
 
     try {
-      // TODO: Call API to get venues
-      await Future.delayed(const Duration(milliseconds: 300));
+      List<VenueModel> venues;
 
-      final mockVenues = [
-        const VenueModel(id: 1, name: 'Grand Hall', nameAr: 'قاعة الكبرى', address: 'غزة'),
-        const VenueModel(id: 2, name: 'Garden Palace', nameAr: 'قصر الحدائق', address: 'خانيونس'),
-        const VenueModel(id: 3, name: 'Beach Resort', nameAr: 'منتجع الشاطئ', address: 'دير البلح'),
-      ];
+      // Venues are loaded as part of form fields, but we can also load them separately
+      if (apiService != null && state.draftEventId != null) {
+        final response = await apiService!.getEventFormFields(state.draftEventId!);
+        final venuesData = response['data']['venues'] as List? ?? [];
+        venues = venuesData.map((v) => VenueModel.fromJson(v)).toList();
+      } else {
+        // Fallback to mock data
+        venues = [
+          const VenueModel(id: 1, name: 'Grand Hall', nameAr: 'قاعة الكبرى', address: 'غزة'),
+          const VenueModel(id: 2, name: 'Garden Palace', nameAr: 'قصر الحدائق', address: 'خانيونس'),
+          const VenueModel(id: 3, name: 'Beach Resort', nameAr: 'منتجع الشاطئ', address: 'دير البلح'),
+        ];
+      }
 
       emit(state.copyWith(
         isLoadingVenues: false,
-        availableVenues: mockVenues,
+        availableVenues: venues,
       ));
     } catch (e) {
       emit(state.copyWith(
@@ -1065,36 +1237,51 @@ class InvitationCubit extends Cubit<InvitationState> {
 
   /// Load form fields for event type
   Future<void> loadFormFields() async {
-    if (state.selectedEventType == null || state.selectedEventType!.id == null) {
+    if (state.draftEventId == null) {
       return;
     }
 
     emit(state.copyWith(isLoadingFormFields: true));
 
     try {
-      // TODO: Call API to get form fields
-      await Future.delayed(const Duration(milliseconds: 300));
+      List<EventTypeFormField> formFields;
+      List<VenueModel> venues = [];
 
-      final mockFields = <EventTypeFormField>[
-        const EventTypeFormField(
-          key: 'groom_name',
-          label: 'Groom Name',
-          labelAr: 'اسم العريس',
-          type: 'text',
-          required: true,
-        ),
-        const EventTypeFormField(
-          key: 'bride_name',
-          label: 'Bride Name',
-          labelAr: 'اسم العروس',
-          type: 'text',
-          required: true,
-        ),
-      ];
+      if (apiService != null) {
+        final response = await apiService!.getEventFormFields(state.draftEventId!);
+        final data = response['data'];
+
+        // Parse form fields
+        final fieldsData = data['form_fields'] as List? ?? [];
+        formFields = fieldsData.map((f) => EventTypeFormField.fromJson(f)).toList();
+
+        // Parse venues
+        final venuesData = data['venues'] as List? ?? [];
+        venues = venuesData.map((v) => VenueModel.fromJson(v)).toList();
+      } else {
+        // Fallback to mock data
+        formFields = <EventTypeFormField>[
+          const EventTypeFormField(
+            key: 'groom_name',
+            label: 'Groom Name',
+            labelAr: 'اسم العريس',
+            type: 'text',
+            required: true,
+          ),
+          const EventTypeFormField(
+            key: 'bride_name',
+            label: 'Bride Name',
+            labelAr: 'اسم العروس',
+            type: 'text',
+            required: true,
+          ),
+        ];
+      }
 
       emit(state.copyWith(
         isLoadingFormFields: false,
-        eventTypeFormFields: mockFields,
+        eventTypeFormFields: formFields,
+        availableVenues: venues.isNotEmpty ? venues : state.availableVenues,
       ));
     } catch (e) {
       emit(state.copyWith(

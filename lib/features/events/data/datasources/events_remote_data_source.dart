@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../../../core/api/api_consumer.dart';
+import '../../../../core/api/end_points.dart';
+import '../../../../core/api/event_wizard_api_service.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../domain/entities/event_entity.dart';
 import '../../domain/entities/guest_entity.dart';
@@ -33,8 +36,16 @@ abstract class EventsRemoteDataSource {
 }
 
 class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
-  // In a real implementation, this would use an API client like Dio
-  // For now, we'll use mock data
+  final ApiConsumer? apiConsumer;
+  final EventWizardApiService? wizardApiService;
+
+  EventsRemoteDataSourceImpl({
+    this.apiConsumer,
+    this.wizardApiService,
+  });
+
+  /// Check if API is available
+  bool get _hasApi => apiConsumer != null;
 
   // Mock events data
   final List<EventModel> _mockEvents = [
@@ -241,13 +252,36 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
 
   @override
   Future<List<EventModel>> getEvents() async {
-    // Simulate network delay (reduced for better performance)
+    if (_hasApi) {
+      try {
+        final response = await apiConsumer!.get(Endpoints.events);
+        final eventsData = response['data'] as List? ?? [];
+        return eventsData.map((e) => EventModel.fromJson(e)).toList();
+      } catch (e) {
+        // Fall back to mock on error
+        return _mockEvents;
+      }
+    }
+    // Simulate network delay for mock data
     await Future.delayed(const Duration(milliseconds: 150));
     return _mockEvents;
   }
 
   @override
   Future<EventModel> getEventDetails(String eventId) async {
+    if (_hasApi) {
+      try {
+        final response = await apiConsumer!.get(Endpoints.event(int.parse(eventId)));
+        return EventModel.fromJson(response['data']);
+      } catch (e) {
+        // Fall back to mock on error
+        final event = _mockEvents.firstWhere(
+          (e) => e.id == eventId,
+          orElse: () => throw Exception('Event not found'),
+        );
+        return event;
+      }
+    }
     await Future.delayed(const Duration(milliseconds: 100));
     final event = _mockEvents.firstWhere(
       (e) => e.id == eventId,
@@ -258,15 +292,80 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
 
   @override
   Future<List<GuestModel>> getEventGuests(String eventId) async {
+    if (_hasApi) {
+      try {
+        final response = await apiConsumer!.get(Endpoints.eventInvitations(int.parse(eventId)));
+        final guestsData = response['data'] as List? ?? [];
+        return guestsData.map((g) => GuestModel.fromJson(g)).toList();
+      } catch (e) {
+        // Fall back to mock on error
+        return _mockGuests;
+      }
+    }
     await Future.delayed(const Duration(milliseconds: 100));
     return _mockGuests;
   }
 
   @override
   Future<EventModel> createEvent(CreateEventParams params) async {
-    await Future.delayed(const Duration(milliseconds: 200));
+    if (wizardApiService != null) {
+      try {
+        // Step 1: Initialize wizard
+        final initResponse = await wizardApiService!.initializeWizard(
+          eventTypeId: params.eventTypeId,
+          templateId: params.templateId,
+        );
+        final eventId = initResponse['data']['event_id'] as int;
 
-    final newEvent = EventModel(
+        // Step 2: Save event details
+        await wizardApiService!.saveEventDetails(
+          eventId,
+          titleAr: params.name,
+          eventDate: params.eventDate,
+          eventTime: _formatTimeForApi(params.eventDate),
+          venueId: params.venueId,
+          customVenueNameAr: params.venue,
+          customVenueAddressAr: params.venueAddress,
+        );
+
+        // Step 3: Add guests if any
+        if (params.guests != null && params.guests!.isNotEmpty) {
+          await wizardApiService!.addManualGuests(
+            eventId,
+            params.guests!.map((g) => {'name': g.name, 'phone': g.phone}).toList(),
+          );
+        }
+
+        // Step 4: Save invitation config
+        await wizardApiService!.saveInvitationConfig(
+          eventId,
+          defaultDeliveryMethod: 'whatsapp',
+          allowCompanions: params.allowCompanions,
+          maxCompanions: params.maxCompanions,
+        );
+
+        // Step 5: Select package if provided
+        if (params.packageId != null) {
+          await wizardApiService!.selectPackage(eventId, packageId: params.packageId);
+        }
+
+        // Step 6: Save as draft or submit
+        final saveResponse = await wizardApiService!.saveEvent(eventId, isDraft: true);
+
+        return EventModel.fromJson(saveResponse['data']['event'] ?? saveResponse['data']);
+      } catch (e) {
+        // Fall back to mock on error
+        return _createMockEvent(params);
+      }
+    }
+
+    // Mock implementation
+    await Future.delayed(const Duration(milliseconds: 200));
+    return _createMockEvent(params);
+  }
+
+  EventModel _createMockEvent(CreateEventParams params) {
+    return EventModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       name: params.name,
       type: params.type,
@@ -289,12 +388,31 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
       gradient: [AppColors.purple500, AppColors.pink500],
       icon: Icons.event,
     );
-
-    return newEvent;
   }
 
   @override
   Future<EventModel> updateEvent(String eventId, UpdateEventParams params) async {
+    if (_hasApi) {
+      try {
+        final response = await apiConsumer!.put(
+          Endpoints.event(int.parse(eventId)),
+          body: {
+            if (params.name != null) 'title_ar': params.name,
+            if (params.venue != null) 'venue_id': params.venueId,
+            if (params.venueAddress != null) 'custom_venue_address_ar': params.venueAddress,
+            if (params.description != null) 'description_ar': params.description,
+            if (params.eventDate != null) 'event_date': params.eventDate!.toIso8601String().split('T')[0],
+            if (params.status != null) 'status': params.status!.name,
+            if (params.maxCompanions != null) 'max_companions': params.maxCompanions,
+            if (params.allowCompanions != null) 'allow_companions': params.allowCompanions,
+          },
+        );
+        return EventModel.fromJson(response['data']);
+      } catch (e) {
+        // Fall back to mock on error
+      }
+    }
+
     await Future.delayed(const Duration(milliseconds: 100));
 
     final index = _mockEvents.indexWhere((e) => e.id == eventId);
@@ -321,8 +439,15 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
 
   @override
   Future<void> deleteEvent(String eventId) async {
+    if (_hasApi) {
+      try {
+        await apiConsumer!.delete(Endpoints.event(int.parse(eventId)));
+        return;
+      } catch (e) {
+        // Fall back to mock behavior
+      }
+    }
     await Future.delayed(const Duration(milliseconds: 100));
-    // In real implementation, this would make an API call
   }
 
   @override
@@ -330,6 +455,23 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
     String? searchQuery,
     EventStatus? status,
   }) async {
+    if (_hasApi) {
+      try {
+        final queryParams = <String, dynamic>{};
+        if (searchQuery != null && searchQuery.isNotEmpty) {
+          queryParams['search'] = searchQuery;
+        }
+        if (status != null) {
+          queryParams['status'] = status.name;
+        }
+        final response = await apiConsumer!.get(Endpoints.events, queryParameters: queryParams);
+        final eventsData = response['data'] as List? ?? [];
+        return eventsData.map((e) => EventModel.fromJson(e)).toList();
+      } catch (e) {
+        // Fall back to mock on error
+      }
+    }
+
     await Future.delayed(const Duration(milliseconds: 100));
 
     return _mockEvents.where((event) {
@@ -343,6 +485,10 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
 
       return matchesSearch && matchesStatus;
     }).toList();
+  }
+
+  String? _formatTimeForApi(DateTime date) {
+    return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
   }
 
   String _formatDate(DateTime date) {

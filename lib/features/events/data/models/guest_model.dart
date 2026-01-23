@@ -17,14 +17,18 @@ class GuestModel extends GuestEntity {
   });
 
   factory GuestModel.fromJson(Map<String, dynamic> json) {
+    // Handle both frontend format and backend API format (invitation with nested guest)
+    final guestData = json['guest'] as Map<String, dynamic>? ?? json;
+    final id = json['id'] ?? guestData['id'];
+
     return GuestModel(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      email: json['email'] as String,
-      phone: json['phone'] as String,
-      status: _parseStatus(json['status'] as String),
+      id: id is int ? id.toString() : (id as String? ?? ''),
+      name: json['display_name'] as String? ?? guestData['name'] as String? ?? '',
+      email: guestData['email'] as String? ?? '',
+      phone: guestData['phone'] as String? ?? '',
+      status: _parseStatus(json['status'] as String? ?? 'pending'),
       companions: json['companions'] as int? ?? 0,
-      isCheckedIn: json['is_checked_in'] as bool? ?? false,
+      isCheckedIn: json['is_checked_in'] as bool? ?? (json['open_count'] as int? ?? 0) > 0,
       avatarColor: Color(json['avatar_color'] as int? ?? AppColors.primaryColor.value),
     );
   }

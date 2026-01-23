@@ -45,6 +45,9 @@ class Endpoints {
   static String wizardGuestsRemoveDuplicates(int eventId) => '/event-wizard/$eventId/guests/remove-duplicates';
   static const String wizardExcelFormat = '/event-wizard/excel-format';
 
+  // Page 4.5 - Invitation Configuration
+  static String wizardInvitationConfig(int eventId) => '/event-wizard/$eventId/invitation-config';
+
   // Page 5 - Extra Services
   static String wizardServices(int eventId) => '/event-wizard/$eventId/services';
 
@@ -56,6 +59,7 @@ class Endpoints {
   static String wizardInvoice(int eventId) => '/event-wizard/$eventId/invoice';
   static String wizardSave(int eventId) => '/event-wizard/$eventId/save';
   static String wizardState(int eventId) => '/event-wizard/$eventId/state';
+  static String wizardActivate(int eventId) => '/event-wizard/$eventId/activate';
 
   // WhatsApp Configuration
   static const String whatsappConfig = '/config/whatsapp';

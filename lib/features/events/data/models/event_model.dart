@@ -33,36 +33,54 @@ class EventModel extends EventEntity {
   });
 
   factory EventModel.fromJson(Map<String, dynamic> json) {
+    // Handle both frontend format and backend API format
+    final id = json['id'];
+    final eventDate = json['event_date'];
+
     return EventModel(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      type: json['type'] as String,
-      date: json['date'] as String,
-      time: json['time'] as String,
-      venue: json['venue'] as String,
-      venueAddress: json['venue_address'] as String?,
-      description: json['description'] as String?,
-      invitations: json['invitations'] as int,
-      responses: json['responses'] as int,
-      attending: json['attending'] as int,
+      id: id is int ? id.toString() : (id as String? ?? ''),
+      name: json['name'] as String? ?? json['title_ar'] as String? ?? json['title_en'] as String? ?? '',
+      type: json['type'] as String? ?? json['event_type']?['name_ar'] as String? ?? json['event_type']?['name_en'] as String? ?? '',
+      date: json['date'] as String? ?? _formatDateFromApi(eventDate),
+      time: json['time'] as String? ?? json['event_time'] as String? ?? '',
+      venue: json['venue'] as String? ?? json['venue_data']?['name_ar'] as String? ?? json['custom_venue_name_ar'] as String? ?? '',
+      venueAddress: json['venue_address'] as String? ?? json['custom_venue_address_ar'] as String?,
+      description: json['description'] as String? ?? json['description_ar'] as String?,
+      invitations: json['invitations'] as int? ?? json['max_invitations'] as int? ?? 0,
+      responses: json['responses'] as int? ?? 0,
+      attending: json['attending'] as int? ?? 0,
       declined: json['declined'] as int? ?? 0,
       pending: json['pending'] as int? ?? 0,
-      checkedIn: json['checked_in'] as int? ?? 0,
-      status: _parseStatus(json['status'] as String),
-      eventDate: json['event_date'] != null
-          ? DateTime.parse(json['event_date'] as String)
+      checkedIn: json['checked_in'] as int? ?? json['invitations_used'] as int? ?? 0,
+      status: _parseStatus(json['status'] as String? ?? 'draft'),
+      eventDate: eventDate != null
+          ? (eventDate is String ? DateTime.tryParse(eventDate) : null)
           : null,
-      rsvpDeadline: json['rsvp_deadline'] != null
-          ? DateTime.parse(json['rsvp_deadline'] as String)
+      rsvpDeadline: json['rsvp_deadline'] != null || json['response_deadline'] != null
+          ? DateTime.tryParse(json['rsvp_deadline'] as String? ?? json['response_deadline'] as String? ?? '')
           : null,
-      packageName: json['package_name'] as String?,
-      packagePrice: json['package_price'] as String?,
-      templateName: json['template_name'] as String?,
+      packageName: json['package_name'] as String? ?? json['package']?['name_ar'] as String?,
+      packagePrice: json['package_price'] as String? ?? (json['price'] != null ? '\$${json['price']}' : null),
+      templateName: json['template_name'] as String? ?? json['template']?['name_ar'] as String?,
       maxCompanions: json['max_companions'] as int? ?? 2,
       allowCompanions: json['allow_companions'] as bool? ?? true,
       gradient: _parseGradient(json['gradient']),
       icon: _parseIcon(json['icon']),
     );
+  }
+
+  static String _formatDateFromApi(dynamic eventDate) {
+    if (eventDate == null) return '';
+    if (eventDate is String) {
+      try {
+        final date = DateTime.parse(eventDate);
+        final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return '${months[date.month - 1]} ${date.day}, ${date.year}';
+      } catch (_) {
+        return eventDate;
+      }
+    }
+    return '';
   }
 
   Map<String, dynamic> toJson() {
