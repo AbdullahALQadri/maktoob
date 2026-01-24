@@ -38,7 +38,31 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
       listener: (context, state) {
         // Handle save success
         if (state.saveSuccess) {
-          _showSuccessDialog(context, state.isSaveAsDraft);
+          if (state.isSaveAsDraft) {
+            // For draft saves, navigate directly to home
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(Icons.check_circle, color: Colors.white),
+                    const SizedBox(width: 8),
+                    const Text('تم الحفظ كمسودة بنجاح'),
+                  ],
+                ),
+                backgroundColor: Colors.green,
+                duration: const Duration(seconds: 2),
+              ),
+            );
+            // Navigate to home
+            if (widget.onComplete != null) {
+              widget.onComplete!();
+            } else if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            }
+          } else {
+            // For full save, show success dialog
+            _showSuccessDialog(context, state.isSaveAsDraft);
+          }
         }
 
         // Handle save error

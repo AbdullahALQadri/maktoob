@@ -79,12 +79,6 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
                         controller: _nameController,
                         hintText: 'Enter event name',
                         prefixIcon: Icons.event,
-                        validator: (value) {
-                          if (value?.isEmpty ?? true) {
-                            return 'Event name is required';
-                          }
-                          return null;
-                        },
                         onChanged: (value) {
                           context.read<InvitationCubit>().updateEventName(value);
                         },
@@ -397,10 +391,10 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
             onPressed: () {
               // Clear location
               if (isVenue) {
-                context.read<InvitationCubit>().selectVenue(
-                    const VenueModel(id: -1, name: '', nameAr: ''));
+                context.read<InvitationCubit>().clearVenue();
+              } else {
+                context.read<InvitationCubit>().clearLocation();
               }
-              // Need method to clear location
             },
             icon: Icon(Icons.close, color: AppColors.gray400),
           ),
@@ -473,16 +467,17 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
   }
 
   void _showGoogleMapsPicker(BuildContext context) {
+    final cubit = context.read<InvitationCubit>();
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => BlocProvider.value(
-          value: context.read<InvitationCubit>(),
+        builder: (routeContext) => BlocProvider.value(
+          value: cubit,
           child: GoogleMapsPickerWidget(
-            initialLocation: context.read<InvitationCubit>().state.customLocation,
+            initialLocation: cubit.state.customLocation,
             onLocationSelected: (location) {
-              context.read<InvitationCubit>().setCustomLocation(location);
-              Navigator.pop(context);
+              cubit.setCustomLocation(location);
+              Navigator.pop(routeContext);
             },
           ),
         ),
@@ -547,11 +542,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
               child: PrimaryButton(
                 text: 'Next',
                 onPressed: state.canProceedFromEventDetails
-                    ? () {
-                        if (_formKey.currentState?.validate() ?? false) {
-                          context.read<InvitationCubit>().nextStep();
-                        }
-                      }
+                    ? () => context.read<InvitationCubit>().nextStep()
                     : null,
               ),
             ),

@@ -317,6 +317,16 @@ class InvitationCubit extends Cubit<InvitationState> {
     ));
   }
 
+  /// Clear selected venue
+  void clearVenue() {
+    emit(state.copyWith(clearSelectedVenue: true));
+  }
+
+  /// Clear custom location
+  void clearLocation() {
+    emit(state.copyWith(clearCustomLocation: true));
+  }
+
   /// Set custom location from Google Maps
   void setCustomLocation(LocationModel location) {
     emit(state.copyWith(
@@ -659,7 +669,12 @@ class InvitationCubit extends Cubit<InvitationState> {
 
   /// Save as draft
   Future<void> saveDraft() async {
-    emit(state.copyWith(status: InvitationStatus.loading));
+    emit(state.copyWith(
+      isSaving: true,
+      isSaveAsDraft: true,
+      saveSuccess: false,
+      saveError: null,
+    ));
 
     try {
       if (apiService != null && state.draftEventId != null) {
@@ -670,18 +685,27 @@ class InvitationCubit extends Cubit<InvitationState> {
         );
 
         emit(state.copyWith(
+          isSaving: false,
+          saveSuccess: true,
+          isSaveAsDraft: true,
           status: InvitationStatus.success,
           savedEventId: response['data']['event']['id'].toString(),
         ));
       } else {
         // Fallback for when no API service
         emit(state.copyWith(
+          isSaving: false,
+          saveSuccess: true,
+          isSaveAsDraft: true,
           status: InvitationStatus.success,
           savedEventId: 'draft_${DateTime.now().millisecondsSinceEpoch}',
         ));
       }
     } catch (e) {
       emit(state.copyWith(
+        isSaving: false,
+        saveSuccess: false,
+        saveError: e.toString(),
         status: InvitationStatus.failure,
         errorMessage: e.toString(),
       ));

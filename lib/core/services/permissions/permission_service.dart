@@ -75,6 +75,11 @@ class PermissionService {
   /// Checks if a permission is granted.
   Future<bool> hasPermission(AppPermission permission) async {
     try {
+      // Special handling for photos - check multiple permissions
+      if (permission == AppPermission.photos) {
+        return await _hasPhotosPermission();
+      }
+
       final ph.Permission p = _mapPermission(permission);
       final status = await p.status;
       return status.isGranted || status.isLimited;
@@ -84,17 +89,81 @@ class PermissionService {
     }
   }
 
+  /// Special handler to check if photos permission is granted.
+  Future<bool> _hasPhotosPermission() async {
+    try {
+      // Check photos permission (Android 13+ / iOS)
+      var status = await ph.Permission.photos.status;
+      if (status.isGranted || status.isLimited) {
+        return true;
+      }
+
+      // Check storage permission (Android < 13)
+      status = await ph.Permission.storage.status;
+      if (status.isGranted || status.isLimited) {
+        return true;
+      }
+
+      // Check mediaLibrary
+      status = await ph.Permission.mediaLibrary.status;
+      if (status.isGranted || status.isLimited) {
+        return true;
+      }
+
+      return false;
+    } catch (e) {
+      debugPrint('Check photos permission error: $e');
+      return false;
+    }
+  }
+
   /// Requests a permission.
   ///
   /// Returns `true` if the permission was granted, `false` otherwise.
   Future<bool> requestPermission(AppPermission permission) async {
     try {
+      // Special handling for photos - try multiple permissions for compatibility
+      if (permission == AppPermission.photos) {
+        return await _requestPhotosPermission();
+      }
+
       final ph.Permission p = _mapPermission(permission);
       final status = await p.request();
       debugPrint('Requested permission: ${permission.name}, status: $status');
       return status.isGranted || status.isLimited;
     } catch (e) {
       debugPrint('Request permission error: $e');
+      return false;
+    }
+  }
+
+  /// Special handler for photos permission that tries multiple approaches.
+  Future<bool> _requestPhotosPermission() async {
+    try {
+      // First try photos permission (Android 13+ / iOS)
+      var status = await ph.Permission.photos.request();
+      debugPrint('Photos permission status: $status');
+      if (status.isGranted || status.isLimited) {
+        return true;
+      }
+
+      // If photos didn't work, try storage (Android < 13)
+      status = await ph.Permission.storage.request();
+      debugPrint('Storage permission status: $status');
+      if (status.isGranted || status.isLimited) {
+        return true;
+      }
+
+      // Try mediaLibrary as another fallback
+      status = await ph.Permission.mediaLibrary.request();
+      debugPrint('MediaLibrary permission status: $status');
+      if (status.isGranted || status.isLimited) {
+        return true;
+      }
+
+      return false;
+    } catch (e) {
+      debugPrint('Request photos permission error: $e');
       return false;
     }
   }
@@ -134,11 +203,34 @@ class PermissionService {
   /// Checks if a permission is permanently denied.
   Future<bool> isPermanentlyDenied(AppPermission permission) async {
     try {
+      // Special handling for photos
+      if (permission == AppPermission.photos) {
+        return await _isPhotosPermissionPermanentlyDenied();
+      }
+
       final ph.Permission p = _mapPermission(permission);
       final status = await p.status;
       return status.isPermanentlyDenied;
     } catch (e) {
       debugPrint('Check permanently denied error: $e');
+      return false;
+    }
+  }
+
+  /// Check if photos permission is permanently denied.
+  Future<bool> _isPhotosPermissionPermanentlyDenied() async {
+    try {
+      // Check if all possible photo permissions are permanently denied
+      final photosStatus = await ph.Permission.photos.status;
+      final storageStatus = await ph.Permission.storage.status;
+      final mediaStatus = await ph.Permission.mediaLibrary.status;
+
+      // Only return true if all are permanently denied
+      return photosStatus.isPermanentlyDenied &&
+          storageStatus.isPermanentlyDenied &&
+          mediaStatus.isPermanentlyDenied;
+    } catch (e) {
+      debugPrint('Check photos permanently denied error: $e');
       return false;
     }
   }

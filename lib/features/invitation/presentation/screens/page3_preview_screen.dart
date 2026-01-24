@@ -1,10 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/buttons/primary_button.dart';
+import '../../../../core/widgets/buttons/secondary_button.dart';
 import '../cubit/invitation_cubit.dart';
 import '../cubit/invitation_state.dart';
 import '../widgets/wizard_step_header.dart';
@@ -22,29 +21,15 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
     super.initState();
     // Load preview when screen opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       context.read<InvitationCubit>().loadPreview();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<InvitationCubit, InvitationState>(
-      listener: (context, state) {
-        // Handle navigation - skip preview if custom type or uploaded template
-        if (state.shouldSkipPreview && state.currentStep == InvitationStep.invitationPreview) {
-          context.read<InvitationCubit>().nextStep();
-        }
-      },
+    return BlocBuilder<InvitationCubit, InvitationState>(
       builder: (context, state) {
-        // If should skip preview, show loading while auto-navigating
-        if (state.shouldSkipPreview) {
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
-
         return Scaffold(
           backgroundColor: Colors.grey.shade50,
           body: SafeArea(
@@ -54,7 +39,8 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
                 const WizardStepHeader(
                   currentStep: 3,
                   totalSteps: 7,
-                  title: 'معاينة الدعوة',
+                  title: 'Preview',
+                  titleAr: 'معاينة الدعوة',
                 ),
 
                 // Content
@@ -63,7 +49,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
                 ),
 
                 // Navigation Buttons
-                _buildNavigationButtons(context, state),
+                _buildBottomBar(context, state),
               ],
             ),
           ),
@@ -82,58 +68,13 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
             CircularProgressIndicator(),
             SizedBox(height: 16),
             Text(
-              'جاري تحميل المعاينة...',
+              'Loading preview...',
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
               ),
             ),
           ],
-        ),
-      );
-    }
-
-    // Show error state
-    if (state.previewError != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.error_outline,
-                size: 64,
-                color: Colors.red.shade300,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'حدث خطأ أثناء تحميل المعاينة',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey.shade800,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                state.previewError!,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-              const SizedBox(height: 24),
-              AppButton(
-                text: 'إعادة المحاولة',
-                onPressed: () {
-                  context.read<InvitationCubit>().loadPreview();
-                },
-                width: 200,
-              ),
-            ],
-          ),
         ),
       );
     }
@@ -148,26 +89,23 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppColors.primary.withOpacity(0.3),
+                color: AppColors.primaryColor.withValues(alpha: 0.3),
               ),
             ),
             child: Row(
               children: [
                 Icon(
                   Icons.info_outline,
-                  color: AppColors.primary,
+                  color: AppColors.primaryColor,
                 ),
                 const SizedBox(width: 12),
-                Expanded(
+                const Expanded(
                   child: Text(
-                    'هذه معاينة للدعوة كما ستظهر للمدعوين',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.primary,
-                    ),
+                    'This is a preview of your invitation',
+                    style: TextStyle(fontSize: 14),
                   ),
                 ),
               ],
@@ -192,11 +130,12 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
     // If user uploaded custom template, show that
     if (state.uploadedTemplateFile != null) {
       return Container(
+        constraints: const BoxConstraints(maxHeight: 400),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -205,21 +144,27 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: Image.file(
-            File(state.uploadedTemplateFile!.path),
+            state.uploadedTemplateFile!,
             fit: BoxFit.contain,
+            cacheHeight: 800, // Limit image size for performance
+            errorBuilder: (context, error, stackTrace) {
+              debugPrint('Error loading file image: $error');
+              return _buildPlaceholder();
+            },
           ),
         ),
       );
     }
 
     // Show preview from API
-    if (state.previewImageUrl != null) {
+    if (state.previewImageUrl != null && state.previewImageUrl!.isNotEmpty) {
       return Container(
+        constraints: const BoxConstraints(maxHeight: 400),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -230,49 +175,23 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
           child: Image.network(
             state.previewImageUrl!,
             fit: BoxFit.contain,
+            cacheHeight: 800, // Limit image size for performance
             loadingBuilder: (context, child, loadingProgress) {
               if (loadingProgress == null) return child;
               return Container(
-                height: 400,
+                height: 300,
                 decoration: BoxDecoration(
                   color: Colors.grey.shade200,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Center(
-                  child: CircularProgressIndicator(
-                    value: loadingProgress.expectedTotalBytes != null
-                        ? loadingProgress.cumulativeBytesLoaded /
-                            loadingProgress.expectedTotalBytes!
-                        : null,
-                  ),
+                child: const Center(
+                  child: CircularProgressIndicator(),
                 ),
               );
             },
             errorBuilder: (context, error, stackTrace) {
-              return Container(
-                height: 400,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.broken_image,
-                      size: 64,
-                      color: Colors.grey.shade400,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'تعذر تحميل الصورة',
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
-                ),
-              );
+              debugPrint('Error loading network image: $error');
+              return _buildPlaceholder();
             },
           ),
         ),
@@ -280,27 +199,28 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
     }
 
     // No preview available - show placeholder
+    return _buildPlaceholder();
+  }
+
+  Widget _buildPlaceholder() {
     return Container(
-      height: 400,
+      height: 300,
       decoration: BoxDecoration(
         color: Colors.grey.shade200,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.grey.shade300,
-          style: BorderStyle.solid,
-        ),
+        border: Border.all(color: Colors.grey.shade300),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             Icons.image_outlined,
-            size: 80,
+            size: 64,
             color: Colors.grey.shade400,
           ),
           const SizedBox(height: 16),
           Text(
-            'لا توجد معاينة متاحة',
+            'No preview available',
             style: TextStyle(
               fontSize: 16,
               color: Colors.grey.shade600,
@@ -308,7 +228,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'يمكنك المتابعة للخطوة التالية',
+            'You can continue to the next step',
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey.shade500,
@@ -327,7 +247,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -338,13 +258,10 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.event_note,
-                color: AppColors.primary,
-              ),
+              Icon(Icons.event_note, color: AppColors.primaryColor),
               const SizedBox(width: 8),
               const Text(
-                'تفاصيل الحدث',
+                'Event Details',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -358,31 +275,22 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
 
           // Event Name
           _buildDetailRow(
-            'اسم الحدث',
+            'Event Name',
             state.eventName ?? '-',
             Icons.celebration,
           ),
 
           // Event Type
           _buildDetailRow(
-            'نوع الحدث',
-            state.selectedEventType?.nameAr ?? state.customEventTypeName ?? '-',
+            'Event Type',
+            state.selectedEventType?.name ?? state.customEventTypeName ?? '-',
             Icons.category,
-          ),
-
-          // Template
-          _buildDetailRow(
-            'القالب',
-            state.uploadedTemplateFile != null
-                ? 'قالب مخصص'
-                : state.selectedTemplate?.nameAr ?? '-',
-            Icons.photo_library,
           ),
 
           // Date
           if (state.eventDate != null)
             _buildDetailRow(
-              'التاريخ',
+              'Date',
               '${state.eventDate!.day}/${state.eventDate!.month}/${state.eventDate!.year}',
               Icons.calendar_today,
             ),
@@ -390,7 +298,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
           // Time
           if (state.eventTime != null)
             _buildDetailRow(
-              'الوقت',
+              'Time',
               '${state.eventTime!.hour.toString().padLeft(2, '0')}:${state.eventTime!.minute.toString().padLeft(2, '0')}',
               Icons.access_time,
             ),
@@ -398,10 +306,8 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
           // Location
           if (state.selectedVenue != null || state.customLocation != null)
             _buildDetailRow(
-              'الموقع',
-              state.selectedVenue?.nameAr ??
-                  state.customLocation?.address ??
-                  '-',
+              'Location',
+              state.selectedVenue?.name ?? state.customLocation?.address ?? '-',
               Icons.location_on,
             ),
         ],
@@ -415,11 +321,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            icon,
-            size: 20,
-            color: Colors.grey.shade500,
-          ),
+          Icon(icon, size: 20, color: Colors.grey.shade500),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -448,48 +350,40 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
     );
   }
 
-  Widget _buildNavigationButtons(BuildContext context, InvitationState state) {
+  Widget _buildBottomBar(BuildContext context, InvitationState state) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -4),
           ),
         ],
       ),
-      child: Row(
-        children: [
-          // Back Button
-          Expanded(
-            child: AppButton(
-              text: 'السابق',
-              onPressed: () {
-                context.read<InvitationCubit>().previousStep();
-              },
-              backgroundColor: Colors.grey.shade200,
-              textColor: Colors.black87,
+      child: SafeArea(
+        child: Row(
+          children: [
+            Expanded(
+              child: SecondaryButton(
+                text: 'Back',
+                onPressed: () => context.read<InvitationCubit>().previousStep(),
+              ),
             ),
-          ),
-
-          const SizedBox(width: 12),
-
-          // Next Button
-          Expanded(
-            flex: 2,
-            child: AppButton(
-              text: 'التالي',
-              onPressed: state.isLoadingPreview
-                  ? null
-                  : () {
-                      context.read<InvitationCubit>().nextStep();
-                    },
+            const SizedBox(width: 12),
+            Expanded(
+              flex: 2,
+              child: PrimaryButton(
+                text: 'Next',
+                onPressed: state.isLoadingPreview
+                    ? null
+                    : () => context.read<InvitationCubit>().nextStep(),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

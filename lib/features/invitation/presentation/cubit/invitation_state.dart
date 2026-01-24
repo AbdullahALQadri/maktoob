@@ -522,7 +522,7 @@ class InvitationState extends Equatable {
 
   /// Check if template is custom (uploaded)
   bool get isCustomTemplate =>
-      selectedTemplate?.isCustom ?? false || uploadedTemplateFile != null;
+      (selectedTemplate?.isCustom ?? false) || uploadedTemplateFile != null;
 
   /// Should skip preview page
   bool get shouldSkipPreview => isCustomEventType || isCustomTemplate;
@@ -736,8 +736,7 @@ class InvitationState extends Equatable {
   bool get canProceedFromEventDetails {
     if (eventName == null || eventName!.isEmpty) return false;
     if (eventDate == null) return false;
-    // Must have location (venue or custom)
-    if (selectedVenue == null && customLocation == null) return false;
+    // Location is optional
     return true;
   }
 

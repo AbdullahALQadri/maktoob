@@ -28,6 +28,12 @@ class _Page4GuestManagementScreenState
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<InvitationCubit, InvitationState>(
+      listenWhen: (previous, current) {
+        // Only show dialog when duplicates are newly detected
+        // (previous was empty and current is not, or current has more duplicates)
+        return previous.duplicatePhoneNumbers.isEmpty &&
+            current.duplicatePhoneNumbers.isNotEmpty;
+      },
       listener: (context, state) {
         // Show duplicate notification if duplicates were found and removed
         if (state.duplicatePhoneNumbers.isNotEmpty) {
@@ -93,10 +99,13 @@ class _Page4GuestManagementScreenState
 
   Widget _buildGuestCountHeader(InvitationState state) {
     final totalGuests = state.allGuests.length;
+    // Count from the actual deduplicated guests list, not the source lists
     final contactsCount =
-        state.contactsGuests.length;
-    final excelCount = state.excelGuests.length;
-    final manualCount = state.manualGuests.length;
+        state.allGuests.where((g) => g.source == GuestSource.contacts).length;
+    final excelCount =
+        state.allGuests.where((g) => g.source == GuestSource.excel).length;
+    final manualCount =
+        state.allGuests.where((g) => g.source == GuestSource.manual).length;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -166,23 +175,27 @@ class _Page4GuestManagementScreenState
           // Import option buttons
           Row(
             children: [
-              // Contacts Button
+              // Contacts Button - count from deduplicated list
               Expanded(
                 child: _buildImportButton(
                   icon: Icons.contacts,
                   label: 'جهات الاتصال',
-                  count: state.contactsGuests.length,
+                  count: state.allGuests
+                      .where((g) => g.source == GuestSource.contacts)
+                      .length,
                   onPressed: () => _openContactPicker(context, state),
                 ),
               ),
               const SizedBox(width: 12),
 
-              // Excel Button
+              // Excel Button - count from deduplicated list
               Expanded(
                 child: _buildImportButton(
                   icon: Icons.table_chart,
                   label: 'ملف إكسل',
-                  count: state.excelGuests.length,
+                  count: state.allGuests
+                      .where((g) => g.source == GuestSource.excel)
+                      .length,
                   onPressed: state.isLoadingExcel
                       ? null
                       : () => _importExcel(context),
@@ -191,12 +204,14 @@ class _Page4GuestManagementScreenState
               ),
               const SizedBox(width: 12),
 
-              // Manual Button
+              // Manual Button - count from deduplicated list
               Expanded(
                 child: _buildImportButton(
                   icon: Icons.edit,
                   label: 'إضافة يدوية',
-                  count: state.manualGuests.length,
+                  count: state.allGuests
+                      .where((g) => g.source == GuestSource.manual)
+                      .length,
                   onPressed: () {
                     setState(() {
                       _showManualForm = !_showManualForm;
@@ -384,7 +399,10 @@ class _Page4GuestManagementScreenState
                 ),
                 if (allGuests.length > 1)
                   TextButton.icon(
-                    onPressed: () => _showClearAllDialog(context),
+                    onPressed: () {
+                      final cubit = context.read<InvitationCubit>();
+                      _showClearAllDialog(context, cubit);
+                    },
                     icon: const Icon(Icons.delete_sweep, size: 18),
                     label: const Text('مسح الكل'),
                     style: TextButton.styleFrom(
@@ -536,9 +554,12 @@ class _Page4GuestManagementScreenState
   void _showDuplicateDialog(BuildContext context, Set<String> duplicates) {
     if (duplicates.isEmpty) return;
 
+    // Capture the cubit before showing dialog since dialog context won't have access to it
+    final cubit = context.read<InvitationCubit>();
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Row(
           children: [
             Icon(
@@ -592,9 +613,9 @@ class _Page4GuestManagementScreenState
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.of(dialogContext).pop();
               // Clear duplicates after showing
-              context.read<InvitationCubit>().clearDuplicateNotification();
+              cubit.clearDuplicateNotification();
             },
             child: const Text('حسناً'),
           ),
@@ -603,21 +624,21 @@ class _Page4GuestManagementScreenState
     );
   }
 
-  void _showClearAllDialog(BuildContext context) {
+  void _showClearAllDialog(BuildContext context, InvitationCubit cubit) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('مسح جميع المدعوين'),
         content: const Text('هل أنت متأكد من حذف جميع المدعوين من القائمة؟'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: const Text('إلغاء'),
           ),
           TextButton(
             onPressed: () {
-              context.read<InvitationCubit>().clearAllGuests();
-              Navigator.of(context).pop();
+              cubit.clearAllGuests();
+              Navigator.of(dialogContext).pop();
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('مسح الكل'),

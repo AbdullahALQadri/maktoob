@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/widgets/buttons/primary_button.dart';
 import '../../../../core/widgets/inputs/app_text_field.dart';
+import '../../../../core/services/permissions/permission_service.dart';
 import '../cubit/invitation_cubit.dart';
 import '../cubit/invitation_state.dart';
 import '../widgets/wizard_step_header.dart';
@@ -91,18 +92,21 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
   }
 
   Widget _buildEventTypeDropdown(BuildContext context, InvitationState state) {
+    // Custom event type constant used for dropdown matching
+    const customEventType = EventTypeModel(
+      id: null,
+      name: 'Custom',
+      nameAr: 'مخصص',
+      emoji: '➕',
+    );
+
     // Build dropdown items
     final List<DropdownMenuItem<EventTypeModel>> items = [];
 
     // Add custom option first
     items.add(
       DropdownMenuItem<EventTypeModel>(
-        value: const EventTypeModel(
-          id: null,
-          name: 'Custom',
-          nameAr: 'مخصص',
-          emoji: '➕',
-        ),
+        value: customEventType,
         child: Row(
           children: [
             const Text('➕', style: TextStyle(fontSize: 20)),
@@ -141,6 +145,23 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
       );
     }
 
+    // Determine the dropdown value:
+    // If the selected event type is custom (id == null), use our constant customEventType
+    // Otherwise, find the matching item from availableEventTypes
+    EventTypeModel? dropdownValue;
+    if (state.selectedEventType != null) {
+      if (state.selectedEventType!.isCustom) {
+        // Use the constant custom event type for matching
+        dropdownValue = customEventType;
+      } else {
+        // Find the matching event type from available types
+        dropdownValue = state.availableEventTypes.firstWhere(
+          (e) => e.id == state.selectedEventType!.id,
+          orElse: () => state.selectedEventType!,
+        );
+      }
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
@@ -150,7 +171,7 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<EventTypeModel>(
-          value: state.selectedEventType,
+          value: dropdownValue,
           hint: Text(
             'اختر نوع المناسبة',
             style: TextStyle(color: AppColors.gray500),
@@ -690,6 +711,36 @@ class _CustomTemplateBottomSheetContentState
     });
 
     try {
+      // Check and request photos permission
+      final hasPermission = await PermissionService.instance.hasPermission(
+        AppPermission.photos,
+      );
+
+      if (!hasPermission) {
+        final granted = await PermissionService.instance.requestPermission(
+          AppPermission.photos,
+        );
+
+        if (!granted) {
+          final isPermanentlyDenied = await PermissionService.instance
+              .isPermanentlyDenied(AppPermission.photos);
+
+          if (mounted) {
+            if (isPermanentlyDenied) {
+              _showPermissionDeniedDialog();
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('يرجى السماح بالوصول إلى الصور'),
+                  backgroundColor: Colors.orange,
+                ),
+              );
+            }
+          }
+          return;
+        }
+      }
+
       final ImagePicker picker = ImagePicker();
       final XFile? image = await picker.pickImage(
         source: ImageSource.gallery,
@@ -722,8 +773,43 @@ class _CustomTemplateBottomSheetContentState
     }
   }
 
+  void _showPermissionDeniedDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('إذن الصور مطلوب'),
+        content: const Text(
+          'يحتاج التطبيق إلى إذن الوصول إلى الصور لرفع القالب المخصص. '
+          'يرجى منح الإذن من إعدادات التطبيق.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('إلغاء'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await PermissionService.instance.openAppSettings();
+            },
+            child: const Text('فتح الإعدادات'),
+          ),
+        ],
+      ),
+    );
+  }
+
   bool get _canConfirm =>
       _selectedFile != null || _descriptionController.text.trim().isNotEmpty;
+
+  String _getButtonText() {
+    if (_selectedFile != null) {
+      return 'رفع'; // Upload
+    } else if (_descriptionController.text.trim().isNotEmpty) {
+      return 'إضافة وصف'; // Add Description
+    }
+    return 'تأكيد'; // Confirm (default)
+  }
 
   void _onConfirm() {
     final cubit = context.read<InvitationCubit>();
@@ -921,11 +1007,11 @@ class _CustomTemplateBottomSheetContentState
 
             const SizedBox(height: 24),
 
-            // Confirm Button
+            // Confirm Button - text changes based on what user is doing
             SizedBox(
               width: double.infinity,
               child: PrimaryButton(
-                text: 'تأكيد',
+                text: _getButtonText(),
                 onPressed: _canConfirm ? _onConfirm : null,
               ),
             ),

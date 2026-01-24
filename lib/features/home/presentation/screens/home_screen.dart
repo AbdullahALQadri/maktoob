@@ -239,7 +239,7 @@ class _HomeScreenState extends State<HomeScreen>
                     return Transform.translate(offset: offset, child: child);
                   },
                   child: Text(
-                    'Koroot Dashboard',
+                    'Maktoob Dashboard',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: context.dynamicWidth(0.07),

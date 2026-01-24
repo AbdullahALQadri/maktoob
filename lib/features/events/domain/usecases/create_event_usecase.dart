@@ -26,15 +26,17 @@ class CreateEventUseCase implements UseCase<EventEntity, CreateEventUseCaseParam
       return const Left(ValidationFailure(message: 'Venue is required'));
     }
 
-    if (params.packageId.isEmpty) {
+    if (params.packageId == null) {
       return const Left(ValidationFailure(message: 'Package selection is required'));
     }
 
     final createParams = CreateEventParams(
       name: params.name,
       type: params.type,
+      eventTypeId: params.eventTypeId,
       eventDate: params.eventDate,
       venue: params.venue,
+      venueId: params.venueId,
       venueAddress: params.venueAddress,
       description: params.description,
       packageId: params.packageId,
@@ -52,12 +54,14 @@ class CreateEventUseCase implements UseCase<EventEntity, CreateEventUseCaseParam
 class CreateEventUseCaseParams extends Equatable {
   final String name;
   final String type;
+  final int? eventTypeId;
   final DateTime eventDate;
   final String venue;
+  final int? venueId;
   final String? venueAddress;
   final String? description;
-  final String packageId;
-  final String? templateId;
+  final int? packageId;
+  final int? templateId;
   final int maxCompanions;
   final bool allowCompanions;
   final DateTime? rsvpDeadline;
@@ -66,11 +70,13 @@ class CreateEventUseCaseParams extends Equatable {
   const CreateEventUseCaseParams({
     required this.name,
     required this.type,
+    this.eventTypeId,
     required this.eventDate,
     required this.venue,
+    this.venueId,
     this.venueAddress,
     this.description,
-    required this.packageId,
+    this.packageId,
     this.templateId,
     this.maxCompanions = 2,
     this.allowCompanions = true,
@@ -82,8 +88,10 @@ class CreateEventUseCaseParams extends Equatable {
   List<Object?> get props => [
         name,
         type,
+        eventTypeId,
         eventDate,
         venue,
+        venueId,
         venueAddress,
         description,
         packageId,

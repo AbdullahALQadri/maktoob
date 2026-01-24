@@ -25,7 +25,8 @@
       "Bash(flutter clean:*)",
       "Bash(C:devflutterbinflutter.bat pub get)",
       "Bash(find:*)",
-      "Bash(flutter pub outdated:*)"
+      "Bash(flutter pub outdated:*)",
+      "Bash(flutter build:*)"
     ]
   }
 }

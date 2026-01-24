@@ -4,16 +4,19 @@ import 'package:geocoding/geocoding.dart';
 
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/services/permissions/permission_service.dart';
 import '../../data/models/location_model.dart';
 
 class GoogleMapsPickerWidget extends StatefulWidget {
   final LocationModel? initialLocation;
   final Function(LocationModel) onLocationSelected;
+  final bool restrictToGaza;
 
   const GoogleMapsPickerWidget({
     super.key,
     this.initialLocation,
     required this.onLocationSelected,
+    this.restrictToGaza = false, // Set to false for testing - can mark anywhere
   });
 
   @override
@@ -26,6 +29,8 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
   String? _selectedAddress;
   String? _errorMessage;
   bool _isLoading = false;
+  bool _hasLocationPermission = false;
+  bool _isCheckingPermission = true;
 
   // Gaza bounds
   static const double _gazaMinLat = 31.2169;
@@ -45,6 +50,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
   @override
   void initState() {
     super.initState();
+    _checkLocationPermission();
     if (widget.initialLocation != null) {
       _selectedPosition = LatLng(
         widget.initialLocation!.latitude,
@@ -54,7 +60,83 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
     }
   }
 
+  Future<void> _checkLocationPermission() async {
+    setState(() {
+      _isCheckingPermission = true;
+    });
+
+    try {
+      final hasPermission = await PermissionService.instance.hasPermission(
+        AppPermission.locationWhenInUse,
+      );
+
+      if (hasPermission) {
+        setState(() {
+          _hasLocationPermission = true;
+          _isCheckingPermission = false;
+        });
+      } else {
+        // Request permission
+        final granted = await PermissionService.instance.requestPermission(
+          AppPermission.locationWhenInUse,
+        );
+
+        if (granted) {
+          setState(() {
+            _hasLocationPermission = true;
+            _isCheckingPermission = false;
+          });
+        } else {
+          // Check if permanently denied
+          final isPermanentlyDenied = await PermissionService.instance
+              .isPermanentlyDenied(AppPermission.locationWhenInUse);
+
+          setState(() {
+            _hasLocationPermission = false;
+            _isCheckingPermission = false;
+          });
+
+          if (isPermanentlyDenied && mounted) {
+            _showPermissionDeniedDialog();
+          }
+        }
+      }
+    } catch (e) {
+      setState(() {
+        _hasLocationPermission = false;
+        _isCheckingPermission = false;
+      });
+    }
+  }
+
+  void _showPermissionDeniedDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('إذن الموقع مطلوب'),
+        content: const Text(
+          'يحتاج التطبيق إلى إذن الموقع لعرض موقعك الحالي على الخريطة. '
+          'يمكنك متابعة اختيار الموقع يدويًا أو منح الإذن من الإعدادات.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('متابعة بدون إذن'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await PermissionService.instance.openAppSettings();
+            },
+            child: const Text('فتح الإعدادات'),
+          ),
+        ],
+      ),
+    );
+  }
+
   bool _isWithinGaza(LatLng position) {
+    if (!widget.restrictToGaza) return true; // Allow anywhere for testing
     return position.latitude >= _gazaMinLat &&
         position.latitude <= _gazaMaxLat &&
         position.longitude >= _gazaMinLng &&
@@ -63,17 +145,23 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
 
   Future<void> _onMapTapped(LatLng position) async {
     if (!_isWithinGaza(position)) {
-      setState(() {
-        _errorMessage = 'يرجى اختيار موقع داخل قطاع غزة فقط';
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'يرجى اختيار موقع داخل قطاع غزة فقط';
+        });
+      }
       return;
     }
 
-    setState(() {
-      _selectedPosition = position;
-      _errorMessage = null;
-      _isLoading = true;
-    });
+    if (mounted) {
+      setState(() {
+        _selectedPosition = position;
+        _errorMessage = null;
+        _isLoading = true;
+      });
+    }
+
+    String address = 'موقع محدد (${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)})';
 
     try {
       // Get address from coordinates
@@ -99,22 +187,16 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
           addressParts.add(placemark.country!);
         }
 
-        setState(() {
-          _selectedAddress = addressParts.isNotEmpty
-              ? addressParts.join(', ')
-              : 'موقع محدد في غزة';
-        });
-      } else {
-        setState(() {
-          _selectedAddress = 'موقع محدد في غزة';
-        });
+        address = addressParts.isNotEmpty ? addressParts.join(', ') : 'موقع محدد';
       }
     } catch (e) {
+      // Keep the coordinate-based address set above
+      debugPrint('Geocoding error: $e');
+    }
+
+    if (mounted) {
       setState(() {
-        _selectedAddress = 'موقع محدد في غزة';
-      });
-    } finally {
-      setState(() {
+        _selectedAddress = address;
         _isLoading = false;
       });
     }
@@ -128,12 +210,27 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
         address: _selectedAddress!,
       );
       widget.onLocationSelected(location);
-      Navigator.of(context).pop();
+      // Navigation is handled by the callback - don't call Navigator.pop here
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Show loading while checking permission
+    if (_isCheckingPermission) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('اختر الموقع'),
+          centerTitle: true,
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('اختر الموقع'),
@@ -165,11 +262,11 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
                     ),
                   }
                 : {},
-            cameraTargetBounds: CameraTargetBounds(_gazaBounds),
-            minMaxZoomPreference: const MinMaxZoomPreference(10, 18),
+            cameraTargetBounds: widget.restrictToGaza ? CameraTargetBounds(_gazaBounds) : CameraTargetBounds.unbounded,
+            minMaxZoomPreference: const MinMaxZoomPreference(3, 18),
             mapType: MapType.normal,
-            myLocationEnabled: true,
-            myLocationButtonEnabled: true,
+            myLocationEnabled: _hasLocationPermission,
+            myLocationButtonEnabled: _hasLocationPermission,
             zoomControlsEnabled: true,
           ),
 

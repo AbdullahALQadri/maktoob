@@ -39,12 +39,14 @@ abstract class EventsRepository {
 class CreateEventParams {
   final String name;
   final String type;
+  final int? eventTypeId;
   final DateTime eventDate;
   final String venue;
+  final int? venueId;
   final String? venueAddress;
   final String? description;
-  final String packageId;
-  final String? templateId;
+  final int? packageId;
+  final int? templateId;
   final int maxCompanions;
   final bool allowCompanions;
   final DateTime? rsvpDeadline;
@@ -53,11 +55,13 @@ class CreateEventParams {
   const CreateEventParams({
     required this.name,
     required this.type,
+    this.eventTypeId,
     required this.eventDate,
     required this.venue,
+    this.venueId,
     this.venueAddress,
     this.description,
-    required this.packageId,
+    this.packageId,
     this.templateId,
     this.maxCompanions = 2,
     this.allowCompanions = true,
@@ -71,6 +75,7 @@ class UpdateEventParams {
   final String? type;
   final DateTime? eventDate;
   final String? venue;
+  final int? venueId;
   final String? venueAddress;
   final String? description;
   final EventStatus? status;
@@ -83,6 +88,7 @@ class UpdateEventParams {
     this.type,
     this.eventDate,
     this.venue,
+    this.venueId,
     this.venueAddress,
     this.description,
     this.status,
