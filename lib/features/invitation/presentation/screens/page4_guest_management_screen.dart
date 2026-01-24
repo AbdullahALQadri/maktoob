@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../data/models/invitation_draft_model.dart';
@@ -27,6 +28,7 @@ class _Page4GuestManagementScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return BlocConsumer<InvitationCubit, InvitationState>(
       listenWhen: (previous, current) {
         // Only show dialog when duplicates are newly detected
@@ -37,7 +39,7 @@ class _Page4GuestManagementScreenState
       listener: (context, state) {
         // Show duplicate notification if duplicates were found and removed
         if (state.duplicatePhoneNumbers.isNotEmpty) {
-          _showDuplicateDialog(context, state.duplicatePhoneNumbers);
+          _showDuplicateDialog(context, state.duplicatePhoneNumbers, l);
         }
       },
       builder: (context, state) {
@@ -47,14 +49,14 @@ class _Page4GuestManagementScreenState
             child: Column(
               children: [
                 // Step Header
-                const WizardStepHeader(
+                WizardStepHeader(
                   currentStep: 4,
                   totalSteps: 7,
-                  title: 'إدارة المدعوين',
+                  title: l?.translate('invitation_step4_title') ?? 'Guest Management',
                 ),
 
                 // Guest Count Header
-                _buildGuestCountHeader(state),
+                _buildGuestCountHeader(state, l),
 
                 // Content
                 Expanded(
@@ -64,7 +66,7 @@ class _Page4GuestManagementScreenState
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         // Import Options
-                        _buildImportOptions(context, state),
+                        _buildImportOptions(context, state, l),
 
                         const SizedBox(height: 20),
 
@@ -81,14 +83,14 @@ class _Page4GuestManagementScreenState
                         ],
 
                         // Guest List
-                        _buildGuestList(context, state),
+                        _buildGuestList(context, state, l),
                       ],
                     ),
                   ),
                 ),
 
                 // Navigation Buttons
-                _buildNavigationButtons(context, state),
+                _buildNavigationButtons(context, state, l),
               ],
             ),
           ),
@@ -97,7 +99,7 @@ class _Page4GuestManagementScreenState
     );
   }
 
-  Widget _buildGuestCountHeader(InvitationState state) {
+  Widget _buildGuestCountHeader(InvitationState state, AppLocalizations? l) {
     final totalGuests = state.allGuests.length;
     // Count from the actual deduplicated guests list, not the source lists
     final contactsCount =
@@ -106,6 +108,10 @@ class _Page4GuestManagementScreenState
         state.allGuests.where((g) => g.source == GuestSource.excel).length;
     final manualCount =
         state.allGuests.where((g) => g.source == GuestSource.manual).length;
+
+    final contactsLabel = l?.translate('invitation_contacts') ?? 'Contacts';
+    final excelLabel = l?.translate('invitation_excel') ?? 'Excel';
+    final manualLabel = l?.translate('invitation_manual') ?? 'Manual';
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -123,7 +129,7 @@ class _Page4GuestManagementScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'إجمالي المدعوين: $totalGuests',
+                  '${l?.translate('invitation_total_guests') ?? 'Total Guests'}: $totalGuests',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -132,7 +138,7 @@ class _Page4GuestManagementScreenState
                 ),
                 if (totalGuests > 0)
                   Text(
-                    'جهات الاتصال: $contactsCount | إكسل: $excelCount | يدوي: $manualCount',
+                    '$contactsLabel: $contactsCount | $excelLabel: $excelCount | $manualLabel: $manualCount',
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.8),
                       fontSize: 12,
@@ -146,7 +152,7 @@ class _Page4GuestManagementScreenState
     );
   }
 
-  Widget _buildImportOptions(BuildContext context, InvitationState state) {
+  Widget _buildImportOptions(BuildContext context, InvitationState state, AppLocalizations? l) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -163,9 +169,9 @@ class _Page4GuestManagementScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'طرق إضافة المدعوين',
-            style: TextStyle(
+          Text(
+            l?.translate('invitation_add_guests_methods') ?? 'Guest Import Methods',
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
@@ -179,7 +185,7 @@ class _Page4GuestManagementScreenState
               Expanded(
                 child: _buildImportButton(
                   icon: Icons.contacts,
-                  label: 'جهات الاتصال',
+                  label: l?.translate('invitation_from_contacts') ?? 'From Contacts',
                   count: state.allGuests
                       .where((g) => g.source == GuestSource.contacts)
                       .length,
@@ -192,13 +198,13 @@ class _Page4GuestManagementScreenState
               Expanded(
                 child: _buildImportButton(
                   icon: Icons.table_chart,
-                  label: 'ملف إكسل',
+                  label: l?.translate('invitation_excel_file') ?? 'Excel File',
                   count: state.allGuests
                       .where((g) => g.source == GuestSource.excel)
                       .length,
                   onPressed: state.isLoadingExcel
                       ? null
-                      : () => _importExcel(context),
+                      : () => _importExcel(context, l),
                   isLoading: state.isLoadingExcel,
                 ),
               ),
@@ -208,7 +214,7 @@ class _Page4GuestManagementScreenState
               Expanded(
                 child: _buildImportButton(
                   icon: Icons.edit,
-                  label: 'إضافة يدوية',
+                  label: l?.translate('invitation_manual_entry') ?? 'Manual Entry',
                   count: state.allGuests
                       .where((g) => g.source == GuestSource.manual)
                       .length,
@@ -242,7 +248,7 @@ class _Page4GuestManagementScreenState
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'صيغة ملف الإكسل: اسم المدعو، رقم الهاتف (+972 أو +970)',
+                    l?.translate('invitation_excel_format_notice') ?? 'Excel format: Guest name, Phone number (+972 or +970)',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.amber.shade900,
@@ -330,7 +336,7 @@ class _Page4GuestManagementScreenState
     );
   }
 
-  Widget _buildGuestList(BuildContext context, InvitationState state) {
+  Widget _buildGuestList(BuildContext context, InvitationState state, AppLocalizations? l) {
     final allGuests = state.allGuests;
 
     if (allGuests.isEmpty) {
@@ -350,7 +356,7 @@ class _Page4GuestManagementScreenState
             ),
             const SizedBox(height: 16),
             Text(
-              'لم تتم إضافة أي مدعوين بعد',
+              l?.translate('invitation_no_guests_yet') ?? 'No guests added yet',
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey.shade600,
@@ -358,7 +364,7 @@ class _Page4GuestManagementScreenState
             ),
             const SizedBox(height: 8),
             Text(
-              'استخدم الخيارات أعلاه لإضافة المدعوين',
+              l?.translate('invitation_use_options_above') ?? 'Use the options above to add guests',
               style: TextStyle(
                 fontSize: 13,
                 color: Colors.grey.shade500,
@@ -391,7 +397,7 @@ class _Page4GuestManagementScreenState
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'قائمة المدعوين (${allGuests.length})',
+                  '${l?.translate('invitation_guest_list') ?? 'Guest List'} (${allGuests.length})',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -401,10 +407,10 @@ class _Page4GuestManagementScreenState
                   TextButton.icon(
                     onPressed: () {
                       final cubit = context.read<InvitationCubit>();
-                      _showClearAllDialog(context, cubit);
+                      _showClearAllDialog(context, cubit, l);
                     },
                     icon: const Icon(Icons.delete_sweep, size: 18),
-                    label: const Text('مسح الكل'),
+                    label: Text(l?.translate('invitation_clear_all') ?? 'Clear All'),
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.red,
                     ),
@@ -423,7 +429,7 @@ class _Page4GuestManagementScreenState
             separatorBuilder: (_, __) => const Divider(height: 1),
             itemBuilder: (context, index) {
               final guest = allGuests[index];
-              return _buildGuestListItem(context, guest, index);
+              return _buildGuestListItem(context, guest, index, l);
             },
           ),
         ],
@@ -432,7 +438,7 @@ class _Page4GuestManagementScreenState
   }
 
   Widget _buildGuestListItem(
-      BuildContext context, GuestInfoModel guest, int index) {
+      BuildContext context, GuestInfoModel guest, int index, AppLocalizations? l) {
     IconData sourceIcon;
     Color sourceColor;
     String sourceLabel;
@@ -441,17 +447,17 @@ class _Page4GuestManagementScreenState
       case GuestSource.contacts:
         sourceIcon = Icons.contacts;
         sourceColor = Colors.blue;
-        sourceLabel = 'جهات الاتصال';
+        sourceLabel = l?.translate('invitation_contacts') ?? 'Contacts';
         break;
       case GuestSource.excel:
         sourceIcon = Icons.table_chart;
         sourceColor = Colors.green;
-        sourceLabel = 'إكسل';
+        sourceLabel = l?.translate('invitation_excel') ?? 'Excel';
         break;
       case GuestSource.manual:
         sourceIcon = Icons.edit;
         sourceColor = Colors.orange;
-        sourceLabel = 'يدوي';
+        sourceLabel = l?.translate('invitation_manual') ?? 'Manual';
         break;
     }
 
@@ -520,7 +526,7 @@ class _Page4GuestManagementScreenState
     );
   }
 
-  Future<void> _importExcel(BuildContext context) async {
+  Future<void> _importExcel(BuildContext context, AppLocalizations? l) async {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -541,7 +547,7 @@ class _Page4GuestManagementScreenState
               children: [
                 const Icon(Icons.error_outline, color: Colors.white),
                 const SizedBox(width: 8),
-                Text('حدث خطأ أثناء تحميل الملف: $e'),
+                Text('${l?.translate('invitation_error_loading_file') ?? 'Error loading file'}: $e'),
               ],
             ),
             backgroundColor: Colors.red,
@@ -551,7 +557,7 @@ class _Page4GuestManagementScreenState
     }
   }
 
-  void _showDuplicateDialog(BuildContext context, Set<String> duplicates) {
+  void _showDuplicateDialog(BuildContext context, Set<String> duplicates, AppLocalizations? l) {
     if (duplicates.isEmpty) return;
 
     // Capture the cubit before showing dialog since dialog context won't have access to it
@@ -567,16 +573,16 @@ class _Page4GuestManagementScreenState
               color: Colors.orange.shade700,
             ),
             const SizedBox(width: 8),
-            const Text('تم العثور على تكرارات'),
+            Text(l?.translate('invitation_duplicates_found') ?? 'Duplicates Found'),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'تم حذف الأرقام المكررة التالية تلقائياً:',
-              style: TextStyle(fontWeight: FontWeight.w500),
+            Text(
+              l?.translate('invitation_duplicates_removed') ?? 'The following duplicate numbers were automatically removed:',
+              style: const TextStyle(fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 12),
             Container(
@@ -601,7 +607,7 @@ class _Page4GuestManagementScreenState
             ),
             const SizedBox(height: 12),
             Text(
-              'الأولوية: يدوي > إكسل > جهات الاتصال',
+              l?.translate('invitation_priority_note') ?? 'Priority: Manual > Excel > Contacts',
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.grey.shade600,
@@ -617,23 +623,23 @@ class _Page4GuestManagementScreenState
               // Clear duplicates after showing
               cubit.clearDuplicateNotification();
             },
-            child: const Text('حسناً'),
+            child: Text(l?.translate('common_ok') ?? 'OK'),
           ),
         ],
       ),
     );
   }
 
-  void _showClearAllDialog(BuildContext context, InvitationCubit cubit) {
+  void _showClearAllDialog(BuildContext context, InvitationCubit cubit, AppLocalizations? l) {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('مسح جميع المدعوين'),
-        content: const Text('هل أنت متأكد من حذف جميع المدعوين من القائمة؟'),
+        title: Text(l?.translate('invitation_clear_all_guests') ?? 'Clear All Guests'),
+        content: Text(l?.translate('invitation_confirm_clear_all') ?? 'Are you sure you want to remove all guests from the list?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('إلغاء'),
+            child: Text(l?.translate('common_cancel') ?? 'Cancel'),
           ),
           TextButton(
             onPressed: () {
@@ -641,14 +647,14 @@ class _Page4GuestManagementScreenState
               Navigator.of(dialogContext).pop();
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('مسح الكل'),
+            child: Text(l?.translate('invitation_clear_all') ?? 'Clear All'),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildNavigationButtons(BuildContext context, InvitationState state) {
+  Widget _buildNavigationButtons(BuildContext context, InvitationState state, AppLocalizations? l) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -666,7 +672,7 @@ class _Page4GuestManagementScreenState
           // Back Button
           Expanded(
             child: AppButton(
-              text: 'السابق',
+              text: l?.translate('common_back') ?? 'Back',
               onPressed: () {
                 context.read<InvitationCubit>().previousStep();
               },
@@ -681,7 +687,7 @@ class _Page4GuestManagementScreenState
           Expanded(
             flex: 2,
             child: AppButton(
-              text: 'التالي',
+              text: l?.translate('common_next') ?? 'Next',
               onPressed: state.canProceedFromGuestManagement
                   ? () {
                       context.read<InvitationCubit>().nextStep();

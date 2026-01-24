@@ -137,26 +137,31 @@ class _HomeScreenState extends State<HomeScreen>
             offset: Offset(0, context.dynamicHeight(-0.07)),
             child: _buildStatsGrid(state),
           ),
-          // Response Rate Card
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: context.dynamicWidth(0.04),
-            ),
-            child: ResponseRateCardWidget(
-              responseRate: state.responseRate,
-              totalResponded: state.totalResponded,
-              totalGuests: state.totalGuests,
+          // Response Rate Card - adjusted to account for stats grid overlap
+          Transform.translate(
+            offset: Offset(0, context.dynamicHeight(-0.07)),
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: context.dynamicWidth(0.04),
+              ),
+              child: ResponseRateCardWidget(
+                responseRate: state.responseRate,
+                totalResponded: state.totalResponded,
+                totalGuests: state.totalGuests,
+              ),
             ),
           ),
-          SizedBox(height: context.dynamicHeight(0.03)),
-          // Recent Events
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: context.dynamicWidth(0.04),
+          // Recent Events - adjusted to account for stats grid overlap
+          Transform.translate(
+            offset: Offset(0, context.dynamicHeight(-0.07)),
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: context.dynamicWidth(0.04),
+              ),
+              child: _buildRecentEventsSection(state),
             ),
-            child: _buildRecentEventsSection(state),
           ),
-          SizedBox(height: context.dynamicHeight(0.12)),
+          SizedBox(height: context.dynamicHeight(0.05)),
           // Bottom padding for navigation
         ],
       ),

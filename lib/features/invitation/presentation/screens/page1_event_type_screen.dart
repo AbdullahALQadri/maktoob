@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/widgets/buttons/primary_button.dart';
 import '../../../../core/widgets/inputs/app_text_field.dart';
@@ -24,6 +25,7 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final l = AppLocalizations.of(context);
 
     return BlocBuilder<InvitationCubit, InvitationState>(
       builder: (context, state) {
@@ -32,10 +34,10 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
           body: Column(
             children: [
               // Step Header
-              const WizardStepHeader(
+              WizardStepHeader(
                 currentStep: 1,
                 totalSteps: 7,
-                title: 'اختر نوع المناسبة',
+                title: l?.translate('invitation_step1_title') ?? 'Choose Event Type',
               ),
 
               Expanded(
@@ -47,22 +49,22 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
                       const SizedBox(height: 20),
 
                       // Section: Event Type Dropdown
-                      _buildSectionTitle('نوع المناسبة'),
+                      _buildSectionTitle(l?.translate('invitation_event_type') ?? 'Event Type'),
                       const SizedBox(height: 12),
-                      _buildEventTypeDropdown(context, state),
+                      _buildEventTypeDropdown(context, state, l),
 
                       // Custom event type name field (if custom selected)
                       if (state.selectedEventType?.isCustom == true) ...[
                         const SizedBox(height: 16),
-                        _buildCustomEventNameField(context, state),
+                        _buildCustomEventNameField(context, state, l),
                       ],
 
                       // Section: Templates (shown when event type is selected)
                       if (state.selectedEventType != null) ...[
                         const SizedBox(height: 24),
-                        _buildSectionTitle('اختر القالب'),
+                        _buildSectionTitle(l?.translate('invitation_choose_template') ?? 'Choose Template'),
                         const SizedBox(height: 12),
-                        _buildTemplatesSection(context, state),
+                        _buildTemplatesSection(context, state, l),
                       ],
 
                       const SizedBox(height: 100),
@@ -72,7 +74,7 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
               ),
 
               // Bottom Button
-              _buildBottomBar(context, state),
+              _buildBottomBar(context, state, l),
             ],
           ),
         );
@@ -91,7 +93,7 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
     );
   }
 
-  Widget _buildEventTypeDropdown(BuildContext context, InvitationState state) {
+  Widget _buildEventTypeDropdown(BuildContext context, InvitationState state, AppLocalizations? l) {
     // Custom event type constant used for dropdown matching
     const customEventType = EventTypeModel(
       id: null,
@@ -102,6 +104,7 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
 
     // Build dropdown items
     final List<DropdownMenuItem<EventTypeModel>> items = [];
+    final isEnglish = l?.isEnLocale ?? false;
 
     // Add custom option first
     items.add(
@@ -112,7 +115,7 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
             const Text('➕', style: TextStyle(fontSize: 20)),
             const SizedBox(width: 12),
             Text(
-              'مخصص (Custom)',
+              l?.translate('invitation_custom') ?? 'Custom',
               style: TextStyle(
                 fontSize: 16,
                 color: AppColors.gray700,
@@ -133,7 +136,7 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
               Text(eventType.emoji ?? '📅', style: const TextStyle(fontSize: 20)),
               const SizedBox(width: 12),
               Text(
-                eventType.nameAr,
+                isEnglish ? eventType.name : eventType.nameAr,
                 style: TextStyle(
                   fontSize: 16,
                   color: AppColors.gray700,
@@ -173,7 +176,7 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
         child: DropdownButton<EventTypeModel>(
           value: dropdownValue,
           hint: Text(
-            'اختر نوع المناسبة',
+            l?.translate('invitation_select_event_type') ?? 'Select event type',
             style: TextStyle(color: AppColors.gray500),
           ),
           isExpanded: true,
@@ -196,9 +199,9 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
   }
 
   Widget _buildCustomEventNameField(
-      BuildContext context, InvitationState state) {
+      BuildContext context, InvitationState state, AppLocalizations? l) {
     return AppTextField(
-      hintText: 'أدخل اسم نوع المناسبة',
+      hintText: l?.translate('invitation_enter_event_type_name') ?? 'Enter event type name',
       prefixIcon: Icons.edit,
       initialValue: state.customEventTypeName,
       onChanged: (value) {
@@ -207,7 +210,7 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
     );
   }
 
-  Widget _buildTemplatesSection(BuildContext context, InvitationState state) {
+  Widget _buildTemplatesSection(BuildContext context, InvitationState state, AppLocalizations? l) {
     // For custom event type, only show custom upload option
     if (state.isCustomEventType) {
       return _CustomTemplateUploadCard(
@@ -217,15 +220,16 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
     }
 
     // For regular event types, show templates + custom option
-    return _buildTemplatesGrid(context, state);
+    return _buildTemplatesGrid(context, state, l);
   }
 
-  Widget _buildTemplatesGrid(BuildContext context, InvitationState state) {
+  Widget _buildTemplatesGrid(BuildContext context, InvitationState state, AppLocalizations? l) {
     // Add custom template as first option
     final templates = [
       TemplateModel.customPlaceholder(),
       ...state.availableTemplates,
     ];
+    final isEnglish = l?.isEnLocale ?? false;
 
     return GridView.builder(
       shrinkWrap: true,
@@ -249,6 +253,7 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
           template: template,
           isSelected: isSelected,
           uploadedFile: template.isCustom ? state.uploadedTemplateFile : null,
+          isEnglish: isEnglish,
           onTap: () {
             if (template.isCustom) {
               _showCustomTemplateBottomSheet(context);
@@ -283,7 +288,7 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
     );
   }
 
-  Widget _buildBottomBar(BuildContext context, InvitationState state) {
+  Widget _buildBottomBar(BuildContext context, InvitationState state, AppLocalizations? l) {
     final canProceed = state.canProceedFromEventType;
 
     return Container(
@@ -300,7 +305,7 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
       ),
       child: SafeArea(
         child: PrimaryButton(
-          text: 'التالي',
+          text: l?.translate('common_next') ?? 'Next',
           onPressed: canProceed
               ? () => context.read<InvitationCubit>().nextStep()
               : null,
@@ -315,12 +320,14 @@ class _TemplateCard extends StatelessWidget {
   final TemplateModel template;
   final bool isSelected;
   final File? uploadedFile;
+  final bool isEnglish;
   final VoidCallback onTap;
 
   const _TemplateCard({
     required this.template,
     required this.isSelected,
     this.uploadedFile,
+    this.isEnglish = false,
     required this.onTap,
   });
 
@@ -368,7 +375,9 @@ class _TemplateCard extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  template.isCustom ? 'قالب مخصص' : template.nameAr,
+                  template.isCustom
+                      ? (isEnglish ? 'Custom Template' : 'قالب مخصص')
+                      : (isEnglish ? template.name : template.nameAr),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
@@ -441,7 +450,7 @@ class _TemplateCard extends StatelessWidget {
           Icon(Icons.upload_file, size: 32, color: AppColors.gray400),
           const SizedBox(height: 8),
           Text(
-            'ارفع تصميمك',
+            isEnglish ? 'Upload your design' : 'ارفع تصميمك',
             style: TextStyle(
               color: AppColors.gray500,
               fontSize: 12,
@@ -504,13 +513,14 @@ class _CustomTemplateUploadCard extends StatelessWidget {
           ),
         ),
         child: hasContent
-            ? _buildContentPreview()
-            : _buildUploadPlaceholder(),
+            ? _buildContentPreview(context)
+            : _buildUploadPlaceholder(context),
       ),
     );
   }
 
-  Widget _buildContentPreview() {
+  Widget _buildContentPreview(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Stack(
       children: [
         if (uploadedFile != null)
@@ -530,9 +540,9 @@ class _CustomTemplateUploadCard extends StatelessWidget {
               children: [
                 Icon(Icons.description, size: 48, color: AppColors.primaryColor),
                 const SizedBox(height: 8),
-                const Text(
-                  'وصف مخصص',
-                  style: TextStyle(
+                Text(
+                  l?.translate('invitation_custom_description') ?? 'Custom description',
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),
@@ -608,7 +618,8 @@ class _CustomTemplateUploadCard extends StatelessWidget {
     );
   }
 
-  Widget _buildUploadPlaceholder() {
+  Widget _buildUploadPlaceholder(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -626,7 +637,7 @@ class _CustomTemplateUploadCard extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Text(
-          'ارفع قالبك المخصص',
+          l?.translate('invitation_upload_custom_template') ?? 'Upload your custom template',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
@@ -640,7 +651,7 @@ class _CustomTemplateUploadCard extends StatelessWidget {
             Icon(Icons.info_outline, size: 14, color: AppColors.amber600),
             const SizedBox(width: 4),
             Text(
-              'قد تُطبق رسوم إضافية',
+              l?.translate('invitation_extra_fees_may_apply') ?? 'Extra fees may apply',
               style: TextStyle(
                 fontSize: 12,
                 color: AppColors.amber600,
@@ -726,12 +737,13 @@ class _CustomTemplateBottomSheetContentState
               .isPermanentlyDenied(AppPermission.photos);
 
           if (mounted) {
+            final l = AppLocalizations.of(context);
             if (isPermanentlyDenied) {
               _showPermissionDeniedDialog();
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('يرجى السماح بالوصول إلى الصور'),
+                SnackBar(
+                  content: Text(l?.translate('invitation_allow_photos_access') ?? 'Please allow access to photos'),
                   backgroundColor: Colors.orange,
                 ),
               );
@@ -757,9 +769,10 @@ class _CustomTemplateBottomSheetContentState
     } catch (e) {
       debugPrint('Error picking image: $e');
       if (mounted) {
+        final l = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('فشل في اختيار الصورة: $e'),
+            content: Text('${l?.translate('invitation_failed_pick_image') ?? 'Failed to pick image'}: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -774,25 +787,26 @@ class _CustomTemplateBottomSheetContentState
   }
 
   void _showPermissionDeniedDialog() {
+    final l = AppLocalizations.of(context);
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('إذن الصور مطلوب'),
-        content: const Text(
-          'يحتاج التطبيق إلى إذن الوصول إلى الصور لرفع القالب المخصص. '
-          'يرجى منح الإذن من إعدادات التطبيق.',
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l?.translate('invitation_photos_permission_required') ?? 'Photos Permission Required'),
+        content: Text(
+          l?.translate('invitation_photos_permission_message') ??
+              'The app needs access to photos to upload custom template. Please grant permission from app settings.',
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('إلغاء'),
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(l?.translate('common_cancel') ?? 'Cancel'),
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
               await PermissionService.instance.openAppSettings();
             },
-            child: const Text('فتح الإعدادات'),
+            child: Text(l?.translate('invitation_open_settings') ?? 'Open Settings'),
           ),
         ],
       ),
@@ -802,13 +816,13 @@ class _CustomTemplateBottomSheetContentState
   bool get _canConfirm =>
       _selectedFile != null || _descriptionController.text.trim().isNotEmpty;
 
-  String _getButtonText() {
+  String _getButtonText(AppLocalizations? l) {
     if (_selectedFile != null) {
-      return 'رفع'; // Upload
+      return l?.translate('invitation_upload') ?? 'Upload';
     } else if (_descriptionController.text.trim().isNotEmpty) {
-      return 'إضافة وصف'; // Add Description
+      return l?.translate('invitation_add_description') ?? 'Add Description';
     }
-    return 'تأكيد'; // Confirm (default)
+    return l?.translate('invitation_confirm') ?? 'Confirm';
   }
 
   void _onConfirm() {
@@ -832,6 +846,7 @@ class _CustomTemplateBottomSheetContentState
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -853,9 +868,9 @@ class _CustomTemplateBottomSheetContentState
             const SizedBox(height: 20),
 
             // Title
-            const Text(
-              'قالب مخصص',
-              style: TextStyle(
+            Text(
+              l?.translate('invitation_custom_template') ?? 'Custom Template',
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -924,7 +939,7 @@ class _CustomTemplateBottomSheetContentState
                                   size: 48, color: AppColors.gray400),
                               const SizedBox(height: 12),
                               Text(
-                                'اضغط لرفع صورة',
+                                l?.translate('invitation_tap_to_upload') ?? 'Tap to upload image',
                                 style: TextStyle(
                                   color: AppColors.gray600,
                                   fontSize: 16,
@@ -932,7 +947,7 @@ class _CustomTemplateBottomSheetContentState
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'PNG, JPG (الحد الأقصى 1920x1920)',
+                                l?.translate('invitation_image_format') ?? 'PNG, JPG (max 1920x1920)',
                                 style: TextStyle(
                                   color: AppColors.gray400,
                                   fontSize: 12,
@@ -947,7 +962,7 @@ class _CustomTemplateBottomSheetContentState
 
             // Description
             Text(
-              'الوصف (اختياري)',
+              l?.translate('invitation_description_optional') ?? 'Description (optional)',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
@@ -959,7 +974,7 @@ class _CustomTemplateBottomSheetContentState
               controller: _descriptionController,
               maxLines: 3,
               decoration: InputDecoration(
-                hintText: 'صف ما تريده في التصميم...',
+                hintText: l?.translate('invitation_describe_design') ?? 'Describe what you want in the design...',
                 hintStyle: TextStyle(color: AppColors.gray400),
                 filled: true,
                 fillColor: Colors.white,
@@ -994,7 +1009,7 @@ class _CustomTemplateBottomSheetContentState
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'قد يترتب على الوصف رسوم تصميم إضافية.',
+                      l?.translate('invitation_design_fee_notice') ?? 'Design description may incur additional fees.',
                       style: TextStyle(
                         fontSize: 12,
                         color: AppColors.amber700,
@@ -1011,7 +1026,7 @@ class _CustomTemplateBottomSheetContentState
             SizedBox(
               width: double.infinity,
               child: PrimaryButton(
-                text: _getButtonText(),
+                text: _getButtonText(l),
                 onPressed: _canConfirm ? _onConfirm : null,
               ),
             ),
@@ -1020,7 +1035,7 @@ class _CustomTemplateBottomSheetContentState
               const SizedBox(height: 8),
               Center(
                 child: Text(
-                  'يرجى رفع صورة أو إدخال وصف',
+                  l?.translate('invitation_please_upload_or_describe') ?? 'Please upload an image or enter a description',
                   style: TextStyle(
                     fontSize: 12,
                     color: AppColors.gray500,

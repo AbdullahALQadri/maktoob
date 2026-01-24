@@ -31,6 +31,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
   bool _isLoading = false;
   bool _hasLocationPermission = false;
   bool _isCheckingPermission = true;
+  bool _mapLoadError = false;
 
   // Gaza bounds
   static const double _gazaMinLat = 31.2169;
@@ -214,6 +215,102 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
     }
   }
 
+  Widget _buildGoogleMap() {
+    try {
+      return GoogleMap(
+        initialCameraPosition: CameraPosition(
+          target: _selectedPosition ?? _gazaCenter,
+          zoom: 12,
+        ),
+        onMapCreated: (controller) {
+          _mapController = controller;
+        },
+        onTap: _onMapTapped,
+        markers: _selectedPosition != null
+            ? {
+                Marker(
+                  markerId: const MarkerId('selected'),
+                  position: _selectedPosition!,
+                  infoWindow: InfoWindow(
+                    title: 'الموقع المحدد',
+                    snippet: _selectedAddress,
+                  ),
+                ),
+              }
+            : {},
+        cameraTargetBounds: widget.restrictToGaza
+            ? CameraTargetBounds(_gazaBounds)
+            : CameraTargetBounds.unbounded,
+        minMaxZoomPreference: const MinMaxZoomPreference(3, 18),
+        mapType: MapType.normal,
+        myLocationEnabled: _hasLocationPermission,
+        myLocationButtonEnabled: _hasLocationPermission,
+        zoomControlsEnabled: true,
+      );
+    } catch (e) {
+      debugPrint('Error building Google Map: $e');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            _mapLoadError = true;
+          });
+        }
+      });
+      return _buildMapErrorWidget();
+    }
+  }
+
+  Widget _buildMapErrorWidget() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.map_outlined,
+              size: 80,
+              color: Colors.grey.shade400,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'تعذر تحميل الخريطة',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey.shade700,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade600,
+              ),
+            ),
+            const SizedBox(height: 24),
+            AppButton(
+              text: 'إعادة المحاولة',
+              onPressed: () {
+                setState(() {
+                  _mapLoadError = false;
+                });
+              },
+              width: 200,
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('العودة'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // Show loading while checking permission
@@ -240,35 +337,11 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
       ),
       body: Stack(
         children: [
-          // Google Map
-          GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: _selectedPosition ?? _gazaCenter,
-              zoom: 12,
-            ),
-            onMapCreated: (controller) {
-              _mapController = controller;
-            },
-            onTap: _onMapTapped,
-            markers: _selectedPosition != null
-                ? {
-                    Marker(
-                      markerId: const MarkerId('selected'),
-                      position: _selectedPosition!,
-                      infoWindow: InfoWindow(
-                        title: 'الموقع المحدد',
-                        snippet: _selectedAddress,
-                      ),
-                    ),
-                  }
-                : {},
-            cameraTargetBounds: widget.restrictToGaza ? CameraTargetBounds(_gazaBounds) : CameraTargetBounds.unbounded,
-            minMaxZoomPreference: const MinMaxZoomPreference(3, 18),
-            mapType: MapType.normal,
-            myLocationEnabled: _hasLocationPermission,
-            myLocationButtonEnabled: _hasLocationPermission,
-            zoomControlsEnabled: true,
-          ),
+          // Google Map with error handling
+          if (_mapLoadError)
+            _buildMapErrorWidget()
+          else
+            _buildGoogleMap(),
 
           // Address display and confirm button
           Positioned(

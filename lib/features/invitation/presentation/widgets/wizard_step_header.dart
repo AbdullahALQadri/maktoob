@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
 
 /// Header widget for wizard steps showing progress
@@ -25,6 +26,10 @@ class WizardStepHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final progress = currentStep / totalSteps;
     final screenWidth = MediaQuery.of(context).size.width;
+    final localizations = AppLocalizations.of(context);
+    final stepText = localizations != null
+        ? '${localizations.translate('wizard_step')} $currentStep ${localizations.translate('wizard_of')} $totalSteps'
+        : 'Step $currentStep of $totalSteps';
 
     return Container(
       width: double.infinity,
@@ -60,7 +65,7 @@ class WizardStepHeader extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    'Step $currentStep of $totalSteps',
+                    stepText,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,

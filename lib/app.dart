@@ -3,26 +3,27 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'config/routes/app_routes.dart';
-import 'core/utils/app_colors.dart';
+import 'config/locale/app_localizations_setup.dart';
 import 'config/screens/main_shell.dart';
 import 'config/themes/app_theme.dart';
+import 'core/utils/app_colors.dart';
 import 'core/utils/app_strings.dart';
 import 'core/widgets/network/offline_wrapper.dart';
 import 'features/authentication/presentation/cubit/auth_cubit.dart';
 import 'features/authentication/presentation/cubit/auth_state.dart';
 import 'features/authentication/presentation/screens/login_screen.dart';
 import 'features/authentication/presentation/screens/register_screen.dart';
-import 'features/events/presentation/cubit/events_list/events_list_cubit.dart';
-import 'features/events/presentation/cubit/event_details/event_details_cubit.dart';
 import 'features/events/presentation/cubit/create_event/create_event_cubit.dart';
+import 'features/events/presentation/cubit/event_details/event_details_cubit.dart';
+import 'features/events/presentation/cubit/events_list/events_list_cubit.dart';
 import 'features/home/presentation/cubit/home_cubit.dart';
 import 'features/invitation/presentation/cubit/invitation_cubit.dart';
 import 'features/invitation/presentation/screens/invitation_wizard_screen.dart';
 import 'features/payment/presentation/cubit/payment_cubit.dart';
 import 'features/scanner/presentation/cubit/scanner_cubit.dart';
-import 'features/venues/presentation/cubit/venues_cubit.dart';
 import 'features/settings/presentation/cubit/settings_cubit.dart';
+import 'features/settings/presentation/cubit/settings_state.dart';
+import 'features/venues/presentation/cubit/venues_cubit.dart';
 import 'injection_container.dart' as di;
 
 class Maktoob extends StatelessWidget {
@@ -32,6 +33,11 @@ class Maktoob extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        // Settings is loaded first for language preference
+        BlocProvider<SettingsCubit>(
+          lazy: false,
+          create: (_) => di.sl<SettingsCubit>(),
+        ),
         // Auth is checked first on app start
         BlocProvider<AuthCubit>(
           lazy: false,
@@ -72,35 +78,52 @@ class Maktoob extends StatelessWidget {
           lazy: true,
           create: (_) => di.sl<PaymentCubit>(),
         ),
-        // Settings is lazy loaded when settings screen is accessed
-        BlocProvider<SettingsCubit>(
-          lazy: true,
-          create: (_) => di.sl<SettingsCubit>(),
-        ),
         // Invitation feature - Golden Scenario flow
         BlocProvider<InvitationCubit>(
           lazy: true,
           create: (_) => di.sl<InvitationCubit>(),
         ),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        builder: (context, child) {
-          // Apply DevicePreview in debug mode
-          Widget result = child ?? const SizedBox.shrink();
+      child: BlocBuilder<SettingsCubit, SettingsState>(
+        builder: (context, settingsState) {
+          final isArabic = settingsState.language == AppLanguage.ar;
+          final locale = Locale(isArabic ? 'ar' : 'en');
 
-          if (kDebugMode) {
-            result = DevicePreview.appBuilder(context, result);
-          }
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            builder: (context, child) {
+              // Apply DevicePreview in debug mode
+              Widget result = child ?? const SizedBox.shrink();
 
-          // Wrap with OfflineWrapper to show offline banner
-          return OfflineWrapper(child: result);
+              if (kDebugMode) {
+                result = DevicePreview.appBuilder(context, result);
+              }
+
+              // Wrap with OfflineWrapper to show offline banner
+              // Also wrap with Directionality for RTL/LTR support
+              return Directionality(
+                textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+                child: OfflineWrapper(child: result),
+              );
+            },
+            title: AppStrings.appName,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            // Localization settings
+            locale: locale,
+            supportedLocales: AppLocalizationsSetup.supportedLocales,
+            localizationsDelegates:
+                AppLocalizationsSetup.localizationsDelegates,
+            localeResolutionCallback: (deviceLocale, supportedLocales) {
+              return AppLocalizationsSetup.localeResolutionCallback(
+                deviceLocale,
+                supportedLocales,
+              );
+            },
+            home: const MainShell(),
+            // home: const AuthWrapper(),
+          );
         },
-        title: AppStrings.appName,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        home: const MainShell(),
-        // home: const AuthWrapper(),
       ),
     );
   }
@@ -160,7 +183,8 @@ class _AuthWrapperState extends State<AuthWrapper> {
           return Scaffold(
             body: Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
+                valueColor:
+                    AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
               ),
             ),
           );

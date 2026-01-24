@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/widgets/buttons/primary_button.dart';
 import '../../../../core/widgets/buttons/secondary_button.dart';
@@ -28,6 +29,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return BlocBuilder<InvitationCubit, InvitationState>(
       builder: (context, state) {
         return Scaffold(
@@ -36,20 +38,19 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
             child: Column(
               children: [
                 // Step Header
-                const WizardStepHeader(
+                WizardStepHeader(
                   currentStep: 3,
                   totalSteps: 7,
-                  title: 'Preview',
-                  titleAr: 'معاينة الدعوة',
+                  title: l?.translate('invitation_step3_title') ?? 'Preview',
                 ),
 
                 // Content
                 Expanded(
-                  child: _buildContent(context, state),
+                  child: _buildContent(context, state, l),
                 ),
 
                 // Navigation Buttons
-                _buildBottomBar(context, state),
+                _buildBottomBar(context, state, l),
               ],
             ),
           ),
@@ -58,18 +59,18 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
     );
   }
 
-  Widget _buildContent(BuildContext context, InvitationState state) {
+  Widget _buildContent(BuildContext context, InvitationState state, AppLocalizations? l) {
     // Show loading state
     if (state.isLoadingPreview) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
             Text(
-              'Loading preview...',
-              style: TextStyle(
+              l?.translate('invitation_loading_preview') ?? 'Loading preview...',
+              style: const TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
               ),
@@ -102,10 +103,10 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
                   color: AppColors.primaryColor,
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'This is a preview of your invitation',
-                    style: TextStyle(fontSize: 14),
+                    l?.translate('invitation_preview_info') ?? 'This is a preview of your invitation',
+                    style: const TextStyle(fontSize: 14),
                   ),
                 ),
               ],
@@ -115,18 +116,18 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
           const SizedBox(height: 24),
 
           // Preview Image
-          _buildPreviewImage(state),
+          _buildPreviewImage(state, l),
 
           const SizedBox(height: 24),
 
           // Event Details Summary
-          _buildEventDetailsSummary(state),
+          _buildEventDetailsSummary(state, l),
         ],
       ),
     );
   }
 
-  Widget _buildPreviewImage(InvitationState state) {
+  Widget _buildPreviewImage(InvitationState state, AppLocalizations? l) {
     // If user uploaded custom template, show that
     if (state.uploadedTemplateFile != null) {
       return Container(
@@ -149,7 +150,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
             cacheHeight: 800, // Limit image size for performance
             errorBuilder: (context, error, stackTrace) {
               debugPrint('Error loading file image: $error');
-              return _buildPlaceholder();
+              return _buildPlaceholder(l);
             },
           ),
         ),
@@ -191,7 +192,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
             },
             errorBuilder: (context, error, stackTrace) {
               debugPrint('Error loading network image: $error');
-              return _buildPlaceholder();
+              return _buildPlaceholder(l);
             },
           ),
         ),
@@ -199,10 +200,10 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
     }
 
     // No preview available - show placeholder
-    return _buildPlaceholder();
+    return _buildPlaceholder(l);
   }
 
-  Widget _buildPlaceholder() {
+  Widget _buildPlaceholder(AppLocalizations? l) {
     return Container(
       height: 300,
       decoration: BoxDecoration(
@@ -220,7 +221,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'No preview available',
+            l?.translate('invitation_no_preview') ?? 'No preview available',
             style: TextStyle(
               fontSize: 16,
               color: Colors.grey.shade600,
@@ -228,7 +229,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'You can continue to the next step',
+            l?.translate('invitation_continue_next_step') ?? 'You can continue to the next step',
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey.shade500,
@@ -239,7 +240,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
     );
   }
 
-  Widget _buildEventDetailsSummary(InvitationState state) {
+  Widget _buildEventDetailsSummary(InvitationState state, AppLocalizations? l) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -260,9 +261,9 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
             children: [
               Icon(Icons.event_note, color: AppColors.primaryColor),
               const SizedBox(width: 8),
-              const Text(
-                'Event Details',
-                style: TextStyle(
+              Text(
+                l?.translate('invitation_event_details') ?? 'Event Details',
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -275,14 +276,14 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
 
           // Event Name
           _buildDetailRow(
-            'Event Name',
+            l?.translate('invitation_event_name_label') ?? 'Event Name',
             state.eventName ?? '-',
             Icons.celebration,
           ),
 
           // Event Type
           _buildDetailRow(
-            'Event Type',
+            l?.translate('invitation_event_type_label') ?? 'Event Type',
             state.selectedEventType?.name ?? state.customEventTypeName ?? '-',
             Icons.category,
           ),
@@ -290,7 +291,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
           // Date
           if (state.eventDate != null)
             _buildDetailRow(
-              'Date',
+              l?.translate('invitation_date_label') ?? 'Date',
               '${state.eventDate!.day}/${state.eventDate!.month}/${state.eventDate!.year}',
               Icons.calendar_today,
             ),
@@ -298,7 +299,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
           // Time
           if (state.eventTime != null)
             _buildDetailRow(
-              'Time',
+              l?.translate('invitation_time_label') ?? 'Time',
               '${state.eventTime!.hour.toString().padLeft(2, '0')}:${state.eventTime!.minute.toString().padLeft(2, '0')}',
               Icons.access_time,
             ),
@@ -306,7 +307,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
           // Location
           if (state.selectedVenue != null || state.customLocation != null)
             _buildDetailRow(
-              'Location',
+              l?.translate('invitation_location_label') ?? 'Location',
               state.selectedVenue?.name ?? state.customLocation?.address ?? '-',
               Icons.location_on,
             ),
@@ -350,7 +351,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
     );
   }
 
-  Widget _buildBottomBar(BuildContext context, InvitationState state) {
+  Widget _buildBottomBar(BuildContext context, InvitationState state, AppLocalizations? l) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -368,7 +369,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
           children: [
             Expanded(
               child: SecondaryButton(
-                text: 'Back',
+                text: l?.translate('common_back') ?? 'Back',
                 onPressed: () => context.read<InvitationCubit>().previousStep(),
               ),
             ),
@@ -376,7 +377,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
             Expanded(
               flex: 2,
               child: PrimaryButton(
-                text: 'Next',
+                text: l?.translate('common_next') ?? 'Next',
                 onPressed: state.isLoadingPreview
                     ? null
                     : () => context.read<InvitationCubit>().nextStep(),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../cubit/invitation_cubit.dart';
@@ -34,6 +35,9 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final isEnglish = Localizations.localeOf(context).languageCode == 'en';
+
     return BlocConsumer<InvitationCubit, InvitationState>(
       listener: (context, state) {
         // Handle save success
@@ -46,7 +50,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
                   children: [
                     const Icon(Icons.check_circle, color: Colors.white),
                     const SizedBox(width: 8),
-                    const Text('تم الحفظ كمسودة بنجاح'),
+                    Text(l?.translate('invitation_draft_saved_success') ?? 'Draft saved successfully'),
                   ],
                 ),
                 backgroundColor: Colors.green,
@@ -61,7 +65,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
             }
           } else {
             // For full save, show success dialog
-            _showSuccessDialog(context, state.isSaveAsDraft);
+            _showSuccessDialog(context, state.isSaveAsDraft, l);
           }
         }
 
@@ -88,19 +92,19 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
             child: Column(
               children: [
                 // Step Header
-                const WizardStepHeader(
+                WizardStepHeader(
                   currentStep: 7,
                   totalSteps: 7,
-                  title: 'الفاتورة والحفظ',
+                  title: l?.translate('invitation_step7_title') ?? 'Invoice & Save',
                 ),
 
                 // Content
                 Expanded(
-                  child: _buildContent(context, state),
+                  child: _buildContent(context, state, l, isEnglish),
                 ),
 
                 // Action Buttons
-                _buildActionButtons(context, state),
+                _buildActionButtons(context, state, l),
               ],
             ),
           ),
@@ -109,17 +113,17 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
     );
   }
 
-  Widget _buildContent(BuildContext context, InvitationState state) {
+  Widget _buildContent(BuildContext context, InvitationState state, AppLocalizations? l, bool isEnglish) {
     if (state.isLoadingInvoice) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
             Text(
-              'جاري تحميل الفاتورة...',
-              style: TextStyle(
+              l?.translate('invitation_loading_invoice') ?? 'Loading invoice...',
+              style: const TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
               ),
@@ -143,7 +147,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'حدث خطأ أثناء تحميل الفاتورة',
+                l?.translate('invitation_invoice_error') ?? 'Error loading invoice',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -161,7 +165,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
               ),
               const SizedBox(height: 24),
               AppButton(
-                text: 'إعادة المحاولة',
+                text: l?.translate('common_retry') ?? 'Retry',
                 onPressed: () {
                   context.read<InvitationCubit>().loadInvoice();
                 },
@@ -183,7 +187,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),
@@ -193,19 +197,19 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Invoice Header
-              _buildInvoiceHeader(state),
+              _buildInvoiceHeader(state, l),
 
               // Event Details
-              _buildEventDetails(state),
+              _buildEventDetails(state, l, isEnglish),
 
               // Invoice Items
-              _buildInvoiceItems(state),
+              _buildInvoiceItems(state, l, isEnglish),
 
               // Total
-              _buildTotal(state),
+              _buildTotal(state, l),
 
               // Footer
-              _buildInvoiceFooter(),
+              _buildInvoiceFooter(l),
             ],
           ),
         ),
@@ -229,7 +233,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
     }
   }
 
-  Widget _buildInvoiceHeader(InvitationState state) {
+  Widget _buildInvoiceHeader(InvitationState state, AppLocalizations? l) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -248,9 +252,9 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
             size: 48,
           ),
           const SizedBox(height: 12),
-          const Text(
-            'فاتورة الحدث',
-            style: TextStyle(
+          Text(
+            l?.translate('invitation_event_invoice') ?? 'Event Invoice',
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -258,16 +262,16 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'رقم الفاتورة: ${state.invoiceSummary?.invoiceNumber ?? 'جديد'}',
+            '${l?.translate('invitation_invoice_number') ?? 'Invoice number'}: ${state.invoiceSummary?.invoiceNumber ?? (l?.translate('invitation_new') ?? 'New')}',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: 0.9),
               fontSize: 14,
             ),
           ),
           Text(
-            'التاريخ: ${_formatDate(DateTime.now())}',
+            '${l?.translate('invitation_date') ?? 'Date'}: ${_formatDate(DateTime.now())}',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: 0.9),
               fontSize: 14,
             ),
           ),
@@ -276,7 +280,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
     );
   }
 
-  Widget _buildEventDetails(InvitationState state) {
+  Widget _buildEventDetails(InvitationState state, AppLocalizations? l, bool isEnglish) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -288,7 +292,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'تفاصيل الحدث',
+            l?.translate('invitation_event_details') ?? 'Event Details',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -297,41 +301,41 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
           ),
           const SizedBox(height: 16),
           _buildDetailItem(
-            'اسم الحدث',
+            l?.translate('invitation_event_name_label') ?? 'Event Name',
             state.eventName ?? '-',
             Icons.celebration,
           ),
           _buildDetailItem(
-            'نوع الحدث',
-            state.selectedEventType?.nameAr ??
-                state.customEventTypeName ??
-                '-',
+            l?.translate('invitation_event_type_label') ?? 'Event Type',
+            isEnglish
+                ? (state.selectedEventType?.name ?? state.customEventTypeName ?? '-')
+                : (state.selectedEventType?.nameAr ?? state.customEventTypeName ?? '-'),
             Icons.category,
           ),
           _buildDetailItem(
-            'القالب',
+            l?.translate('invitation_template') ?? 'Template',
             state.uploadedTemplateFile != null
-                ? 'قالب مخصص'
-                : state.selectedTemplate?.nameAr ?? '-',
+                ? (l?.translate('invitation_custom_template') ?? 'Custom Template')
+                : (isEnglish ? (state.selectedTemplate?.name ?? '-') : (state.selectedTemplate?.nameAr ?? '-')),
             Icons.photo_library,
           ),
           if (state.eventDate != null)
             _buildDetailItem(
-              'تاريخ الحدث',
+              l?.translate('invitation_event_date') ?? 'Event Date',
               _formatDate(state.eventDate!),
               Icons.calendar_today,
             ),
           if (state.selectedVenue != null || state.customLocation != null)
             _buildDetailItem(
-              'الموقع',
-              state.selectedVenue?.nameAr ??
-                  state.customLocation?.address ??
-                  '-',
+              l?.translate('invitation_location_label') ?? 'Location',
+              isEnglish
+                  ? (state.selectedVenue?.name ?? state.customLocation?.address ?? '-')
+                  : (state.selectedVenue?.nameAr ?? state.customLocation?.address ?? '-'),
               Icons.location_on,
             ),
           _buildDetailItem(
-            'عدد المدعوين',
-            '${state.allGuests.length} مدعو',
+            l?.translate('invitation_guest_count') ?? 'Guest Count',
+            '${state.allGuests.length} ${l?.translate('invitation_guests') ?? 'guests'}',
             Icons.people,
           ),
         ],
@@ -371,7 +375,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
     );
   }
 
-  Widget _buildInvoiceItems(InvitationState state) {
+  Widget _buildInvoiceItems(InvitationState state, AppLocalizations? l, bool isEnglish) {
     final invoice = state.invoiceSummary;
 
     return Container(
@@ -380,7 +384,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'تفاصيل الفاتورة',
+            l?.translate('invitation_invoice_details') ?? 'Invoice Details',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -401,17 +405,17 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
             ),
             child: Row(
               children: [
-                const Expanded(
+                Expanded(
                   flex: 3,
                   child: Text(
-                    'البند',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    l?.translate('invitation_item') ?? 'Item',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 Expanded(
                   flex: 2,
                   child: Text(
-                    'السعر',
+                    l?.translate('invitation_price') ?? 'Price',
                     textAlign: TextAlign.left,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
@@ -422,7 +426,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
 
           // Package
           _buildInvoiceRow(
-            'الباقة: ${state.selectedPackage?.nameAr ?? '-'}',
+            '${l?.translate('invitation_package') ?? 'Package'}: ${isEnglish ? (state.selectedPackage?.name ?? '-') : (state.selectedPackage?.nameAr ?? '-')}',
             state.selectedPackage?.isCustom == true &&
                     state.customPackagePrice != null
                 ? state.customPackagePrice!
@@ -432,7 +436,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
           // Custom Template Fee
           if (state.uploadedTemplateFile != null)
             _buildInvoiceRow(
-              'رسوم القالب المخصص',
+              l?.translate('invitation_custom_template_fee') ?? 'Custom Template Fee',
               invoice?.templateFee ?? 50,
             ),
 
@@ -448,7 +452,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
               child: Row(
                 children: [
                   Text(
-                    'الخدمات الإضافية:',
+                    '${l?.translate('invitation_extra_services') ?? 'Extra Services'}:',
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey.shade600,
@@ -460,7 +464,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
             ),
             ...state.selectedServices.map(
               (service) => _buildInvoiceRow(
-                '  • ${service.nameAr}',
+                '  • ${isEnglish ? service.name : service.nameAr}',
                 service.price,
                 indent: true,
               ),
@@ -507,7 +511,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
     );
   }
 
-  Widget _buildTotal(InvitationState state) {
+  Widget _buildTotal(InvitationState state, AppLocalizations? l) {
     final invoice = state.invoiceSummary;
     double total = 0;
 
@@ -536,13 +540,13 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.1),
+        color: AppColors.primary.withValues(alpha: 0.1),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'الإجمالي',
+            l?.translate('invitation_total') ?? 'Total',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -569,7 +573,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
     );
   }
 
-  Widget _buildInvoiceFooter() {
+  Widget _buildInvoiceFooter(AppLocalizations? l) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -581,7 +585,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
       child: Column(
         children: [
           Text(
-            'شكراً لاستخدامكم تطبيق مكتوب',
+            l?.translate('invitation_thank_you') ?? 'Thank you for using Maktoob app',
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey.shade600,
@@ -589,7 +593,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'للدعم الفني: support@maktoob.app',
+            '${l?.translate('invitation_support') ?? 'For support'}: support@maktoob.app',
             style: TextStyle(
               fontSize: 12,
               color: Colors.grey.shade500,
@@ -600,14 +604,14 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context, InvitationState state) {
+  Widget _buildActionButtons(BuildContext context, InvitationState state, AppLocalizations? l) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -4),
           ),
@@ -635,7 +639,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'سيتم إرسال الفاتورة عبر واتساب أو داخل التطبيق',
+                    l?.translate('invitation_invoice_delivery_notice') ?? 'Invoice will be sent via WhatsApp or within the app',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.green.shade700,
@@ -651,7 +655,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
               // Back Button
               Expanded(
                 child: AppButton(
-                  text: 'السابق',
+                  text: l?.translate('common_back') ?? 'Back',
                   onPressed: state.isSaving
                       ? null
                       : () {
@@ -667,7 +671,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
               // Save as Draft Button
               Expanded(
                 child: AppButton(
-                  text: 'حفظ كمسودة',
+                  text: l?.translate('invitation_save_draft') ?? 'Save Draft',
                   onPressed: state.isSaving
                       ? null
                       : () async {
@@ -685,7 +689,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
               Expanded(
                 flex: 2,
                 child: AppButton(
-                  text: 'حفظ وإرسال',
+                  text: l?.translate('invitation_save_send') ?? 'Save & Send',
                   onPressed: state.isSaving
                       ? null
                       : () async {
@@ -708,7 +712,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
     );
   }
 
-  void _showSuccessDialog(BuildContext context, bool isDraft) {
+  void _showSuccessDialog(BuildContext context, bool isDraft, AppLocalizations? l) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -731,7 +735,9 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              isDraft ? 'تم الحفظ كمسودة' : 'تم الحفظ بنجاح!',
+              isDraft
+                  ? (l?.translate('invitation_saved_as_draft') ?? 'Saved as Draft')
+                  : (l?.translate('invitation_saved_successfully') ?? 'Saved Successfully!'),
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -740,8 +746,8 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
             const SizedBox(height: 8),
             Text(
               isDraft
-                  ? 'يمكنك متابعة إنشاء الحدث لاحقاً'
-                  : 'تم إرسال الفاتورة عبر واتساب',
+                  ? (l?.translate('invitation_continue_later') ?? 'You can continue creating the event later')
+                  : (l?.translate('invitation_sent_via_whatsapp') ?? 'Invoice sent via WhatsApp'),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
@@ -752,7 +758,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
         ),
         actions: [
           AppButton(
-            text: 'العودة للرئيسية',
+            text: l?.translate('invitation_back_to_home') ?? 'Back to Home',
             onPressed: () {
               Navigator.of(dialogContext).pop(); // Close dialog
               // Call onComplete callback if provided, otherwise pop wizard

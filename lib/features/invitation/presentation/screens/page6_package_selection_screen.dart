@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
@@ -38,11 +39,14 @@ class _Page6PackageSelectionScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final isEnglish = Localizations.localeOf(context).languageCode == 'en';
+
     return BlocConsumer<InvitationCubit, InvitationState>(
       listener: (context, state) {
         // Show validation error if needed
         if (state.packageValidationError) {
-          _showValidationWarning(context, state);
+          _showValidationWarning(context, state, l);
         }
 
         // Update custom limit controller if needed
@@ -59,22 +63,22 @@ class _Page6PackageSelectionScreenState
             child: Column(
               children: [
                 // Step Header
-                const WizardStepHeader(
+                WizardStepHeader(
                   currentStep: 6,
                   totalSteps: 7,
-                  title: 'اختيار الباقة',
+                  title: l?.translate('invitation_step6_title') ?? 'Package Selection',
                 ),
 
                 // Guest Count Info
-                _buildGuestCountInfo(state),
+                _buildGuestCountInfo(state, l),
 
                 // Content
                 Expanded(
-                  child: _buildContent(context, state),
+                  child: _buildContent(context, state, l, isEnglish),
                 ),
 
                 // Navigation Buttons
-                _buildNavigationButtons(context, state),
+                _buildNavigationButtons(context, state, l),
               ],
             ),
           ),
@@ -83,7 +87,7 @@ class _Page6PackageSelectionScreenState
     );
   }
 
-  Widget _buildGuestCountInfo(InvitationState state) {
+  Widget _buildGuestCountInfo(InvitationState state, AppLocalizations? l) {
     final guestCount = state.allGuests.length;
     final packageLimit = state.selectedPackage?.invitationLimit ?? 0;
     final isOverLimit =
@@ -105,7 +109,7 @@ class _Page6PackageSelectionScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'عدد المدعوين: $guestCount',
+                  '${l?.translate('invitation_guest_count') ?? 'Guest count'}: $guestCount',
                   style: TextStyle(
                     color: isOverLimit ? Colors.red.shade900 : Colors.white,
                     fontSize: 16,
@@ -114,7 +118,7 @@ class _Page6PackageSelectionScreenState
                 ),
                 if (state.selectedPackage != null)
                   Text(
-                    'حد الباقة: $packageLimit دعوة',
+                    '${l?.translate('invitation_package_limit') ?? 'Package limit'}: $packageLimit ${l?.translate('invitation_invitations') ?? 'invitations'}',
                     style: TextStyle(
                       color: isOverLimit
                           ? Colors.red.shade700
@@ -132,9 +136,9 @@ class _Page6PackageSelectionScreenState
                 color: Colors.red.shade700,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Text(
-                'تجاوز الحد!',
-                style: TextStyle(
+              child: Text(
+                l?.translate('invitation_limit_exceeded') ?? 'Limit exceeded!',
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -146,17 +150,17 @@ class _Page6PackageSelectionScreenState
     );
   }
 
-  Widget _buildContent(BuildContext context, InvitationState state) {
+  Widget _buildContent(BuildContext context, InvitationState state, AppLocalizations? l, bool isEnglish) {
     if (state.isLoadingPackages) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
             Text(
-              'جاري تحميل الباقات...',
-              style: TextStyle(
+              l?.translate('invitation_loading_packages') ?? 'Loading packages...',
+              style: const TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
               ),
@@ -180,7 +184,7 @@ class _Page6PackageSelectionScreenState
               ),
               const SizedBox(height: 16),
               Text(
-                'حدث خطأ أثناء تحميل الباقات',
+                l?.translate('invitation_packages_error') ?? 'Error loading packages',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -198,7 +202,7 @@ class _Page6PackageSelectionScreenState
               ),
               const SizedBox(height: 24),
               AppButton(
-                text: 'إعادة المحاولة',
+                text: l?.translate('common_retry') ?? 'Retry',
                 onPressed: () {
                   context.read<InvitationCubit>().loadPackages();
                 },
@@ -224,7 +228,7 @@ class _Page6PackageSelectionScreenState
               ),
               const SizedBox(height: 16),
               Text(
-                'لا توجد باقات متاحة',
+                l?.translate('invitation_no_packages') ?? 'No packages available',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -244,7 +248,7 @@ class _Page6PackageSelectionScreenState
         children: [
           // Info text
           Text(
-            'اختر الباقة المناسبة لعدد المدعوين',
+            l?.translate('invitation_select_package') ?? 'Select the appropriate package for your guest count',
             style: TextStyle(
               fontSize: 15,
               color: Colors.grey.shade700,
@@ -262,6 +266,8 @@ class _Page6PackageSelectionScreenState
               package,
               isSelected,
               isCustom,
+              l,
+              isEnglish,
             );
           }),
         ],
@@ -275,6 +281,8 @@ class _Page6PackageSelectionScreenState
     PackageModel package,
     bool isSelected,
     bool isCustom,
+    AppLocalizations? l,
+    bool isEnglish,
   ) {
     final guestCount = state.allGuests.length;
     final isOverLimit =
@@ -297,7 +305,7 @@ class _Page6PackageSelectionScreenState
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.primary.withOpacity(0.1)
+              ? AppColors.primary.withValues(alpha: 0.1)
               : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
@@ -310,7 +318,7 @@ class _Page6PackageSelectionScreenState
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -354,7 +362,7 @@ class _Page6PackageSelectionScreenState
                       Row(
                         children: [
                           Text(
-                            package.nameAr,
+                            isEnglish ? package.name : package.nameAr,
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -373,7 +381,7 @@ class _Page6PackageSelectionScreenState
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
-                                'مخصص',
+                                l?.translate('invitation_custom') ?? 'Custom',
                                 style: TextStyle(
                                   fontSize: 10,
                                   color: Colors.purple.shade800,
@@ -386,7 +394,7 @@ class _Page6PackageSelectionScreenState
                       ),
                       if (package.name != package.nameAr)
                         Text(
-                          package.name,
+                          isEnglish ? package.nameAr : package.name,
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey.shade600,
@@ -491,7 +499,7 @@ class _Page6PackageSelectionScreenState
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'حد الدعوات: ${package.invitationLimit}',
+                        '${l?.translate('invitation_invitation_limit') ?? 'Invitation limit'}: ${package.invitationLimit}',
                         style: TextStyle(
                           fontSize: 13,
                           color: isOverLimit
@@ -504,7 +512,7 @@ class _Page6PackageSelectionScreenState
                     ),
                     if (isOverLimit)
                       Text(
-                        'تجاوز بـ ${guestCount - package.invitationLimit!}',
+                        '${l?.translate('invitation_exceeded_by') ?? 'Exceeded by'} ${guestCount - package.invitationLimit!}',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.red.shade700,
@@ -529,7 +537,7 @@ class _Page6PackageSelectionScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'حدد عدد الدعوات المطلوب',
+                      l?.translate('invitation_specify_invitations') ?? 'Specify the number of invitations needed',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.purple.shade800,
@@ -537,7 +545,7 @@ class _Page6PackageSelectionScreenState
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'الحد الأدنى: $guestCount (عدد المدعوين الحالي)',
+                      '${l?.translate('invitation_minimum') ?? 'Minimum'}: $guestCount (${l?.translate('invitation_current_guest_count') ?? 'current guest count'})',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.purple.shade600,
@@ -546,7 +554,7 @@ class _Page6PackageSelectionScreenState
                     const SizedBox(height: 12),
                     AppTextField(
                       controller: _customLimitController,
-                      hintText: 'عدد الدعوات',
+                      hintText: l?.translate('invitation_number_of_invitations') ?? 'Number of invitations',
                       keyboardType: TextInputType.number,
                       inputFormatters: [
                         FilteringTextInputFormatter.digitsOnly,
@@ -570,7 +578,7 @@ class _Page6PackageSelectionScreenState
     );
   }
 
-  void _showValidationWarning(BuildContext context, InvitationState state) {
+  void _showValidationWarning(BuildContext context, InvitationState state, AppLocalizations? l) {
     final guestCount = state.allGuests.length;
     final packageLimit = state.selectedPackage?.invitationLimit ?? 0;
 
@@ -584,7 +592,7 @@ class _Page6PackageSelectionScreenState
               color: Colors.orange.shade700,
             ),
             const SizedBox(width: 8),
-            const Text('تجاوز حد الباقة'),
+            Text(l?.translate('invitation_package_limit_exceeded_title') ?? 'Package Limit Exceeded'),
           ],
         ),
         content: Column(
@@ -592,30 +600,30 @@ class _Page6PackageSelectionScreenState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'عدد المدعوين ($guestCount) يتجاوز حد الباقة المختارة ($packageLimit).',
+              '${l?.translate('invitation_guest_count_exceeds') ?? 'Guest count'} ($guestCount) ${l?.translate('invitation_exceeds_package_limit') ?? 'exceeds the selected package limit'} ($packageLimit).',
             ),
             const SizedBox(height: 16),
-            const Text(
-              'الخيارات المتاحة:',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            Text(
+              l?.translate('invitation_available_options') ?? 'Available options:',
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const Text('• اختر باقة بحد أعلى'),
-            const Text('• اختر الباقة المخصصة'),
-            const Text('• قم بتقليل عدد المدعوين'),
+            Text('• ${l?.translate('invitation_option_higher_package') ?? 'Select a package with a higher limit'}'),
+            Text('• ${l?.translate('invitation_option_custom_package') ?? 'Select the custom package'}'),
+            Text('• ${l?.translate('invitation_option_reduce_guests') ?? 'Reduce the number of guests'}'),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('حسناً'),
+            child: Text(l?.translate('common_ok') ?? 'OK'),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildNavigationButtons(BuildContext context, InvitationState state) {
+  Widget _buildNavigationButtons(BuildContext context, InvitationState state, AppLocalizations? l) {
     final canProceed = state.canProceedFromPackageSelection;
 
     return Container(
@@ -624,7 +632,7 @@ class _Page6PackageSelectionScreenState
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -4),
           ),
@@ -654,7 +662,7 @@ class _Page6PackageSelectionScreenState
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'عدد المدعوين يتجاوز حد الباقة. يرجى اختيار باقة أخرى أو تقليل المدعوين.',
+                      l?.translate('invitation_guest_exceeds_package_message') ?? 'Guest count exceeds package limit. Please select another package or reduce guests.',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.red.shade700,
@@ -670,7 +678,7 @@ class _Page6PackageSelectionScreenState
               // Back Button
               Expanded(
                 child: AppButton(
-                  text: 'السابق',
+                  text: l?.translate('common_back') ?? 'Back',
                   onPressed: () {
                     context.read<InvitationCubit>().previousStep();
                   },
@@ -685,7 +693,7 @@ class _Page6PackageSelectionScreenState
               Expanded(
                 flex: 2,
                 child: AppButton(
-                  text: 'التالي',
+                  text: l?.translate('common_next') ?? 'Next',
                   onPressed: canProceed
                       ? () {
                           context.read<InvitationCubit>().nextStep();

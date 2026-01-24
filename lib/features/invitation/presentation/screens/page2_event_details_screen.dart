@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/widgets/buttons/primary_button.dart';
 import '../../../../core/widgets/buttons/secondary_button.dart';
@@ -49,17 +50,17 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final l = AppLocalizations.of(context);
 
     return BlocBuilder<InvitationCubit, InvitationState>(
       builder: (context, state) {
         return Column(
           children: [
             // Step Header
-            const WizardStepHeader(
+            WizardStepHeader(
               currentStep: 2,
               totalSteps: 7,
-              title: 'Event Details',
-              titleAr: 'تفاصيل المناسبة',
+              title: l?.translate('invitation_step2_title') ?? 'Event Details',
             ),
 
             Expanded(
@@ -73,11 +74,11 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
                       const SizedBox(height: 20),
 
                       // Event Name (Required)
-                      _buildSectionTitle('Event Name *', 'اسم المناسبة *'),
+                      _buildSectionTitle(l?.translate('invitation_event_name_required') ?? 'Event Name *'),
                       const SizedBox(height: 8),
                       AppTextField(
                         controller: _nameController,
-                        hintText: 'Enter event name',
+                        hintText: l?.translate('invitation_enter_event_name') ?? 'Enter event name',
                         prefixIcon: Icons.event,
                         onChanged: (value) {
                           context.read<InvitationCubit>().updateEventName(value);
@@ -87,12 +88,11 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
                       const SizedBox(height: 20),
 
                       // Description (Optional)
-                      _buildSectionTitle(
-                          'Description (Optional)', 'الوصف (اختياري)'),
+                      _buildSectionTitle(l?.translate('invitation_description_optional_label') ?? 'Description (Optional)'),
                       const SizedBox(height: 8),
                       AppTextField(
                         controller: _descriptionController,
-                        hintText: 'Add a description for your event...',
+                        hintText: l?.translate('invitation_add_event_description') ?? 'Add a description for your event...',
                         prefixIcon: Icons.description_outlined,
                         maxLines: 3,
                         onChanged: (value) {
@@ -105,48 +105,33 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
                       const SizedBox(height: 20),
 
                       // Date (Required)
-                      _buildSectionTitle('Date *', 'التاريخ *'),
+                      _buildSectionTitle(l?.translate('invitation_date_required') ?? 'Date *'),
                       const SizedBox(height: 8),
-                      _buildDatePicker(context, state),
+                      _buildDatePicker(context, state, l),
 
                       const SizedBox(height: 20),
 
-                      // Time (Optional)
-                      _buildSectionTitle('Time (Optional)', 'الوقت (اختياري)'),
+                      // Time (Required)
+                      _buildSectionTitle(l?.translate('invitation_time_required') ?? 'Time *'),
                       const SizedBox(height: 8),
-                      _buildTimePicker(context, state),
+                      _buildTimePicker(context, state, l),
 
                       const SizedBox(height: 20),
 
                       // Location (Required)
-                      _buildSectionTitle('Location *', 'الموقع *'),
+                      _buildSectionTitle(l?.translate('invitation_location_required') ?? 'Location *'),
                       const SizedBox(height: 8),
-                      _buildLocationSection(context, state),
+                      _buildLocationSection(context, state, l),
 
                       const SizedBox(height: 20),
 
-                      // Partner with Guests (Optional)
-                      _buildSectionTitle(
-                        'Companions per Guest (Optional)',
-                        'عدد المرافقين لكل ضيف (اختياري)',
-                      ),
-                      const SizedBox(height: 8),
-                      AppTextField(
-                        controller: _partnerController,
-                        hintText: 'Number of companions allowed',
-                        prefixIcon: Icons.people_outline,
-                        keyboardType: TextInputType.number,
-                        onChanged: (value) {
-                          context
-                              .read<InvitationCubit>()
-                              .updatePartnerWithGuests(int.tryParse(value));
-                        },
-                      ),
+                      // Partner with Guests (Optional) - Switch + Number
+                      _buildCompanionsSection(context, state, l),
 
                       // Event Type Form Fields (hidden for custom type/uploaded template)
                       if (!state.isCustomEventType && !state.isCustomTemplate) ...[
                         const SizedBox(height: 20),
-                        _buildEventTypeFormFields(context, state),
+                        _buildEventTypeFormFields(context, state, l),
                       ],
 
                       const SizedBox(height: 100),
@@ -157,14 +142,14 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
             ),
 
             // Bottom Buttons
-            _buildBottomBar(context, state),
+            _buildBottomBar(context, state, l),
           ],
         );
       },
     );
   }
 
-  Widget _buildSectionTitle(String title, String titleAr) {
+  Widget _buildSectionTitle(String title) {
     return Text(
       title,
       style: TextStyle(
@@ -175,7 +160,150 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
     );
   }
 
-  Widget _buildDatePicker(BuildContext context, InvitationState state) {
+  Widget _buildCompanionsSection(BuildContext context, InvitationState state, AppLocalizations? l) {
+    final isEnabled = state.partnerWithGuests != null && state.partnerWithGuests! > 0;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Switch row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.people_outline,
+                    color: AppColors.primary,
+                    size: 22,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    l?.translate('invitation_allow_companions') ?? 'Allow Companions',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey.shade800,
+                    ),
+                  ),
+                ],
+              ),
+              Switch(
+                value: isEnabled,
+                onChanged: (value) {
+                  if (value) {
+                    // Enable with default value of 1
+                    context.read<InvitationCubit>().updatePartnerWithGuests(1);
+                    _partnerController.text = '1';
+                  } else {
+                    // Disable companions
+                    context.read<InvitationCubit>().updatePartnerWithGuests(null);
+                    _partnerController.clear();
+                  }
+                },
+                activeTrackColor: AppColors.primary.withValues(alpha: 0.5),
+                activeThumbColor: AppColors.primary,
+              ),
+            ],
+          ),
+
+          // Number picker (only show when enabled)
+          if (isEnabled) ...[
+            const SizedBox(height: 16),
+            Text(
+              l?.translate('invitation_companions_count') ?? 'Number of companions per guest (1-10)',
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey.shade600,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                // Decrease button
+                _buildCompanionButton(
+                  icon: Icons.remove,
+                  onPressed: (state.partnerWithGuests ?? 1) > 1
+                      ? () {
+                          final newValue = (state.partnerWithGuests ?? 1) - 1;
+                          context.read<InvitationCubit>().updatePartnerWithGuests(newValue);
+                          _partnerController.text = newValue.toString();
+                        }
+                      : null,
+                ),
+
+                // Number display
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '${state.partnerWithGuests ?? 1}',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Increase button
+                _buildCompanionButton(
+                  icon: Icons.add,
+                  onPressed: (state.partnerWithGuests ?? 1) < 10
+                      ? () {
+                          final newValue = (state.partnerWithGuests ?? 1) + 1;
+                          context.read<InvitationCubit>().updatePartnerWithGuests(newValue);
+                          _partnerController.text = newValue.toString();
+                        }
+                      : null,
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCompanionButton({
+    required IconData icon,
+    required VoidCallback? onPressed,
+  }) {
+    return Material(
+      color: onPressed != null ? AppColors.primary : Colors.grey.shade300,
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          width: 48,
+          height: 48,
+          alignment: Alignment.center,
+          child: Icon(
+            icon,
+            color: Colors.white,
+            size: 24,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDatePicker(BuildContext context, InvitationState state, AppLocalizations? l) {
     return GestureDetector(
       onTap: () => _selectDate(context),
       child: Container(
@@ -193,7 +321,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
               child: Text(
                 state.eventDate != null
                     ? _formatDate(state.eventDate!)
-                    : 'Select date',
+                    : l?.translate('invitation_select_date') ?? 'Select date',
                 style: TextStyle(
                   color: state.eventDate != null
                       ? AppColors.gray800
@@ -235,7 +363,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
     }
   }
 
-  Widget _buildTimePicker(BuildContext context, InvitationState state) {
+  Widget _buildTimePicker(BuildContext context, InvitationState state, AppLocalizations? l) {
     return GestureDetector(
       onTap: () => _selectTime(context),
       child: Container(
@@ -253,7 +381,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
               child: Text(
                 state.eventTime != null
                     ? _formatTime(state.eventTime!)
-                    : 'Select time (optional)',
+                    : l?.translate('invitation_select_time') ?? 'Select time',
                 style: TextStyle(
                   color: state.eventTime != null
                       ? AppColors.gray800
@@ -301,20 +429,20 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
     }
   }
 
-  Widget _buildLocationSection(BuildContext context, InvitationState state) {
+  Widget _buildLocationSection(BuildContext context, InvitationState state, AppLocalizations? l) {
     return Column(
       children: [
         // Selected location display
         if (state.selectedVenue != null || state.customLocation != null)
-          _buildSelectedLocation(context, state),
+          _buildSelectedLocation(context, state, l),
 
         if (state.selectedVenue == null && state.customLocation == null) ...[
           // Venue list option
           _buildLocationOption(
             icon: Icons.location_city,
-            title: 'Select from Venues',
-            subtitle: 'Choose from available venues',
-            onTap: () => _showVenueSelector(context, state),
+            title: l?.translate('invitation_select_from_venues') ?? 'Select from Venues',
+            subtitle: l?.translate('invitation_choose_available_venues') ?? 'Choose from available venues',
+            onTap: () => _showVenueSelector(context, state, l),
           ),
 
           const SizedBox(height: 12),
@@ -322,8 +450,8 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
           // Google Maps option
           _buildLocationOption(
             icon: Icons.map_outlined,
-            title: 'Choose on Map',
-            subtitle: 'Gaza area only',
+            title: l?.translate('invitation_choose_on_map') ?? 'Choose on Map',
+            subtitle: l?.translate('invitation_gaza_area_only') ?? 'Gaza area only',
             onTap: () => _showGoogleMapsPicker(context),
           ),
         ],
@@ -331,11 +459,11 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
     );
   }
 
-  Widget _buildSelectedLocation(BuildContext context, InvitationState state) {
+  Widget _buildSelectedLocation(BuildContext context, InvitationState state, AppLocalizations? l) {
     final isVenue = state.selectedVenue != null;
     final title = isVenue
         ? state.selectedVenue!.name
-        : (state.customLocation?.placeName ?? 'Custom Location');
+        : (state.customLocation?.placeName ?? l?.translate('invitation_custom_location') ?? 'Custom Location');
     final subtitle = isVenue
         ? state.selectedVenue!.address
         : state.customLocation?.address;
@@ -458,10 +586,10 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
     );
   }
 
-  void _showVenueSelector(BuildContext context, InvitationState state) {
+  void _showVenueSelector(BuildContext context, InvitationState state, AppLocalizations? l) {
     AppBottomSheet.show(
       context,
-      title: 'Select Venue',
+      title: l?.translate('invitation_select_venue') ?? 'Select Venue',
       child: _VenueSelectorContent(venues: state.availableVenues),
     );
   }
@@ -486,7 +614,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
   }
 
   Widget _buildEventTypeFormFields(
-      BuildContext context, InvitationState state) {
+      BuildContext context, InvitationState state, AppLocalizations? l) {
     if (state.eventTypeFormFields.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -494,7 +622,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle('Event Details', 'تفاصيل المناسبة'),
+        _buildSectionTitle(l?.translate('invitation_event_details') ?? 'Event Details'),
         const SizedBox(height: 8),
         ...state.eventTypeFormFields.map((field) {
           return Padding(
@@ -514,7 +642,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
     );
   }
 
-  Widget _buildBottomBar(BuildContext context, InvitationState state) {
+  Widget _buildBottomBar(BuildContext context, InvitationState state, AppLocalizations? l) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -532,7 +660,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
           children: [
             Expanded(
               child: SecondaryButton(
-                text: 'Back',
+                text: l?.translate('common_back') ?? 'Back',
                 onPressed: () => context.read<InvitationCubit>().previousStep(),
               ),
             ),
@@ -540,7 +668,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
             Expanded(
               flex: 2,
               child: PrimaryButton(
-                text: 'Next',
+                text: l?.translate('common_next') ?? 'Next',
                 onPressed: state.canProceedFromEventDetails
                     ? () => context.read<InvitationCubit>().nextStep()
                     : null,
@@ -575,6 +703,7 @@ class _VenueSelectorContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     if (venues.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(32),
@@ -584,7 +713,7 @@ class _VenueSelectorContent extends StatelessWidget {
             Icon(Icons.location_off, size: 48, color: AppColors.gray300),
             const SizedBox(height: 16),
             Text(
-              'No venues available',
+              l?.translate('invitation_no_venues_available') ?? 'No venues available',
               style: TextStyle(color: AppColors.gray500),
             ),
           ],

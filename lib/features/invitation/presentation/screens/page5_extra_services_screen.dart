@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../data/models/extra_service_model.dart';
@@ -28,6 +29,9 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final isEnglish = Localizations.localeOf(context).languageCode == 'en';
+
     return BlocBuilder<InvitationCubit, InvitationState>(
       builder: (context, state) {
         return Scaffold(
@@ -36,10 +40,10 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
             child: Column(
               children: [
                 // Step Header
-                const WizardStepHeader(
+                WizardStepHeader(
                   currentStep: 5,
                   totalSteps: 7,
-                  title: 'الخدمات الإضافية',
+                  title: l?.translate('invitation_step5_title') ?? 'Extra Services',
                 ),
 
                 // Paid Services Badge
@@ -57,7 +61,7 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'هذه خدمات مدفوعة ستضاف إلى الفاتورة النهائية',
+                          l?.translate('invitation_paid_services_notice') ?? 'These are paid services that will be added to the final invoice',
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.amber.shade900,
@@ -71,15 +75,15 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
 
                 // Content
                 Expanded(
-                  child: _buildContent(context, state),
+                  child: _buildContent(context, state, l, isEnglish),
                 ),
 
                 // Selected Services Summary
                 if (state.selectedServices.isNotEmpty)
-                  _buildSelectedSummary(state),
+                  _buildSelectedSummary(state, l, isEnglish),
 
                 // Navigation Buttons
-                _buildNavigationButtons(context, state),
+                _buildNavigationButtons(context, state, l),
               ],
             ),
           ),
@@ -88,17 +92,17 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
     );
   }
 
-  Widget _buildContent(BuildContext context, InvitationState state) {
+  Widget _buildContent(BuildContext context, InvitationState state, AppLocalizations? l, bool isEnglish) {
     if (state.isLoadingServices) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
             Text(
-              'جاري تحميل الخدمات...',
-              style: TextStyle(
+              l?.translate('invitation_loading_services') ?? 'Loading services...',
+              style: const TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
               ),
@@ -122,7 +126,7 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'حدث خطأ أثناء تحميل الخدمات',
+                l?.translate('invitation_services_error') ?? 'Error loading services',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -140,7 +144,7 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
               ),
               const SizedBox(height: 24),
               AppButton(
-                text: 'إعادة المحاولة',
+                text: l?.translate('common_retry') ?? 'Retry',
                 onPressed: () {
                   context.read<InvitationCubit>().loadExtraServices();
                 },
@@ -166,7 +170,7 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'لا توجد خدمات إضافية متاحة',
+                l?.translate('invitation_no_services') ?? 'No extra services available',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -175,7 +179,7 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'يمكنك المتابعة للخطوة التالية',
+                l?.translate('invitation_continue_next_step') ?? 'You can continue to the next step',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey.shade500,
@@ -194,7 +198,7 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
         children: [
           // Info text
           Text(
-            'اختر الخدمات الإضافية التي تريدها لحدثك',
+            l?.translate('invitation_select_services') ?? 'Select the extra services you want for your event',
             style: TextStyle(
               fontSize: 15,
               color: Colors.grey.shade700,
@@ -216,7 +220,7 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
             itemBuilder: (context, index) {
               final service = state.availableServices[index];
               final isSelected = state.selectedServices.contains(service);
-              return _buildServiceCard(context, service, isSelected);
+              return _buildServiceCard(context, service, isSelected, isEnglish);
             },
           ),
         ],
@@ -225,7 +229,7 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
   }
 
   Widget _buildServiceCard(
-      BuildContext context, ExtraServiceModel service, bool isSelected) {
+      BuildContext context, ExtraServiceModel service, bool isSelected, bool isEnglish) {
     return GestureDetector(
       onTap: () {
         context.read<InvitationCubit>().toggleService(service);
@@ -290,9 +294,9 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  // Name (Arabic)
+                  // Primary Name (based on language)
                   Text(
-                    service.nameAr,
+                    isEnglish ? service.name : service.nameAr,
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -305,11 +309,11 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
                     ),
                   ),
 
-                  // Name (English) if different
+                  // Secondary Name if different
                   if (service.name != service.nameAr) ...[
                     const SizedBox(height: 4),
                     Text(
-                      service.name,
+                      isEnglish ? service.nameAr : service.name,
                       textAlign: TextAlign.center,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -370,7 +374,7 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
     );
   }
 
-  Widget _buildSelectedSummary(InvitationState state) {
+  Widget _buildSelectedSummary(InvitationState state, AppLocalizations? l, bool isEnglish) {
     final totalPrice = state.selectedServices.fold<double>(
       0,
       (sum, service) => sum + service.price,
@@ -398,13 +402,13 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'الخدمات المختارة: ${state.selectedServices.length}',
+                  '${l?.translate('invitation_selected_services') ?? 'Selected services'}: ${state.selectedServices.length}',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  state.selectedServices.map((s) => s.nameAr).join(' ، '),
+                  state.selectedServices.map((s) => isEnglish ? s.name : s.nameAr).join(isEnglish ? ', ' : ' ، '),
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey.shade700,
@@ -434,7 +438,7 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
     );
   }
 
-  Widget _buildNavigationButtons(BuildContext context, InvitationState state) {
+  Widget _buildNavigationButtons(BuildContext context, InvitationState state, AppLocalizations? l) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -452,7 +456,7 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
           // Back Button
           Expanded(
             child: AppButton(
-              text: 'السابق',
+              text: l?.translate('common_back') ?? 'Back',
               onPressed: () {
                 context.read<InvitationCubit>().previousStep();
               },
@@ -467,7 +471,7 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
           Expanded(
             flex: 2,
             child: AppButton(
-              text: 'التالي',
+              text: l?.translate('common_next') ?? 'Next',
               onPressed: state.isLoadingServices
                   ? null
                   : () {

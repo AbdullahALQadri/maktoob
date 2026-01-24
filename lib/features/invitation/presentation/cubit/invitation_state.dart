@@ -624,6 +624,7 @@ class InvitationState extends Equatable {
     bool clearUploadedTemplateDescription = false,
     bool clearSelectedVenue = false,
     bool clearCustomLocation = false,
+    bool clearPartnerWithGuests = false,
     bool clearSelectedPackage = false,
     bool clearError = false,
   }) {
@@ -680,7 +681,8 @@ class InvitationState extends Equatable {
           clearSelectedVenue ? null : (selectedVenue ?? this.selectedVenue),
       customLocation:
           clearCustomLocation ? null : (customLocation ?? this.customLocation),
-      partnerWithGuests: partnerWithGuests ?? this.partnerWithGuests,
+      partnerWithGuests:
+          clearPartnerWithGuests ? null : (partnerWithGuests ?? this.partnerWithGuests),
       eventTypeFormFields: eventTypeFormFields ?? this.eventTypeFormFields,
       eventTypeFormData: eventTypeFormData ?? this.eventTypeFormData,
       // Page 3
@@ -736,6 +738,7 @@ class InvitationState extends Equatable {
   bool get canProceedFromEventDetails {
     if (eventName == null || eventName!.isEmpty) return false;
     if (eventDate == null) return false;
+    if (eventTime == null) return false;
     // Location is optional
     return true;
   }

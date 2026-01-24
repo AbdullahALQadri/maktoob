@@ -80,7 +80,7 @@ class SettingsScreen extends StatelessWidget {
                       onTap: () => _showAboutDialog(context, isArabic),
                     ),
 
-                    SizedBox(height: context.dynamicHeight(0.05)),
+                    SizedBox(height: context.dynamicHeight(0.12)),
                   ]),
                 ),
               ),
@@ -100,7 +100,6 @@ class SettingsScreen extends StatelessWidget {
           colors: [
             AppColors.primaryColor,
             AppColors.tertiaryColor,
-            AppColors.rose600,
           ],
         ),
       ),

@@ -337,7 +337,11 @@ class InvitationCubit extends Cubit<InvitationState> {
 
   /// Update partner with guests count
   void updatePartnerWithGuests(int? count) {
-    emit(state.copyWith(partnerWithGuests: count));
+    if (count == null) {
+      emit(state.copyWith(clearPartnerWithGuests: true));
+    } else {
+      emit(state.copyWith(partnerWithGuests: count));
+    }
   }
 
   /// Set event type form fields from API
