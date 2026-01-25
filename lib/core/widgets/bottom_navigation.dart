@@ -12,16 +12,20 @@ import '../utils/media_query_values.dart';
 /// - Separate circular "+" button on the right for adding events
 /// - Smooth animations for selection changes
 class BottomNavigation extends StatefulWidget {
-  /// The index of the currently selected tab (0-2 for main tabs, 3 for add event)
+  /// The index of the currently selected tab (0-2 for main tabs)
   final int currentIndex;
 
   /// Callback function when a tab is tapped
   final Function(int) onTap;
 
+  /// Callback function when the add button is tapped
+  final VoidCallback? onAddTap;
+
   const BottomNavigation({
     super.key,
     required this.currentIndex,
     required this.onTap,
+    this.onAddTap,
   });
 
   @override
@@ -203,7 +207,7 @@ class _BottomNavigationState extends State<BottomNavigation>
   /// Builds the separate circular add button
   Widget _buildAddButton() {
     return GestureDetector(
-      onTap: () => widget.onTap(3),
+      onTap: widget.onAddTap ?? () => widget.onTap(3),
       child: AnimatedBuilder(
         animation: _scaleAnimations[3],
         builder: (context, child) {

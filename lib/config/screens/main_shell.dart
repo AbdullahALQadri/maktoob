@@ -14,7 +14,8 @@ import '../../injection_container.dart' as di;
 
 /// Main shell widget that contains all screens with bottom navigation.
 /// This acts as the root container for the app's main content.
-/// Navigation: Home (0) -> Scanner (1) -> Settings (2) -> Add Event (3)
+/// Navigation: Home (0) -> Scanner (1) -> Settings (2)
+/// Add Event opens as a new screen via Navigator.push
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
 
@@ -65,6 +66,21 @@ class _MainShellState extends State<MainShell> {
     });
   }
 
+  void _onAddEventTap() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => BlocProvider(
+          create: (_) => di.sl<InvitationCubit>(),
+          child: InvitationWizardScreen(
+            onComplete: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildCurrentScreen() {
     // Handle sub-screens first
     if (_showEventDetails && _selectedEventId != null) {
@@ -82,7 +98,7 @@ class _MainShellState extends State<MainShell> {
     }
 
     // Main navigation screens
-    // 0: Home, 1: Scanner, 2: Settings, 3: Create Event
+    // 0: Home, 1: Scanner, 2: Settings
     switch (_currentIndex) {
       case 0:
         return HomeScreen(onViewEvent: _onViewEvent);
@@ -90,16 +106,6 @@ class _MainShellState extends State<MainShell> {
         return const QRScannerScreen();
       case 2:
         return const SettingsScreen();
-      case 3:
-        return BlocProvider(
-          create: (_) => di.sl<InvitationCubit>(),
-          child: InvitationWizardScreen(
-            onComplete: () {
-              // After wizard completion, go back to home
-              _onNavigationTap(0);
-            },
-          ),
-        );
       default:
         return HomeScreen(onViewEvent: _onViewEvent);
     }
@@ -119,6 +125,7 @@ class _MainShellState extends State<MainShell> {
           : BottomNavigation(
               currentIndex: _currentIndex,
               onTap: _onNavigationTap,
+              onAddTap: _onAddEventTap,
             ),
     );
   }

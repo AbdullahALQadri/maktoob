@@ -695,7 +695,8 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
                       : () async {
                           // Capture invoice screenshot first
                           final image = await _captureInvoice();
-                          if (mounted && image != null) {
+                          if (mounted) {
+                            // Save and send even if image capture fails
                             await context
                                 .read<InvitationCubit>()
                                 .saveAndSend(invoiceImage: image);

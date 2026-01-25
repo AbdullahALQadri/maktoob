@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
+import '../cubit/invitation_cubit.dart';
 
 /// Header widget for wizard steps showing progress
 class WizardStepHeader extends StatelessWidget {
@@ -11,6 +13,8 @@ class WizardStepHeader extends StatelessWidget {
   final String? titleAr;
   final String? subtitle;
   final String? subtitleAr;
+  final VoidCallback? onBack;
+  final bool showBackButton;
 
   const WizardStepHeader({
     super.key,
@@ -20,6 +24,8 @@ class WizardStepHeader extends StatelessWidget {
     this.titleAr,
     this.subtitle,
     this.subtitleAr,
+    this.onBack,
+    this.showBackButton = true,
   });
 
   @override
@@ -52,16 +58,49 @@ class WizardStepHeader extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Step indicator
+            // Back button and Step indicator in same row
             Row(
               children: [
+                // Back button
+                if (showBackButton) ...[
+                  GestureDetector(
+                    onTap: onBack ?? () {
+                      if (currentStep == 1) {
+                        // First step - close the wizard
+                        Navigator.of(context).pop();
+                      } else {
+                        // Go to previous step
+                        context.read<InvitationCubit>().previousStep();
+                      }
+                    },
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.arrow_back_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                ],
+                // Step indicator
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
-                    vertical: 4,
+                    vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -77,7 +116,7 @@ class WizardStepHeader extends StatelessWidget {
                 Text(
                   '${(progress * 100).toInt()}%',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -102,7 +141,7 @@ class WizardStepHeader extends StatelessWidget {
               Text(
                 subtitle!,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withValues(alpha: 0.8),
                   fontSize: 14,
                 ),
               ),
@@ -114,7 +153,7 @@ class WizardStepHeader extends StatelessWidget {
             Container(
               height: 6,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(3),
               ),
               child: LayoutBuilder(

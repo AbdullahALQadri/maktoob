@@ -54,17 +54,19 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
 
     return BlocBuilder<InvitationCubit, InvitationState>(
       builder: (context, state) {
-        return Column(
-          children: [
-            // Step Header
-            WizardStepHeader(
-              currentStep: 2,
-              totalSteps: 7,
-              title: l?.translate('invitation_step2_title') ?? 'Event Details',
-            ),
+        return Scaffold(
+          backgroundColor: Colors.grey.shade50,
+          body: Column(
+            children: [
+              // Step Header
+              WizardStepHeader(
+                currentStep: 2,
+                totalSteps: 7,
+                title: l?.translate('invitation_step2_title') ?? 'Event Details',
+              ),
 
-            Expanded(
-              child: Form(
+              Expanded(
+                child: Form(
                 key: _formKey,
                 child: SingleChildScrollView(
                   padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
@@ -144,6 +146,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
             // Bottom Buttons
             _buildBottomBar(context, state, l),
           ],
+          ),
         );
       },
     );

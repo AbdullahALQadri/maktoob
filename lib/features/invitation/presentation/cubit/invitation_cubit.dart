@@ -1193,29 +1193,34 @@ class InvitationCubit extends Cubit<InvitationState> {
     try {
       // Save to API
       // TODO: Call API to save event
-      await Future.delayed(const Duration(milliseconds: 800));
+      await Future.delayed(const Duration(milliseconds: 500));
 
-      // Open WhatsApp if service available
-      if (whatsAppService != null && state.whatsappNumber != null) {
-        final message = whatsAppService!.generateInvoiceMessage(
-          eventName: state.eventName ?? 'حدث',
-          packageName: state.selectedPackage?.nameAr ?? 'غير محدد',
-          totalPrice: state.invoiceSummary?.totalPrice ?? 0,
-          guestCount: state.totalGuestCount,
-        );
+      // Try to open WhatsApp if service available (don't fail if WhatsApp fails)
+      try {
+        if (whatsAppService != null && state.whatsappNumber != null) {
+          final message = whatsAppService!.generateInvoiceMessage(
+            eventName: state.eventName ?? 'حدث',
+            packageName: state.selectedPackage?.nameAr ?? 'غير محدد',
+            totalPrice: state.invoiceSummary?.totalPrice ?? 0,
+            guestCount: state.totalGuestCount,
+          );
 
-        if (invoiceImage != null) {
-          await whatsAppService!.openWhatsAppWithInvoice(
-            phoneNumber: state.whatsappNumber!,
-            invoiceImage: invoiceImage,
-            message: message,
-          );
-        } else {
-          await whatsAppService!.openWhatsApp(
-            phoneNumber: state.whatsappNumber!,
-            message: message,
-          );
+          if (invoiceImage != null) {
+            await whatsAppService!.openWhatsAppWithInvoice(
+              phoneNumber: state.whatsappNumber!,
+              invoiceImage: invoiceImage,
+              message: message,
+            );
+          } else {
+            await whatsAppService!.openWhatsApp(
+              phoneNumber: state.whatsappNumber!,
+              message: message,
+            );
+          }
         }
+      } catch (whatsAppError) {
+        // WhatsApp failed, but we still saved successfully
+        debugPrint('WhatsApp error: $whatsAppError');
       }
 
       emit(state.copyWith(
