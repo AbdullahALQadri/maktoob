@@ -30,12 +30,31 @@ class EventTypeScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.gray800),
-          onPressed: () {
-            context.read<InvitationCubit>().previousStep();
-            onBack?.call();
-          },
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: GestureDetector(
+            onTap: () {
+              context.read<InvitationCubit>().previousStep();
+              onBack?.call();
+            },
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.gray100,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.gray200,
+                  width: 1,
+                ),
+              ),
+              child: Icon(
+                Icons.arrow_back_rounded,
+                color: AppColors.gray800,
+                size: 22,
+              ),
+            ),
+          ),
         ),
       ),
       body: SafeArea(

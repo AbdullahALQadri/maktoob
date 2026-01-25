@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/app_colors.dart';
+import '../../../../core/utils/media_query_values.dart';
 import '../../../../core/widgets/buttons/primary_button.dart';
 import '../cubit/invitation_cubit.dart';
 import '../cubit/invitation_state.dart';
@@ -64,9 +65,6 @@ class _LandingScreenState extends State<LandingScreen>
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -83,32 +81,32 @@ class _LandingScreenState extends State<LandingScreen>
         ),
         child: SafeArea(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
+            padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.06)),
             child: Column(
               children: [
                 // Top spacer
-                SizedBox(height: screenHeight * 0.08),
+                SizedBox(height: context.dynamicHeight(0.08)),
 
                 // Logo/Brand area
                 FadeTransition(
                   opacity: _fadeAnimation,
                   child: Container(
-                    width: screenWidth * 0.25,
-                    height: screenWidth * 0.25,
+                    width: context.dynamicWidth(0.25),
+                    height: context.dynamicWidth(0.25),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(screenWidth * 0.06),
+                      color: Colors.white.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.06)),
                     ),
                     child: Center(
                       child: Text(
                         '📨',
-                        style: TextStyle(fontSize: screenWidth * 0.12),
+                        style: TextStyle(fontSize: context.dynamicWidth(0.12)),
                       ),
                     ),
                   ),
                 ),
 
-                SizedBox(height: screenHeight * 0.04),
+                SizedBox(height: context.dynamicHeight(0.04)),
 
                 // Main heading
                 SlideTransition(
@@ -119,7 +117,7 @@ class _LandingScreenState extends State<LandingScreen>
                       'Invite people in a way that\nmatches your special occasion',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: screenWidth * 0.065,
+                        fontSize: context.dynamicWidth(0.065),
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                         height: 1.3,
@@ -128,7 +126,7 @@ class _LandingScreenState extends State<LandingScreen>
                   ),
                 ),
 
-                SizedBox(height: screenHeight * 0.02),
+                SizedBox(height: context.dynamicHeight(0.02)),
 
                 // Subtitle
                 SlideTransition(
@@ -139,8 +137,8 @@ class _LandingScreenState extends State<LandingScreen>
                       'One link – QR code – Full organization',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: screenWidth * 0.04,
-                        color: Colors.white.withOpacity(0.85),
+                        fontSize: context.dynamicWidth(0.04),
+                        color: Colors.white.withValues(alpha: 0.85),
                         height: 1.5,
                       ),
                     ),
@@ -155,11 +153,11 @@ class _LandingScreenState extends State<LandingScreen>
                   position: _slideAnimation,
                   child: FadeTransition(
                     opacity: _fadeAnimation,
-                    child: _buildFeatureHighlights(screenWidth),
+                    child: _buildFeatureHighlights(context),
                   ),
                 ),
 
-                SizedBox(height: screenHeight * 0.04),
+                SizedBox(height: context.dynamicHeight(0.04)),
 
                 // Primary CTA
                 SlideTransition(
@@ -173,7 +171,7 @@ class _LandingScreenState extends State<LandingScreen>
                         onPressed: _onGetStarted,
                         gradientColors: const [Colors.white, Colors.white],
                         textStyle: TextStyle(
-                          fontSize: 16,
+                          fontSize: context.dynamicWidth(0.04),
                           fontWeight: FontWeight.w600,
                           color: AppColors.primaryColor,
                         ),
@@ -182,7 +180,7 @@ class _LandingScreenState extends State<LandingScreen>
                   ),
                 ),
 
-                SizedBox(height: screenHeight * 0.02),
+                SizedBox(height: context.dynamicHeight(0.02)),
 
                 // Secondary option - Login
                 FadeTransition(
@@ -192,14 +190,14 @@ class _LandingScreenState extends State<LandingScreen>
                     child: Text(
                       'Already have an account? Sign in',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
-                        fontSize: screenWidth * 0.035,
+                        color: Colors.white.withValues(alpha: 0.9),
+                        fontSize: context.dynamicWidth(0.035),
                       ),
                     ),
                   ),
                 ),
 
-                SizedBox(height: screenHeight * 0.04),
+                SizedBox(height: context.dynamicHeight(0.04)),
               ],
             ),
           ),
@@ -208,7 +206,7 @@ class _LandingScreenState extends State<LandingScreen>
     );
   }
 
-  Widget _buildFeatureHighlights(double screenWidth) {
+  Widget _buildFeatureHighlights(BuildContext context) {
     final features = [
       {'icon': '🎨', 'text': 'Beautiful templates'},
       {'icon': '📊', 'text': 'Track responses'},
@@ -221,25 +219,25 @@ class _LandingScreenState extends State<LandingScreen>
         return Column(
           children: [
             Container(
-              width: screenWidth * 0.14,
-              height: screenWidth * 0.14,
+              width: context.dynamicWidth(0.14),
+              height: context.dynamicWidth(0.14),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(screenWidth * 0.035),
+                color: Colors.white.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
               ),
               child: Center(
                 child: Text(
                   feature['icon']!,
-                  style: TextStyle(fontSize: screenWidth * 0.06),
+                  style: TextStyle(fontSize: context.dynamicWidth(0.06)),
                 ),
               ),
             ),
-            SizedBox(height: screenWidth * 0.02),
+            SizedBox(height: context.dynamicWidth(0.02)),
             Text(
               feature['text']!,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.9),
-                fontSize: screenWidth * 0.03,
+                color: Colors.white.withValues(alpha: 0.9),
+                fontSize: context.dynamicWidth(0.03),
               ),
             ),
           ],

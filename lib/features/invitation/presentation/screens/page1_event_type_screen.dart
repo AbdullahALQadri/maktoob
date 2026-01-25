@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
+import '../../../../core/utils/media_query_values.dart';
 import '../../../../core/widgets/buttons/primary_button.dart';
 import '../../../../core/widgets/inputs/app_text_field.dart';
 import '../../../../core/services/permissions/permission_service.dart';
@@ -24,7 +26,6 @@ class Page1EventTypeScreen extends StatefulWidget {
 class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
     final l = AppLocalizations.of(context);
 
     return BlocBuilder<InvitationCubit, InvitationState>(
@@ -42,32 +43,32 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
 
               Expanded(
                 child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                  padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.05)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 20),
+                      SizedBox(height: context.dynamicHeight(0.025)),
 
                       // Section: Event Type Dropdown
-                      _buildSectionTitle(l?.translate('invitation_event_type') ?? 'Event Type'),
-                      const SizedBox(height: 12),
+                      _buildSectionTitle(context, l?.translate('invitation_event_type') ?? 'Event Type'),
+                      SizedBox(height: context.dynamicHeight(0.015)),
                       _buildEventTypeDropdown(context, state, l),
 
                       // Custom event type name field (if custom selected)
                       if (state.selectedEventType?.isCustom == true) ...[
-                        const SizedBox(height: 16),
+                        SizedBox(height: context.dynamicHeight(0.02)),
                         _buildCustomEventNameField(context, state, l),
                       ],
 
                       // Section: Templates (shown when event type is selected)
                       if (state.selectedEventType != null) ...[
-                        const SizedBox(height: 24),
-                        _buildSectionTitle(l?.translate('invitation_choose_template') ?? 'Choose Template'),
-                        const SizedBox(height: 12),
+                        SizedBox(height: context.dynamicHeight(0.03)),
+                        _buildSectionTitle(context, l?.translate('invitation_choose_template') ?? 'Choose Template'),
+                        SizedBox(height: context.dynamicHeight(0.015)),
                         _buildTemplatesSection(context, state, l),
                       ],
 
-                      const SizedBox(height: 100),
+                      SizedBox(height: context.dynamicHeight(0.12)),
                     ],
                   ),
                 ),
@@ -82,11 +83,11 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(BuildContext context, String title) {
     return Text(
       title,
       style: TextStyle(
-        fontSize: 18,
+        fontSize: context.dynamicWidth(0.045),
         fontWeight: FontWeight.w600,
         color: AppColors.gray800,
       ),
@@ -111,14 +112,23 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
       DropdownMenuItem<EventTypeModel>(
         value: customEventType,
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text('➕', style: TextStyle(fontSize: 20)),
-            const SizedBox(width: 12),
             Text(
-              l?.translate('invitation_custom') ?? 'Custom',
-              style: TextStyle(
-                fontSize: 16,
-                color: AppColors.gray700,
+              '➕',
+              style: TextStyle(fontSize: context.dynamicWidth(0.06)),
+            ),
+            SizedBox(width: context.dynamicWidth(0.04)),
+            Expanded(
+              child: Text(
+                l?.translate('invitation_custom') ?? 'Custom',
+                style: TextStyle(
+                  fontSize: context.dynamicWidth(0.045),
+                  color: AppColors.gray700,
+                  fontWeight: FontWeight.w500,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -132,14 +142,23 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
         DropdownMenuItem<EventTypeModel>(
           value: eventType,
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(eventType.emoji ?? '📅', style: const TextStyle(fontSize: 20)),
-              const SizedBox(width: 12),
               Text(
-                isEnglish ? eventType.name : eventType.nameAr,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppColors.gray700,
+                eventType.emoji ?? '📅',
+                style: TextStyle(fontSize: context.dynamicWidth(0.06)),
+              ),
+              SizedBox(width: context.dynamicWidth(0.04)),
+              Expanded(
+                child: Text(
+                  isEnglish ? eventType.name : eventType.nameAr,
+                  style: TextStyle(
+                    fontSize: context.dynamicWidth(0.045),
+                    color: AppColors.gray700,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -166,10 +185,16 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.dynamicWidth(0.04),
+        vertical: context.dynamicHeight(0.005),
+      ),
+      constraints: BoxConstraints(
+        minHeight: context.dynamicHeight(0.065),
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
         border: Border.all(color: AppColors.gray300),
       ),
       child: DropdownButtonHideUnderline(
@@ -177,10 +202,22 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
           value: dropdownValue,
           hint: Text(
             l?.translate('invitation_select_event_type') ?? 'Select event type',
-            style: TextStyle(color: AppColors.gray500),
+            style: TextStyle(
+              color: AppColors.gray500,
+              fontSize: context.dynamicWidth(0.04),
+            ),
           ),
           isExpanded: true,
-          icon: Icon(Icons.keyboard_arrow_down, color: AppColors.gray500),
+          icon: Icon(Icons.keyboard_arrow_down, color: AppColors.gray500, size: context.dynamicWidth(0.06)),
+          iconSize: context.dynamicWidth(0.06),
+          itemHeight: math.max(56.0, context.dynamicHeight(0.08)),
+          menuMaxHeight: math.max(300.0, context.dynamicHeight(0.5)),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+          dropdownColor: Colors.white,
+          style: TextStyle(
+            fontSize: context.dynamicWidth(0.04),
+            color: AppColors.gray700,
+          ),
           items: items,
           onChanged: (eventType) {
             if (eventType != null) {
@@ -234,10 +271,10 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
+        crossAxisSpacing: context.dynamicWidth(0.03),
+        mainAxisSpacing: context.dynamicWidth(0.03),
         childAspectRatio: 0.8,
       ),
       itemCount: templates.length,
@@ -258,7 +295,7 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
             if (template.isCustom) {
               _showCustomTemplateBottomSheet(context);
             } else {
-              // Clear any custom template data when selecting a regular template
+              // Clear custom template when selecting a regular template
               context.read<InvitationCubit>().clearCustomTemplate();
               context.read<InvitationCubit>().selectTemplate(template);
             }
@@ -273,8 +310,8 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(context.dynamicWidth(0.05))),
       ),
       builder: (sheetContext) => Padding(
         padding: EdgeInsets.only(
@@ -292,14 +329,14 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
     final canProceed = state.canProceedFromEventType;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -4),
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: context.dynamicWidth(0.025),
+            offset: Offset(0, -context.dynamicHeight(0.005)),
           ),
         ],
       ),
@@ -339,9 +376,9 @@ class _TemplateCard extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.primaryColor.withOpacity(0.1)
+              ? AppColors.primaryColor.withValues(alpha: 0.1)
               : Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
           border: Border.all(
             color: isSelected ? AppColors.primaryColor : AppColors.gray200,
             width: isSelected ? 2 : 1,
@@ -352,10 +389,10 @@ class _TemplateCard extends StatelessWidget {
             // Template preview or placeholder
             Positioned.fill(
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(11),
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.028)),
                 child: template.isCustom
-                    ? _buildCustomPlaceholder()
-                    : _buildTemplatePreview(),
+                    ? _buildCustomPlaceholder(context)
+                    : _buildTemplatePreview(context),
               ),
             ),
 
@@ -365,22 +402,24 @@ class _TemplateCard extends StatelessWidget {
               right: 0,
               bottom: 0,
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.dynamicWidth(0.02),
+                  vertical: context.dynamicHeight(0.008),
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.6),
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(11),
-                    bottomRight: Radius.circular(11),
+                  color: Colors.black.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(context.dynamicWidth(0.028)),
+                    bottomRight: Radius.circular(context.dynamicWidth(0.028)),
                   ),
                 ),
                 child: Text(
                   template.isCustom
                       ? (isEnglish ? 'Custom Template' : 'قالب مخصص')
                       : (isEnglish ? template.name : template.nameAr),
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
-                    fontSize: 12,
+                    fontSize: context.dynamicWidth(0.03),
                     fontWeight: FontWeight.w500,
                   ),
                   textAlign: TextAlign.center,
@@ -391,22 +430,24 @@ class _TemplateCard extends StatelessWidget {
             // Extra fee indicator for custom
             if (template.hasExtraFee)
               Positioned(
-                top: 8,
-                left: 8,
+                top: context.dynamicWidth(0.02),
+                left: context.dynamicWidth(0.02),
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: context.dynamicWidth(0.015),
+                    vertical: context.dynamicHeight(0.003),
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.amber500,
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(context.dynamicWidth(0.01)),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.attach_money, color: Colors.white, size: 12),
+                      Icon(Icons.attach_money, color: Colors.white, size: context.dynamicWidth(0.03)),
                       Text(
                         'رسوم',
-                        style: TextStyle(color: Colors.white, fontSize: 10),
+                        style: TextStyle(color: Colors.white, fontSize: context.dynamicWidth(0.025)),
                       ),
                     ],
                   ),
@@ -416,18 +457,18 @@ class _TemplateCard extends StatelessWidget {
             // Selection indicator
             if (isSelected)
               Positioned(
-                top: 8,
-                right: 8,
+                top: context.dynamicWidth(0.02),
+                right: context.dynamicWidth(0.02),
                 child: Container(
-                  padding: const EdgeInsets.all(2),
+                  padding: EdgeInsets.all(context.dynamicWidth(0.005)),
                   decoration: BoxDecoration(
                     color: AppColors.primaryColor,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.check,
                     color: Colors.white,
-                    size: 14,
+                    size: context.dynamicWidth(0.035),
                   ),
                 ),
               ),
@@ -437,7 +478,7 @@ class _TemplateCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCustomPlaceholder() {
+  Widget _buildCustomPlaceholder(BuildContext context) {
     if (uploadedFile != null) {
       return Image.file(uploadedFile!, fit: BoxFit.cover);
     }
@@ -447,13 +488,13 @@ class _TemplateCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.upload_file, size: 32, color: AppColors.gray400),
-          const SizedBox(height: 8),
+          Icon(Icons.upload_file, size: context.dynamicWidth(0.08), color: AppColors.gray400),
+          SizedBox(height: context.dynamicHeight(0.01)),
           Text(
             isEnglish ? 'Upload your design' : 'ارفع تصميمك',
             style: TextStyle(
               color: AppColors.gray500,
-              fontSize: 12,
+              fontSize: context.dynamicWidth(0.03),
             ),
             textAlign: TextAlign.center,
           ),
@@ -462,22 +503,22 @@ class _TemplateCard extends StatelessWidget {
     );
   }
 
-  Widget _buildTemplatePreview() {
+  Widget _buildTemplatePreview(BuildContext context) {
     if (template.previewUrl != null) {
       return Image.network(
         template.previewUrl!,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _buildPlaceholder(),
+        errorBuilder: (_, __, ___) => _buildPlaceholder(context),
       );
     }
-    return _buildPlaceholder();
+    return _buildPlaceholder(context);
   }
 
-  Widget _buildPlaceholder() {
+  Widget _buildPlaceholder(BuildContext context) {
     return Container(
       color: AppColors.gray100,
       child: Center(
-        child: Icon(Icons.image, size: 40, color: AppColors.gray300),
+        child: Icon(Icons.image, size: context.dynamicWidth(0.1), color: AppColors.gray300),
       ),
     );
   }
@@ -501,12 +542,12 @@ class _CustomTemplateUploadCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => _showCustomTemplateBottomSheet(context),
       child: Container(
-        height: 200,
+        height: context.dynamicHeight(0.25),
         decoration: BoxDecoration(
           color: hasContent
-              ? AppColors.primaryColor.withOpacity(0.1)
+              ? AppColors.primaryColor.withValues(alpha: 0.1)
               : AppColors.gray50,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
           border: Border.all(
             color: hasContent ? AppColors.primaryColor : AppColors.gray300,
             width: hasContent ? 2 : 1,
@@ -525,7 +566,7 @@ class _CustomTemplateUploadCard extends StatelessWidget {
       children: [
         if (uploadedFile != null)
           ClipRRect(
-            borderRadius: BorderRadius.circular(11),
+            borderRadius: BorderRadius.circular(context.dynamicWidth(0.028)),
             child: Image.file(
               uploadedFile!,
               width: double.infinity,
@@ -538,12 +579,12 @@ class _CustomTemplateUploadCard extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.description, size: 48, color: AppColors.primaryColor),
-                const SizedBox(height: 8),
+                Icon(Icons.description, size: context.dynamicWidth(0.12), color: AppColors.primaryColor),
+                SizedBox(height: context.dynamicHeight(0.01)),
                 Text(
                   l?.translate('invitation_custom_description') ?? 'Custom description',
-                  style: const TextStyle(
-                    fontSize: 16,
+                  style: TextStyle(
+                    fontSize: context.dynamicWidth(0.04),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -551,18 +592,18 @@ class _CustomTemplateUploadCard extends StatelessWidget {
             ),
           ),
         Positioned(
-          top: 8,
-          right: 8,
+          top: context.dynamicWidth(0.02),
+          right: context.dynamicWidth(0.02),
           child: Container(
-            padding: const EdgeInsets.all(4),
+            padding: EdgeInsets.all(context.dynamicWidth(0.01)),
             decoration: BoxDecoration(
               color: AppColors.primaryColor,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.check,
               color: Colors.white,
-              size: 16,
+              size: context.dynamicWidth(0.04),
             ),
           ),
         ),
@@ -572,19 +613,19 @@ class _CustomTemplateUploadCard extends StatelessWidget {
             right: 0,
             bottom: 0,
             child: Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all(context.dynamicWidth(0.02)),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.6),
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(11),
-                  bottomRight: Radius.circular(11),
+                color: Colors.black.withValues(alpha: 0.6),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(context.dynamicWidth(0.028)),
+                  bottomRight: Radius.circular(context.dynamicWidth(0.028)),
                 ),
               ),
               child: Text(
                 description!,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
-                  fontSize: 12,
+                  fontSize: context.dynamicWidth(0.03),
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -593,23 +634,23 @@ class _CustomTemplateUploadCard extends StatelessWidget {
           ),
         // Edit button
         Positioned(
-          bottom: description != null ? 50 : 8,
-          right: 8,
+          bottom: description != null ? context.dynamicHeight(0.06) : context.dynamicWidth(0.02),
+          right: context.dynamicWidth(0.02),
           child: Container(
-            padding: const EdgeInsets.all(8),
+            padding: EdgeInsets.all(context.dynamicWidth(0.02)),
             decoration: BoxDecoration(
               color: Colors.white,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 4,
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: context.dynamicWidth(0.01),
                 ),
               ],
             ),
             child: Icon(
               Icons.edit,
-              size: 16,
+              size: context.dynamicWidth(0.04),
               color: AppColors.primaryColor,
             ),
           ),
@@ -624,36 +665,36 @@ class _CustomTemplateUploadCard extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(context.dynamicWidth(0.04)),
           decoration: BoxDecoration(
-            color: AppColors.primaryColor.withOpacity(0.1),
+            color: AppColors.primaryColor.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(
             Icons.upload_file,
-            size: 40,
+            size: context.dynamicWidth(0.1),
             color: AppColors.primaryColor,
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: context.dynamicHeight(0.02)),
         Text(
           l?.translate('invitation_upload_custom_template') ?? 'Upload your custom template',
           style: TextStyle(
-            fontSize: 16,
+            fontSize: context.dynamicWidth(0.04),
             fontWeight: FontWeight.w500,
             color: AppColors.gray700,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: context.dynamicHeight(0.01)),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.info_outline, size: 14, color: AppColors.amber600),
-            const SizedBox(width: 4),
+            Icon(Icons.info_outline, size: context.dynamicWidth(0.035), color: AppColors.amber600),
+            SizedBox(width: context.dynamicWidth(0.01)),
             Text(
               l?.translate('invitation_extra_fees_may_apply') ?? 'Extra fees may apply',
               style: TextStyle(
-                fontSize: 12,
+                fontSize: context.dynamicWidth(0.03),
                 color: AppColors.amber600,
               ),
             ),
@@ -668,8 +709,8 @@ class _CustomTemplateUploadCard extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(context.dynamicWidth(0.05))),
       ),
       builder: (sheetContext) => Padding(
         padding: EdgeInsets.only(
@@ -828,6 +869,9 @@ class _CustomTemplateBottomSheetContentState
   void _onConfirm() {
     final cubit = context.read<InvitationCubit>();
 
+    // Clear selected regular template when using custom template
+    cubit.clearSelectedTemplate();
+
     if (_selectedFile != null) {
       cubit.uploadCustomTemplate(_selectedFile!);
     } else {
@@ -849,7 +893,7 @@ class _CustomTemplateBottomSheetContentState
     final l = AppLocalizations.of(context);
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(context.dynamicWidth(0.05)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -857,35 +901,35 @@ class _CustomTemplateBottomSheetContentState
             // Handle bar
             Center(
               child: Container(
-                width: 40,
-                height: 4,
+                width: context.dynamicWidth(0.1),
+                height: context.dynamicHeight(0.005),
                 decoration: BoxDecoration(
                   color: AppColors.gray300,
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.005)),
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: context.dynamicHeight(0.025)),
 
             // Title
             Text(
               l?.translate('invitation_custom_template') ?? 'Custom Template',
-              style: const TextStyle(
-                fontSize: 20,
+              style: TextStyle(
+                fontSize: context.dynamicWidth(0.05),
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: context.dynamicHeight(0.025)),
 
             // Upload Area
             GestureDetector(
               onTap: _isPickingImage ? null : _pickImage,
               child: Container(
-                height: 180,
+                height: context.dynamicHeight(0.22),
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: AppColors.gray50,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
                   border: Border.all(
                     color: _selectedFile != null
                         ? AppColors.primaryColor
@@ -899,7 +943,7 @@ class _CustomTemplateBottomSheetContentState
                         ? Stack(
                             children: [
                               ClipRRect(
-                                borderRadius: BorderRadius.circular(11),
+                                borderRadius: BorderRadius.circular(context.dynamicWidth(0.028)),
                                 child: Image.file(
                                   _selectedFile!,
                                   width: double.infinity,
@@ -908,8 +952,8 @@ class _CustomTemplateBottomSheetContentState
                                 ),
                               ),
                               Positioned(
-                                top: 8,
-                                right: 8,
+                                top: context.dynamicWidth(0.02),
+                                right: context.dynamicWidth(0.02),
                                 child: GestureDetector(
                                   onTap: () {
                                     setState(() {
@@ -917,15 +961,15 @@ class _CustomTemplateBottomSheetContentState
                                     });
                                   },
                                   child: Container(
-                                    padding: const EdgeInsets.all(4),
+                                    padding: EdgeInsets.all(context.dynamicWidth(0.01)),
                                     decoration: const BoxDecoration(
                                       color: Colors.red,
                                       shape: BoxShape.circle,
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                       Icons.close,
                                       color: Colors.white,
-                                      size: 16,
+                                      size: context.dynamicWidth(0.04),
                                     ),
                                   ),
                                 ),
@@ -936,21 +980,21 @@ class _CustomTemplateBottomSheetContentState
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(Icons.cloud_upload,
-                                  size: 48, color: AppColors.gray400),
-                              const SizedBox(height: 12),
+                                  size: context.dynamicWidth(0.12), color: AppColors.gray400),
+                              SizedBox(height: context.dynamicHeight(0.015)),
                               Text(
                                 l?.translate('invitation_tap_to_upload') ?? 'Tap to upload image',
                                 style: TextStyle(
                                   color: AppColors.gray600,
-                                  fontSize: 16,
+                                  fontSize: context.dynamicWidth(0.04),
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              SizedBox(height: context.dynamicHeight(0.005)),
                               Text(
                                 l?.translate('invitation_image_format') ?? 'PNG, JPG (max 1920x1920)',
                                 style: TextStyle(
                                   color: AppColors.gray400,
-                                  fontSize: 12,
+                                  fontSize: context.dynamicWidth(0.03),
                                 ),
                               ),
                             ],
@@ -958,36 +1002,37 @@ class _CustomTemplateBottomSheetContentState
               ),
             ),
 
-            const SizedBox(height: 20),
+            SizedBox(height: context.dynamicHeight(0.025)),
 
             // Description
             Text(
               l?.translate('invitation_description_optional') ?? 'Description (optional)',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: context.dynamicWidth(0.035),
                 fontWeight: FontWeight.w500,
                 color: AppColors.gray700,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: context.dynamicHeight(0.01)),
             TextField(
               controller: _descriptionController,
               maxLines: 3,
+              style: TextStyle(fontSize: context.dynamicWidth(0.04)),
               decoration: InputDecoration(
                 hintText: l?.translate('invitation_describe_design') ?? 'Describe what you want in the design...',
-                hintStyle: TextStyle(color: AppColors.gray400),
+                hintStyle: TextStyle(color: AppColors.gray400, fontSize: context.dynamicWidth(0.035)),
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
                   borderSide: BorderSide(color: AppColors.gray300),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
                   borderSide: BorderSide(color: AppColors.gray300),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
                   borderSide: BorderSide(color: AppColors.primaryColor),
                 ),
               ),
@@ -995,23 +1040,23 @@ class _CustomTemplateBottomSheetContentState
             ),
 
             // Fee notice
-            const SizedBox(height: 16),
+            SizedBox(height: context.dynamicHeight(0.02)),
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all(context.dynamicWidth(0.03)),
               decoration: BoxDecoration(
                 color: AppColors.amber50,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.02)),
                 border: Border.all(color: AppColors.amber200),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.info_outline, color: AppColors.amber600, size: 20),
-                  const SizedBox(width: 8),
+                  Icon(Icons.info_outline, color: AppColors.amber600, size: context.dynamicWidth(0.05)),
+                  SizedBox(width: context.dynamicWidth(0.02)),
                   Expanded(
                     child: Text(
                       l?.translate('invitation_design_fee_notice') ?? 'Design description may incur additional fees.',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: context.dynamicWidth(0.03),
                         color: AppColors.amber700,
                       ),
                     ),
@@ -1020,7 +1065,7 @@ class _CustomTemplateBottomSheetContentState
               ),
             ),
 
-            const SizedBox(height: 24),
+            SizedBox(height: context.dynamicHeight(0.03)),
 
             // Confirm Button - text changes based on what user is doing
             SizedBox(
@@ -1032,19 +1077,19 @@ class _CustomTemplateBottomSheetContentState
             ),
 
             if (!_canConfirm) ...[
-              const SizedBox(height: 8),
+              SizedBox(height: context.dynamicHeight(0.01)),
               Center(
                 child: Text(
                   l?.translate('invitation_please_upload_or_describe') ?? 'Please upload an image or enter a description',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: context.dynamicWidth(0.03),
                     color: AppColors.gray500,
                   ),
                 ),
               ),
             ],
 
-            const SizedBox(height: 16),
+            SizedBox(height: context.dynamicHeight(0.02)),
           ],
         ),
       ),

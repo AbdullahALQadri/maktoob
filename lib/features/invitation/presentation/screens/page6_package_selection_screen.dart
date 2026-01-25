@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
+import '../../../../core/utils/media_query_values.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../cubit/invitation_cubit.dart';
@@ -70,7 +71,7 @@ class _Page6PackageSelectionScreenState
                 ),
 
                 // Guest Count Info
-                _buildGuestCountInfo(state, l),
+                _buildGuestCountInfo(context, state, l),
 
                 // Content
                 Expanded(
@@ -87,23 +88,26 @@ class _Page6PackageSelectionScreenState
     );
   }
 
-  Widget _buildGuestCountInfo(InvitationState state, AppLocalizations? l) {
+  Widget _buildGuestCountInfo(BuildContext context, InvitationState state, AppLocalizations? l) {
     final guestCount = state.allGuests.length;
     final packageLimit = state.selectedPackage?.invitationLimit ?? 0;
     final isOverLimit =
         state.selectedPackage != null && guestCount > packageLimit;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.dynamicWidth(0.04),
+        vertical: context.dynamicHeight(0.015),
+      ),
       color: isOverLimit ? Colors.red.shade100 : AppColors.primary,
       child: Row(
         children: [
           Icon(
             isOverLimit ? Icons.warning : Icons.people,
             color: isOverLimit ? Colors.red.shade700 : Colors.white,
-            size: 24,
+            size: context.dynamicWidth(0.06),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: context.dynamicWidth(0.03)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,7 +116,7 @@ class _Page6PackageSelectionScreenState
                   '${l?.translate('invitation_guest_count') ?? 'Guest count'}: $guestCount',
                   style: TextStyle(
                     color: isOverLimit ? Colors.red.shade900 : Colors.white,
-                    fontSize: 16,
+                    fontSize: context.dynamicWidth(0.04),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -122,8 +126,8 @@ class _Page6PackageSelectionScreenState
                     style: TextStyle(
                       color: isOverLimit
                           ? Colors.red.shade700
-                          : Colors.white.withOpacity(0.8),
-                      fontSize: 12,
+                          : Colors.white.withValues(alpha: 0.8),
+                      fontSize: context.dynamicWidth(0.03),
                     ),
                   ),
               ],
@@ -131,16 +135,19 @@ class _Page6PackageSelectionScreenState
           ),
           if (isOverLimit)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: EdgeInsets.symmetric(
+                horizontal: context.dynamicWidth(0.02),
+                vertical: context.dynamicHeight(0.005),
+              ),
               decoration: BoxDecoration(
                 color: Colors.red.shade700,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
               ),
               child: Text(
                 l?.translate('invitation_limit_exceeded') ?? 'Limit exceeded!',
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
-                  fontSize: 12,
+                  fontSize: context.dynamicWidth(0.03),
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -157,11 +164,11 @@ class _Page6PackageSelectionScreenState
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const CircularProgressIndicator(),
-            const SizedBox(height: 16),
+            SizedBox(height: context.dynamicHeight(0.02)),
             Text(
               l?.translate('invitation_loading_packages') ?? 'Loading packages...',
-              style: const TextStyle(
-                fontSize: 16,
+              style: TextStyle(
+                fontSize: context.dynamicWidth(0.04),
                 color: Colors.grey,
               ),
             ),
@@ -173,40 +180,40 @@ class _Page6PackageSelectionScreenState
     if (state.packagesError != null) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(context.dynamicWidth(0.06)),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 Icons.error_outline,
-                size: 64,
+                size: context.dynamicWidth(0.16),
                 color: Colors.red.shade300,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: context.dynamicHeight(0.02)),
               Text(
                 l?.translate('invitation_packages_error') ?? 'Error loading packages',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: context.dynamicWidth(0.045),
                   fontWeight: FontWeight.bold,
                   color: Colors.grey.shade800,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: context.dynamicHeight(0.01)),
               Text(
                 state.packagesError!,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: context.dynamicWidth(0.035),
                   color: Colors.grey.shade600,
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: context.dynamicHeight(0.03)),
               AppButton(
                 text: l?.translate('common_retry') ?? 'Retry',
                 onPressed: () {
                   context.read<InvitationCubit>().loadPackages();
                 },
-                width: 200,
+                width: context.dynamicWidth(0.5),
               ),
             ],
           ),
@@ -217,20 +224,20 @@ class _Page6PackageSelectionScreenState
     if (state.availablePackages.isEmpty) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(context.dynamicWidth(0.06)),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 Icons.inventory_2_outlined,
-                size: 80,
+                size: context.dynamicWidth(0.2),
                 color: Colors.grey.shade400,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: context.dynamicHeight(0.02)),
               Text(
                 l?.translate('invitation_no_packages') ?? 'No packages available',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: context.dynamicWidth(0.045),
                   fontWeight: FontWeight.bold,
                   color: Colors.grey.shade700,
                 ),
@@ -242,7 +249,7 @@ class _Page6PackageSelectionScreenState
     }
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -250,11 +257,11 @@ class _Page6PackageSelectionScreenState
           Text(
             l?.translate('invitation_select_package') ?? 'Select the appropriate package for your guest count',
             style: TextStyle(
-              fontSize: 15,
+              fontSize: context.dynamicWidth(0.038),
               color: Colors.grey.shade700,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: context.dynamicHeight(0.02)),
 
           // Packages List
           ...state.availablePackages.map((package) {
@@ -301,13 +308,13 @@ class _Page6PackageSelectionScreenState
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.all(20),
+        margin: EdgeInsets.only(bottom: context.dynamicHeight(0.02)),
+        padding: EdgeInsets.all(context.dynamicWidth(0.05)),
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.primary.withValues(alpha: 0.1)
               : Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           border: Border.all(
             color: isSelected
                 ? AppColors.primary
@@ -319,8 +326,8 @@ class _Page6PackageSelectionScreenState
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              blurRadius: context.dynamicWidth(0.025),
+              offset: Offset(0, context.dynamicHeight(0.005)),
             ),
           ],
         ),
@@ -332,8 +339,8 @@ class _Page6PackageSelectionScreenState
               children: [
                 // Selection indicator
                 Container(
-                  width: 24,
-                  height: 24,
+                  width: context.dynamicWidth(0.06),
+                  height: context.dynamicWidth(0.06),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isSelected ? AppColors.primary : Colors.transparent,
@@ -345,14 +352,14 @@ class _Page6PackageSelectionScreenState
                     ),
                   ),
                   child: isSelected
-                      ? const Icon(
+                      ? Icon(
                           Icons.check,
                           color: Colors.white,
-                          size: 16,
+                          size: context.dynamicWidth(0.04),
                         )
                       : null,
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: context.dynamicWidth(0.03)),
 
                 // Package Name
                 Expanded(
@@ -361,29 +368,33 @@ class _Page6PackageSelectionScreenState
                     children: [
                       Row(
                         children: [
-                          Text(
-                            isEnglish ? package.name : package.nameAr,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: isSelected
-                                  ? AppColors.primary
-                                  : Colors.grey.shade800,
+                          Flexible(
+                            child: Text(
+                              isEnglish ? package.name : package.nameAr,
+                              style: TextStyle(
+                                fontSize: context.dynamicWidth(0.045),
+                                fontWeight: FontWeight.bold,
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : Colors.grey.shade800,
+                              ),
                             ),
                           ),
                           if (isCustom) ...[
-                            const SizedBox(width: 8),
+                            SizedBox(width: context.dynamicWidth(0.02)),
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 2),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: context.dynamicWidth(0.02),
+                                vertical: context.dynamicHeight(0.003),
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.purple.shade100,
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(context.dynamicWidth(0.02)),
                               ),
                               child: Text(
                                 l?.translate('invitation_custom') ?? 'Custom',
                                 style: TextStyle(
-                                  fontSize: 10,
+                                  fontSize: context.dynamicWidth(0.025),
                                   color: Colors.purple.shade800,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -396,7 +407,7 @@ class _Page6PackageSelectionScreenState
                         Text(
                           isEnglish ? package.nameAr : package.name,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: context.dynamicWidth(0.03),
                             color: Colors.grey.shade600,
                           ),
                         ),
@@ -406,12 +417,14 @@ class _Page6PackageSelectionScreenState
 
                 // Price
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: context.dynamicWidth(0.04),
+                    vertical: context.dynamicHeight(0.01),
+                  ),
                   decoration: BoxDecoration(
                     color:
                         isSelected ? AppColors.primary : Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
                   ),
                   child: Column(
                     children: [
@@ -420,17 +433,17 @@ class _Page6PackageSelectionScreenState
                             ? '${state.customPackagePrice!.toStringAsFixed(0)} ₪'
                             : '${package.price.toStringAsFixed(0)} ₪',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: context.dynamicWidth(0.045),
                           fontWeight: FontWeight.bold,
                           color:
                               isSelected ? Colors.white : Colors.grey.shade800,
                         ),
                       ),
                       if (state.isLoadingCustomPrice && isCustom && isSelected)
-                        const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
+                        SizedBox(
+                          width: context.dynamicWidth(0.04),
+                          height: context.dynamicWidth(0.04),
+                          child: const CircularProgressIndicator(
                             strokeWidth: 2,
                             color: Colors.white,
                           ),
@@ -441,29 +454,29 @@ class _Page6PackageSelectionScreenState
               ],
             ),
 
-            const SizedBox(height: 16),
+            SizedBox(height: context.dynamicHeight(0.02)),
             const Divider(),
-            const SizedBox(height: 12),
+            SizedBox(height: context.dynamicHeight(0.015)),
 
             // Features
             if (package.features.isNotEmpty) ...[
               ...package.features.map((feature) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.005)),
                     child: Row(
                       children: [
                         Icon(
                           Icons.check_circle,
-                          size: 18,
+                          size: context.dynamicWidth(0.045),
                           color: isSelected
                               ? AppColors.primary
                               : Colors.green.shade600,
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: context.dynamicWidth(0.02)),
                         Expanded(
                           child: Text(
                             feature,
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: context.dynamicWidth(0.033),
                               color: Colors.grey.shade700,
                             ),
                           ),
@@ -471,18 +484,18 @@ class _Page6PackageSelectionScreenState
                       ],
                     ),
                   )),
-              const SizedBox(height: 12),
+              SizedBox(height: context.dynamicHeight(0.015)),
             ],
 
             // Invitation Limit
             if (!isCustom && package.invitationLimit != null)
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(context.dynamicWidth(0.03)),
                 decoration: BoxDecoration(
                   color: isOverLimit
                       ? Colors.red.shade50
                       : Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.02)),
                   border: isOverLimit
                       ? Border.all(color: Colors.red.shade300)
                       : null,
@@ -491,17 +504,17 @@ class _Page6PackageSelectionScreenState
                   children: [
                     Icon(
                       isOverLimit ? Icons.warning : Icons.mail_outline,
-                      size: 20,
+                      size: context.dynamicWidth(0.05),
                       color: isOverLimit
                           ? Colors.red.shade700
                           : Colors.grey.shade600,
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: context.dynamicWidth(0.02)),
                     Expanded(
                       child: Text(
                         '${l?.translate('invitation_invitation_limit') ?? 'Invitation limit'}: ${package.invitationLimit}',
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: context.dynamicWidth(0.033),
                           color: isOverLimit
                               ? Colors.red.shade700
                               : Colors.grey.shade700,
@@ -514,7 +527,7 @@ class _Page6PackageSelectionScreenState
                       Text(
                         '${l?.translate('invitation_exceeded_by') ?? 'Exceeded by'} ${guestCount - package.invitationLimit!}',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: context.dynamicWidth(0.03),
                           color: Colors.red.shade700,
                           fontWeight: FontWeight.bold,
                         ),
@@ -525,12 +538,12 @@ class _Page6PackageSelectionScreenState
 
             // Custom Package Limit Input
             if (isCustom && isSelected) ...[
-              const SizedBox(height: 16),
+              SizedBox(height: context.dynamicHeight(0.02)),
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(context.dynamicWidth(0.04)),
                 decoration: BoxDecoration(
                   color: Colors.purple.shade50,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
                   border: Border.all(color: Colors.purple.shade200),
                 ),
                 child: Column(
@@ -539,19 +552,20 @@ class _Page6PackageSelectionScreenState
                     Text(
                       l?.translate('invitation_specify_invitations') ?? 'Specify the number of invitations needed',
                       style: TextStyle(
+                        fontSize: context.dynamicWidth(0.035),
                         fontWeight: FontWeight.bold,
                         color: Colors.purple.shade800,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: context.dynamicHeight(0.01)),
                     Text(
                       '${l?.translate('invitation_minimum') ?? 'Minimum'}: $guestCount (${l?.translate('invitation_current_guest_count') ?? 'current guest count'})',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: context.dynamicWidth(0.03),
                         color: Colors.purple.shade600,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: context.dynamicHeight(0.015)),
                     AppTextField(
                       controller: _customLimitController,
                       hintText: l?.translate('invitation_number_of_invitations') ?? 'Number of invitations',
@@ -590,9 +604,12 @@ class _Page6PackageSelectionScreenState
             Icon(
               Icons.warning_amber_rounded,
               color: Colors.orange.shade700,
+              size: context.dynamicWidth(0.06),
             ),
-            const SizedBox(width: 8),
-            Text(l?.translate('invitation_package_limit_exceeded_title') ?? 'Package Limit Exceeded'),
+            SizedBox(width: context.dynamicWidth(0.02)),
+            Expanded(
+              child: Text(l?.translate('invitation_package_limit_exceeded_title') ?? 'Package Limit Exceeded'),
+            ),
           ],
         ),
         content: Column(
@@ -602,12 +619,12 @@ class _Page6PackageSelectionScreenState
             Text(
               '${l?.translate('invitation_guest_count_exceeds') ?? 'Guest count'} ($guestCount) ${l?.translate('invitation_exceeds_package_limit') ?? 'exceeds the selected package limit'} ($packageLimit).',
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: context.dynamicHeight(0.02)),
             Text(
               l?.translate('invitation_available_options') ?? 'Available options:',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: context.dynamicHeight(0.01)),
             Text('• ${l?.translate('invitation_option_higher_package') ?? 'Select a package with a higher limit'}'),
             Text('• ${l?.translate('invitation_option_custom_package') ?? 'Select the custom package'}'),
             Text('• ${l?.translate('invitation_option_reduce_guests') ?? 'Reduce the number of guests'}'),
@@ -627,14 +644,14 @@ class _Page6PackageSelectionScreenState
     final canProceed = state.canProceedFromPackageSelection;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -4),
+            blurRadius: context.dynamicWidth(0.025),
+            offset: Offset(0, -context.dynamicHeight(0.005)),
           ),
         ],
       ),
@@ -645,11 +662,11 @@ class _Page6PackageSelectionScreenState
           if (!canProceed && state.selectedPackage != null)
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              margin: const EdgeInsets.only(bottom: 12),
+              padding: EdgeInsets.all(context.dynamicWidth(0.03)),
+              margin: EdgeInsets.only(bottom: context.dynamicHeight(0.015)),
               decoration: BoxDecoration(
                 color: Colors.red.shade50,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.02)),
                 border: Border.all(color: Colors.red.shade200),
               ),
               child: Row(
@@ -657,14 +674,14 @@ class _Page6PackageSelectionScreenState
                   Icon(
                     Icons.error_outline,
                     color: Colors.red.shade700,
-                    size: 20,
+                    size: context.dynamicWidth(0.05),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: context.dynamicWidth(0.02)),
                   Expanded(
                     child: Text(
                       l?.translate('invitation_guest_exceeds_package_message') ?? 'Guest count exceeds package limit. Please select another package or reduce guests.',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: context.dynamicWidth(0.03),
                         color: Colors.red.shade700,
                       ),
                     ),
@@ -687,7 +704,7 @@ class _Page6PackageSelectionScreenState
                 ),
               ),
 
-              const SizedBox(width: 12),
+              SizedBox(width: context.dynamicWidth(0.03)),
 
               // Next Button
               Expanded(

@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
+import '../../../../core/utils/media_query_values.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../data/models/invitation_draft_model.dart';
 import '../cubit/invitation_cubit.dart';
@@ -56,19 +57,19 @@ class _Page4GuestManagementScreenState
                 ),
 
                 // Guest Count Header
-                _buildGuestCountHeader(state, l),
+                _buildGuestCountHeader(context, state, l),
 
                 // Content
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(context.dynamicWidth(0.04)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         // Import Options
                         _buildImportOptions(context, state, l),
 
-                        const SizedBox(height: 20),
+                        SizedBox(height: context.dynamicHeight(0.025)),
 
                         // Manual Form (Expandable)
                         if (_showManualForm) ...[
@@ -79,7 +80,7 @@ class _Page4GuestManagementScreenState
                                   .addManualGuest(guest);
                             },
                           ),
-                          const SizedBox(height: 20),
+                          SizedBox(height: context.dynamicHeight(0.025)),
                         ],
 
                         // Guest List
@@ -99,7 +100,7 @@ class _Page4GuestManagementScreenState
     );
   }
 
-  Widget _buildGuestCountHeader(InvitationState state, AppLocalizations? l) {
+  Widget _buildGuestCountHeader(BuildContext context, InvitationState state, AppLocalizations? l) {
     final totalGuests = state.allGuests.length;
     // Count from the actual deduplicated guests list, not the source lists
     final contactsCount =
@@ -114,25 +115,28 @@ class _Page4GuestManagementScreenState
     final manualLabel = l?.translate('invitation_manual') ?? 'Manual';
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.dynamicWidth(0.04),
+        vertical: context.dynamicHeight(0.015),
+      ),
       color: AppColors.primary,
       child: Row(
         children: [
-          const Icon(
+          Icon(
             Icons.people,
             color: Colors.white,
-            size: 28,
+            size: context.dynamicWidth(0.07),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: context.dynamicWidth(0.03)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   '${l?.translate('invitation_total_guests') ?? 'Total Guests'}: $totalGuests',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
-                    fontSize: 18,
+                    fontSize: context.dynamicWidth(0.045),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -140,8 +144,8 @@ class _Page4GuestManagementScreenState
                   Text(
                     '$contactsLabel: $contactsCount | $excelLabel: $excelCount | $manualLabel: $manualCount',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.8),
-                      fontSize: 12,
+                      color: Colors.white.withValues(alpha: 0.8),
+                      fontSize: context.dynamicWidth(0.03),
                     ),
                   ),
               ],
@@ -154,15 +158,15 @@ class _Page4GuestManagementScreenState
 
   Widget _buildImportOptions(BuildContext context, InvitationState state, AppLocalizations? l) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: context.dynamicWidth(0.025),
+            offset: Offset(0, context.dynamicHeight(0.005)),
           ),
         ],
       ),
@@ -171,12 +175,12 @@ class _Page4GuestManagementScreenState
         children: [
           Text(
             l?.translate('invitation_add_guests_methods') ?? 'Guest Import Methods',
-            style: const TextStyle(
-              fontSize: 16,
+            style: TextStyle(
+              fontSize: context.dynamicWidth(0.04),
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: context.dynamicHeight(0.02)),
 
           // Import option buttons
           Row(
@@ -184,6 +188,7 @@ class _Page4GuestManagementScreenState
               // Contacts Button - count from deduplicated list
               Expanded(
                 child: _buildImportButton(
+                  context: context,
                   icon: Icons.contacts,
                   label: l?.translate('invitation_from_contacts') ?? 'From Contacts',
                   count: state.allGuests
@@ -192,11 +197,12 @@ class _Page4GuestManagementScreenState
                   onPressed: () => _openContactPicker(context, state),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: context.dynamicWidth(0.03)),
 
               // Excel Button - count from deduplicated list
               Expanded(
                 child: _buildImportButton(
+                  context: context,
                   icon: Icons.table_chart,
                   label: l?.translate('invitation_excel_file') ?? 'Excel File',
                   count: state.allGuests
@@ -208,11 +214,12 @@ class _Page4GuestManagementScreenState
                   isLoading: state.isLoadingExcel,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: context.dynamicWidth(0.03)),
 
               // Manual Button - count from deduplicated list
               Expanded(
                 child: _buildImportButton(
+                  context: context,
                   icon: Icons.edit,
                   label: l?.translate('invitation_manual_entry') ?? 'Manual Entry',
                   count: state.allGuests
@@ -230,27 +237,27 @@ class _Page4GuestManagementScreenState
           ),
 
           // Excel format notice
-          const SizedBox(height: 12),
+          SizedBox(height: context.dynamicHeight(0.015)),
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(context.dynamicWidth(0.03)),
             decoration: BoxDecoration(
               color: Colors.amber.shade50,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.02)),
               border: Border.all(color: Colors.amber.shade200),
             ),
             child: Row(
               children: [
                 Icon(
                   Icons.info_outline,
-                  size: 18,
+                  size: context.dynamicWidth(0.045),
                   color: Colors.amber.shade800,
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: context.dynamicWidth(0.02)),
                 Expanded(
                   child: Text(
                     l?.translate('invitation_excel_format_notice') ?? 'Excel format: Guest name, Phone number (+972 or +970)',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: context.dynamicWidth(0.03),
                       color: Colors.amber.shade900,
                     ),
                   ),
@@ -264,6 +271,7 @@ class _Page4GuestManagementScreenState
   }
 
   Widget _buildImportButton({
+    required BuildContext context,
     required IconData icon,
     required String label,
     required int count,
@@ -273,14 +281,17 @@ class _Page4GuestManagementScreenState
   }) {
     return InkWell(
       onTap: onPressed,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        padding: EdgeInsets.symmetric(
+          vertical: context.dynamicHeight(0.02),
+          horizontal: context.dynamicWidth(0.02),
+        ),
         decoration: BoxDecoration(
           color: isActive
-              ? AppColors.primary.withOpacity(0.1)
+              ? AppColors.primary.withValues(alpha: 0.1)
               : Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
           border: Border.all(
             color: isActive ? AppColors.primary : Colors.grey.shade300,
           ),
@@ -289,8 +300,8 @@ class _Page4GuestManagementScreenState
           children: [
             if (isLoading)
               SizedBox(
-                width: 28,
-                height: 28,
+                width: context.dynamicWidth(0.07),
+                height: context.dynamicWidth(0.07),
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
                   color: AppColors.primary,
@@ -299,31 +310,34 @@ class _Page4GuestManagementScreenState
             else
               Icon(
                 icon,
-                size: 28,
+                size: context.dynamicWidth(0.07),
                 color: isActive ? AppColors.primary : Colors.grey.shade600,
               ),
-            const SizedBox(height: 8),
+            SizedBox(height: context.dynamicHeight(0.01)),
             Text(
               label,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: context.dynamicWidth(0.03),
                 fontWeight: FontWeight.w500,
                 color: isActive ? AppColors.primary : Colors.grey.shade700,
               ),
             ),
             if (count > 0) ...[
-              const SizedBox(height: 4),
+              SizedBox(height: context.dynamicHeight(0.005)),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.dynamicWidth(0.02),
+                  vertical: context.dynamicHeight(0.003),
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.025)),
                 ),
                 child: Text(
                   count.toString(),
-                  style: const TextStyle(
-                    fontSize: 11,
+                  style: TextStyle(
+                    fontSize: context.dynamicWidth(0.028),
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
@@ -341,32 +355,32 @@ class _Page4GuestManagementScreenState
 
     if (allGuests.isEmpty) {
       return Container(
-        padding: const EdgeInsets.all(40),
+        padding: EdgeInsets.all(context.dynamicWidth(0.1)),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
           border: Border.all(color: Colors.grey.shade200),
         ),
         child: Column(
           children: [
             Icon(
               Icons.person_add_disabled,
-              size: 64,
+              size: context.dynamicWidth(0.16),
               color: Colors.grey.shade400,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: context.dynamicHeight(0.02)),
             Text(
               l?.translate('invitation_no_guests_yet') ?? 'No guests added yet',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: context.dynamicWidth(0.04),
                 color: Colors.grey.shade600,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: context.dynamicHeight(0.01)),
             Text(
               l?.translate('invitation_use_options_above') ?? 'Use the options above to add guests',
               style: TextStyle(
-                fontSize: 13,
+                fontSize: context.dynamicWidth(0.033),
                 color: Colors.grey.shade500,
               ),
             ),
@@ -378,12 +392,12 @@ class _Page4GuestManagementScreenState
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: context.dynamicWidth(0.025),
+            offset: Offset(0, context.dynamicHeight(0.005)),
           ),
         ],
       ),
@@ -392,14 +406,14 @@ class _Page4GuestManagementScreenState
         children: [
           // Header
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(context.dynamicWidth(0.04)),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   '${l?.translate('invitation_guest_list') ?? 'Guest List'} (${allGuests.length})',
-                  style: const TextStyle(
-                    fontSize: 16,
+                  style: TextStyle(
+                    fontSize: context.dynamicWidth(0.04),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -409,7 +423,7 @@ class _Page4GuestManagementScreenState
                       final cubit = context.read<InvitationCubit>();
                       _showClearAllDialog(context, cubit, l);
                     },
-                    icon: const Icon(Icons.delete_sweep, size: 18),
+                    icon: Icon(Icons.delete_sweep, size: context.dynamicWidth(0.045)),
                     label: Text(l?.translate('invitation_clear_all') ?? 'Clear All'),
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.red,
@@ -463,37 +477,47 @@ class _Page4GuestManagementScreenState
 
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: sourceColor.withOpacity(0.1),
+        radius: context.dynamicWidth(0.05),
+        backgroundColor: sourceColor.withValues(alpha: 0.1),
         child: Icon(
           sourceIcon,
           color: sourceColor,
-          size: 20,
+          size: context.dynamicWidth(0.05),
         ),
       ),
       title: Text(
         guest.name,
-        style: const TextStyle(fontWeight: FontWeight.w500),
+        style: TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: context.dynamicWidth(0.038),
+        ),
       ),
       subtitle: Row(
         children: [
-          Text(
-            guest.phone,
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.grey.shade600,
+          Flexible(
+            child: Text(
+              guest.phone,
+              style: TextStyle(
+                fontSize: context.dynamicWidth(0.033),
+                color: Colors.grey.shade600,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: context.dynamicWidth(0.02)),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            padding: EdgeInsets.symmetric(
+              horizontal: context.dynamicWidth(0.015),
+              vertical: context.dynamicHeight(0.003),
+            ),
             decoration: BoxDecoration(
-              color: sourceColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(4),
+              color: sourceColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.01)),
             ),
             child: Text(
               sourceLabel,
               style: TextStyle(
-                fontSize: 10,
+                fontSize: context.dynamicWidth(0.025),
                 color: sourceColor,
               ),
             ),
@@ -501,7 +525,10 @@ class _Page4GuestManagementScreenState
         ],
       ),
       trailing: IconButton(
-        icon: const Icon(Icons.remove_circle_outline),
+        icon: Icon(
+          Icons.remove_circle_outline,
+          size: context.dynamicWidth(0.06),
+        ),
         color: Colors.red.shade400,
         onPressed: () {
           context.read<InvitationCubit>().removeGuestByModel(guest);
@@ -656,14 +683,14 @@ class _Page4GuestManagementScreenState
 
   Widget _buildNavigationButtons(BuildContext context, InvitationState state, AppLocalizations? l) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -4),
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: context.dynamicWidth(0.025),
+            offset: Offset(0, -context.dynamicHeight(0.005)),
           ),
         ],
       ),
@@ -681,7 +708,7 @@ class _Page4GuestManagementScreenState
             ),
           ),
 
-          const SizedBox(width: 12),
+          SizedBox(width: context.dynamicWidth(0.03)),
 
           // Next Button
           Expanded(

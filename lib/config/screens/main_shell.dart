@@ -2,14 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/utils/app_colors.dart';
-import '../../core/widgets/bottom_navigation.dart';
-import '../../features/home/presentation/screens/home_screen.dart';
+import '../../core/widgets/adaptive_bottom_navigation_bar.dart';
+import '../locale/app_localizations.dart';
+import '../../features/events/domain/entities/event_entity.dart';
 import '../../features/events/presentation/screens/event_details_screen.dart';
-import '../../features/scanner/presentation/screens/qr_scanner_screen.dart';
-import '../../features/payment/presentation/screens/payment_upload_screen.dart';
-import '../../features/settings/presentation/screens/settings_screen.dart';
+import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/invitation/presentation/cubit/invitation_cubit.dart';
 import '../../features/invitation/presentation/screens/invitation_wizard_screen.dart';
+import '../../features/payment/presentation/screens/payment_upload_screen.dart';
+import '../../features/scanner/presentation/cubit/scanner_cubit.dart';
+import '../../features/scanner/presentation/screens/qr_scanner_screen.dart';
+import '../../features/scanner/presentation/screens/scanner_events_screen.dart';
+import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../../injection_container.dart' as di;
 
 /// Main shell widget that contains all screens with bottom navigation.
@@ -29,11 +33,20 @@ class _MainShellState extends State<MainShell> {
   bool _showEventDetails = false;
   bool _showPaymentUpload = false;
 
+  // Scanner state
+  EventEntity? _selectedScannerEvent;
+  bool _showScannerScreen = false;
+
   void _onNavigationTap(int index) {
     setState(() {
       _currentIndex = index;
       _showEventDetails = false;
       _showPaymentUpload = false;
+      // Reset scanner state when navigating away
+      if (index != 1) {
+        _selectedScannerEvent = null;
+        _showScannerScreen = false;
+      }
     });
   }
 
@@ -81,6 +94,20 @@ class _MainShellState extends State<MainShell> {
     );
   }
 
+  void _onScannerEventSelected(EventEntity event) {
+    setState(() {
+      _selectedScannerEvent = event;
+      _showScannerScreen = true;
+    });
+  }
+
+  void _onBackFromScanner() {
+    setState(() {
+      _selectedScannerEvent = null;
+      _showScannerScreen = false;
+    });
+  }
+
   Widget _buildCurrentScreen() {
     // Handle sub-screens first
     if (_showEventDetails && _selectedEventId != null) {
@@ -103,12 +130,47 @@ class _MainShellState extends State<MainShell> {
       case 0:
         return HomeScreen(onViewEvent: _onViewEvent);
       case 1:
-        return const QRScannerScreen();
+        // Scanner flow: show events list first, then scanner when event is selected
+        if (_showScannerScreen && _selectedScannerEvent != null) {
+          return BlocProvider(
+            create: (_) => di.sl<ScannerCubit>(),
+            child: QRScannerScreen(
+              event: _selectedScannerEvent!,
+              onBack: _onBackFromScanner,
+            ),
+          );
+        }
+        return ScannerEventsScreen(
+          onEventSelected: _onScannerEventSelected,
+        );
       case 2:
         return const SettingsScreen();
       default:
         return HomeScreen(onViewEvent: _onViewEvent);
     }
+  }
+
+  List<AdaptiveNavItem> _buildNavItems(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final isArabic = !(l?.isEnLocale ?? true);
+
+    return [
+      AdaptiveNavItem(
+        label: isArabic ? 'الرئيسية' : 'Home',
+        icon: Icons.grid_view_outlined,
+        activeIcon: Icons.grid_view_rounded,
+      ),
+      AdaptiveNavItem(
+        label: isArabic ? 'الماسح' : 'Scanner',
+        icon: Icons.crop_free_outlined,
+        activeIcon: Icons.crop_free_rounded,
+      ),
+      AdaptiveNavItem(
+        label: isArabic ? 'الإعدادات' : 'Settings',
+        icon: Icons.bookmark_border_outlined,
+        activeIcon: Icons.bookmark,
+      ),
+    ];
   }
 
   @override
@@ -120,12 +182,14 @@ class _MainShellState extends State<MainShell> {
         duration: const Duration(milliseconds: 300),
         child: _buildCurrentScreen(),
       ),
-      bottomNavigationBar: (_showEventDetails || _showPaymentUpload)
+      bottomNavigationBar: (_showEventDetails || _showPaymentUpload || _showScannerScreen)
           ? null
-          : BottomNavigation(
+          : AdaptiveBottomNavigationBar(
               currentIndex: _currentIndex,
               onTap: _onNavigationTap,
+              items: _buildNavItems(context),
               onAddTap: _onAddEventTap,
+              showAddButton: true,
             ),
     );
   }

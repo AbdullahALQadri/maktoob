@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/app_colors.dart';
+import '../../../../core/utils/media_query_values.dart';
 import '../../../../core/widgets/buttons/primary_button.dart';
 import '../cubit/invitation_cubit.dart';
 import '../cubit/invitation_state.dart';
@@ -22,20 +23,36 @@ class ShareScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.gray800),
-          onPressed: () {
-            context.read<InvitationCubit>().previousStep();
-            onBack?.call();
-          },
+        leading: Padding(
+          padding: EdgeInsets.all(context.dynamicWidth(0.02)),
+          child: GestureDetector(
+            onTap: () {
+              context.read<InvitationCubit>().previousStep();
+              onBack?.call();
+            },
+            child: Container(
+              width: context.dynamicWidth(0.1),
+              height: context.dynamicWidth(0.1),
+              decoration: BoxDecoration(
+                color: AppColors.gray100,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.gray200,
+                  width: 1,
+                ),
+              ),
+              child: Icon(
+                Icons.arrow_back_rounded,
+                color: AppColors.gray800,
+                size: context.dynamicWidth(0.055),
+              ),
+            ),
+          ),
         ),
       ),
       body: BlocBuilder<InvitationCubit, InvitationState>(
@@ -44,23 +61,23 @@ class ShareScreen extends StatelessWidget {
             children: [
               // Header
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
+                padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.06)),
                 child: Column(
                   children: [
                     Text(
                       'Your invitation is ready!',
                       style: TextStyle(
-                        fontSize: screenWidth * 0.065,
+                        fontSize: context.dynamicWidth(0.065),
                         fontWeight: FontWeight.bold,
                         color: AppColors.gray900,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: screenHeight * 0.01),
+                    SizedBox(height: context.dynamicHeight(0.01)),
                     Text(
                       'Preview how your guests will see it',
                       style: TextStyle(
-                        fontSize: screenWidth * 0.04,
+                        fontSize: context.dynamicWidth(0.04),
                         color: AppColors.gray500,
                       ),
                     ),
@@ -68,12 +85,12 @@ class ShareScreen extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: screenHeight * 0.03),
+              SizedBox(height: context.dynamicHeight(0.03)),
 
               // Full invitation preview
               Expanded(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
+                  padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.08)),
                   child: InvitationPreviewWidget(
                     eventType: state.eventType,
                     names: state.names,
@@ -86,16 +103,16 @@ class ShareScreen extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: screenHeight * 0.03),
+              SizedBox(height: context.dynamicHeight(0.03)),
 
               // Guest count summary
               if (state.totalGuests > 0)
                 Container(
-                  margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-                  padding: EdgeInsets.all(screenWidth * 0.04),
+                  margin: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.06)),
+                  padding: EdgeInsets.all(context.dynamicWidth(0.04)),
                   decoration: BoxDecoration(
                     color: AppColors.purple50,
-                    borderRadius: BorderRadius.circular(screenWidth * 0.03),
+                    borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -103,14 +120,14 @@ class ShareScreen extends StatelessWidget {
                       Icon(
                         Icons.people_outline,
                         color: AppColors.primaryColor,
-                        size: screenWidth * 0.06,
+                        size: context.dynamicWidth(0.06),
                       ),
-                      SizedBox(width: screenWidth * 0.02),
+                      SizedBox(width: context.dynamicWidth(0.02)),
                       Text(
                         '${state.totalGuests} guests will receive this invitation',
                         style: TextStyle(
                           color: AppColors.primaryColor,
-                          fontSize: screenWidth * 0.038,
+                          fontSize: context.dynamicWidth(0.038),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -118,19 +135,19 @@ class ShareScreen extends StatelessWidget {
                   ),
                 ),
 
-              SizedBox(height: screenHeight * 0.02),
+              SizedBox(height: context.dynamicHeight(0.02)),
 
               // Bottom button with BackdropFilter
               ClipRect(
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                   child: Container(
-                    padding: EdgeInsets.all(screenWidth * 0.04),
+                    padding: EdgeInsets.all(context.dynamicWidth(0.04)),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.85),
+                      color: Colors.white.withValues(alpha: 0.85),
                       border: Border(
                         top: BorderSide(
-                          color: AppColors.gray200.withOpacity(0.5),
+                          color: AppColors.gray200.withValues(alpha: 0.5),
                           width: 0.5,
                         ),
                       ),
@@ -156,60 +173,57 @@ class ShareScreen extends StatelessWidget {
   }
 
   void _showPackageModal(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) {
+      builder: (modalContext) {
         return Container(
-          height: screenHeight * 0.45,
+          height: modalContext.dynamicHeight(0.45),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(screenWidth * 0.06),
-              topRight: Radius.circular(screenWidth * 0.06),
+              topLeft: Radius.circular(modalContext.dynamicWidth(0.06)),
+              topRight: Radius.circular(modalContext.dynamicWidth(0.06)),
             ),
           ),
           child: Column(
             children: [
               // Handle bar
               Container(
-                margin: EdgeInsets.only(top: screenWidth * 0.03),
-                width: screenWidth * 0.1,
-                height: 4,
+                margin: EdgeInsets.only(top: modalContext.dynamicWidth(0.03)),
+                width: modalContext.dynamicWidth(0.1),
+                height: modalContext.dynamicHeight(0.005),
                 decoration: BoxDecoration(
                   color: AppColors.gray300,
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: BorderRadius.circular(modalContext.dynamicWidth(0.005)),
                 ),
               ),
 
-              SizedBox(height: screenHeight * 0.03),
+              SizedBox(height: modalContext.dynamicHeight(0.03)),
 
               // Title
               Text(
                 'Choose How You Want to\nManage Your Event',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: screenWidth * 0.055,
+                  fontSize: modalContext.dynamicWidth(0.055),
                   fontWeight: FontWeight.bold,
                   color: AppColors.gray900,
                   height: 1.3,
                 ),
               ),
 
-              SizedBox(height: screenHeight * 0.015),
+              SizedBox(height: modalContext.dynamicHeight(0.015)),
 
               // Subtitle - NO pricing mention
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
+                padding: EdgeInsets.symmetric(horizontal: modalContext.dynamicWidth(0.1)),
                 child: Text(
                   'Select the level of organization that fits your event',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: screenWidth * 0.038,
+                    fontSize: modalContext.dynamicWidth(0.038),
                     color: AppColors.gray500,
                   ),
                 ),
@@ -219,22 +233,22 @@ class ShareScreen extends StatelessWidget {
 
               // Features preview
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
+                padding: EdgeInsets.symmetric(horizontal: modalContext.dynamicWidth(0.06)),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     _buildFeatureIcon(
-                      screenWidth,
+                      modalContext,
                       icon: Icons.qr_code,
                       label: 'QR Entry',
                     ),
                     _buildFeatureIcon(
-                      screenWidth,
+                      modalContext,
                       icon: Icons.analytics_outlined,
                       label: 'Reports',
                     ),
                     _buildFeatureIcon(
-                      screenWidth,
+                      modalContext,
                       icon: Icons.support_agent,
                       label: 'Support',
                     ),
@@ -246,13 +260,13 @@ class ShareScreen extends StatelessWidget {
 
               // CTA button
               Padding(
-                padding: EdgeInsets.all(screenWidth * 0.06),
+                padding: EdgeInsets.all(modalContext.dynamicWidth(0.06)),
                 child: SizedBox(
                   width: double.infinity,
                   child: PrimaryButton(
                     text: 'See Options',
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.pop(modalContext);
                       context.read<InvitationCubit>().nextStep();
                       onContinue?.call();
                     },
@@ -260,7 +274,7 @@ class ShareScreen extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: screenHeight * 0.02),
+              SizedBox(height: modalContext.dynamicHeight(0.02)),
             ],
           ),
         );
@@ -268,28 +282,28 @@ class ShareScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFeatureIcon(double screenWidth,
+  Widget _buildFeatureIcon(BuildContext context,
       {required IconData icon, required String label}) {
     return Column(
       children: [
         Container(
-          width: screenWidth * 0.14,
-          height: screenWidth * 0.14,
+          width: context.dynamicWidth(0.14),
+          height: context.dynamicWidth(0.14),
           decoration: BoxDecoration(
             color: AppColors.purple50,
-            borderRadius: BorderRadius.circular(screenWidth * 0.035),
+            borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
           ),
           child: Icon(
             icon,
             color: AppColors.primaryColor,
-            size: screenWidth * 0.07,
+            size: context.dynamicWidth(0.07),
           ),
         ),
-        SizedBox(height: screenWidth * 0.02),
+        SizedBox(height: context.dynamicWidth(0.02)),
         Text(
           label,
           style: TextStyle(
-            fontSize: screenWidth * 0.032,
+            fontSize: context.dynamicWidth(0.032),
             color: AppColors.gray600,
           ),
         ),

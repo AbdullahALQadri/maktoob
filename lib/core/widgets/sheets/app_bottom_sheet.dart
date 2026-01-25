@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../utils/app_colors.dart';
 import '../../utils/app_strings.dart';
+import '../../utils/media_query_values.dart';
 
 /// A customizable bottom sheet widget with consistent styling.
 ///
@@ -132,6 +133,9 @@ class AppBottomSheet extends StatelessWidget {
     double borderRadius = 24,
     Widget? action,
   }) {
+    final effectiveBorderRadius = borderRadius == 24
+        ? context.dynamicWidth(0.06)
+        : borderRadius;
     return showModalBottomSheet<T>(
       context: context,
       isScrollControlled: true,
@@ -148,7 +152,7 @@ class AppBottomSheet extends StatelessWidget {
             decoration: BoxDecoration(
               color: backgroundColor ?? AppColors.white,
               borderRadius: BorderRadius.vertical(
-                top: Radius.circular(borderRadius),
+                top: Radius.circular(effectiveBorderRadius),
               ),
             ),
             child: Column(
@@ -199,6 +203,15 @@ class AppBottomSheet extends StatelessWidget {
     final screenHeight = MediaQuery.of(context).size.height;
     final effectiveMaxHeight = maxHeight ?? 0.9;
     final effectiveMinHeight = minHeight ?? 0.2;
+    final effectiveBorderRadius = borderRadius == 24
+        ? context.dynamicWidth(0.06)
+        : borderRadius;
+    final defaultPadding = EdgeInsets.fromLTRB(
+      context.dynamicWidth(0.06),
+      0,
+      context.dynamicWidth(0.06),
+      context.dynamicHeight(0.03),
+    );
 
     Widget content = Container(
       constraints: BoxConstraints(
@@ -208,7 +221,7 @@ class AppBottomSheet extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor ?? AppColors.white,
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(borderRadius),
+          top: Radius.circular(effectiveBorderRadius),
         ),
       ),
       child: Column(
@@ -226,13 +239,13 @@ class AppBottomSheet extends StatelessWidget {
           if (isScrollable)
             Flexible(
               child: SingleChildScrollView(
-                padding: padding ?? const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                padding: padding ?? defaultPadding,
                 child: child,
               ),
             )
           else
             Padding(
-              padding: padding ?? const EdgeInsets.fromLTRB(24, 0, 24, 24),
+              padding: padding ?? defaultPadding,
               child: child,
             ),
         ],
@@ -272,19 +285,24 @@ class _SheetHeader extends StatelessWidget {
         // Drag handle
         if (showDragHandle)
           Container(
-            margin: const EdgeInsets.only(top: 12),
-            width: 40,
-            height: 4,
+            margin: EdgeInsets.only(top: context.dynamicHeight(0.015)),
+            width: context.dynamicWidth(0.1),
+            height: context.dynamicHeight(0.005),
             decoration: BoxDecoration(
               color: AppColors.gray300,
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.005)),
             ),
           ),
 
         // Title and close button
         if (title != null || showCloseButton)
           Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+            padding: EdgeInsets.fromLTRB(
+              context.dynamicWidth(0.06),
+              context.dynamicHeight(0.02),
+              context.dynamicWidth(0.06),
+              context.dynamicHeight(0.02),
+            ),
             child: Row(
               children: [
                 // Title
@@ -294,7 +312,7 @@ class _SheetHeader extends StatelessWidget {
                       title!,
                       style: TextStyle(
                         fontFamily: AppStrings.fontFamily,
-                        fontSize: 18,
+                        fontSize: context.dynamicWidth(0.045),
                         fontWeight: FontWeight.w600,
                         color: AppColors.gray900,
                       ),
@@ -307,7 +325,7 @@ class _SheetHeader extends StatelessWidget {
                 // Action
                 if (action != null) ...[
                   action!,
-                  const SizedBox(width: 12),
+                  SizedBox(width: context.dynamicWidth(0.03)),
                 ],
 
                 // Close button
@@ -315,15 +333,15 @@ class _SheetHeader extends StatelessWidget {
                   GestureDetector(
                     onTap: onClose ?? () => Navigator.of(context).pop(),
                     child: Container(
-                      width: 32,
-                      height: 32,
+                      width: context.dynamicWidth(0.08),
+                      height: context.dynamicWidth(0.08),
                       decoration: BoxDecoration(
                         color: AppColors.gray100,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.close,
-                        size: 18,
+                        size: context.dynamicWidth(0.045),
                         color: AppColors.gray500,
                       ),
                     ),
@@ -360,52 +378,52 @@ class _ConfirmSheet extends StatelessWidget {
           message,
           style: TextStyle(
             fontFamily: AppStrings.fontFamily,
-            fontSize: 14,
+            fontSize: context.dynamicWidth(0.035),
             color: AppColors.gray600,
             height: 1.5,
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: context.dynamicHeight(0.03)),
         Row(
           children: [
             Expanded(
               child: OutlinedButton(
                 onPressed: () => Navigator.of(context).pop(false),
                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.018)),
                   side: BorderSide(color: AppColors.gray300),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
                   ),
                 ),
                 child: Text(
                   cancelText,
                   style: TextStyle(
                     fontFamily: AppStrings.fontFamily,
-                    fontSize: 16,
+                    fontSize: context.dynamicWidth(0.04),
                     fontWeight: FontWeight.w600,
                     color: AppColors.gray700,
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: context.dynamicWidth(0.03)),
             Expanded(
               child: ElevatedButton(
                 onPressed: () => Navigator.of(context).pop(true),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.018)),
                   backgroundColor: confirmColor ?? AppColors.primaryColor,
                   foregroundColor: AppColors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
                   ),
                 ),
                 child: Text(
                   confirmText,
                   style: TextStyle(
                     fontFamily: AppStrings.fontFamily,
-                    fontSize: 16,
+                    fontSize: context.dynamicWidth(0.04),
                     fontWeight: FontWeight.w600,
                   ),
                 ),

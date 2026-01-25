@@ -9,7 +9,7 @@ import '../../features/events/presentation/screens/events_screen.dart';
 import '../../features/events/presentation/screens/event_details_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/venues/presentation/screens/venue_screen.dart';
-import '../../features/scanner/presentation/screens/qr_scanner_screen.dart';
+import '../../features/scanner/presentation/screens/scanner_events_screen.dart';
 import '../../features/payment/presentation/screens/payment_upload_screen.dart';
 import '../screens/main_shell.dart';
 
@@ -100,9 +100,9 @@ class AppRoutes {
       case Routes.venue:
         return _buildRoute(const VenueScreen(), settings);
 
-      // QR Scanner Screen
+      // QR Scanner Screen (Events Selection)
       case Routes.scanner:
-        return _buildRoute(const QRScannerScreen(), settings);
+        return _buildRoute(const ScannerEventsScreen(), settings);
 
       // Payment Upload Screen
       case Routes.payment:

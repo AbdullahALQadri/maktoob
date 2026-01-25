@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../utils/app_colors.dart';
 import '../utils/app_strings.dart';
+import '../utils/media_query_values.dart';
 
 /// A flexible button widget that supports various styles.
 ///
@@ -75,22 +76,28 @@ class AppButton extends StatelessWidget {
     final txtColor = textColor ?? (outlined ? bgColor : Colors.white);
     final border = borderColor ?? bgColor;
 
+    // Use responsive values when defaults are used
+    final effectiveHeight = height == 48 ? context.dynamicHeight(0.06) : height;
+    final effectiveBorderRadius = borderRadius == 12 ? context.dynamicWidth(0.03) : borderRadius;
+    final effectiveIconSize = iconSize == 20 ? context.dynamicWidth(0.05) : iconSize;
+    final effectiveFontSize = fontSize == 16 ? context.dynamicWidth(0.04) : fontSize;
+
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 200),
       opacity: _isEnabled ? 1.0 : 0.6,
       child: Container(
         width: width ?? double.infinity,
-        height: height,
+        height: effectiveHeight,
         decoration: BoxDecoration(
           color: outlined ? Colors.transparent : bgColor,
-          borderRadius: BorderRadius.circular(borderRadius),
+          borderRadius: BorderRadius.circular(effectiveBorderRadius),
           border: outlined ? Border.all(color: border, width: 1.5) : null,
           boxShadow: !outlined && _isEnabled
               ? [
                   BoxShadow(
-                    color: bgColor.withOpacity(0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
+                    color: bgColor.withValues(alpha: 0.2),
+                    blurRadius: context.dynamicWidth(0.02),
+                    offset: Offset(0, context.dynamicHeight(0.003)),
                   ),
                 ]
               : null,
@@ -99,21 +106,21 @@ class AppButton extends StatelessWidget {
           color: Colors.transparent,
           child: InkWell(
             onTap: _isEnabled ? onPressed : null,
-            borderRadius: BorderRadius.circular(borderRadius),
-            splashColor: (outlined ? bgColor : Colors.white).withOpacity(0.2),
+            borderRadius: BorderRadius.circular(effectiveBorderRadius),
+            splashColor: (outlined ? bgColor : Colors.white).withValues(alpha: 0.2),
             highlightColor:
-                (outlined ? bgColor : Colors.white).withOpacity(0.1),
+                (outlined ? bgColor : Colors.white).withValues(alpha: 0.1),
             child: Center(
               child: isLoading
                   ? SizedBox(
-                      width: 22,
-                      height: 22,
+                      width: context.dynamicWidth(0.055),
+                      height: context.dynamicWidth(0.055),
                       child: CircularProgressIndicator(
                         strokeWidth: 2.5,
                         valueColor: AlwaysStoppedAnimation<Color>(txtColor),
                       ),
                     )
-                  : _buildContent(txtColor),
+                  : _buildContent(context, txtColor, effectiveIconSize, effectiveFontSize),
             ),
           ),
         ),
@@ -121,10 +128,10 @@ class AppButton extends StatelessWidget {
     );
   }
 
-  Widget _buildContent(Color txtColor) {
+  Widget _buildContent(BuildContext context, Color txtColor, double effectiveIconSize, double effectiveFontSize) {
     final defaultTextStyle = TextStyle(
       fontFamily: AppStrings.fontFamily,
-      fontSize: fontSize,
+      fontSize: effectiveFontSize,
       fontWeight: FontWeight.w600,
       color: txtColor,
     );
@@ -137,9 +144,9 @@ class AppButton extends StatelessWidget {
           Icon(
             icon,
             color: txtColor,
-            size: iconSize,
+            size: effectiveIconSize,
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: context.dynamicWidth(0.02)),
           Text(
             text,
             style: defaultTextStyle,

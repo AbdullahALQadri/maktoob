@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../utils/app_colors.dart';
 import '../../utils/app_strings.dart';
+import '../../utils/media_query_values.dart';
 
 /// A secondary button widget with outlined style and optional gradient border.
 ///
@@ -89,14 +90,19 @@ class SecondaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Use responsive values when defaults are used
+    final effectiveHeight = height == 56 ? context.dynamicHeight(0.07) : height;
+    final effectiveBorderRadius = borderRadius == 12 ? context.dynamicWidth(0.03) : borderRadius;
+    final effectiveIconSize = iconSize == 20 ? context.dynamicWidth(0.05) : iconSize;
+
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 200),
       opacity: _isEnabled ? 1.0 : 0.6,
       child: Container(
         width: width ?? double.infinity,
-        height: height,
+        height: effectiveHeight,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(borderRadius),
+          borderRadius: BorderRadius.circular(effectiveBorderRadius),
           gradient: useGradientBorder
               ? LinearGradient(
                   colors: gradientColors ?? _defaultGradientColors,
@@ -116,21 +122,21 @@ class SecondaryButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius:
-                BorderRadius.circular(borderRadius - (useGradientBorder ? borderWidth : 0)),
+                BorderRadius.circular(effectiveBorderRadius - (useGradientBorder ? borderWidth : 0)),
           ),
           child: Material(
             color: AppColors.transparent,
             child: InkWell(
               onTap: _isEnabled ? onPressed : null,
               borderRadius: BorderRadius.circular(
-                  borderRadius - (useGradientBorder ? borderWidth : 0)),
+                  effectiveBorderRadius - (useGradientBorder ? borderWidth : 0)),
               splashColor: AppColors.primaryColor.withValues(alpha: 0.1),
               highlightColor: AppColors.primaryColor.withValues(alpha: 0.05),
               child: Center(
                 child: isLoading
                     ? SizedBox(
-                        width: 24,
-                        height: 24,
+                        width: context.dynamicWidth(0.06),
+                        height: context.dynamicWidth(0.06),
                         child: CircularProgressIndicator(
                           strokeWidth: 2.5,
                           valueColor: AlwaysStoppedAnimation<Color>(
@@ -138,7 +144,7 @@ class SecondaryButton extends StatelessWidget {
                           ),
                         ),
                       )
-                    : _buildContent(),
+                    : _buildContent(context, effectiveIconSize),
               ),
             ),
           ),
@@ -147,11 +153,11 @@ class SecondaryButton extends StatelessWidget {
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context, double effectiveIconSize) {
     final effectiveTextColor = textColor ?? AppColors.primaryColor;
     final defaultTextStyle = TextStyle(
       fontFamily: AppStrings.fontFamily,
-      fontSize: 16,
+      fontSize: context.dynamicWidth(0.04),
       fontWeight: FontWeight.w600,
       color: effectiveTextColor,
     );
@@ -164,9 +170,9 @@ class SecondaryButton extends StatelessWidget {
           Icon(
             icon,
             color: effectiveTextColor,
-            size: iconSize,
+            size: effectiveIconSize,
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: context.dynamicWidth(0.02)),
           Text(
             text,
             style: textStyle ?? defaultTextStyle,

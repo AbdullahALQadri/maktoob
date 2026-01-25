@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../utils/app_colors.dart';
 import '../../utils/app_strings.dart';
+import '../../utils/media_query_values.dart';
 
 /// A primary button widget with gradient support.
 ///
@@ -75,26 +76,31 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Use responsive values when defaults are used
+    final effectiveHeight = height == 56 ? context.dynamicHeight(0.07) : height;
+    final effectiveBorderRadius = borderRadius == 12 ? context.dynamicWidth(0.03) : borderRadius;
+    final effectiveIconSize = iconSize == 20 ? context.dynamicWidth(0.05) : iconSize;
+
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 200),
       opacity: _isEnabled ? 1.0 : 0.6,
       child: Container(
         width: width ?? double.infinity,
-        height: height,
+        height: effectiveHeight,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: gradientColors ?? _defaultGradientColors,
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
-          borderRadius: BorderRadius.circular(borderRadius),
+          borderRadius: BorderRadius.circular(effectiveBorderRadius),
           boxShadow: _isEnabled
               ? [
                   BoxShadow(
                     color: (gradientColors?.first ?? AppColors.primaryColor)
                         .withValues(alpha: 0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+                    blurRadius: context.dynamicWidth(0.03),
+                    offset: Offset(0, context.dynamicHeight(0.005)),
                   ),
                 ]
               : null,
@@ -103,21 +109,21 @@ class PrimaryButton extends StatelessWidget {
           color: AppColors.transparent,
           child: InkWell(
             onTap: _isEnabled ? onPressed : null,
-            borderRadius: BorderRadius.circular(borderRadius),
+            borderRadius: BorderRadius.circular(effectiveBorderRadius),
             splashColor: AppColors.white.withValues(alpha: 0.2),
             highlightColor: AppColors.white.withValues(alpha: 0.1),
             child: Center(
               child: isLoading
                   ? SizedBox(
-                      width: 24,
-                      height: 24,
+                      width: context.dynamicWidth(0.06),
+                      height: context.dynamicWidth(0.06),
                       child: CircularProgressIndicator(
                         strokeWidth: 2.5,
                         valueColor:
                             AlwaysStoppedAnimation<Color>(AppColors.white),
                       ),
                     )
-                  : _buildContent(),
+                  : _buildContent(context, effectiveIconSize),
             ),
           ),
         ),
@@ -125,10 +131,10 @@ class PrimaryButton extends StatelessWidget {
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context, double effectiveIconSize) {
     final defaultTextStyle = TextStyle(
       fontFamily: AppStrings.fontFamily,
-      fontSize: 16,
+      fontSize: context.dynamicWidth(0.04),
       fontWeight: FontWeight.w600,
       color: AppColors.white,
     );
@@ -141,9 +147,9 @@ class PrimaryButton extends StatelessWidget {
           Icon(
             icon,
             color: AppColors.white,
-            size: iconSize,
+            size: effectiveIconSize,
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: context.dynamicWidth(0.02)),
           Text(
             text,
             style: textStyle ?? defaultTextStyle,

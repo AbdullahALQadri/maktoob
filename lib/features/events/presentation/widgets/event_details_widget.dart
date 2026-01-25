@@ -56,8 +56,29 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
               surface: Colors.white,
               onSurface: AppColors.gray900,
             ),
+            datePickerTheme: DatePickerThemeData(
+              backgroundColor: Colors.white,
+              headerBackgroundColor: AppColors.primaryColor,
+              headerForegroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+              ),
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                textStyle: TextStyle(
+                  fontSize: context.dynamicWidth(0.04),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
           ),
-          child: child!,
+          child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: const TextScaler.linear(1.0),
+            ),
+            child: child!,
+          ),
         );
       },
     );
@@ -99,8 +120,33 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
               surface: Colors.white,
               onSurface: AppColors.gray900,
             ),
+            timePickerTheme: TimePickerThemeData(
+              backgroundColor: Colors.white,
+              hourMinuteShape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+              ),
+              dayPeriodShape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+              ),
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                textStyle: TextStyle(
+                  fontSize: context.dynamicWidth(0.04),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
           ),
-          child: child!,
+          child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: const TextScaler.linear(1.0),
+            ),
+            child: child!,
+          ),
         );
       },
     );

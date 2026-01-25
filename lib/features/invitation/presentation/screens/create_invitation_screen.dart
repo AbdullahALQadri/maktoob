@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/app_colors.dart';
+import '../../../../core/utils/media_query_values.dart';
 import '../../../../core/widgets/buttons/primary_button.dart';
 import '../../../../core/widgets/inputs/app_text_field.dart';
 import '../../data/models/invitation_draft_model.dart';
@@ -65,26 +66,43 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.gray800),
-          onPressed: () {
-            context.read<InvitationCubit>().previousStep();
-            widget.onBack?.call();
-          },
+        leading: Padding(
+          padding: EdgeInsets.all(context.dynamicWidth(0.02)),
+          child: GestureDetector(
+            onTap: () {
+              context.read<InvitationCubit>().previousStep();
+              widget.onBack?.call();
+            },
+            child: Container(
+              width: context.dynamicWidth(0.1),
+              height: context.dynamicWidth(0.1),
+              decoration: BoxDecoration(
+                color: AppColors.gray100,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.gray200,
+                  width: 1,
+                ),
+              ),
+              child: Icon(
+                Icons.arrow_back_rounded,
+                color: AppColors.gray800,
+                size: context.dynamicWidth(0.055),
+              ),
+            ),
+          ),
         ),
         title: Text(
           'Create Invitation',
           style: TextStyle(
             color: AppColors.gray900,
             fontWeight: FontWeight.w600,
+            fontSize: context.dynamicWidth(0.045),
           ),
         ),
         centerTitle: true,
@@ -100,11 +118,11 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
                   children: [
                     // Live Preview
                     Container(
-                      height: screenHeight * 0.28,
+                      height: context.dynamicHeight(0.28),
                       width: double.infinity,
                       margin: EdgeInsets.symmetric(
-                        horizontal: screenWidth * 0.04,
-                        vertical: screenWidth * 0.02,
+                        horizontal: context.dynamicWidth(0.04),
+                        vertical: context.dynamicWidth(0.02),
                       ),
                       child: InvitationPreviewWidget(
                         eventType: state.eventType,
@@ -119,44 +137,44 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
 
                     // Form section
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
+                      padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.06)),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(height: screenHeight * 0.02),
+                          SizedBox(height: context.dynamicHeight(0.02)),
 
                           // Name fields (dynamic based on event type)
-                          ..._buildNameFields(state, screenWidth),
+                          ..._buildNameFields(context, state),
 
-                          SizedBox(height: screenHeight * 0.025),
+                          SizedBox(height: context.dynamicHeight(0.025)),
 
                           // Date and Time row
                           Row(
                             children: [
                               // Date picker
                               Expanded(
-                                child: _buildDatePicker(state, screenWidth),
+                                child: _buildDatePicker(context, state),
                               ),
-                              SizedBox(width: screenWidth * 0.04),
+                              SizedBox(width: context.dynamicWidth(0.04)),
                               // Time picker
                               Expanded(
-                                child: _buildTimePicker(state, screenWidth),
+                                child: _buildTimePicker(context, state),
                               ),
                             ],
                           ),
 
-                          SizedBox(height: screenHeight * 0.025),
+                          SizedBox(height: context.dynamicHeight(0.025)),
 
                           // Location
                           Text(
                             'Location',
                             style: TextStyle(
-                              fontSize: screenWidth * 0.04,
+                              fontSize: context.dynamicWidth(0.04),
                               fontWeight: FontWeight.w600,
                               color: AppColors.gray800,
                             ),
                           ),
-                          SizedBox(height: screenHeight * 0.01),
+                          SizedBox(height: context.dynamicHeight(0.01)),
                           AppTextField(
                             controller: _locationController,
                             hintText: 'Venue name',
@@ -165,7 +183,7 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
                               context.read<InvitationCubit>().updateLocation(value);
                             },
                           ),
-                          SizedBox(height: screenHeight * 0.015),
+                          SizedBox(height: context.dynamicHeight(0.015)),
                           AppTextField(
                             controller: _addressController,
                             hintText: 'Full address',
@@ -177,18 +195,18 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
                             },
                           ),
 
-                          SizedBox(height: screenHeight * 0.03),
+                          SizedBox(height: context.dynamicHeight(0.03)),
 
                           // Template selection
                           Text(
                             'Choose Template',
                             style: TextStyle(
-                              fontSize: screenWidth * 0.04,
+                              fontSize: context.dynamicWidth(0.04),
                               fontWeight: FontWeight.w600,
                               color: AppColors.gray800,
                             ),
                           ),
-                          SizedBox(height: screenHeight * 0.015),
+                          SizedBox(height: context.dynamicHeight(0.015)),
                           TemplateSelectorWidget(
                             selectedTemplateId: state.selectedTemplateId,
                             onTemplateSelected: (templateId) {
@@ -198,7 +216,7 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
                             },
                           ),
 
-                          SizedBox(height: screenHeight * 0.1),
+                          SizedBox(height: context.dynamicHeight(0.1)),
                         ],
                       ),
                     ),
@@ -211,12 +229,12 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                   child: Container(
-                    padding: EdgeInsets.all(screenWidth * 0.04),
+                    padding: EdgeInsets.all(context.dynamicWidth(0.04)),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.85),
+                      color: Colors.white.withValues(alpha: 0.85),
                       border: Border(
                         top: BorderSide(
-                          color: AppColors.gray200.withOpacity(0.5),
+                          color: AppColors.gray200.withValues(alpha: 0.5),
                           width: 0.5,
                         ),
                       ),
@@ -247,7 +265,7 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
     );
   }
 
-  List<Widget> _buildNameFields(InvitationState state, double screenWidth) {
+  List<Widget> _buildNameFields(BuildContext context, InvitationState state) {
     final eventType = state.eventType;
     if (eventType == null) return [];
 
@@ -266,12 +284,12 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
             Text(
               labels[i],
               style: TextStyle(
-                fontSize: screenWidth * 0.04,
+                fontSize: context.dynamicWidth(0.04),
                 fontWeight: FontWeight.w600,
                 color: AppColors.gray800,
               ),
             ),
-            SizedBox(height: screenWidth * 0.02),
+            SizedBox(height: context.dynamicWidth(0.02)),
             AppTextField(
               controller: _nameControllers[i],
               hintText: 'Enter ${labels[i].toLowerCase()}',
@@ -280,7 +298,7 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
                 context.read<InvitationCubit>().updateName(i, value);
               },
             ),
-            SizedBox(height: screenWidth * 0.04),
+            SizedBox(height: context.dynamicWidth(0.04)),
           ],
         ),
       );
@@ -289,7 +307,7 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
     return widgets;
   }
 
-  Widget _buildDatePicker(InvitationState state, double screenWidth) {
+  Widget _buildDatePicker(BuildContext context, InvitationState state) {
     final dateText = state.eventDate != null
         ? '${state.eventDate!.day}/${state.eventDate!.month}/${state.eventDate!.year}'
         : 'Select date';
@@ -300,22 +318,22 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
         Text(
           'Date',
           style: TextStyle(
-            fontSize: screenWidth * 0.04,
+            fontSize: context.dynamicWidth(0.04),
             fontWeight: FontWeight.w600,
             color: AppColors.gray800,
           ),
         ),
-        SizedBox(height: screenWidth * 0.02),
+        SizedBox(height: context.dynamicWidth(0.02)),
         GestureDetector(
           onTap: () => _selectDate(context),
           child: Container(
             padding: EdgeInsets.symmetric(
-              horizontal: screenWidth * 0.04,
-              vertical: screenWidth * 0.035,
+              horizontal: context.dynamicWidth(0.04),
+              vertical: context.dynamicWidth(0.035),
             ),
             decoration: BoxDecoration(
               color: AppColors.gray100,
-              borderRadius: BorderRadius.circular(screenWidth * 0.03),
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
               border: Border.all(color: AppColors.gray200),
             ),
             child: Row(
@@ -323,16 +341,16 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
                 Icon(
                   Icons.calendar_today_outlined,
                   color: AppColors.gray500,
-                  size: screenWidth * 0.05,
+                  size: context.dynamicWidth(0.05),
                 ),
-                SizedBox(width: screenWidth * 0.03),
+                SizedBox(width: context.dynamicWidth(0.03)),
                 Text(
                   dateText,
                   style: TextStyle(
                     color: state.eventDate != null
                         ? AppColors.gray800
                         : AppColors.gray400,
-                    fontSize: screenWidth * 0.038,
+                    fontSize: context.dynamicWidth(0.038),
                   ),
                 ),
               ],
@@ -343,7 +361,7 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
     );
   }
 
-  Widget _buildTimePicker(InvitationState state, double screenWidth) {
+  Widget _buildTimePicker(BuildContext context, InvitationState state) {
     final timeText = state.eventTime != null
         ? '${state.eventTime!.hour.toString().padLeft(2, '0')}:${state.eventTime!.minute.toString().padLeft(2, '0')}'
         : 'Select time';
@@ -354,22 +372,22 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
         Text(
           'Time',
           style: TextStyle(
-            fontSize: screenWidth * 0.04,
+            fontSize: context.dynamicWidth(0.04),
             fontWeight: FontWeight.w600,
             color: AppColors.gray800,
           ),
         ),
-        SizedBox(height: screenWidth * 0.02),
+        SizedBox(height: context.dynamicWidth(0.02)),
         GestureDetector(
           onTap: () => _selectTime(context),
           child: Container(
             padding: EdgeInsets.symmetric(
-              horizontal: screenWidth * 0.04,
-              vertical: screenWidth * 0.035,
+              horizontal: context.dynamicWidth(0.04),
+              vertical: context.dynamicWidth(0.035),
             ),
             decoration: BoxDecoration(
               color: AppColors.gray100,
-              borderRadius: BorderRadius.circular(screenWidth * 0.03),
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
               border: Border.all(color: AppColors.gray200),
             ),
             child: Row(
@@ -377,16 +395,16 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
                 Icon(
                   Icons.access_time_outlined,
                   color: AppColors.gray500,
-                  size: screenWidth * 0.05,
+                  size: context.dynamicWidth(0.05),
                 ),
-                SizedBox(width: screenWidth * 0.03),
+                SizedBox(width: context.dynamicWidth(0.03)),
                 Text(
                   timeText,
                   style: TextStyle(
                     color: state.eventTime != null
                         ? AppColors.gray800
                         : AppColors.gray400,
-                    fontSize: screenWidth * 0.038,
+                    fontSize: context.dynamicWidth(0.038),
                   ),
                 ),
               ],
@@ -412,8 +430,29 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
               surface: Colors.white,
               onSurface: AppColors.gray900,
             ),
+            datePickerTheme: DatePickerThemeData(
+              backgroundColor: Colors.white,
+              headerBackgroundColor: AppColors.primaryColor,
+              headerForegroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+              ),
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                textStyle: TextStyle(
+                  fontSize: context.dynamicWidth(0.04),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
           ),
-          child: child!,
+          child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: const TextScaler.linear(1.0),
+            ),
+            child: child!,
+          ),
         );
       },
     );
@@ -436,8 +475,33 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
               surface: Colors.white,
               onSurface: AppColors.gray900,
             ),
+            timePickerTheme: TimePickerThemeData(
+              backgroundColor: Colors.white,
+              hourMinuteShape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+              ),
+              dayPeriodShape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+              ),
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                textStyle: TextStyle(
+                  fontSize: context.dynamicWidth(0.04),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
           ),
-          child: child!,
+          child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: const TextScaler.linear(1.0),
+            ),
+            child: child!,
+          ),
         );
       },
     );

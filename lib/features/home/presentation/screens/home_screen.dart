@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/media_query_values.dart';
 import '../../../../core/widgets/loading/skeleton_widgets.dart';
+import '../../../events/presentation/screens/view_all_events_screen.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 import '../widgets/recent_event_card_widget.dart';
@@ -44,6 +46,9 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final isArabic = !(l?.isEnLocale ?? true);
+
     return Scaffold(
       backgroundColor: AppColors.gray100,
       body: BlocBuilder<HomeCubit, HomeState>(
@@ -55,9 +60,9 @@ class _HomeScreenState extends State<HomeScreen>
           if (state is HomeInitial || state is HomeLoading) {
             return _buildLoadingState();
           } else if (state is HomeError) {
-            return _buildErrorState(state.message);
+            return _buildErrorState(state.message, isArabic);
           } else if (state is HomeLoaded) {
-            return _buildLoadedState(state);
+            return _buildLoadedState(state, isArabic);
           }
           return const SizedBox.shrink();
         },
@@ -69,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen>
     return const HomeScreenSkeleton();
   }
 
-  Widget _buildErrorState(String message) {
+  Widget _buildErrorState(String message, bool isArabic) {
     return Center(
       child: Padding(
         padding: EdgeInsets.all(context.dynamicWidth(0.04)),
@@ -83,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen>
             ),
             SizedBox(height: context.dynamicHeight(0.02)),
             Text(
-              'Something went wrong',
+              isArabic ? 'حدث خطأ ما' : 'Something went wrong',
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.05),
                 fontWeight: FontWeight.bold,
@@ -116,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               ),
               child: Text(
-                'Try Again',
+                isArabic ? 'حاول مرة أخرى' : 'Try Again',
                 style: TextStyle(fontSize: context.dynamicWidth(0.035)),
               ),
             ),
@@ -126,51 +131,41 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildLoadedState(HomeLoaded state) {
+  Widget _buildLoadedState(HomeLoaded state, bool isArabic) {
     return SingleChildScrollView(
       child: Column(
         children: [
           // Gradient Header
-          _buildHeader(),
-          // Stats Grid - overlapping the header
-          Transform.translate(
-            offset: Offset(0, context.dynamicHeight(-0.07)),
-            child: _buildStatsGrid(state),
-          ),
-          // Response Rate Card - adjusted to account for stats grid overlap
-          Transform.translate(
-            offset: Offset(0, context.dynamicHeight(-0.07)),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: context.dynamicWidth(0.04),
-              ),
-              child: ResponseRateCardWidget(
-                responseRate: state.responseRate,
-                totalResponded: state.totalResponded,
-                totalGuests: state.totalGuests,
-              ),
+          _buildHeader(isArabic),
+          // Stats Grid
+          _buildStatsGrid(state),
+          // Response Rate Card
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: context.dynamicWidth(0.04),
+            ),
+            child: ResponseRateCardWidget(
+              responseRate: state.responseRate,
+              totalResponded: state.totalResponded,
+              totalGuests: state.totalGuests,
             ),
           ),
-          // Recent Events - adjusted to account for stats grid overlap
-          Transform.translate(
-            offset: Offset(0, context.dynamicHeight(-0.07)),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: context.dynamicWidth(0.04),
-              ),
-              child: _buildRecentEventsSection(state),
+          // Recent Events
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: context.dynamicWidth(0.04),
             ),
+            child: _buildRecentEventsSection(state, isArabic),
           ),
-          SizedBox(height: context.dynamicHeight(0.05)),
+          SizedBox(height: context.dynamicHeight(0.12)),
           // Bottom padding for navigation
         ],
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(bool isArabic) {
     return Container(
-      height: context.dynamicHeight(0.28),
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -180,13 +175,15 @@ class _HomeScreenState extends State<HomeScreen>
         ),
       ),
       child: SafeArea(
+        bottom: false,
         child: FadeTransition(
           opacity: _fadeController,
           child: Padding(
-            // padding: EdgeInsets.all(context.dynamicWidth(0.04)),
-            padding: EdgeInsets.symmetric(
-              horizontal: context.dynamicWidth(0.04),
-              vertical: context.dynamicHeight(0.01),
+            padding: EdgeInsets.only(
+              left: context.dynamicWidth(0.04),
+              right: context.dynamicWidth(0.04),
+              top: context.dynamicHeight(0.02),
+              bottom: context.dynamicHeight(0.04),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -207,7 +204,7 @@ class _HomeScreenState extends State<HomeScreen>
                               vertical: context.dynamicHeight(0.008),
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Row(
@@ -220,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 ),
                                 SizedBox(width: context.dynamicWidth(0.015)),
                                 Text(
-                                  'Welcome back!',
+                                  isArabic ? 'مرحباً بعودتك!' : 'Welcome back!',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: context.dynamicWidth(0.03),
@@ -244,7 +241,7 @@ class _HomeScreenState extends State<HomeScreen>
                     return Transform.translate(offset: offset, child: child);
                   },
                   child: Text(
-                    'Maktoob Dashboard',
+                    isArabic ? 'لوحة تحكم مكتوب' : 'Maktoob Dashboard',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: context.dynamicWidth(0.07),
@@ -281,7 +278,7 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildRecentEventsSection(HomeLoaded state) {
+  Widget _buildRecentEventsSection(HomeLoaded state, bool isArabic) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -292,7 +289,7 @@ class _HomeScreenState extends State<HomeScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Recent Events',
+                isArabic ? 'المناسبات الأخيرة' : 'Recent Events',
                 style: TextStyle(
                   fontSize: context.dynamicWidth(0.05),
                   fontWeight: FontWeight.bold,
@@ -300,11 +297,19 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => ViewAllEventsScreen(
+                        onViewEvent: widget.onViewEvent,
+                      ),
+                    ),
+                  );
+                },
                 child: Row(
                   children: [
                     Text(
-                      'View All',
+                      isArabic ? 'عرض الكل' : 'View All',
                       style: TextStyle(
                         fontSize: context.dynamicWidth(0.035),
                         fontWeight: FontWeight.w600,
@@ -313,7 +318,7 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                     SizedBox(width: context.dynamicWidth(0.01)),
                     Icon(
-                      Icons.arrow_forward,
+                      isArabic ? Icons.arrow_back : Icons.arrow_forward,
                       size: context.dynamicWidth(0.04),
                       color: AppColors.primaryColor,
                     ),

@@ -1,0 +1,458 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../config/locale/app_localizations.dart';
+import '../../../../core/utils/app_colors.dart';
+import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/widgets/loading/skeleton_widgets.dart';
+import '../../../../injection_container.dart' as di;
+import '../../domain/entities/event_entity.dart';
+import '../cubit/events_list/events_list_cubit.dart';
+import '../cubit/events_list/events_list_state.dart';
+import '../widgets/all_events_card_widget.dart';
+
+/// Screen to view all events with tabs for different statuses
+class ViewAllEventsScreen extends StatelessWidget {
+  final Function(String)? onViewEvent;
+
+  const ViewAllEventsScreen({
+    super.key,
+    this.onViewEvent,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => di.sl<EventsListCubit>()..loadEvents(),
+      child: _ViewAllEventsContent(onViewEvent: onViewEvent),
+    );
+  }
+}
+
+class _ViewAllEventsContent extends StatefulWidget {
+  final Function(String)? onViewEvent;
+
+  const _ViewAllEventsContent({this.onViewEvent});
+
+  @override
+  State<_ViewAllEventsContent> createState() => _ViewAllEventsContentState();
+}
+
+class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final isArabic = !(l?.isEnLocale ?? true);
+
+    return Scaffold(
+      backgroundColor: AppColors.gray100,
+      body: Column(
+        children: [
+          // Header with gradient
+          _buildHeader(context, l, isArabic),
+          // Tab content
+          Expanded(
+            child: BlocBuilder<EventsListCubit, EventsListState>(
+              builder: (context, state) {
+                if (state.isLoading) {
+                  return const _LoadingContent();
+                }
+
+                if (state.isFailure) {
+                  return _buildErrorState(context, state.errorMessage ?? '');
+                }
+
+                return TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildEventsList(
+                      context,
+                      state.events
+                          .where((e) => e.status == EventStatus.active)
+                          .toList(),
+                      l,
+                      isArabic,
+                      EventStatus.active,
+                    ),
+                    _buildEventsList(
+                      context,
+                      state.events
+                          .where((e) => e.status == EventStatus.completed)
+                          .toList(),
+                      l,
+                      isArabic,
+                      EventStatus.completed,
+                    ),
+                    _buildEventsList(
+                      context,
+                      state.events
+                          .where((e) => e.status == EventStatus.draft)
+                          .toList(),
+                      l,
+                      isArabic,
+                      EventStatus.draft,
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(
+      BuildContext context, AppLocalizations? l, bool isArabic) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primaryColor,
+            AppColors.tertiaryColor,
+          ],
+        ),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Back button and title
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: context.dynamicWidth(0.04),
+                vertical: context.dynamicHeight(0.015),
+              ),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.arrow_back_rounded,
+                        color: Colors.white,
+                        size: 22,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: context.dynamicWidth(0.04)),
+                  Text(
+                    isArabic ? 'جميع المناسبات' : 'All Events',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: context.dynamicWidth(0.055),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Tab bar
+            _buildTabBar(context, l, isArabic),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTabBar(
+      BuildContext context, AppLocalizations? l, bool isArabic) {
+    return BlocBuilder<EventsListCubit, EventsListState>(
+      builder: (context, state) {
+        return Container(
+          margin: EdgeInsets.symmetric(
+            horizontal: context.dynamicWidth(0.04),
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: TabBar(
+            controller: _tabController,
+            indicator: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            indicatorSize: TabBarIndicatorSize.tab,
+            indicatorPadding: const EdgeInsets.all(4),
+            dividerColor: Colors.transparent,
+            labelColor: AppColors.primaryColor,
+            unselectedLabelColor: Colors.white.withValues(alpha: 0.9),
+            labelStyle: TextStyle(
+              fontSize: context.dynamicWidth(0.032),
+              fontWeight: FontWeight.w600,
+            ),
+            unselectedLabelStyle: TextStyle(
+              fontSize: context.dynamicWidth(0.032),
+              fontWeight: FontWeight.w500,
+            ),
+            tabs: [
+              _buildTab(
+                context,
+                isArabic ? 'جارية' : 'Ongoing',
+                state.activeEvents,
+                AppColors.green600,
+              ),
+              _buildTab(
+                context,
+                isArabic ? 'مكتملة' : 'Completed',
+                state.completedEvents,
+                AppColors.blue500,
+              ),
+              _buildTab(
+                context,
+                isArabic ? 'مسودة' : 'Draft',
+                state.draftEvents,
+                AppColors.amber500,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTab(
+      BuildContext context, String label, int count, Color badgeColor) {
+    return Tab(
+      height: 48,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              label,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (count > 0) ...[
+            const SizedBox(width: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: badgeColor.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                count.toString(),
+                style: TextStyle(
+                  fontSize: context.dynamicWidth(0.025),
+                  fontWeight: FontWeight.bold,
+                  color: badgeColor,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEventsList(
+    BuildContext context,
+    List<EventEntity> events,
+    AppLocalizations? l,
+    bool isArabic,
+    EventStatus status,
+  ) {
+    if (events.isEmpty) {
+      return _buildEmptyState(context, status, isArabic);
+    }
+
+    return RefreshIndicator(
+      onRefresh: () => context.read<EventsListCubit>().refreshEvents(),
+      color: AppColors.primaryColor,
+      child: ListView.builder(
+        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+        itemCount: events.length,
+        itemBuilder: (context, index) {
+          final event = events[index];
+          return AllEventsCardWidget(
+            event: event,
+            index: index,
+            onTap: widget.onViewEvent != null
+                ? () => widget.onViewEvent!(event.id)
+                : null,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(
+      BuildContext context, EventStatus status, bool isArabic) {
+    String title;
+    String subtitle;
+    IconData icon;
+    Color color;
+
+    switch (status) {
+      case EventStatus.active:
+        title = isArabic ? 'لا توجد مناسبات جارية' : 'No Ongoing Events';
+        subtitle = isArabic
+            ? 'ابدأ بإنشاء مناسبة جديدة'
+            : 'Start by creating a new event';
+        icon = Icons.event_available;
+        color = AppColors.green600;
+        break;
+      case EventStatus.completed:
+        title = isArabic ? 'لا توجد مناسبات مكتملة' : 'No Completed Events';
+        subtitle = isArabic
+            ? 'المناسبات المكتملة ستظهر هنا'
+            : 'Completed events will appear here';
+        icon = Icons.check_circle_outline;
+        color = AppColors.blue500;
+        break;
+      case EventStatus.draft:
+        title = isArabic ? 'لا توجد مسودات' : 'No Drafts';
+        subtitle = isArabic
+            ? 'المسودات المحفوظة ستظهر هنا'
+            : 'Saved drafts will appear here';
+        icon = Icons.edit_note;
+        color = AppColors.amber500;
+        break;
+    }
+
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(context.dynamicWidth(0.08)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: context.dynamicWidth(0.2),
+              height: context.dynamicWidth(0.2),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: context.dynamicWidth(0.1),
+                color: color,
+              ),
+            ),
+            SizedBox(height: context.dynamicHeight(0.025)),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: context.dynamicWidth(0.045),
+                fontWeight: FontWeight.bold,
+                color: AppColors.gray900,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: context.dynamicHeight(0.01)),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: context.dynamicWidth(0.035),
+                color: AppColors.gray500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(BuildContext context, String message) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(context.dynamicWidth(0.08)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: context.dynamicWidth(0.16),
+              color: AppColors.red500,
+            ),
+            SizedBox(height: context.dynamicHeight(0.02)),
+            Text(
+              'Something went wrong',
+              style: TextStyle(
+                fontSize: context.dynamicWidth(0.045),
+                fontWeight: FontWeight.bold,
+                color: AppColors.gray900,
+              ),
+            ),
+            SizedBox(height: context.dynamicHeight(0.01)),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.gray500,
+                fontSize: context.dynamicWidth(0.035),
+              ),
+            ),
+            SizedBox(height: context.dynamicHeight(0.03)),
+            ElevatedButton(
+              onPressed: () => context.read<EventsListCubit>().refreshEvents(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryColor,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.dynamicWidth(0.08),
+                  vertical: context.dynamicHeight(0.015),
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+                ),
+              ),
+              child: Text(
+                'Try Again',
+                style: TextStyle(fontSize: context.dynamicWidth(0.035)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LoadingContent extends StatelessWidget {
+  const _LoadingContent();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+      itemCount: 5,
+      itemBuilder: (context, index) {
+        return const RecentEventCardSkeleton();
+      },
+    );
+  }
+}

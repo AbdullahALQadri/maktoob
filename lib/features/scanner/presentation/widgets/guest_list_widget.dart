@@ -205,11 +205,14 @@ class _GuestItemWidget extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
-                      guest.name,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15,
+                    Flexible(
+                      child: Text(
+                        guest.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     if (guest.isVip) ...[
@@ -250,7 +253,7 @@ class _GuestItemWidget extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '+${guest.companions} companions',
+                      '+${guest.companions}',
                       style: TextStyle(
                         color: Colors.grey.shade500,
                         fontSize: 12,
@@ -263,11 +266,14 @@ class _GuestItemWidget extends StatelessWidget {
                       color: Colors.grey.shade500,
                     ),
                     const SizedBox(width: 4),
-                    Text(
-                      guest.qrCode,
-                      style: TextStyle(
-                        color: Colors.grey.shade500,
-                        fontSize: 12,
+                    Flexible(
+                      child: Text(
+                        guest.qrCode,
+                        style: TextStyle(
+                          color: Colors.grey.shade500,
+                          fontSize: 12,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],

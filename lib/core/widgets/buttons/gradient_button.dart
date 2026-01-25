@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../utils/app_colors.dart';
 import '../../utils/app_strings.dart';
+import '../../utils/media_query_values.dart';
 
 /// A customizable button with gradient background support.
 ///
@@ -148,6 +149,11 @@ class _GradientButtonState extends State<GradientButton>
 
   @override
   Widget build(BuildContext context) {
+    // Use responsive values when defaults are used
+    final effectiveHeight = widget.height == 56 ? context.dynamicHeight(0.07) : widget.height;
+    final effectiveBorderRadius = widget.borderRadius == 12 ? context.dynamicWidth(0.03) : widget.borderRadius;
+    final effectiveIconSize = widget.iconSize == 20 ? context.dynamicWidth(0.05) : widget.iconSize;
+
     return GradientAnimatedBuilder(
       animation: _scaleAnimation,
       builder: (context, child) {
@@ -158,29 +164,29 @@ class _GradientButtonState extends State<GradientButton>
             opacity: _isEnabled ? 1.0 : 0.6,
             child: Container(
               width: widget.width ?? double.infinity,
-              height: widget.height,
+              height: effectiveHeight,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: _effectiveGradientColors,
                   begin: widget.gradientBegin,
                   end: widget.gradientEnd,
                 ),
-                borderRadius: BorderRadius.circular(widget.borderRadius),
+                borderRadius: BorderRadius.circular(effectiveBorderRadius),
                 boxShadow: _isEnabled && widget.showShadow
                     ? [
                         BoxShadow(
                           color: (widget.shadowColor ??
                                   _effectiveGradientColors.first)
                               .withValues(alpha: 0.4),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
+                          blurRadius: context.dynamicWidth(0.03),
+                          offset: Offset(0, context.dynamicHeight(0.005)),
                         ),
                         BoxShadow(
                           color: (widget.shadowColor ??
                                   _effectiveGradientColors.last)
                               .withValues(alpha: 0.2),
-                          blurRadius: 16,
-                          offset: const Offset(0, 6),
+                          blurRadius: context.dynamicWidth(0.04),
+                          offset: Offset(0, context.dynamicHeight(0.007)),
                         ),
                       ]
                     : null,
@@ -193,21 +199,21 @@ class _GradientButtonState extends State<GradientButton>
                   onTapCancel: _handleTapCancel,
                   child: InkWell(
                     onTap: _isEnabled ? widget.onPressed : null,
-                    borderRadius: BorderRadius.circular(widget.borderRadius),
+                    borderRadius: BorderRadius.circular(effectiveBorderRadius),
                     splashColor: AppColors.white.withValues(alpha: 0.2),
                     highlightColor: AppColors.white.withValues(alpha: 0.1),
                     child: Center(
                       child: widget.isLoading
                           ? SizedBox(
-                              width: 24,
-                              height: 24,
+                              width: context.dynamicWidth(0.06),
+                              height: context.dynamicWidth(0.06),
                               child: CircularProgressIndicator(
                                 strokeWidth: 2.5,
                                 valueColor: AlwaysStoppedAnimation<Color>(
                                     widget.textColor),
                               ),
                             )
-                          : _buildContent(),
+                          : _buildContent(context, effectiveIconSize),
                     ),
                   ),
                 ),
@@ -219,14 +225,14 @@ class _GradientButtonState extends State<GradientButton>
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context, double effectiveIconSize) {
     if (widget.child != null) {
       return widget.child!;
     }
 
     final defaultTextStyle = TextStyle(
       fontFamily: AppStrings.fontFamily,
-      fontSize: 16,
+      fontSize: context.dynamicWidth(0.04),
       fontWeight: FontWeight.w600,
       color: widget.textColor,
     );
@@ -239,10 +245,10 @@ class _GradientButtonState extends State<GradientButton>
           Icon(
             widget.icon,
             color: widget.textColor,
-            size: widget.iconSize,
+            size: effectiveIconSize,
           ),
           if (widget.text.isNotEmpty) ...[
-            const SizedBox(width: 8),
+            SizedBox(width: context.dynamicWidth(0.02)),
             Text(
               widget.text,
               style: widget.textStyle ?? defaultTextStyle,

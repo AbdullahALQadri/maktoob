@@ -71,6 +71,8 @@ class Endpoints {
   static const String clientLogin = '/auth/login';
   static const String clientLogout = '/auth/logout';
   static const String clientProfile = '/auth/profile';
+  static const String clientUpdateProfile = '/auth/profile';
+  static const String clientChangeUserType = '/auth/change-user-type';
   static const String clientForgotPassword = '/auth/forgot-password';
   static const String clientVerifyOtp = '/auth/verify-otp';
   static const String clientResetPassword = '/auth/reset-password';

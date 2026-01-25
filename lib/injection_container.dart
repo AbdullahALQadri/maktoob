@@ -67,6 +67,7 @@ import 'features/payment/presentation/cubit/payment_cubit.dart';
 
 // Settings Feature
 import 'features/settings/presentation/cubit/settings_cubit.dart';
+import 'features/settings/presentation/cubit/profile_cubit.dart';
 
 // Invitation Feature (Golden Scenario)
 import 'features/invitation/data/services/excel_parser_service.dart';
@@ -287,6 +288,11 @@ Future<void> init() async {
   //! ========== SETTINGS FEATURE ==========
   // Cubit (no data/domain layer - simple local settings)
   sl.registerFactory(() => SettingsCubit());
+
+  // Profile Cubit (using mock data for testing)
+  sl.registerFactory(
+    () => ProfileCubit(),
+  );
 
   //! ========== INVITATION FEATURE (Golden Scenario) ==========
   // Services

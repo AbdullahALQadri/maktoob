@@ -185,29 +185,42 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                       GestureDetector(
                         onTap: widget.onBack,
                         child: Container(
-                          padding: const EdgeInsets.all(8),
+                          width: 40,
+                          height: 40,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(12),
+                            color: Colors.white.withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.3),
+                              width: 1,
+                            ),
                           ),
                           child: const Icon(
-                            Icons.arrow_back,
+                            Icons.arrow_back_rounded,
                             color: Colors.white,
-                            size: 24,
+                            size: 22,
                           ),
                         ),
                       ),
                       const Spacer(),
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.more_vert,
-                          color: Colors.white,
-                          size: 24,
+                      GestureDetector(
+                        onTap: () {},
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.3),
+                              width: 1,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.more_vert,
+                            color: Colors.white,
+                            size: 22,
+                          ),
                         ),
                       ),
                     ],

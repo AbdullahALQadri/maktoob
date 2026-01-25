@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../utils/app_colors.dart';
 import '../../utils/app_strings.dart';
+import '../../utils/media_query_values.dart';
 
 /// A reusable text field widget with consistent styling.
 ///
@@ -199,12 +200,12 @@ class _AppTextFieldState extends State<AppTextField> {
             widget.labelText!,
             style: TextStyle(
               fontFamily: AppStrings.fontFamily,
-              fontSize: 14,
+              fontSize: context.dynamicWidth(0.035),
               fontWeight: FontWeight.w500,
               color: AppColors.gray700,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: context.dynamicHeight(0.01)),
         ],
         TextFormField(
           controller: widget.controller,
@@ -229,7 +230,7 @@ class _AppTextFieldState extends State<AppTextField> {
           cursorColor: AppColors.primaryColor,
           style: TextStyle(
             fontFamily: AppStrings.fontFamily,
-            fontSize: 16,
+            fontSize: context.dynamicWidth(0.04),
             fontWeight: FontWeight.w400,
             color: AppColors.gray900,
           ),
@@ -237,7 +238,7 @@ class _AppTextFieldState extends State<AppTextField> {
             hintText: widget.hintText,
             hintStyle: TextStyle(
               fontFamily: AppStrings.fontFamily,
-              fontSize: 16,
+              fontSize: context.dynamicWidth(0.04),
               fontWeight: FontWeight.w400,
               color: AppColors.gray400,
             ),
@@ -245,44 +246,54 @@ class _AppTextFieldState extends State<AppTextField> {
             helperText: widget.helperText,
             helperStyle: TextStyle(
               fontFamily: AppStrings.fontFamily,
-              fontSize: 12,
+              fontSize: context.dynamicWidth(0.03),
               color: AppColors.gray500,
             ),
             counterText: widget.showCounter ? null : '',
             filled: true,
             fillColor: widget.fillColor ?? AppColors.gray100,
             contentPadding: widget.contentPadding ??
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            prefixIcon: _buildPrefixIcon(),
-            suffixIcon: _buildSuffixIcon(),
-            border: _buildBorder(AppColors.gray200),
-            enabledBorder: _buildBorder(widget.borderColor ?? AppColors.gray200),
+                EdgeInsets.symmetric(
+                  horizontal: context.dynamicWidth(0.04),
+                  vertical: context.dynamicHeight(0.02),
+                ),
+            prefixIcon: _buildPrefixIcon(context),
+            suffixIcon: _buildSuffixIcon(context),
+            border: _buildBorder(context, AppColors.gray200),
+            enabledBorder: _buildBorder(context, widget.borderColor ?? AppColors.gray200),
             focusedBorder: _buildBorder(
+              context,
               widget.focusedBorderColor ?? AppColors.primaryColor,
               width: 1.5,
             ),
-            errorBorder: _buildBorder(AppColors.red500),
-            focusedErrorBorder: _buildBorder(AppColors.red500, width: 1.5),
-            disabledBorder: _buildBorder(AppColors.gray200),
+            errorBorder: _buildBorder(context, AppColors.red500),
+            focusedErrorBorder: _buildBorder(context, AppColors.red500, width: 1.5),
+            disabledBorder: _buildBorder(context, AppColors.gray200),
           ),
         ),
       ],
     );
   }
 
-  Widget? _buildPrefixIcon() {
+  Widget? _buildPrefixIcon(BuildContext context) {
     if (widget.prefix != null) {
       return Padding(
-        padding: const EdgeInsetsDirectional.only(start: 12, end: 8),
+        padding: EdgeInsetsDirectional.only(
+          start: context.dynamicWidth(0.03),
+          end: context.dynamicWidth(0.02),
+        ),
         child: widget.prefix,
       );
     }
     if (widget.prefixIcon != null) {
       return Padding(
-        padding: const EdgeInsetsDirectional.only(start: 12, end: 8),
+        padding: EdgeInsetsDirectional.only(
+          start: context.dynamicWidth(0.03),
+          end: context.dynamicWidth(0.02),
+        ),
         child: Icon(
           widget.prefixIcon,
-          size: 22,
+          size: context.dynamicWidth(0.055),
           color: _isFocused ? AppColors.primaryColor : AppColors.gray400,
         ),
       );
@@ -290,7 +301,7 @@ class _AppTextFieldState extends State<AppTextField> {
     return null;
   }
 
-  Widget? _buildSuffixIcon() {
+  Widget? _buildSuffixIcon(BuildContext context) {
     if (widget.isPassword) {
       return GestureDetector(
         onTap: () {
@@ -299,10 +310,10 @@ class _AppTextFieldState extends State<AppTextField> {
           });
         },
         child: Padding(
-          padding: const EdgeInsetsDirectional.only(end: 12),
+          padding: EdgeInsetsDirectional.only(end: context.dynamicWidth(0.03)),
           child: Icon(
             _obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-            size: 22,
+            size: context.dynamicWidth(0.055),
             color: AppColors.gray400,
           ),
         ),
@@ -312,7 +323,7 @@ class _AppTextFieldState extends State<AppTextField> {
       return GestureDetector(
         onTap: widget.onSuffixTap,
         child: Padding(
-          padding: const EdgeInsetsDirectional.only(end: 12),
+          padding: EdgeInsetsDirectional.only(end: context.dynamicWidth(0.03)),
           child: widget.suffix,
         ),
       );
@@ -321,10 +332,10 @@ class _AppTextFieldState extends State<AppTextField> {
       return GestureDetector(
         onTap: widget.onSuffixTap,
         child: Padding(
-          padding: const EdgeInsetsDirectional.only(end: 12),
+          padding: EdgeInsetsDirectional.only(end: context.dynamicWidth(0.03)),
           child: Icon(
             widget.suffixIcon,
-            size: 22,
+            size: context.dynamicWidth(0.055),
             color: AppColors.gray400,
           ),
         ),
@@ -333,9 +344,9 @@ class _AppTextFieldState extends State<AppTextField> {
     return null;
   }
 
-  OutlineInputBorder _buildBorder(Color color, {double width = 1}) {
+  OutlineInputBorder _buildBorder(BuildContext context, Color color, {double width = 1}) {
     return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(widget.borderRadius),
+      borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
       borderSide: BorderSide(color: color, width: width),
     );
   }

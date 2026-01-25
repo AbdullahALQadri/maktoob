@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
+import '../../../../core/utils/media_query_values.dart';
 import '../../../../core/widgets/buttons/primary_button.dart';
 import '../../../../core/widgets/buttons/secondary_button.dart';
 import '../cubit/invitation_cubit.dart';
@@ -67,11 +68,11 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const CircularProgressIndicator(),
-            const SizedBox(height: 16),
+            SizedBox(height: context.dynamicHeight(0.02)),
             Text(
               l?.translate('invitation_loading_preview') ?? 'Loading preview...',
-              style: const TextStyle(
-                fontSize: 16,
+              style: TextStyle(
+                fontSize: context.dynamicWidth(0.04),
                 color: Colors.grey,
               ),
             ),
@@ -82,16 +83,16 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
 
     // Show preview content
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Info card
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(context.dynamicWidth(0.04)),
             decoration: BoxDecoration(
               color: AppColors.primaryColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
               border: Border.all(
                 color: AppColors.primaryColor.withValues(alpha: 0.3),
               ),
@@ -101,39 +102,40 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
                 Icon(
                   Icons.info_outline,
                   color: AppColors.primaryColor,
+                  size: context.dynamicWidth(0.06),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: context.dynamicWidth(0.03)),
                 Expanded(
                   child: Text(
                     l?.translate('invitation_preview_info') ?? 'This is a preview of your invitation',
-                    style: const TextStyle(fontSize: 14),
+                    style: TextStyle(fontSize: context.dynamicWidth(0.035)),
                   ),
                 ),
               ],
             ),
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: context.dynamicHeight(0.03)),
 
           // Preview Image
-          _buildPreviewImage(state, l),
+          _buildPreviewImage(context, state, l),
 
-          const SizedBox(height: 24),
+          SizedBox(height: context.dynamicHeight(0.03)),
 
           // Event Details Summary
-          _buildEventDetailsSummary(state, l),
+          _buildEventDetailsSummary(context, state, l),
         ],
       ),
     );
   }
 
-  Widget _buildPreviewImage(InvitationState state, AppLocalizations? l) {
+  Widget _buildPreviewImage(BuildContext context, InvitationState state, AppLocalizations? l) {
     // If user uploaded custom template, show that
     if (state.uploadedTemplateFile != null) {
       return Container(
-        constraints: const BoxConstraints(maxHeight: 400),
+        constraints: BoxConstraints(maxHeight: context.dynamicHeight(0.5)),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.1),
@@ -143,14 +145,14 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           child: Image.file(
             state.uploadedTemplateFile!,
             fit: BoxFit.contain,
             cacheHeight: 800, // Limit image size for performance
-            errorBuilder: (context, error, stackTrace) {
+            errorBuilder: (ctx, error, stackTrace) {
               debugPrint('Error loading file image: $error');
-              return _buildPlaceholder(l);
+              return _buildPlaceholder(context, l);
             },
           ),
         ),
@@ -160,9 +162,9 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
     // Show preview from API
     if (state.previewImageUrl != null && state.previewImageUrl!.isNotEmpty) {
       return Container(
-        constraints: const BoxConstraints(maxHeight: 400),
+        constraints: BoxConstraints(maxHeight: context.dynamicHeight(0.5)),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.1),
@@ -172,27 +174,27 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           child: Image.network(
             state.previewImageUrl!,
             fit: BoxFit.contain,
             cacheHeight: 800, // Limit image size for performance
-            loadingBuilder: (context, child, loadingProgress) {
+            loadingBuilder: (ctx, child, loadingProgress) {
               if (loadingProgress == null) return child;
               return Container(
-                height: 300,
+                height: context.dynamicHeight(0.35),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
                 ),
                 child: const Center(
                   child: CircularProgressIndicator(),
                 ),
               );
             },
-            errorBuilder: (context, error, stackTrace) {
+            errorBuilder: (ctx, error, stackTrace) {
               debugPrint('Error loading network image: $error');
-              return _buildPlaceholder(l);
+              return _buildPlaceholder(context, l);
             },
           ),
         ),
@@ -200,15 +202,15 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
     }
 
     // No preview available - show placeholder
-    return _buildPlaceholder(l);
+    return _buildPlaceholder(context, l);
   }
 
-  Widget _buildPlaceholder(AppLocalizations? l) {
+  Widget _buildPlaceholder(BuildContext context, AppLocalizations? l) {
     return Container(
-      height: 300,
+      height: context.dynamicHeight(0.35),
       decoration: BoxDecoration(
         color: Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         border: Border.all(color: Colors.grey.shade300),
       ),
       child: Column(
@@ -216,22 +218,22 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
         children: [
           Icon(
             Icons.image_outlined,
-            size: 64,
+            size: context.dynamicWidth(0.16),
             color: Colors.grey.shade400,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: context.dynamicHeight(0.02)),
           Text(
             l?.translate('invitation_no_preview') ?? 'No preview available',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: context.dynamicWidth(0.04),
               color: Colors.grey.shade600,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: context.dynamicHeight(0.01)),
           Text(
             l?.translate('invitation_continue_next_step') ?? 'You can continue to the next step',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: context.dynamicWidth(0.035),
               color: Colors.grey.shade500,
             ),
           ),
@@ -240,12 +242,12 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
     );
   }
 
-  Widget _buildEventDetailsSummary(InvitationState state, AppLocalizations? l) {
+  Widget _buildEventDetailsSummary(BuildContext context, InvitationState state, AppLocalizations? l) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(context.dynamicWidth(0.05)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -259,23 +261,24 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.event_note, color: AppColors.primaryColor),
-              const SizedBox(width: 8),
+              Icon(Icons.event_note, color: AppColors.primaryColor, size: context.dynamicWidth(0.06)),
+              SizedBox(width: context.dynamicWidth(0.02)),
               Text(
                 l?.translate('invitation_event_details') ?? 'Event Details',
-                style: const TextStyle(
-                  fontSize: 18,
+                style: TextStyle(
+                  fontSize: context.dynamicWidth(0.045),
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: context.dynamicHeight(0.02)),
           const Divider(),
-          const SizedBox(height: 12),
+          SizedBox(height: context.dynamicHeight(0.015)),
 
           // Event Name
           _buildDetailRow(
+            context,
             l?.translate('invitation_event_name_label') ?? 'Event Name',
             state.eventName ?? '-',
             Icons.celebration,
@@ -283,6 +286,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
 
           // Event Type
           _buildDetailRow(
+            context,
             l?.translate('invitation_event_type_label') ?? 'Event Type',
             state.selectedEventType?.name ?? state.customEventTypeName ?? '-',
             Icons.category,
@@ -291,6 +295,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
           // Date
           if (state.eventDate != null)
             _buildDetailRow(
+              context,
               l?.translate('invitation_date_label') ?? 'Date',
               '${state.eventDate!.day}/${state.eventDate!.month}/${state.eventDate!.year}',
               Icons.calendar_today,
@@ -299,6 +304,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
           // Time
           if (state.eventTime != null)
             _buildDetailRow(
+              context,
               l?.translate('invitation_time_label') ?? 'Time',
               '${state.eventTime!.hour.toString().padLeft(2, '0')}:${state.eventTime!.minute.toString().padLeft(2, '0')}',
               Icons.access_time,
@@ -307,6 +313,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
           // Location
           if (state.selectedVenue != null || state.customLocation != null)
             _buildDetailRow(
+              context,
               l?.translate('invitation_location_label') ?? 'Location',
               state.selectedVenue?.name ?? state.customLocation?.address ?? '-',
               Icons.location_on,
@@ -316,14 +323,14 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
     );
   }
 
-  Widget _buildDetailRow(String label, String value, IconData icon) {
+  Widget _buildDetailRow(BuildContext context, String label, String value, IconData icon) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.01)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 20, color: Colors.grey.shade500),
-          const SizedBox(width: 12),
+          Icon(icon, size: context.dynamicWidth(0.05), color: Colors.grey.shade500),
+          SizedBox(width: context.dynamicWidth(0.03)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -331,15 +338,15 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
                 Text(
                   label,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: context.dynamicWidth(0.03),
                     color: Colors.grey.shade600,
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: context.dynamicHeight(0.003)),
                 Text(
                   value,
-                  style: const TextStyle(
-                    fontSize: 14,
+                  style: TextStyle(
+                    fontSize: context.dynamicWidth(0.035),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -353,7 +360,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
 
   Widget _buildBottomBar(BuildContext context, InvitationState state, AppLocalizations? l) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -373,7 +380,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
                 onPressed: () => context.read<InvitationCubit>().previousStep(),
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: context.dynamicWidth(0.03)),
             Expanded(
               flex: 2,
               child: PrimaryButton(

@@ -118,15 +118,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: GestureDetector(
                 onTap: widget.onLoginTap,
                 child: Container(
-                  padding: const EdgeInsets.all(8),
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.white.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
                   ),
                   child: const Icon(
-                    Icons.arrow_back,
+                    Icons.arrow_back_rounded,
                     color: Colors.white,
-                    size: 24,
+                    size: 22,
                   ),
                 ),
               ),

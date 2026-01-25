@@ -3,8 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/media_query_values.dart';
+import '../../../../injection_container.dart' as di;
+import '../cubit/profile_cubit.dart';
 import '../cubit/settings_cubit.dart';
 import '../cubit/settings_state.dart';
+import 'profile_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -340,19 +343,14 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showProfileDialog(BuildContext context, bool isArabic) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(isArabic ? 'الملف الشخصي' : 'Profile'),
-        content: Text(isArabic
-            ? 'ميزة الملف الشخصي قيد التطوير'
-            : 'Profile feature coming soon'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(isArabic ? 'حسناً' : 'OK'),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => BlocProvider(
+          create: (_) => di.sl<ProfileCubit>(),
+          child: ProfileScreen(
+            onBack: () => Navigator.of(context).pop(),
           ),
-        ],
+        ),
       ),
     );
   }

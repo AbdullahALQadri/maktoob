@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../../config/locale/app_localizations.dart';
 import '../utils/app_colors.dart';
 import '../utils/media_query_values.dart';
 
@@ -89,6 +90,9 @@ class _BottomNavigationState extends State<BottomNavigation>
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final isArabic = !(l?.isEnLocale ?? true);
+
     return Container(
       color: Colors.transparent,
       child: SafeArea(
@@ -117,19 +121,19 @@ class _BottomNavigationState extends State<BottomNavigation>
                         children: [
                           _buildNavItem(
                             index: 0,
-                            label: 'الرئيسية',
+                            label: isArabic ? 'الرئيسية' : 'Home',
                             outlinedIcon: Icons.grid_view_outlined,
                             filledIcon: Icons.grid_view_rounded,
                           ),
                           _buildNavItem(
                             index: 1,
-                            label: 'الماسح',
+                            label: isArabic ? 'الماسح' : 'Scanner',
                             outlinedIcon: Icons.crop_free_outlined,
                             filledIcon: Icons.crop_free_rounded,
                           ),
                           _buildNavItem(
                             index: 2,
-                            label: 'الإعدادات',
+                            label: isArabic ? 'الإعدادات' : 'Settings',
                             outlinedIcon: Icons.bookmark_border_outlined,
                             filledIcon: Icons.bookmark,
                           ),
