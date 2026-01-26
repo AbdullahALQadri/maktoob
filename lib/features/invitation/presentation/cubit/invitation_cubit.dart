@@ -212,12 +212,37 @@ class InvitationCubit extends Cubit<InvitationState> {
 
   /// Select an event type
   void selectEventType(EventTypeModel eventType) {
+    // Prepare form fields for marriage/engagement events
+    List<EventTypeFormField> formFields = [];
+    if (eventType.isMarriageOrEngagement) {
+      formFields = const [
+        EventTypeFormField(
+          key: 'groom_name',
+          label: 'Groom Name',
+          labelAr: 'اسم العريس',
+          type: 'text',
+          required: true,
+        ),
+        EventTypeFormField(
+          key: 'bride_name',
+          label: 'Bride Name',
+          labelAr: 'اسم العروس',
+          type: 'text',
+          required: true,
+        ),
+      ];
+    }
+
     emit(state.copyWith(
       selectedEventType: eventType,
       // Clear template selection when event type changes
       clearSelectedTemplate: true,
       clearUploadedTemplate: true,
       availableTemplates: [],
+      // Set form fields based on event type
+      eventTypeFormFields: formFields,
+      // Clear previous form data when event type changes
+      eventTypeFormData: const {},
     ));
   }
 

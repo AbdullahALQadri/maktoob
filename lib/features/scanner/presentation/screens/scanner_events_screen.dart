@@ -325,7 +325,12 @@ class _ScannerEventsContentState extends State<_ScannerEventsContent>
       onRefresh: () => context.read<EventsListCubit>().refreshEvents(),
       color: AppColors.primaryColor,
       child: ListView.builder(
-        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+        padding: EdgeInsets.only(
+          left: context.dynamicWidth(0.04),
+          right: context.dynamicWidth(0.04),
+          top: context.dynamicWidth(0.04),
+          bottom: context.dynamicHeight(0.12),
+        ),
         itemCount: events.length,
         itemBuilder: (context, index) {
           final event = events[index];

@@ -87,6 +87,12 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
                         },
                       ),
 
+                      // Event Type Form Fields (bride/groom for marriage/engagement)
+                      if (!state.isCustomEventType && !state.isCustomTemplate && state.eventTypeFormFields.isNotEmpty) ...[
+                        SizedBox(height: context.dynamicHeight(0.025)),
+                        _buildEventTypeFormFields(context, state, l),
+                      ],
+
                       SizedBox(height: context.dynamicHeight(0.025)),
 
                       // Description (Optional)
@@ -129,12 +135,6 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
 
                       // Partner with Guests (Optional) - Switch + Number
                       _buildCompanionsSection(context, state, l),
-
-                      // Event Type Form Fields (hidden for custom type/uploaded template)
-                      if (!state.isCustomEventType && !state.isCustomTemplate) ...[
-                        SizedBox(height: context.dynamicHeight(0.025)),
-                        _buildEventTypeFormFields(context, state, l),
-                      ],
 
                       SizedBox(height: context.dynamicHeight(0.12)),
                     ],
@@ -707,17 +707,38 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
       return const SizedBox.shrink();
     }
 
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle(context, l?.translate('invitation_event_details') ?? 'Event Details'),
+        _buildSectionTitle(
+          context,
+          isArabic ? 'معلومات العروسين' : 'Couple Information',
+        ),
         SizedBox(height: context.dynamicHeight(0.01)),
         ...state.eventTypeFormFields.map((field) {
+          // Choose appropriate icon based on field key
+          IconData fieldIcon = Icons.person_outline;
+          if (field.key == 'groom_name') {
+            fieldIcon = Icons.person;
+          } else if (field.key == 'bride_name') {
+            fieldIcon = Icons.person_outline;
+          }
+
+          // Use localized label
+          final label = isArabic ? field.labelAr : field.label;
+          final hint = isArabic
+              ? (field.hintAr ?? field.labelAr)
+              : (field.hint ?? field.label);
+
           return Padding(
             padding: EdgeInsets.only(bottom: context.dynamicHeight(0.02)),
             child: AppTextField(
-              hintText: field.hint ?? field.label,
-              prefixIcon: Icons.edit_outlined,
+              labelText: label,
+              hintText: hint,
+              prefixIcon: fieldIcon,
+              initialValue: state.eventTypeFormData[field.key]?.toString(),
               onChanged: (value) {
                 context
                     .read<InvitationCubit>()

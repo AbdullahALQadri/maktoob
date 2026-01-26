@@ -1,9 +1,12 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
@@ -231,6 +234,64 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
     } catch (e) {
       debugPrint('Error capturing invoice: $e');
       return null;
+    }
+  }
+
+  /// Save invoice image to temp file and share via WhatsApp
+  Future<void> _saveAndShareInvoice(
+    BuildContext context,
+    Uint8List imageBytes,
+    InvitationState state,
+    AppLocalizations? l,
+  ) async {
+    final cubit = context.read<InvitationCubit>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    try {
+      // Get temp directory and save image
+      final tempDir = await getTemporaryDirectory();
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final filePath = '${tempDir.path}/invoice_$timestamp.png';
+      final file = File(filePath);
+      await file.writeAsBytes(imageBytes);
+
+      if (!mounted) return;
+
+      // Save the invitation first
+      await cubit.saveAndSend(invoiceImage: imageBytes);
+
+      if (!mounted) return;
+
+      // Share the invoice image via WhatsApp
+      final eventName = state.eventName ?? 'Event';
+      final shareText = l?.translate('invitation_share_invoice_text') ??
+          'Invoice for $eventName - Maktoob App';
+
+      await Share.shareXFiles(
+        [XFile(filePath)],
+        text: shareText,
+      );
+    } catch (e) {
+      debugPrint('Error sharing invoice: $e');
+      if (!mounted) return;
+
+      messenger.showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  l?.translate('invitation_share_error') ??
+                      'Error sharing invoice. Please try again.',
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -721,13 +782,16 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
                   onPressed: state.isSaving
                       ? null
                       : () async {
+                          // Capture cubit before async gap
+                          final cubit = context.read<InvitationCubit>();
                           // Capture invoice screenshot first
                           final image = await _captureInvoice();
-                          if (mounted) {
-                            // Save and send even if image capture fails
-                            await context
-                                .read<InvitationCubit>()
-                                .saveAndSend(invoiceImage: image);
+                          if (mounted && image != null) {
+                            // Save image to temp file and share via WhatsApp
+                            await _saveAndShareInvoice(this.context, image, state, l);
+                          } else if (mounted) {
+                            // If image capture fails, just save without sharing
+                            await cubit.saveAndSend(invoiceImage: image);
                           }
                         },
                   isLoading: state.isSaving && !state.isSaveAsDraft,

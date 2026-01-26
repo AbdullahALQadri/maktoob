@@ -12,6 +12,8 @@ abstract class AuthRemoteDataSource {
     required String password,
     String? email,
     String? companyName,
+    String? userType,
+    String? location,
   });
   Future<AuthResponseModel> clientVerifyOtp(String login, String otp);
   Future<AuthResponseModel> clientForgotPassword(String login);
@@ -64,6 +66,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String password,
     String? email,
     String? companyName,
+    String? userType,
+    String? location,
   }) async {
     final response = await apiConsumer.post(
       Endpoints.clientRegister,
@@ -72,8 +76,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'phone': phone,
         'password': password,
         'password_confirmation': password,
-        if (email != null) 'email': email,
+        if (email != null && email.isNotEmpty) 'email': email,
         if (companyName != null) 'company_name': companyName,
+        if (userType != null) 'user_type': userType,
+        if (location != null && location.isNotEmpty) 'location': location,
       },
     );
     return AuthResponseModel.fromJson(response);

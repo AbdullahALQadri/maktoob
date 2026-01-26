@@ -108,7 +108,10 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
                 Expanded(
                   child: Text(
                     l?.translate('invitation_preview_info') ?? 'This is a preview of your invitation',
-                    style: TextStyle(fontSize: context.dynamicWidth(0.035)),
+                    style: TextStyle(
+                      fontSize: context.dynamicWidth(0.035),
+                      color: Colors.black,
+                    ),
                   ),
                 ),
               ],
@@ -244,15 +247,18 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
 
   Widget _buildEventDetailsSummary(BuildContext context, InvitationState state, AppLocalizations? l) {
     return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.05)),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.dynamicWidth(0.04),
+        vertical: context.dynamicHeight(0.02),
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            blurRadius: context.dynamicWidth(0.025),
+            offset: Offset(0, context.dynamicHeight(0.005)),
           ),
         ],
       ),
@@ -268,13 +274,14 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
                 style: TextStyle(
                   fontSize: context.dynamicWidth(0.045),
                   fontWeight: FontWeight.bold,
+                  color: Colors.black,
                 ),
               ),
             ],
           ),
-          SizedBox(height: context.dynamicHeight(0.02)),
+          SizedBox(height: context.dynamicHeight(0.008)),
           const Divider(),
-          SizedBox(height: context.dynamicHeight(0.015)),
+          SizedBox(height: context.dynamicHeight(0.01)),
 
           // Event Name
           _buildDetailRow(
@@ -325,7 +332,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
 
   Widget _buildDetailRow(BuildContext context, String label, String value, IconData icon) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.01)),
+      padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.012)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -342,12 +349,13 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
                     color: Colors.grey.shade600,
                   ),
                 ),
-                SizedBox(height: context.dynamicHeight(0.003)),
+                SizedBox(height: context.dynamicHeight(0.005)),
                 Text(
                   value,
                   style: TextStyle(
-                    fontSize: context.dynamicWidth(0.035),
+                    fontSize: context.dynamicWidth(0.038),
                     fontWeight: FontWeight.w500,
+                    color: Colors.black,
                   ),
                 ),
               ],

@@ -12,11 +12,15 @@ abstract class AuthRepository {
   });
 
   /// Register a new user
+  /// Normal user: name, phone, password
+  /// Organization: name, email, phone, location, password
   Future<Either<Failure, UserEntity>> register({
     required String name,
     required String email,
     required String phone,
     required String password,
+    String? userType,
+    String? location,
   });
 
   /// Get current user profile

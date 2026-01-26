@@ -52,19 +52,25 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   /// Register new user
+  /// Normal user: name, phone, password
+  /// Organization: name, email, phone, location, password
   Future<void> register({
     required String name,
-    required String email,
+    String? email,
     required String phone,
     required String password,
+    required String userType,
+    String? location,
   }) async {
     emit(const AuthLoading());
 
     final result = await authRepository.register(
       name: name,
-      email: email,
+      email: email ?? '',
       phone: phone,
       password: password,
+      userType: userType,
+      location: location,
     );
 
     result.fold(

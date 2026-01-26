@@ -52,6 +52,8 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String phone,
     required String password,
+    String? userType,
+    String? location,
   }) async {
     try {
       final response = await remoteDataSource.clientRegister(
@@ -59,6 +61,8 @@ class AuthRepositoryImpl implements AuthRepository {
         email: email,
         phone: phone,
         password: password,
+        userType: userType,
+        location: location,
       );
 
       if (response.success) {

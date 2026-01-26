@@ -415,6 +415,7 @@ class _Page4GuestManagementScreenState
                   style: TextStyle(
                     fontSize: context.dynamicWidth(0.04),
                     fontWeight: FontWeight.bold,
+                    color: Colors.black,
                   ),
                 ),
                 if (allGuests.length > 1)
@@ -490,6 +491,7 @@ class _Page4GuestManagementScreenState
         style: TextStyle(
           fontWeight: FontWeight.w500,
           fontSize: context.dynamicWidth(0.038),
+          color: Colors.black,
         ),
       ),
       subtitle: Row(
@@ -554,33 +556,44 @@ class _Page4GuestManagementScreenState
   }
 
   Future<void> _importExcel(BuildContext context, AppLocalizations? l) async {
+    // Capture all context-dependent values before any async calls
+    final cubit = context.read<InvitationCubit>();
+    final messenger = ScaffoldMessenger.of(context);
+    final spacingWidth = context.dynamicWidth(0.02);
+    final errorLabel = l?.translate('invitation_error_loading_file') ?? 'Error loading file';
+
+    // FilePicker uses Storage Access Framework (SAF) on Android which handles
+    // permissions automatically through system intent - no manual permission needed
+
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['xlsx', 'xls'],
       );
 
+      if (!mounted) return;
+
       if (result != null && result.files.single.path != null) {
         final file = File(result.files.single.path!);
-        if (mounted) {
-          context.read<InvitationCubit>().importGuestsFromExcel(file);
-        }
+        cubit.importGuestsFromExcel(file);
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.error_outline, color: Colors.white),
-                const SizedBox(width: 8),
-                Text('${l?.translate('invitation_error_loading_file') ?? 'Error loading file'}: $e'),
-              ],
-            ),
-            backgroundColor: Colors.red,
+      if (!mounted) return;
+
+      messenger.showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white),
+              SizedBox(width: spacingWidth),
+              Expanded(
+                child: Text('$errorLabel: $e'),
+              ),
+            ],
           ),
-        );
-      }
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 

@@ -66,6 +66,16 @@ class EventTypeModel extends Equatable {
 
   bool get isCustom => id == null;
 
+  /// Check if this event type is a marriage/engagement type
+  bool get isMarriageOrEngagement {
+    final nameLower = name.toLowerCase();
+    return nameLower.contains('wedding') ||
+        nameLower.contains('marriage') ||
+        nameLower.contains('engagement') ||
+        nameAr.contains('زفاف') ||
+        nameAr.contains('خطوبة');
+  }
+
   factory EventTypeModel.fromJson(Map<String, dynamic> json) {
     return EventTypeModel(
       id: json['id'] as int?,

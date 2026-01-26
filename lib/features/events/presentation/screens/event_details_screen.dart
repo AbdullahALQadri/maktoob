@@ -203,8 +203,55 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                         ),
                       ),
                       const Spacer(),
-                      GestureDetector(
-                        onTap: () {},
+                      PopupMenuButton<String>(
+                        onSelected: (value) {
+                          if (value == 'edit') {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Edit event tapped')),
+                            );
+                          } else if (value == 'delete') {
+                            _showDeleteConfirmation(state);
+                          }
+                        },
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        color: Colors.white,
+                        offset: const Offset(0, 50),
+                        itemBuilder: (context) => [
+                          PopupMenuItem<String>(
+                            value: 'edit',
+                            child: Row(
+                              children: [
+                                Icon(Icons.edit_outlined, color: AppColors.primaryColor, size: 20),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Edit Event',
+                                  style: TextStyle(
+                                    color: AppColors.gray900,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem<String>(
+                            value: 'delete',
+                            child: Row(
+                              children: [
+                                Icon(Icons.delete_outline, color: AppColors.red500, size: 20),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Delete Event',
+                                  style: TextStyle(
+                                    color: AppColors.red500,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                         child: Container(
                           width: 40,
                           height: 40,
@@ -928,8 +975,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
             const SizedBox(height: 16),
             _buildDescriptionCard(event),
           ],
-          const SizedBox(height: 16),
-          _buildActionButtons(state),
           const SizedBox(height: 32),
         ],
       ),
@@ -1271,74 +1316,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
             style: TextStyle(fontSize: 14, height: 1.6, color: AppColors.gray700),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildActionButtons(EventDetailsState state) {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildActionButton(
-            'Edit Event',
-            Icons.edit_outlined,
-            [AppColors.primaryColor, AppColors.tertiaryColor],
-            () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Edit event tapped')),
-              );
-            },
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildActionButton(
-            'Delete',
-            Icons.delete_outline,
-            [AppColors.red500, AppColors.rose500],
-            () => _showDeleteConfirmation(state),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionButton(
-    String label,
-    IconData icon,
-    List<Color> gradientColors,
-    VoidCallback onTap,
-  ) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(colors: gradientColors),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: gradientColors.first.withOpacity(0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: Colors.white, size: 20),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

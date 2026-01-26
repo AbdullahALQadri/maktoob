@@ -57,13 +57,19 @@ class ProfileCubit extends Cubit<ProfileState> {
   }
 
   /// Request to change user type - mock implementation
-  Future<void> changeUserType(UserType newType) async {
+  Future<void> changeUserType(UserType newType, {String? reason}) async {
     if (_currentUser == null) return;
 
     emit(ProfileUpdating(user: _currentUser!));
 
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 800));
+
+    // Log the reason for conversion (can be sent to API in production)
+    if (reason != null && reason.isNotEmpty) {
+      // ignore: avoid_print
+      print('Conversion reason: $reason');
+    }
 
     final updatedUser = _currentUser!.copyWith(
       userType: newType,

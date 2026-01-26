@@ -2,6 +2,7 @@ import 'package:device_preview/device_preview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+// import 'package:maktoob/features/authentication/presentation/screens/splash_screen.dart';
 
 import 'config/locale/app_localizations_setup.dart';
 import 'config/screens/main_shell.dart';
@@ -107,8 +108,8 @@ class Maktoob extends StatelessWidget {
               );
             },
             title: AppStrings.appName,
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
+            // theme: AppTheme.lightTheme,
+            // darkTheme: AppTheme.darkTheme,
             // Localization settings
             locale: locale,
             supportedLocales: AppLocalizationsSetup.supportedLocales,
@@ -120,8 +121,8 @@ class Maktoob extends StatelessWidget {
                 supportedLocales,
               );
             },
-            home: const MainShell(),
-            // home: const AuthWrapper(),
+            // home: const SplashScreen(),
+            home: const AuthWrapper(),
           );
         },
       ),
@@ -140,7 +141,7 @@ class AuthWrapper extends StatefulWidget {
 
 class _AuthWrapperState extends State<AuthWrapper> {
   bool _showRegister = false;
-  bool _showAuthScreens = false; // True when user explicitly wants to login
+  bool _showAuthScreens = true; // Start with auth screens by default
 
   void _goToRegister() {
     setState(() {

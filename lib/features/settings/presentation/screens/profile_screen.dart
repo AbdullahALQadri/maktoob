@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/loading/shimmer_loading.dart';
 import '../../../../core/widgets/loading/skeleton_widgets.dart';
 import '../../../authentication/domain/entities/user_entity.dart';
@@ -597,7 +598,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       child: Icon(
-                        isArabic ? Icons.arrow_forward_rounded : Icons.arrow_back_rounded,
+                        Icons.arrow_back_rounded,
                         color: Colors.white,
                         size: 22,
                       ),
@@ -1051,7 +1052,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     UserType newType,
     bool isArabic,
   ) {
-    final currentState = context.read<ProfileCubit>().state;
+    final profileCubit = context.read<ProfileCubit>();
+    final currentState = profileCubit.state;
     UserEntity? currentUser;
     if (currentState is ProfileLoaded) {
       currentUser = currentState.user;
@@ -1059,44 +1061,88 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (currentUser?.userType == newType) return;
 
+    final bool isConvertingToOrg = newType == UserType.organization;
+    final reasonController = TextEditingController();
+
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: Text(
-          isArabic ? 'تغيير نوع الحساب' : 'Change Account Type',
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: Text(
-          isArabic
-              ? 'هل أنت متأكد من تغيير نوع حسابك إلى "${newType.displayNameAr}"؟'
-              : 'Are you sure you want to change your account type to "${newType.displayName}"?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(
-              isArabic ? 'إلغاء' : 'Cancel',
-              style: TextStyle(color: AppColors.gray600),
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (stateContext, setState) {
+          final bool canConfirm = reasonController.text.trim().isNotEmpty;
+
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              context.read<ProfileCubit>().changeUserType(newType);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryColor,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+            title: Row(
+              children: [
+                Icon(
+                  isConvertingToOrg ? Icons.business : Icons.person,
+                  color: AppColors.primaryColor,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    isArabic ? 'تغيير نوع الحساب' : 'Change Account Type',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isArabic
+                        ? 'هل أنت متأكد من تغيير نوع حسابك إلى "${newType.displayNameAr}"؟'
+                        : 'Are you sure you want to change your account type to "${newType.displayName}"?',
+                  ),
+                  const SizedBox(height: 16),
+                  AppTextField(
+                    controller: reasonController,
+                    labelText: isArabic ? 'سبب التحويل' : 'Reason for conversion',
+                    hintText: isArabic ? 'أدخل سبب التحويل...' : 'Enter reason...',
+                    prefixIcon: Icons.description_outlined,
+                    maxLines: 3,
+                    onChanged: (_) => setState(() {}),
+                  ),
+                ],
               ),
             ),
-            child: Text(isArabic ? 'تأكيد' : 'Confirm'),
-          ),
-        ],
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: Text(
+                  isArabic ? 'إلغاء' : 'Cancel',
+                  style: TextStyle(color: AppColors.gray600),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: canConfirm
+                    ? () {
+                        Navigator.pop(dialogContext);
+                        profileCubit.changeUserType(
+                          newType,
+                          reason: reasonController.text.trim(),
+                        );
+                      }
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryColor,
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: AppColors.gray300,
+                  disabledForegroundColor: AppColors.gray500,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Text(isArabic ? 'تأكيد' : 'Confirm'),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

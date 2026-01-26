@@ -197,6 +197,7 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
         centerTitle: true,
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           TextButton(
             onPressed: _selectedPhones.isEmpty ? null : _confirmSelection,

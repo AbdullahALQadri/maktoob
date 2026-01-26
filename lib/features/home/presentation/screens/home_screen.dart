@@ -157,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen>
             ),
             child: _buildRecentEventsSection(state, isArabic),
           ),
-          SizedBox(height: context.dynamicHeight(0.12)),
+          SizedBox(height: context.dynamicHeight(0.08)),
           // Bottom padding for navigation
         ],
       ),
