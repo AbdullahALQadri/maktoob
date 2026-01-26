@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pinput/pinput.dart';
 
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/media_query_values.dart';
@@ -27,9 +28,54 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
   final _formKey = GlobalKey<FormState>();
   final _phoneController = TextEditingController();
   bool _isLoading = false;
+  String _selectedCountryCode = '+970'; // Default Palestine
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+
+  // Country codes list
+  final List<Map<String, String>> _countryCodes = [
+    {'code': '+970', 'country': 'Palestine', 'flag': '🇵🇸'},
+    {'code': '+972', 'country': 'Israel', 'flag': '🇮🇱'},
+    {'code': '+962', 'country': 'Jordan', 'flag': '🇯🇴'},
+    {'code': '+20', 'country': 'Egypt', 'flag': '🇪🇬'},
+    {'code': '+966', 'country': 'Saudi Arabia', 'flag': '🇸🇦'},
+    {'code': '+971', 'country': 'UAE', 'flag': '🇦🇪'},
+    {'code': '+974', 'country': 'Qatar', 'flag': '🇶🇦'},
+    {'code': '+965', 'country': 'Kuwait', 'flag': '🇰🇼'},
+    {'code': '+968', 'country': 'Oman', 'flag': '🇴🇲'},
+    {'code': '+973', 'country': 'Bahrain', 'flag': '🇧🇭'},
+    {'code': '+961', 'country': 'Lebanon', 'flag': '🇱🇧'},
+    {'code': '+963', 'country': 'Syria', 'flag': '🇸🇾'},
+    {'code': '+964', 'country': 'Iraq', 'flag': '🇮🇶'},
+    {'code': '+90', 'country': 'Turkey', 'flag': '🇹🇷'},
+    {'code': '+1', 'country': 'USA/Canada', 'flag': '🇺🇸'},
+    {'code': '+44', 'country': 'UK', 'flag': '🇬🇧'},
+    {'code': '+49', 'country': 'Germany', 'flag': '🇩🇪'},
+    {'code': '+33', 'country': 'France', 'flag': '🇫🇷'},
+  ];
+
+  // Phone number length validation per country (min, max digits after removing leading 0)
+  static const Map<String, List<int>> _phoneValidation = {
+    '+970': [9, 9],      // Palestine: 9 digits
+    '+972': [9, 9],      // Israel: 9 digits
+    '+962': [9, 9],      // Jordan: 9 digits
+    '+20': [10, 10],     // Egypt: 10 digits
+    '+966': [9, 9],      // Saudi Arabia: 9 digits
+    '+971': [9, 9],      // UAE: 9 digits
+    '+974': [8, 8],      // Qatar: 8 digits
+    '+965': [8, 8],      // Kuwait: 8 digits
+    '+968': [8, 8],      // Oman: 8 digits
+    '+973': [8, 8],      // Bahrain: 8 digits
+    '+961': [7, 8],      // Lebanon: 7-8 digits
+    '+963': [9, 9],      // Syria: 9 digits
+    '+964': [10, 10],    // Iraq: 10 digits
+    '+90': [10, 10],     // Turkey: 10 digits
+    '+1': [10, 10],      // USA/Canada: 10 digits
+    '+44': [10, 10],     // UK: 10 digits
+    '+49': [10, 11],     // Germany: 10-11 digits
+    '+33': [9, 9],       // France: 9 digits
+  };
 
   @override
   void initState() {
@@ -61,6 +107,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
     return Localizations.localeOf(context).languageCode == 'ar';
   }
 
+  // Get max phone length for current country (including potential leading 0)
+  int _getMaxPhoneLength() {
+    final validation = _phoneValidation[_selectedCountryCode];
+    if (validation != null) {
+      // Add 1 to account for potential leading 0
+      return validation[1] + 1;
+    }
+    return 15; // Default max length
+  }
+
   void _handleSendOtp() {
     if (_formKey.currentState?.validate() ?? false) {
       setState(() {
@@ -74,12 +130,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
             _isLoading = false;
           });
 
+          // Remove leading 0 from phone number if present
+          String phoneNumber = _phoneController.text.trim();
+          if (phoneNumber.startsWith('0')) {
+            phoneNumber = phoneNumber.substring(1);
+          }
+          final fullPhone = '$_selectedCountryCode$phoneNumber';
           // Navigate to OTP screen
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (_) => ForgotPasswordOtpScreen(
-                phone: '+970${_phoneController.text.trim()}',
+                phone: fullPhone,
                 onBack: () => Navigator.pop(context),
                 onVerified: () {
                   // Navigate to reset password screen
@@ -87,7 +149,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                     context,
                     MaterialPageRoute(
                       builder: (_) => ResetPasswordScreen(
-                        phone: '+970${_phoneController.text.trim()}',
+                        phone: fullPhone,
                         onBack: () => Navigator.pop(context),
                         onSuccess: () {
                           // Show success and go back to login
@@ -343,30 +405,53 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
         SizedBox(height: context.dynamicHeight(0.008)),
         Row(
           children: [
-            // Palestine Code
+            // Country Code Dropdown
             Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: context.dynamicWidth(0.03),
-                vertical: context.dynamicHeight(0.018),
-              ),
               decoration: BoxDecoration(
                 color: AppColors.gray50,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.gray200),
               ),
-              child: Row(
-                children: [
-                  Text('🇵🇸', style: TextStyle(fontSize: 18)),
-                  SizedBox(width: 6),
-                  Text(
-                    '+970',
-                    style: TextStyle(
-                      fontSize: context.dynamicWidth(0.038),
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.gray900,
-                    ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: _selectedCountryCode,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: context.dynamicWidth(0.03),
                   ),
-                ],
+                  icon: Icon(Icons.arrow_drop_down, color: AppColors.gray500),
+                  items: _countryCodes.map((country) {
+                    return DropdownMenuItem(
+                      value: country['code'],
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(country['flag']!, style: TextStyle(fontSize: 18)),
+                          SizedBox(width: 6),
+                          Text(
+                            country['code']!,
+                            style: TextStyle(
+                              fontSize: context.dynamicWidth(0.035),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedCountryCode = value!;
+                      // Truncate phone if it exceeds new max length
+                      final maxLength = _getMaxPhoneLength();
+                      if (_phoneController.text.length > maxLength) {
+                        _phoneController.text = _phoneController.text.substring(0, maxLength);
+                        _phoneController.selection = TextSelection.fromPosition(
+                          TextPosition(offset: _phoneController.text.length),
+                        );
+                      }
+                    });
+                  },
+                ),
               ),
             ),
             SizedBox(width: context.dynamicWidth(0.02)),
@@ -377,6 +462,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                 keyboardType: TextInputType.phone,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(_getMaxPhoneLength()),
                 ],
                 style: TextStyle(
                   fontSize: context.dynamicWidth(0.04),
@@ -430,11 +516,32 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                         ? 'الرجاء إدخال رقم الهاتف'
                         : 'Please enter phone number';
                   }
-                  if (value.length < 7) {
-                    return _isArabic
-                        ? 'رقم الهاتف غير صحيح'
-                        : 'Invalid phone number';
+
+                  // Remove leading 0 for validation
+                  String phoneNumber = value;
+                  if (phoneNumber.startsWith('0')) {
+                    phoneNumber = phoneNumber.substring(1);
                   }
+
+                  // Get validation rules for selected country
+                  final validation = _phoneValidation[_selectedCountryCode];
+                  if (validation != null) {
+                    final minLength = validation[0];
+                    final maxLength = validation[1];
+
+                    if (phoneNumber.length < minLength || phoneNumber.length > maxLength) {
+                      if (minLength == maxLength) {
+                        return _isArabic
+                            ? 'رقم الهاتف يجب أن يكون $minLength أرقام'
+                            : 'Phone number must be $minLength digits';
+                      } else {
+                        return _isArabic
+                            ? 'رقم الهاتف يجب أن يكون بين $minLength و $maxLength أرقام'
+                            : 'Phone number must be $minLength-$maxLength digits';
+                      }
+                    }
+                  }
+
                   return null;
                 },
               ),
@@ -516,11 +623,8 @@ class ForgotPasswordOtpScreen extends StatefulWidget {
 
 class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen>
     with SingleTickerProviderStateMixin {
-  final List<TextEditingController> _otpControllers = List.generate(
-    6,
-    (_) => TextEditingController(),
-  );
-  final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
+  final _pinController = TextEditingController();
+  final _focusNode = FocusNode();
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -548,12 +652,8 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen>
   void dispose() {
     _animationController.dispose();
     _resendTimer?.cancel();
-    for (var controller in _otpControllers) {
-      controller.dispose();
-    }
-    for (var node in _focusNodes) {
-      node.dispose();
-    }
+    _pinController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -573,16 +673,12 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen>
     });
   }
 
-  String get _otpCode {
-    return _otpControllers.map((c) => c.text).join();
-  }
-
   bool get _isArabic {
     return Localizations.localeOf(context).languageCode == 'ar';
   }
 
   void _verifyOtp() {
-    if (_otpCode.length == 6) {
+    if (_pinController.text.length == 6) {
       setState(() {
         _isVerifying = true;
       });
@@ -601,6 +697,7 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen>
   void _resendOtp() {
     if (_canResend) {
       _startResendTimer();
+      _pinController.clear();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(_isArabic ? 'تم إرسال رمز جديد' : 'New code sent'),
@@ -807,10 +904,8 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen>
       ),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: List.generate(6, (index) => _buildOtpField(index)),
-          ),
+          // OTP Pinput
+          _buildPinput(),
           SizedBox(height: context.dynamicHeight(0.03)),
           _buildVerifyButton(),
           SizedBox(height: context.dynamicHeight(0.025)),
@@ -820,59 +915,112 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen>
     );
   }
 
-  Widget _buildOtpField(int index) {
-    return SizedBox(
-      width: context.dynamicWidth(0.12),
-      child: TextFormField(
-        controller: _otpControllers[index],
-        focusNode: _focusNodes[index],
-        keyboardType: TextInputType.number,
-        textAlign: TextAlign.center,
-        maxLength: 1,
-        style: TextStyle(
-          fontSize: context.dynamicWidth(0.06),
-          fontWeight: FontWeight.bold,
-          color: AppColors.gray900,
+  Widget _buildPinput() {
+    // Calculate responsive sizes
+    final pinWidth = context.dynamicWidth(0.12);
+    final pinHeight = context.dynamicHeight(0.07);
+    final fontSize = context.dynamicWidth(0.055);
+
+    // Default theme for unfocused state
+    final defaultPinTheme = PinTheme(
+      width: pinWidth,
+      height: pinHeight,
+      textStyle: TextStyle(
+        fontSize: fontSize,
+        fontWeight: FontWeight.bold,
+        color: AppColors.gray900,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.gray50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.gray200,
+          width: 1.5,
         ),
-        decoration: InputDecoration(
-          counterText: '',
-          filled: true,
-          fillColor: AppColors.gray50,
-          contentPadding: EdgeInsets.symmetric(
-            vertical: context.dynamicHeight(0.02),
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: AppColors.gray200, width: 1.5),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: AppColors.primaryColor, width: 2),
-          ),
+      ),
+    );
+
+    // Focused theme
+    final focusedPinTheme = defaultPinTheme.copyWith(
+      decoration: BoxDecoration(
+        color: AppColors.gray50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.primaryColor,
+          width: 2,
         ),
-        inputFormatters: [
-          FilteringTextInputFormatter.digitsOnly,
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primaryColor.withValues(alpha: 0.15),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
         ],
+      ),
+    );
+
+    // Submitted (filled) theme
+    final submittedPinTheme = defaultPinTheme.copyWith(
+      decoration: BoxDecoration(
+        color: AppColors.primaryColor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.primaryColor,
+          width: 1.5,
+        ),
+      ),
+    );
+
+    // Error theme
+    final errorPinTheme = defaultPinTheme.copyWith(
+      decoration: BoxDecoration(
+        color: AppColors.red500.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.red500,
+          width: 1.5,
+        ),
+      ),
+    );
+
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Pinput(
+        length: 6,
+        controller: _pinController,
+        focusNode: _focusNode,
+        defaultPinTheme: defaultPinTheme,
+        focusedPinTheme: focusedPinTheme,
+        submittedPinTheme: submittedPinTheme,
+        errorPinTheme: errorPinTheme,
+        pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
+        showCursor: true,
+        cursor: Container(
+          width: 2,
+          height: fontSize,
+          decoration: BoxDecoration(
+            color: AppColors.primaryColor,
+            borderRadius: BorderRadius.circular(1),
+          ),
+        ),
+        separatorBuilder: (index) => SizedBox(width: context.dynamicWidth(0.02)),
+        hapticFeedbackType: HapticFeedbackType.lightImpact,
+        closeKeyboardWhenCompleted: true,
+        keyboardType: TextInputType.number,
+        animationCurve: Curves.easeOutCubic,
+        animationDuration: const Duration(milliseconds: 200),
+        onCompleted: (pin) {
+          _verifyOtp();
+        },
         onChanged: (value) {
-          if (value.isNotEmpty && index < 5) {
-            _focusNodes[index + 1].requestFocus();
-          } else if (value.isEmpty && index > 0) {
-            _focusNodes[index - 1].requestFocus();
-          }
-          if (_otpCode.length == 6) {
-            _verifyOtp();
-          }
+          setState(() {});
         },
       ),
     );
   }
 
   Widget _buildVerifyButton() {
-    final bool canVerify = _otpCode.length == 6 && !_isVerifying;
+    final bool canVerify = _pinController.text.length == 6 && !_isVerifying;
 
     return Container(
       width: double.infinity,

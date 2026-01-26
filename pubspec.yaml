@@ -85,6 +85,9 @@ dependencies:
   # Path provider for file operations
   path_provider: ^2.1.1
 
+  # OTP Input
+  pinput: ^6.0.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

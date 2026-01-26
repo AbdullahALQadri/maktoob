@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:pinput/pinput.dart';
 
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/media_query_values.dart';
@@ -27,11 +27,8 @@ class OtpVerificationScreen extends StatefulWidget {
 
 class _OtpVerificationScreenState extends State<OtpVerificationScreen>
     with SingleTickerProviderStateMixin {
-  final List<TextEditingController> _otpControllers = List.generate(
-    6,
-    (_) => TextEditingController(),
-  );
-  final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
+  final _pinController = TextEditingController();
+  final _focusNode = FocusNode();
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -59,12 +56,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
   void dispose() {
     _animationController.dispose();
     _resendTimer?.cancel();
-    for (var controller in _otpControllers) {
-      controller.dispose();
-    }
-    for (var node in _focusNodes) {
-      node.dispose();
-    }
+    _pinController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -84,12 +77,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
     });
   }
 
-  String get _otpCode {
-    return _otpControllers.map((c) => c.text).join();
-  }
-
   void _verifyOtp() {
-    if (_otpCode.length == 6) {
+    if (_pinController.text.length == 6) {
       setState(() {
         _isVerifying = true;
       });
@@ -109,6 +98,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
   void _resendOtp() {
     if (_canResend) {
       _startResendTimer();
+      _pinController.clear();
       // Show snackbar
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -332,11 +322,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
       ),
       child: Column(
         children: [
-          // OTP Input Fields
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: List.generate(6, (index) => _buildOtpField(index)),
-          ),
+          // OTP Pinput
+          _buildPinput(),
           SizedBox(height: context.dynamicHeight(0.03)),
 
           // Verify Button
@@ -350,61 +337,112 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
     );
   }
 
-  Widget _buildOtpField(int index) {
-    return SizedBox(
-      width: context.dynamicWidth(0.12),
-      child: TextFormField(
-        controller: _otpControllers[index],
-        focusNode: _focusNodes[index],
-        keyboardType: TextInputType.number,
-        textAlign: TextAlign.center,
-        maxLength: 1,
-        style: TextStyle(
-          fontSize: context.dynamicWidth(0.06),
-          fontWeight: FontWeight.bold,
-          color: AppColors.gray900,
-        ),
-        decoration: InputDecoration(
-          counterText: '',
-          filled: true,
-          fillColor: AppColors.gray50,
-          contentPadding: EdgeInsets.symmetric(
-            vertical: context.dynamicHeight(0.02),
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: AppColors.gray200, width: 1.5),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: AppColors.primaryColor, width: 2),
-          ),
-        ),
-        inputFormatters: [
-          FilteringTextInputFormatter.digitsOnly,
-        ],
-        onChanged: (value) {
-          if (value.isNotEmpty && index < 5) {
-            _focusNodes[index + 1].requestFocus();
-          } else if (value.isEmpty && index > 0) {
-            _focusNodes[index - 1].requestFocus();
-          }
+  Widget _buildPinput() {
+    // Calculate responsive sizes
+    final pinWidth = context.dynamicWidth(0.12);
+    final pinHeight = context.dynamicHeight(0.07);
+    final fontSize = context.dynamicWidth(0.055);
 
-          // Auto verify when all fields are filled
-          if (_otpCode.length == 6) {
-            _verifyOtp();
-          }
+    // Default theme for unfocused state
+    final defaultPinTheme = PinTheme(
+      width: pinWidth,
+      height: pinHeight,
+      textStyle: TextStyle(
+        fontSize: fontSize,
+        fontWeight: FontWeight.bold,
+        color: AppColors.gray900,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.gray50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.gray200,
+          width: 1.5,
+        ),
+      ),
+    );
+
+    // Focused theme
+    final focusedPinTheme = defaultPinTheme.copyWith(
+      decoration: BoxDecoration(
+        color: AppColors.gray50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.primaryColor,
+          width: 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primaryColor.withValues(alpha: 0.15),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+    );
+
+    // Submitted (filled) theme
+    final submittedPinTheme = defaultPinTheme.copyWith(
+      decoration: BoxDecoration(
+        color: AppColors.primaryColor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.primaryColor,
+          width: 1.5,
+        ),
+      ),
+    );
+
+    // Error theme
+    final errorPinTheme = defaultPinTheme.copyWith(
+      decoration: BoxDecoration(
+        color: AppColors.red500.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.red500,
+          width: 1.5,
+        ),
+      ),
+    );
+
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Pinput(
+        length: 6,
+        controller: _pinController,
+        focusNode: _focusNode,
+        defaultPinTheme: defaultPinTheme,
+        focusedPinTheme: focusedPinTheme,
+        submittedPinTheme: submittedPinTheme,
+        errorPinTheme: errorPinTheme,
+        pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
+        showCursor: true,
+        cursor: Container(
+          width: 2,
+          height: fontSize,
+          decoration: BoxDecoration(
+            color: AppColors.primaryColor,
+            borderRadius: BorderRadius.circular(1),
+          ),
+        ),
+        separatorBuilder: (index) => SizedBox(width: context.dynamicWidth(0.02)),
+        hapticFeedbackType: HapticFeedbackType.lightImpact,
+        closeKeyboardWhenCompleted: true,
+        keyboardType: TextInputType.number,
+        animationCurve: Curves.easeOutCubic,
+        animationDuration: const Duration(milliseconds: 200),
+        onCompleted: (pin) {
+          _verifyOtp();
+        },
+        onChanged: (value) {
+          setState(() {});
         },
       ),
     );
   }
 
   Widget _buildVerifyButton() {
-    final bool canVerify = _otpCode.length == 6 && !_isVerifying;
+    final bool canVerify = _pinController.text.length == 6 && !_isVerifying;
 
     return Container(
       width: double.infinity,

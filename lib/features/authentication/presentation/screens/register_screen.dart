@@ -32,13 +32,13 @@ class _RegisterScreenState extends State<RegisterScreen>
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _locationController = TextEditingController();
-  final _institutionFieldController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   UserType _selectedUserType = UserType.user;
   String _selectedCountryCode = '+970'; // Default Palestine
+  int? _selectedInstitutionFieldIndex; // Index-based to work with language switching
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -64,6 +64,28 @@ class _RegisterScreenState extends State<RegisterScreen>
     {'code': '+49', 'country': 'Germany', 'flag': '🇩🇪'},
     {'code': '+33', 'country': 'France', 'flag': '🇫🇷'},
   ];
+
+  // Phone number length validation per country (min, max digits after removing leading 0)
+  static const Map<String, List<int>> _phoneValidation = {
+    '+970': [9, 9],      // Palestine: 9 digits
+    '+972': [9, 9],      // Israel: 9 digits
+    '+962': [9, 9],      // Jordan: 9 digits
+    '+20': [10, 10],     // Egypt: 10 digits
+    '+966': [9, 9],      // Saudi Arabia: 9 digits
+    '+971': [9, 9],      // UAE: 9 digits
+    '+974': [8, 8],      // Qatar: 8 digits
+    '+965': [8, 8],      // Kuwait: 8 digits
+    '+968': [8, 8],      // Oman: 8 digits
+    '+973': [8, 8],      // Bahrain: 8 digits
+    '+961': [7, 8],      // Lebanon: 7-8 digits
+    '+963': [9, 9],      // Syria: 9 digits
+    '+964': [10, 10],    // Iraq: 10 digits
+    '+90': [10, 10],     // Turkey: 10 digits
+    '+1': [10, 10],      // USA/Canada: 10 digits
+    '+44': [10, 10],     // UK: 10 digits
+    '+49': [10, 11],     // Germany: 10-11 digits
+    '+33': [9, 9],       // France: 9 digits
+  };
 
   // Institution field options
   final List<String> _institutionFields = [
@@ -110,6 +132,7 @@ class _RegisterScreenState extends State<RegisterScreen>
     'Qalqilya',
     'Salfit',
     'Tubas',
+    'Other',
   ];
 
   final List<String> _governoratesAr = [
@@ -129,9 +152,12 @@ class _RegisterScreenState extends State<RegisterScreen>
     'قلقيلية',
     'سلفيت',
     'طوباس',
+    'أخرى',
   ];
 
-  String? _selectedGovernorate;
+  int? _selectedGovernorateIndex; // Index-based to work with language switching
+  final _customGovernorateController = TextEditingController();
+  bool _showCustomGovernorate = false; // Flag to show custom governorate field
 
   @override
   void initState() {
@@ -159,15 +185,32 @@ class _RegisterScreenState extends State<RegisterScreen>
     _emailController.dispose();
     _phoneController.dispose();
     _locationController.dispose();
-    _institutionFieldController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _customGovernorateController.dispose();
     super.dispose();
   }
 
   void _handleRegister() {
     if (_formKey.currentState?.validate() ?? false) {
-      final fullPhone = '$_selectedCountryCode${_phoneController.text.trim()}';
+      // Remove leading 0 from phone number if present
+      String phoneNumber = _phoneController.text.trim();
+      if (phoneNumber.startsWith('0')) {
+        phoneNumber = phoneNumber.substring(1);
+      }
+      final fullPhone = '$_selectedCountryCode$phoneNumber';
+
+      // Determine governorate value
+      String? governorateValue;
+      if (_selectedUserType == UserType.institution && _selectedGovernorateIndex != null) {
+        if (_showCustomGovernorate) {
+          // Use custom governorate text
+          governorateValue = _customGovernorateController.text.trim();
+        } else {
+          // Use selected governorate (English value for API)
+          governorateValue = _governorates[_selectedGovernorateIndex!];
+        }
+      }
 
       context.read<AuthCubit>().register(
             name: _nameController.text.trim(),
@@ -177,9 +220,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             phone: fullPhone,
             password: _passwordController.text,
             userType: _selectedUserType.apiValue,
-            governorate: _selectedUserType == UserType.institution
-                ? _selectedGovernorate
-                : null,
+            governorate: governorateValue,
             location: _selectedUserType == UserType.institution
                 ? _locationController.text.trim()
                 : null,
@@ -191,11 +232,26 @@ class _RegisterScreenState extends State<RegisterScreen>
     return Localizations.localeOf(context).languageCode == 'ar';
   }
 
+  // Get max phone length for current country (including potential leading 0)
+  int _getMaxPhoneLength() {
+    final validation = _phoneValidation[_selectedCountryCode];
+    if (validation != null) {
+      // Add 1 to account for potential leading 0
+      return validation[1] + 1;
+    }
+    return 15; // Default max length
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthRegistered) {
+          // Remove leading 0 from phone number if present
+          String phoneNumber = _phoneController.text.trim();
+          if (phoneNumber.startsWith('0')) {
+            phoneNumber = phoneNumber.substring(1);
+          }
           // Navigate to OTP verification screen
           Navigator.push(
             context,
@@ -203,7 +259,7 @@ class _RegisterScreenState extends State<RegisterScreen>
               builder: (_) => BlocProvider.value(
                 value: context.read<AuthCubit>(),
                 child: OtpVerificationScreen(
-                  phone: '$_selectedCountryCode${_phoneController.text.trim()}',
+                  phone: '$_selectedCountryCode$phoneNumber',
                   userType: _selectedUserType,
                   onVerified: () {
                     if (_selectedUserType == UserType.institution) {
@@ -462,12 +518,16 @@ class _RegisterScreenState extends State<RegisterScreen>
                     hint: _isArabic ? 'اختر مجال المؤسسة' : 'Select institution field',
                     icon: Icons.category_outlined,
                     items: _isArabic ? _institutionFieldsAr : _institutionFields,
-                    value: _institutionFieldController.text.isEmpty
-                        ? null
-                        : _institutionFieldController.text,
+                    value: _selectedInstitutionFieldIndex != null
+                        ? (_isArabic
+                            ? _institutionFieldsAr[_selectedInstitutionFieldIndex!]
+                            : _institutionFields[_selectedInstitutionFieldIndex!])
+                        : null,
                     onChanged: (value) {
                       setState(() {
-                        _institutionFieldController.text = value ?? '';
+                        // Store index for language-independent selection
+                        final items = _isArabic ? _institutionFieldsAr : _institutionFields;
+                        _selectedInstitutionFieldIndex = items.indexOf(value!);
                       });
                     },
                   ),
@@ -479,14 +539,52 @@ class _RegisterScreenState extends State<RegisterScreen>
                     hint: _isArabic ? 'اختر المحافظة' : 'Select governorate',
                     icon: Icons.map_outlined,
                     items: _isArabic ? _governoratesAr : _governorates,
-                    value: _selectedGovernorate,
+                    value: _selectedGovernorateIndex != null
+                        ? (_isArabic
+                            ? _governoratesAr[_selectedGovernorateIndex!]
+                            : _governorates[_selectedGovernorateIndex!])
+                        : null,
                     onChanged: (value) {
                       setState(() {
-                        _selectedGovernorate = value;
+                        // Store index for language-independent selection
+                        final items = _isArabic ? _governoratesAr : _governorates;
+                        _selectedGovernorateIndex = items.indexOf(value!);
+                        // Check if "Other" is selected (last item in the list)
+                        _showCustomGovernorate = _selectedGovernorateIndex == _governorates.length - 1;
+                        // Clear custom governorate when changing to non-Other selection
+                        if (!_showCustomGovernorate) {
+                          _customGovernorateController.clear();
+                        }
                       });
                     },
                   ),
                   SizedBox(height: context.dynamicHeight(0.016)),
+
+                  // Custom Governorate text field - Only when "Other" is selected
+                  if (_showCustomGovernorate)
+                    _buildModernTextField(
+                      controller: _customGovernorateController,
+                      label: _isArabic ? 'اسم المحافظة' : 'Governorate Name',
+                      hint: _isArabic ? 'أدخل اسم المحافظة' : 'Enter governorate name',
+                      prefixIcon: Icons.edit_location_alt_outlined,
+                      validator: (value) {
+                        if (_showCustomGovernorate) {
+                          if (value == null || value.isEmpty) {
+                            return _isArabic
+                                ? 'الرجاء إدخال اسم المحافظة'
+                                : 'Please enter governorate name';
+                          }
+                          if (value.length < 2) {
+                            return _isArabic
+                                ? 'يجب أن يكون حرفين على الأقل'
+                                : 'Must be at least 2 characters';
+                          }
+                        }
+                        return null;
+                      },
+                    ),
+                  if (_showCustomGovernorate)
+                    SizedBox(height: context.dynamicHeight(0.016)),
                 ],
 
                 // Phone Field with Country Code
@@ -828,6 +926,14 @@ class _RegisterScreenState extends State<RegisterScreen>
                         onChanged: (value) {
                           setState(() {
                             _selectedCountryCode = value!;
+                            // Truncate phone if it exceeds new max length
+                            final maxLength = _getMaxPhoneLength();
+                            if (_phoneController.text.length > maxLength) {
+                              _phoneController.text = _phoneController.text.substring(0, maxLength);
+                              _phoneController.selection = TextSelection.fromPosition(
+                                TextPosition(offset: _phoneController.text.length),
+                              );
+                            }
                           });
                         },
                       ),
@@ -841,6 +947,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                 keyboardType: TextInputType.phone,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(_getMaxPhoneLength()),
                 ],
                 style: TextStyle(
                   fontSize: context.dynamicWidth(0.038),
@@ -903,11 +1010,41 @@ class _RegisterScreenState extends State<RegisterScreen>
                         ? 'الرجاء إدخال رقم الهاتف'
                         : 'Please enter phone number';
                   }
-                  if (value.length < 7) {
-                    return _isArabic
-                        ? 'رقم الهاتف غير صحيح'
-                        : 'Invalid phone number';
+
+                  // Remove leading 0 for validation
+                  String phoneNumber = value;
+                  if (phoneNumber.startsWith('0')) {
+                    phoneNumber = phoneNumber.substring(1);
                   }
+
+                  // Get validation rules for selected country
+                  final validation = _phoneValidation[_selectedCountryCode];
+                  if (validation != null) {
+                    final minLength = validation[0];
+                    final maxLength = validation[1];
+
+                    if (phoneNumber.length < minLength || phoneNumber.length > maxLength) {
+                      if (minLength == maxLength) {
+                        return _isArabic
+                            ? 'رقم الهاتف يجب أن يكون $minLength أرقام'
+                            : 'Phone number must be $minLength digits';
+                      } else {
+                        return _isArabic
+                            ? 'رقم الهاتف يجب أن يكون بين $minLength و $maxLength أرقام'
+                            : 'Phone number must be $minLength-$maxLength digits';
+                      }
+                    }
+                  }
+
+                  // Palestine individual users: must start with 5 (mobile)
+                  if (_selectedUserType == UserType.user && _selectedCountryCode == '+970') {
+                    if (!phoneNumber.startsWith('5')) {
+                      return _isArabic
+                          ? 'رقم الهاتف يجب أن يبدأ بـ 5'
+                          : 'Phone number must start with 5';
+                    }
+                  }
+
                   return null;
                 },
               ),
@@ -976,6 +1113,14 @@ class _RegisterScreenState extends State<RegisterScreen>
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: AppColors.red500, width: 1),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: AppColors.red500, width: 2),
+            ),
+            errorStyle: TextStyle(
+              color: AppColors.red500,
+              fontSize: context.dynamicWidth(0.028),
             ),
           ),
           items: items.map((item) {
