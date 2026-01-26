@@ -7,6 +7,7 @@ import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/media_query_values.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
+import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback? onRegisterTap;
@@ -37,16 +38,16 @@ class _LoginScreenState extends State<LoginScreen>
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 900),
     );
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
     );
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.1),
+      begin: const Offset(0, 0.15),
       end: Offset.zero,
     ).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
     );
     _animationController.forward();
   }
@@ -66,6 +67,10 @@ class _LoginScreenState extends State<LoginScreen>
             password: _passwordController.text,
           );
     }
+  }
+
+  bool get _isArabic {
+    return Localizations.localeOf(context).languageCode == 'ar';
   }
 
   @override
@@ -89,125 +94,154 @@ class _LoginScreenState extends State<LoginScreen>
         }
       },
       child: Scaffold(
-        body: Stack(
-          children: [
-            // Gradient Background
-            _buildBackground(),
-            // Content
-            SafeArea(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: context.dynamicWidth(0.06),
-                  ),
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: SlideTransition(
-                      position: _slideAnimation,
-                      child: Column(
-                        children: [
-                          SizedBox(height: context.dynamicHeight(0.08)),
-                          _buildLogo(),
-                          SizedBox(height: context.dynamicHeight(0.04)),
-                          _buildWelcomeText(),
-                          SizedBox(height: context.dynamicHeight(0.05)),
-                          _buildFormCard(),
-                          SizedBox(height: context.dynamicHeight(0.03)),
-                          _buildRegisterLink(),
-                          SizedBox(height: context.dynamicHeight(0.04)),
-                        ],
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                AppColors.primaryColor,
+                AppColors.primaryColor.withValues(alpha: 0.85),
+                AppColors.tertiaryColor.withValues(alpha: 0.9),
+              ],
+              stops: const [0.0, 0.4, 1.0],
+            ),
+          ),
+          child: Stack(
+            children: [
+              // Decorative Pattern
+              _buildDecorativePattern(),
+              // Main Content
+              SafeArea(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: MediaQuery.of(context).size.height -
+                          MediaQuery.of(context).padding.top -
+                          MediaQuery.of(context).padding.bottom,
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: context.dynamicWidth(0.06),
+                      ),
+                      child: FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: SlideTransition(
+                          position: _slideAnimation,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(height: context.dynamicHeight(0.06)),
+                              _buildLogo(),
+                              SizedBox(height: context.dynamicHeight(0.03)),
+                              _buildWelcomeText(),
+                              SizedBox(height: context.dynamicHeight(0.04)),
+                              _buildFormCard(),
+                              SizedBox(height: context.dynamicHeight(0.025)),
+                              _buildRegisterLink(),
+                              SizedBox(height: context.dynamicHeight(0.04)),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildBackground() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.primaryColor,
-            AppColors.primaryColor.withValues(alpha: 0.8),
-            AppColors.tertiaryColor,
-          ],
-          stops: const [0.0, 0.5, 1.0],
-        ),
-      ),
-      child: Stack(
-        children: [
-          // Decorative circles
-          Positioned(
-            top: -context.dynamicWidth(0.3),
-            right: -context.dynamicWidth(0.2),
-            child: Container(
-              width: context.dynamicWidth(0.7),
-              height: context.dynamicWidth(0.7),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
+  Widget _buildDecorativePattern() {
+    return Stack(
+      children: [
+        // Top right decorative circle
+        Positioned(
+          top: -context.dynamicWidth(0.35),
+          right: -context.dynamicWidth(0.25),
+          child: Container(
+            width: context.dynamicWidth(0.8),
+            height: context.dynamicWidth(0.8),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
                 color: Colors.white.withValues(alpha: 0.1),
+                width: 1.5,
               ),
             ),
           ),
-          Positioned(
-            bottom: context.dynamicHeight(0.1),
-            left: -context.dynamicWidth(0.25),
-            child: Container(
-              width: context.dynamicWidth(0.5),
-              height: context.dynamicWidth(0.5),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.08),
-              ),
+        ),
+        // Bottom left decorative circle
+        Positioned(
+          bottom: -context.dynamicWidth(0.2),
+          left: -context.dynamicWidth(0.3),
+          child: Container(
+            width: context.dynamicWidth(0.6),
+            height: context.dynamicWidth(0.6),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withValues(alpha: 0.05),
             ),
           ),
-          Positioned(
-            top: context.dynamicHeight(0.3),
-            right: -context.dynamicWidth(0.1),
-            child: Container(
-              width: context.dynamicWidth(0.3),
-              height: context.dynamicWidth(0.3),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.05),
-              ),
+        ),
+        // Small accent circles
+        Positioned(
+          top: context.dynamicHeight(0.15),
+          left: context.dynamicWidth(0.1),
+          child: Container(
+            width: 12,
+            height: 12,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withValues(alpha: 0.3),
             ),
           ),
-        ],
-      ),
+        ),
+        Positioned(
+          top: context.dynamicHeight(0.25),
+          right: context.dynamicWidth(0.15),
+          child: Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withValues(alpha: 0.2),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildLogo() {
-    return Container(
-      width: context.dynamicWidth(0.28),
-      height: context.dynamicWidth(0.28),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
-            blurRadius: 30,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: ClipOval(
-        child: Padding(
-          padding: EdgeInsets.all(context.dynamicWidth(0.04)),
-          child: Image.asset(
-            'assets/images/logo.png',
-            fit: BoxFit.contain,
+    return Hero(
+      tag: 'app_logo',
+      child: Container(
+        width: context.dynamicWidth(0.26),
+        height: context.dynamicWidth(0.26),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 25,
+              offset: const Offset(0, 8),
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: ClipOval(
+          child: Padding(
+            padding: EdgeInsets.all(context.dynamicWidth(0.035)),
+            child: Image.asset(
+              'assets/images/logo.png',
+              fit: BoxFit.contain,
+            ),
           ),
         ),
       ),
@@ -218,21 +252,23 @@ class _LoginScreenState extends State<LoginScreen>
     return Column(
       children: [
         Text(
-          'Welcome Back',
+          _isArabic ? 'مرحباً بعودتك' : 'Welcome Back',
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.075),
+            fontSize: context.dynamicWidth(0.07),
             fontWeight: FontWeight.bold,
             color: Colors.white,
-            letterSpacing: 0.5,
+            letterSpacing: _isArabic ? 0 : 0.5,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.01)),
+        SizedBox(height: context.dynamicHeight(0.008)),
         Text(
-          'Sign in to continue to Maktoob',
+          _isArabic
+              ? 'سجّل دخولك للمتابعة إلى مكتوب'
+              : 'Sign in to continue to Maktoob',
           style: TextStyle(
             fontSize: context.dynamicWidth(0.038),
-            color: Colors.white.withValues(alpha: 0.85),
-            letterSpacing: 0.3,
+            color: Colors.white.withValues(alpha: 0.9),
+            letterSpacing: _isArabic ? 0 : 0.3,
           ),
         ),
       ],
@@ -241,14 +277,14 @@ class _LoginScreenState extends State<LoginScreen>
 
   Widget _buildFormCard() {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(28),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
         child: Container(
           padding: EdgeInsets.all(context.dynamicWidth(0.06)),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.95),
-            borderRadius: BorderRadius.circular(24),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(28),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.1),
@@ -262,26 +298,30 @@ class _LoginScreenState extends State<LoginScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Email/Phone Field
+                // Phone/Email Field
                 _buildModernTextField(
                   controller: _loginController,
-                  label: 'Email or Phone',
-                  hint: 'Enter your email or phone',
-                  prefixIcon: Icons.alternate_email_rounded,
+                  label: _isArabic ? 'رقم الهاتف أو البريد' : 'Phone or Email',
+                  hint: _isArabic
+                      ? 'أدخل رقم هاتفك أو بريدك'
+                      : 'Enter your phone or email',
+                  prefixIcon: Icons.person_outline_rounded,
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your email or phone';
+                      return _isArabic
+                          ? 'الرجاء إدخال رقم الهاتف أو البريد'
+                          : 'Please enter your phone or email';
                     }
                     return null;
                   },
                 ),
-                SizedBox(height: context.dynamicHeight(0.022)),
+                SizedBox(height: context.dynamicHeight(0.02)),
                 // Password Field
                 _buildModernTextField(
                   controller: _passwordController,
-                  label: 'Password',
-                  hint: 'Enter your password',
+                  label: _isArabic ? 'كلمة المرور' : 'Password',
+                  hint: _isArabic ? 'أدخل كلمة المرور' : 'Enter your password',
                   prefixIcon: Icons.lock_outline_rounded,
                   obscureText: _obscurePassword,
                   suffixIcon: GestureDetector(
@@ -300,29 +340,55 @@ class _LoginScreenState extends State<LoginScreen>
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
+                      return _isArabic
+                          ? 'الرجاء إدخال كلمة المرور'
+                          : 'Please enter your password';
                     }
                     if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
+                      return _isArabic
+                          ? 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'
+                          : 'Password must be at least 6 characters';
                     }
                     return null;
                   },
                 ),
-                SizedBox(height: context.dynamicHeight(0.01)),
+                SizedBox(height: context.dynamicHeight(0.012)),
                 // Forgot Password
                 Align(
                   alignment: AlignmentDirectional.centerEnd,
                   child: TextButton(
                     onPressed: () {
-                      // TODO: Implement forgot password
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ForgotPasswordScreen(
+                            onBack: () => Navigator.pop(context),
+                            onSuccess: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(_isArabic
+                                      ? 'تم تغيير كلمة المرور بنجاح'
+                                      : 'Password changed successfully'),
+                                  backgroundColor: AppColors.green600,
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  margin: const EdgeInsets.all(16),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      );
                     },
                     style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     child: Text(
-                      'Forgot Password?',
+                      _isArabic ? 'نسيت كلمة المرور؟' : 'Forgot Password?',
                       style: TextStyle(
                         color: AppColors.primaryColor,
                         fontWeight: FontWeight.w600,
@@ -331,51 +397,9 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                   ),
                 ),
-                SizedBox(height: context.dynamicHeight(0.028)),
+                SizedBox(height: context.dynamicHeight(0.025)),
                 // Login Button
-                BlocBuilder<AuthCubit, AuthState>(
-                  builder: (context, state) {
-                    final isLoading = state is AuthLoading;
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      height: context.dynamicHeight(0.065),
-                      child: ElevatedButton(
-                        onPressed: isLoading ? null : _handleLogin,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryColor,
-                          foregroundColor: Colors.white,
-                          disabledBackgroundColor:
-                              AppColors.primaryColor.withValues(alpha: 0.6),
-                          elevation: isLoading ? 0 : 4,
-                          shadowColor:
-                              AppColors.primaryColor.withValues(alpha: 0.4),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        child: isLoading
-                            ? SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.5,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white.withValues(alpha: 0.9),
-                                  ),
-                                ),
-                              )
-                            : Text(
-                                'Sign In',
-                                style: TextStyle(
-                                  fontSize: context.dynamicWidth(0.042),
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                      ),
-                    );
-                  },
-                ),
+                _buildLoginButton(),
               ],
             ),
           ),
@@ -403,7 +427,6 @@ class _LoginScreenState extends State<LoginScreen>
             fontSize: context.dynamicWidth(0.035),
             fontWeight: FontWeight.w600,
             color: AppColors.gray700,
-            letterSpacing: 0.3,
           ),
         ),
         SizedBox(height: context.dynamicHeight(0.008)),
@@ -425,10 +448,10 @@ class _LoginScreenState extends State<LoginScreen>
               fontWeight: FontWeight.w400,
             ),
             prefixIcon: Container(
-              margin: const EdgeInsets.only(left: 12, right: 8),
+              margin: const EdgeInsetsDirectional.only(start: 14, end: 10),
               child: Icon(
                 prefixIcon,
-                color: AppColors.primaryColor.withValues(alpha: 0.7),
+                color: AppColors.primaryColor,
                 size: 22,
               ),
             ),
@@ -438,7 +461,7 @@ class _LoginScreenState extends State<LoginScreen>
             ),
             suffixIcon: suffixIcon != null
                 ? Padding(
-                    padding: const EdgeInsets.only(right: 12),
+                    padding: const EdgeInsetsDirectional.only(end: 14),
                     child: suffixIcon,
                   )
                 : null,
@@ -459,7 +482,7 @@ class _LoginScreenState extends State<LoginScreen>
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide(
-                color: AppColors.gray200.withValues(alpha: 0.5),
+                color: AppColors.gray200,
                 width: 1,
               ),
             ),
@@ -488,31 +511,95 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
+  Widget _buildLoginButton() {
+    return BlocBuilder<AuthCubit, AuthState>(
+      builder: (context, state) {
+        final isLoading = state is AuthLoading;
+        return Container(
+          height: context.dynamicHeight(0.065),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              colors: [
+                AppColors.primaryColor,
+                AppColors.primaryColor.withValues(alpha: 0.85),
+              ],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primaryColor.withValues(alpha: 0.4),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: ElevatedButton(
+            onPressed: isLoading ? null : _handleLogin,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            child: isLoading
+                ? SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Colors.white.withValues(alpha: 0.9),
+                      ),
+                    ),
+                  )
+                : Text(
+                    _isArabic ? 'تسجيل الدخول' : 'Sign In',
+                    style: TextStyle(
+                      fontSize: context.dynamicWidth(0.043),
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: _isArabic ? 0 : 0.5,
+                    ),
+                  ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildRegisterLink() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          "Don't have an account? ",
+          _isArabic ? 'ليس لديك حساب؟ ' : "Don't have an account? ",
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.9),
+            color: Colors.white.withValues(alpha: 0.95),
             fontSize: context.dynamicWidth(0.037),
           ),
         ),
         GestureDetector(
           onTap: widget.onRegisterTap,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(8),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Text(
-              'Register',
+              _isArabic ? 'سجّل الآن' : 'Register',
               style: TextStyle(
-                color: Colors.white,
+                color: AppColors.primaryColor,
                 fontWeight: FontWeight.bold,
-                fontSize: context.dynamicWidth(0.037),
+                fontSize: context.dynamicWidth(0.035),
               ),
             ),
           ),

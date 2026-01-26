@@ -53,13 +53,14 @@ class AuthCubit extends Cubit<AuthState> {
 
   /// Register new user
   /// Normal user: name, phone, password
-  /// Organization: name, email, phone, location, password
+  /// Institution: name, email, phone, governorate, location, password
   Future<void> register({
     required String name,
     String? email,
     required String phone,
     required String password,
     required String userType,
+    String? governorate,
     String? location,
   }) async {
     emit(const AuthLoading());
@@ -70,6 +71,7 @@ class AuthCubit extends Cubit<AuthState> {
       phone: phone,
       password: password,
       userType: userType,
+      governorate: governorate,
       location: location,
     );
 

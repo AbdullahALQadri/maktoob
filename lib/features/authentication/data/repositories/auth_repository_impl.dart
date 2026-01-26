@@ -53,6 +53,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String phone,
     required String password,
     String? userType,
+    String? governorate,
     String? location,
   }) async {
     try {
@@ -62,6 +63,7 @@ class AuthRepositoryImpl implements AuthRepository {
         phone: phone,
         password: password,
         userType: userType,
+        governorate: governorate,
         location: location,
       );
 

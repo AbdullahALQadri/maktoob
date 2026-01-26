@@ -1,40 +1,42 @@
 import 'package:equatable/equatable.dart';
 
-/// User type enum for distinguishing between normal users and organizations
+/// User type enum for distinguishing between individual users and institutions
 enum UserType {
-  normal,
-  organization;
+  user,
+  institution;
 
   String get displayName {
     switch (this) {
-      case UserType.normal:
-        return 'Normal User';
-      case UserType.organization:
-        return 'Organization';
+      case UserType.user:
+        return 'Individual';
+      case UserType.institution:
+        return 'Institution';
     }
   }
 
   String get displayNameAr {
     switch (this) {
-      case UserType.normal:
-        return 'مستخدم عادي';
-      case UserType.organization:
-        return 'منظمة';
+      case UserType.user:
+        return 'فرد';
+      case UserType.institution:
+        return 'مؤسسة';
     }
   }
 
   String get apiValue {
     switch (this) {
-      case UserType.normal:
-        return 'normal';
-      case UserType.organization:
-        return 'organization';
+      case UserType.user:
+        return 'user';
+      case UserType.institution:
+        return 'institution';
     }
   }
 
   static UserType fromString(String? value) {
-    if (value == 'organization') return UserType.organization;
-    return UserType.normal;
+    if (value == 'institution' || value == 'organization') {
+      return UserType.institution;
+    }
+    return UserType.user;
   }
 }
 
@@ -59,11 +61,11 @@ class UserEntity extends Equatable {
     this.companyName,
     this.isVerified = false,
     this.locale,
-    this.userType = UserType.normal,
+    this.userType = UserType.user,
   });
 
-  /// Check if user is an organization based on companyName or userType
-  bool get isOrganization => userType == UserType.organization || companyName != null;
+  /// Check if user is an institution based on companyName or userType
+  bool get isInstitution => userType == UserType.institution || companyName != null;
 
   /// Get initials from name
   String get initials {

@@ -666,7 +666,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          user.isOrganization
+                          user.isInstitution
                               ? Icons.business
                               : Icons.person,
                           color: Colors.white,
@@ -749,24 +749,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           _buildUserTypeOption(
             context: context,
-            title: isArabic ? 'مستخدم عادي' : 'Normal User',
+            title: isArabic ? 'فرد' : 'Individual',
             subtitle: isArabic
                 ? 'حساب شخصي لإدارة الفعاليات الخاصة'
                 : 'Personal account for managing private events',
             icon: Icons.person,
-            isSelected: user.userType == UserType.normal,
-            onTap: () => _showChangeUserTypeDialog(context, UserType.normal, isArabic),
+            isSelected: user.userType == UserType.user,
+            onTap: () => _showChangeUserTypeDialog(context, UserType.user, isArabic),
           ),
           Divider(color: AppColors.gray100, height: context.dynamicHeight(0.02)),
           _buildUserTypeOption(
             context: context,
-            title: isArabic ? 'منظمة' : 'Organization',
+            title: isArabic ? 'مؤسسة' : 'Institution',
             subtitle: isArabic
                 ? 'حساب أعمال لإدارة الفعاليات التجارية'
                 : 'Business account for managing commercial events',
             icon: Icons.business,
-            isSelected: user.userType == UserType.organization,
-            onTap: () => _showChangeUserTypeDialog(context, UserType.organization, isArabic),
+            isSelected: user.userType == UserType.institution,
+            onTap: () => _showChangeUserTypeDialog(context, UserType.institution, isArabic),
           ),
         ],
       ),
@@ -1061,7 +1061,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (currentUser?.userType == newType) return;
 
-    final bool isConvertingToOrg = newType == UserType.organization;
+    final bool isConvertingToOrg = newType == UserType.institution;
     final reasonController = TextEditingController();
 
     showDialog(

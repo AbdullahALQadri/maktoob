@@ -25,7 +25,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       companyName: 'شركة التقنية المتقدمة',
       isVerified: true,
       locale: 'ar',
-      userType: UserType.normal,
+      userType: UserType.user,
     );
     _currentUser = user;
     emit(ProfileLoaded(user: user));
@@ -73,7 +73,7 @@ class ProfileCubit extends Cubit<ProfileState> {
 
     final updatedUser = _currentUser!.copyWith(
       userType: newType,
-      companyName: newType == UserType.organization
+      companyName: newType == UserType.institution
           ? _currentUser!.companyName ?? 'شركة التقنية المتقدمة'
           : _currentUser!.companyName,
     );
