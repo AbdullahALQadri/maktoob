@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/media_query_values.dart';
 import '../../../../core/widgets/buttons/primary_button.dart';
+import '../../../../core/widgets/snackbar/app_snackbar.dart';
 import '../cubit/invitation_cubit.dart';
 import '../cubit/invitation_state.dart';
 import '../widgets/marketing_footer_widget.dart';
@@ -364,11 +365,10 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
 
   void _copyLink(String link) {
     Clipboard.setData(ClipboardData(text: link));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Link copied to clipboard!'),
-        duration: Duration(seconds: 2),
-      ),
+    AppSnackBar.showSuccess(
+      context,
+      message: 'Link copied to clipboard!',
+      duration: const Duration(seconds: 2),
     );
   }
 
@@ -381,8 +381,9 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
       await Share.share(message);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not share')),
+        AppSnackBar.showError(
+          context,
+          message: 'Could not share',
         );
       }
     }
@@ -397,8 +398,9 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
       await Share.share(message);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not share')),
+        AppSnackBar.showError(
+          context,
+          message: 'Could not share',
         );
       }
     }

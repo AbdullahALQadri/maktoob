@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/widgets/buttons/primary_button.dart';
+import '../../../../core/widgets/snackbar/app_snackbar.dart';
 import '../../data/models/golden_package_model.dart';
 import '../cubit/invitation_cubit.dart';
 import '../cubit/invitation_state.dart';
@@ -496,8 +497,9 @@ class WhatsAppPaymentScreen extends StatelessWidget {
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open WhatsApp')),
+        AppSnackBar.showError(
+          context,
+          message: 'Could not open WhatsApp',
         );
       }
     }

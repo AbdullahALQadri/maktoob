@@ -11,6 +11,7 @@ import '../../../../core/utils/media_query_values.dart';
 import '../../../../core/widgets/buttons/primary_button.dart';
 import '../../../../core/widgets/inputs/app_text_field.dart';
 import '../../../../core/widgets/sheets/app_bottom_sheet.dart';
+import '../../../../core/widgets/snackbar/app_snackbar.dart';
 import '../../../../core/services/permissions/permission_service.dart';
 import '../cubit/invitation_cubit.dart';
 import '../cubit/invitation_state.dart';
@@ -775,11 +776,9 @@ class _CustomTemplateBottomSheetContentState
             if (isPermanentlyDenied) {
               _showPermissionDeniedDialog();
             } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(l?.translate('invitation_allow_photos_access') ?? 'Please allow access to photos'),
-                  backgroundColor: Colors.orange,
-                ),
+              AppSnackBar.showWarning(
+                context,
+                message: l?.translate('invitation_allow_photos_access') ?? 'Please allow access to photos',
               );
             }
           }
@@ -804,11 +803,9 @@ class _CustomTemplateBottomSheetContentState
       debugPrint('Error picking image: $e');
       if (mounted) {
         final l = AppLocalizations.of(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${l?.translate('invitation_failed_pick_image') ?? 'Failed to pick image'}: $e'),
-            backgroundColor: Colors.red,
-          ),
+        AppSnackBar.showError(
+          context,
+          message: '${l?.translate('invitation_failed_pick_image') ?? 'Failed to pick image'}: $e',
         );
       }
     } finally {

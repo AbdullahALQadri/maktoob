@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/snackbar/app_snackbar.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../data/models/invitation_draft_model.dart';
 
@@ -76,18 +77,10 @@ class _ManualGuestFormState extends State<ManualGuestForm> {
       _nameFocusNode.requestFocus();
 
       // Show success feedback
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.check_circle, color: Colors.white),
-              const SizedBox(width: 8),
-              Text('تمت إضافة ${guest.name}'),
-            ],
-          ),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 2),
-        ),
+      AppSnackBar.showSuccess(
+        context,
+        message: 'تمت إضافة ${guest.name}',
+        duration: const Duration(seconds: 2),
       );
     }
   }

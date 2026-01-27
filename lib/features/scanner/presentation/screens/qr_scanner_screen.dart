@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/widgets/snackbar/app_snackbar.dart';
 import '../../../events/domain/entities/event_entity.dart';
 import '../../domain/entities/check_in_guest_entity.dart';
 import '../cubit/scanner_cubit.dart';
@@ -128,15 +129,9 @@ class _QRScannerScreenState extends State<QRScannerScreen>
   }
 
   void _showCheckInSuccessSnackBar(CheckInGuestEntity guest) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${guest.name} checked in successfully!'),
-        backgroundColor: Colors.green,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.025)),
-        ),
-      ),
+    AppSnackBar.showSuccess(
+      context,
+      message: '${guest.name} checked in successfully!',
     );
   }
 
@@ -151,15 +146,9 @@ class _QRScannerScreenState extends State<QRScannerScreen>
           _showCheckInSuccessSnackBar(state.guest);
         } else if (state is ScannerError) {
           _stopScanAnimation();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.025)),
-              ),
-            ),
+          AppSnackBar.showError(
+            context,
+            message: state.message,
           );
         } else if (state is ScannerInitial) {
           _stopScanAnimation();

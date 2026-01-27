@@ -12,6 +12,7 @@ import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/media_query_values.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/snackbar/app_snackbar.dart';
 import '../cubit/invitation_cubit.dart';
 import '../cubit/invitation_state.dart';
 import '../widgets/wizard_step_header.dart';
@@ -48,18 +49,10 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
         if (state.saveSuccess) {
           if (state.isSaveAsDraft) {
             // For draft saves, navigate directly to home
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: [
-                    const Icon(Icons.check_circle, color: Colors.white),
-                    const SizedBox(width: 8),
-                    Text(l?.translate('invitation_draft_saved_success') ?? 'Draft saved successfully'),
-                  ],
-                ),
-                backgroundColor: Colors.green,
-                duration: const Duration(seconds: 2),
-              ),
+            AppSnackBar.showSuccess(
+              context,
+              message: l?.translate('invitation_draft_saved_success') ?? 'Draft saved successfully',
+              duration: const Duration(seconds: 2),
             );
             // Navigate to home
             if (widget.onComplete != null) {
@@ -75,17 +68,9 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
 
         // Handle save error
         if (state.saveError != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  const Icon(Icons.error_outline, color: Colors.white),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(state.saveError!)),
-                ],
-              ),
-              backgroundColor: Colors.red,
-            ),
+          AppSnackBar.showError(
+            context,
+            message: state.saveError!,
           );
         }
       },
@@ -245,7 +230,6 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
     AppLocalizations? l,
   ) async {
     final cubit = context.read<InvitationCubit>();
-    final messenger = ScaffoldMessenger.of(context);
 
     try {
       // Get temp directory and save image
@@ -275,22 +259,10 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
       debugPrint('Error sharing invoice: $e');
       if (!mounted) return;
 
-      messenger.showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.error_outline, color: Colors.white),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  l?.translate('invitation_share_error') ??
-                      'Error sharing invoice. Please try again.',
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: Colors.red,
-        ),
+      AppSnackBar.showError(
+        context,
+        message: l?.translate('invitation_share_error') ??
+            'Error sharing invoice. Please try again.',
       );
     }
   }

@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/widgets/snackbar/app_snackbar.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../data/models/invitation_draft_model.dart';
 import '../cubit/invitation_cubit.dart';
@@ -558,8 +559,6 @@ class _Page4GuestManagementScreenState
   Future<void> _importExcel(BuildContext context, AppLocalizations? l) async {
     // Capture all context-dependent values before any async calls
     final cubit = context.read<InvitationCubit>();
-    final messenger = ScaffoldMessenger.of(context);
-    final spacingWidth = context.dynamicWidth(0.02);
     final errorLabel = l?.translate('invitation_error_loading_file') ?? 'Error loading file';
 
     // FilePicker uses Storage Access Framework (SAF) on Android which handles
@@ -580,19 +579,9 @@ class _Page4GuestManagementScreenState
     } catch (e) {
       if (!mounted) return;
 
-      messenger.showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.error_outline, color: Colors.white),
-              SizedBox(width: spacingWidth),
-              Expanded(
-                child: Text('$errorLabel: $e'),
-              ),
-            ],
-          ),
-          backgroundColor: Colors.red,
-        ),
+      AppSnackBar.showError(
+        context,
+        message: '$errorLabel: $e',
       );
     }
   }

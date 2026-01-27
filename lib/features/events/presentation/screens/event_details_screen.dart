@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/widgets/snackbar/app_snackbar.dart';
 import '../../../../core/widgets/loading/skeleton_widgets.dart';
 import '../../data/models/event_model.dart';
 import '../../data/models/guest_model.dart';
@@ -53,8 +54,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     return BlocConsumer<EventDetailsCubit, EventDetailsState>(
       listener: (context, state) {
         if (state.errorMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.errorMessage!)),
+          AppSnackBar.showError(
+            context,
+            message: state.errorMessage!,
           );
         }
       },
@@ -206,8 +208,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                       PopupMenuButton<String>(
                         onSelected: (value) {
                           if (value == 'edit') {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Edit event tapped')),
+                            AppSnackBar.showInfo(
+                              context,
+                              message: 'Edit event tapped',
                             );
                           } else if (value == 'delete') {
                             _showDeleteConfirmation(state);
@@ -1358,8 +1361,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                         if (success && mounted) {
                           Navigator.pop(dialogContext);
                           widget.onBack();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Event deleted successfully')),
+                          AppSnackBar.showSuccess(
+                            context,
+                            message: 'Event deleted successfully',
                           );
                         }
                       },
