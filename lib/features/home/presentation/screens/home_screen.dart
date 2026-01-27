@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/loading/skeleton_widgets.dart';
 import '../../../events/presentation/screens/view_all_events_screen.dart';
 import '../cubit/home_cubit.dart';
@@ -46,8 +46,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final isArabic = !(l?.isEnLocale ?? true);
+    final t = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.gray100,
@@ -60,9 +59,9 @@ class _HomeScreenState extends State<HomeScreen>
           if (state is HomeInitial || state is HomeLoading) {
             return _buildLoadingState();
           } else if (state is HomeError) {
-            return _buildErrorState(state.message, isArabic);
+            return _buildErrorState(state.message, t);
           } else if (state is HomeLoaded) {
-            return _buildLoadedState(state, isArabic);
+            return _buildLoadedState(state, t);
           }
           return const SizedBox.shrink();
         },
@@ -74,55 +73,55 @@ class _HomeScreenState extends State<HomeScreen>
     return const HomeScreenSkeleton();
   }
 
-  Widget _buildErrorState(String message, bool isArabic) {
+  Widget _buildErrorState(String message, AppLocalizations t) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+        padding: EdgeInsets.all(15.w),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.error_outline,
-              size: context.dynamicWidth(0.16),
+              size: 60.w,
               color: AppColors.red500,
             ),
-            SizedBox(height: context.dynamicHeight(0.02)),
+            SizedBox(height: 16.h),
             Text(
-              isArabic ? 'حدث خطأ ما' : 'Something went wrong',
+              t.translate('home_something_wrong'),
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.05),
+                fontSize: 19.sp,
                 fontWeight: FontWeight.bold,
                 color: AppColors.gray900,
               ),
             ),
-            SizedBox(height: context.dynamicHeight(0.01)),
+            SizedBox(height: 8.h),
             Text(
               message,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.gray500,
-                fontSize: context.dynamicWidth(0.035),
+                fontSize: 13.sp,
               ),
             ),
-            SizedBox(height: context.dynamicHeight(0.03)),
+            SizedBox(height: 24.h),
             ElevatedButton(
               onPressed: () => context.read<HomeCubit>().refresh(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryColor,
                 foregroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(
-                  horizontal: context.dynamicWidth(0.08),
-                  vertical: context.dynamicHeight(0.015),
+                  horizontal: 30.w,
+                  vertical: 12.h,
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(
-                    context.dynamicWidth(0.03),
+                    11.w,
                   ),
                 ),
               ),
               child: Text(
-                isArabic ? 'حاول مرة أخرى' : 'Try Again',
-                style: TextStyle(fontSize: context.dynamicWidth(0.035)),
+                t.translate('home_try_again'),
+                style: TextStyle(fontSize: 13.sp),
               ),
             ),
           ],
@@ -131,18 +130,18 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildLoadedState(HomeLoaded state, bool isArabic) {
+  Widget _buildLoadedState(HomeLoaded state, AppLocalizations t) {
     return SingleChildScrollView(
       child: Column(
         children: [
           // Gradient Header
-          _buildHeader(isArabic),
+          _buildHeader(t),
           // Stats Grid
           _buildStatsGrid(state),
           // Response Rate Card
           Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: context.dynamicWidth(0.04),
+              horizontal: 15.w,
             ),
             child: ResponseRateCardWidget(
               responseRate: state.responseRate,
@@ -153,18 +152,18 @@ class _HomeScreenState extends State<HomeScreen>
           // Recent Events
           Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: context.dynamicWidth(0.04),
+              horizontal: 15.w,
             ),
-            child: _buildRecentEventsSection(state, isArabic),
+            child: _buildRecentEventsSection(state, t),
           ),
-          SizedBox(height: context.dynamicHeight(0.08)),
+          SizedBox(height: 65.h),
           // Bottom padding for navigation
         ],
       ),
     );
   }
 
-  Widget _buildHeader(bool isArabic) {
+  Widget _buildHeader(AppLocalizations t) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -180,10 +179,10 @@ class _HomeScreenState extends State<HomeScreen>
           opacity: _fadeController,
           child: Padding(
             padding: EdgeInsets.only(
-              left: context.dynamicWidth(0.04),
-              right: context.dynamicWidth(0.04),
-              top: context.dynamicHeight(0.02),
-              bottom: context.dynamicHeight(0.04),
+              left: 15.w,
+              right: 15.w,
+              top: 16.h,
+              bottom: 32.h,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -200,8 +199,8 @@ class _HomeScreenState extends State<HomeScreen>
                           scale: value,
                           child: Container(
                             padding: EdgeInsets.symmetric(
-                              horizontal: context.dynamicWidth(0.03),
-                              vertical: context.dynamicHeight(0.008),
+                              horizontal: 11.w,
+                              vertical: 6.h,
                             ),
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.2),
@@ -213,14 +212,14 @@ class _HomeScreenState extends State<HomeScreen>
                                 Icon(
                                   Icons.auto_awesome,
                                   color: AppColors.yellow400,
-                                  size: context.dynamicWidth(0.04),
+                                  size: 15.w,
                                 ),
-                                SizedBox(width: context.dynamicWidth(0.015)),
+                                SizedBox(width: 6.w),
                                 Text(
-                                  isArabic ? 'مرحباً بعودتك!' : 'Welcome back!',
+                                  t.translate('home_welcome'),
                                   style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: context.dynamicWidth(0.03),
+                                    fontSize: 11.sp,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -232,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ],
                 ),
-                SizedBox(height: context.dynamicHeight(0.02)),
+                SizedBox(height: 16.h),
                 TweenAnimationBuilder<Offset>(
                   tween: Tween(begin: const Offset(0, 20), end: Offset.zero),
                   duration: const Duration(milliseconds: 500),
@@ -241,10 +240,10 @@ class _HomeScreenState extends State<HomeScreen>
                     return Transform.translate(offset: offset, child: child);
                   },
                   child: Text(
-                    isArabic ? 'لوحة تحكم مكتوب' : 'Maktoob Dashboard',
+                    t.translate('home_dashboard'),
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: context.dynamicWidth(0.07),
+                      fontSize: 26.sp,
                       fontWeight: FontWeight.bold,
                       letterSpacing: -0.5,
                     ),
@@ -260,14 +259,14 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _buildStatsGrid(HomeLoaded state) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.04)),
+      padding: EdgeInsets.symmetric(horizontal: 15.w),
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          crossAxisSpacing: context.dynamicWidth(0.03),
-          mainAxisSpacing: context.dynamicWidth(0.03),
+          crossAxisSpacing: 11.w,
+          mainAxisSpacing: 11.w,
           childAspectRatio: 1.1,
         ),
         itemCount: state.stats.length,
@@ -278,20 +277,22 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildRecentEventsSection(HomeLoaded state, bool isArabic) {
+  Widget _buildRecentEventsSection(HomeLoaded state, AppLocalizations t) {
+    final isArabic = !(t.isEnLocale);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Section header
         Padding(
-          padding: EdgeInsets.only(bottom: context.dynamicHeight(0.02)),
+          padding: EdgeInsets.only(bottom: 16.h),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                isArabic ? 'المناسبات الأخيرة' : 'Recent Events',
+                t.translate('home_recent_events'),
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.05),
+                  fontSize: 19.sp,
                   fontWeight: FontWeight.bold,
                   color: AppColors.gray900,
                 ),
@@ -309,17 +310,17 @@ class _HomeScreenState extends State<HomeScreen>
                 child: Row(
                   children: [
                     Text(
-                      isArabic ? 'عرض الكل' : 'View All',
+                      t.translate('home_view_all'),
                       style: TextStyle(
-                        fontSize: context.dynamicWidth(0.035),
+                        fontSize: 13.sp,
                         fontWeight: FontWeight.w600,
                         color: AppColors.primaryColor,
                       ),
                     ),
-                    SizedBox(width: context.dynamicWidth(0.01)),
+                    SizedBox(width: 4.w),
                     Icon(
                       isArabic ? Icons.arrow_back : Icons.arrow_forward,
-                      size: context.dynamicWidth(0.04),
+                      size: 15.w,
                       color: AppColors.primaryColor,
                     ),
                   ],

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../data/models/event_models.dart';
 
 class EventTypeSelectionWidget extends StatelessWidget {
@@ -31,19 +31,19 @@ class EventTypeSelectionWidget extends StatelessWidget {
         Text(
           'Event Type',
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.05),
+            fontSize: 19.sp,
             fontWeight: FontWeight.bold,
             color: AppColors.gray900,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.02)),
+        SizedBox(height: 16.h),
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
-            crossAxisSpacing: context.dynamicWidth(0.03),
-            mainAxisSpacing: context.dynamicWidth(0.03),
+            crossAxisSpacing: 11.w,
+            mainAxisSpacing: 11.w,
             childAspectRatio: 0.9,
           ),
           itemCount: eventTypes.length,
@@ -57,13 +57,13 @@ class EventTypeSelectionWidget extends StatelessWidget {
             );
           },
         ),
-        SizedBox(height: context.dynamicHeight(0.015)),
+        SizedBox(height: 12.h),
         _CustomEventTypeButton(
           isActive: showCustomEventType,
           onTap: onToggleCustomEventType,
         ),
         if (showCustomEventType) ...[
-          SizedBox(height: context.dynamicHeight(0.015)),
+          SizedBox(height: 12.h),
           _CustomEventTypeForm(
             value: customEventType,
             onChanged: onCustomEventTypeChanged,
@@ -91,7 +91,7 @@ class _EventTypeCard extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.all(context.dynamicWidth(0.03)),
+        padding: EdgeInsets.all(11.w),
         decoration: BoxDecoration(
           gradient: isSelected
               ? LinearGradient(
@@ -101,12 +101,12 @@ class _EventTypeCard extends StatelessWidget {
                 )
               : null,
           color: isSelected ? null : Colors.white,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+          borderRadius: BorderRadius.circular(15.w),
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? eventType.gradientColors.first.withOpacity(0.3)
-                  : Colors.black.withOpacity(0.05),
+                  ? eventType.gradientColors.first.withValues(alpha: 0.3)
+                  : Colors.black.withValues(alpha: 0.05),
               blurRadius: isSelected ? 16 : 8,
               offset: const Offset(0, 4),
             ),
@@ -119,13 +119,13 @@ class _EventTypeCard extends StatelessWidget {
               children: [
                 Text(
                   eventType.icon,
-                  style: TextStyle(fontSize: context.dynamicWidth(0.07)),
+                  style: TextStyle(fontSize: 26.sp),
                 ),
-                SizedBox(height: context.dynamicHeight(0.01)),
+                SizedBox(height: 8.h),
                 Text(
                   eventType.name,
                   style: TextStyle(
-                    fontSize: context.dynamicWidth(0.028),
+                    fontSize: 11.sp,
                     fontWeight: FontWeight.bold,
                     color: isSelected ? Colors.white : AppColors.gray900,
                   ),
@@ -135,17 +135,17 @@ class _EventTypeCard extends StatelessWidget {
             ),
             if (isSelected)
               Positioned(
-                top: -context.dynamicWidth(0.01),
-                right: -context.dynamicWidth(0.01),
+                top: -4.w,
+                right: -4.w,
                 child: Container(
-                  width: context.dynamicWidth(0.06),
-                  height: context.dynamicWidth(0.06),
+                  width: 23.w,
+                  height: 23.w,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -153,7 +153,7 @@ class _EventTypeCard extends StatelessWidget {
                   ),
                   child: Icon(
                     Icons.check,
-                    size: context.dynamicWidth(0.035),
+                    size: 13.w,
                     color: AppColors.primaryColor,
                   ),
                 ),
@@ -180,10 +180,10 @@ class _CustomEventTypeButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+        padding: EdgeInsets.all(15.w),
         decoration: BoxDecoration(
           color: isActive ? AppColors.purple50 : Colors.white,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+          borderRadius: BorderRadius.circular(15.w),
           border: Border.all(
             color: isActive ? AppColors.primaryColor : AppColors.gray300,
             width: 2,
@@ -194,13 +194,13 @@ class _CustomEventTypeButton extends StatelessWidget {
             Icon(
               Icons.add,
               color: AppColors.primaryColor,
-              size: context.dynamicWidth(0.06),
+              size: 23.w,
             ),
-            SizedBox(height: context.dynamicHeight(0.005)),
+            SizedBox(height: 4.h),
             Text(
               'Add Custom Type',
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.035),
+                fontSize: 13.sp,
                 fontWeight: FontWeight.bold,
                 color: AppColors.gray900,
               ),
@@ -224,13 +224,13 @@ class _CustomEventTypeForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+      padding: EdgeInsets.all(15.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+        borderRadius: BorderRadius.circular(15.w),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -239,27 +239,27 @@ class _CustomEventTypeForm extends StatelessWidget {
       child: TextFormField(
         initialValue: value,
         onChanged: onChanged,
-        style: TextStyle(fontSize: context.dynamicWidth(0.04)),
+        style: TextStyle(fontSize: 15.sp),
         decoration: InputDecoration(
           hintText: 'Custom Event Type',
-          hintStyle: TextStyle(fontSize: context.dynamicWidth(0.04)),
+          hintStyle: TextStyle(fontSize: 15.sp),
           filled: true,
           fillColor: AppColors.gray100,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+            borderRadius: BorderRadius.circular(11.w),
             borderSide: BorderSide(color: AppColors.gray100, width: 2),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+            borderRadius: BorderRadius.circular(11.w),
             borderSide: BorderSide(color: AppColors.gray100, width: 2),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+            borderRadius: BorderRadius.circular(11.w),
             borderSide: BorderSide(color: AppColors.primaryColor, width: 2),
           ),
           contentPadding: EdgeInsets.symmetric(
-            horizontal: context.dynamicWidth(0.04),
-            vertical: context.dynamicHeight(0.018),
+            horizontal: 15.w,
+            vertical: 15.h,
           ),
         ),
       ),

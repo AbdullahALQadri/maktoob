@@ -3,8 +3,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/snackbar/app_snackbar.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
@@ -114,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                     child: Padding(
                       padding: EdgeInsets.symmetric(
-                        horizontal: context.dynamicWidth(0.06),
+                        horizontal: 23.w,
                       ),
                       child: FadeTransition(
                         opacity: _fadeAnimation,
@@ -123,15 +124,15 @@ class _LoginScreenState extends State<LoginScreen>
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SizedBox(height: context.dynamicHeight(0.06)),
+                              SizedBox(height: 49.h),
                               _buildLogo(),
-                              SizedBox(height: context.dynamicHeight(0.03)),
+                              SizedBox(height: 24.h),
                               _buildWelcomeText(),
-                              SizedBox(height: context.dynamicHeight(0.04)),
+                              SizedBox(height: 32.h),
                               _buildFormCard(),
-                              SizedBox(height: context.dynamicHeight(0.025)),
+                              SizedBox(height: 20.h),
                               _buildRegisterLink(),
-                              SizedBox(height: context.dynamicHeight(0.04)),
+                              SizedBox(height: 32.h),
                             ],
                           ),
                         ),
@@ -152,11 +153,11 @@ class _LoginScreenState extends State<LoginScreen>
       children: [
         // Top right decorative circle
         Positioned(
-          top: -context.dynamicWidth(0.35),
-          right: -context.dynamicWidth(0.25),
+          top: -131.w,
+          right: -94.w,
           child: Container(
-            width: context.dynamicWidth(0.8),
-            height: context.dynamicWidth(0.8),
+            width: 300.w,
+            height: 300.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
@@ -168,11 +169,11 @@ class _LoginScreenState extends State<LoginScreen>
         ),
         // Bottom left decorative circle
         Positioned(
-          bottom: -context.dynamicWidth(0.2),
-          left: -context.dynamicWidth(0.3),
+          bottom: -75.w,
+          left: -113.w,
           child: Container(
-            width: context.dynamicWidth(0.6),
-            height: context.dynamicWidth(0.6),
+            width: 225.w,
+            height: 225.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white.withValues(alpha: 0.05),
@@ -181,8 +182,8 @@ class _LoginScreenState extends State<LoginScreen>
         ),
         // Small accent circles
         Positioned(
-          top: context.dynamicHeight(0.15),
-          left: context.dynamicWidth(0.1),
+          top: 122.h,
+          left: 38.w,
           child: Container(
             width: 12,
             height: 12,
@@ -193,8 +194,8 @@ class _LoginScreenState extends State<LoginScreen>
           ),
         ),
         Positioned(
-          top: context.dynamicHeight(0.25),
-          right: context.dynamicWidth(0.15),
+          top: 203.h,
+          right: 56.w,
           child: Container(
             width: 8,
             height: 8,
@@ -212,8 +213,8 @@ class _LoginScreenState extends State<LoginScreen>
     return Hero(
       tag: 'app_logo',
       child: Container(
-        width: context.dynamicWidth(0.26),
-        height: context.dynamicWidth(0.26),
+        width: 98.w,
+        height: 98.w,
         decoration: BoxDecoration(
           color: Colors.white,
           shape: BoxShape.circle,
@@ -228,7 +229,7 @@ class _LoginScreenState extends State<LoginScreen>
         ),
         child: ClipOval(
           child: Padding(
-            padding: EdgeInsets.all(context.dynamicWidth(0.035)),
+            padding: EdgeInsets.all(13.w),
             child: Image.asset(
               'assets/images/logo.png',
               fit: BoxFit.contain,
@@ -240,24 +241,23 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _buildWelcomeText() {
+    final t = AppLocalizations.of(context)!;
     return Column(
       children: [
         Text(
-          _isArabic ? 'مرحباً بعودتك' : 'Welcome Back',
+          t.translate('auth_welcome_back'),
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.07),
+            fontSize: 26.sp,
             fontWeight: FontWeight.bold,
             color: Colors.white,
             letterSpacing: _isArabic ? 0 : 0.5,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.008)),
+        SizedBox(height: 6.h),
         Text(
-          _isArabic
-              ? 'سجّل دخولك للمتابعة إلى مكتوب'
-              : 'Sign in to continue to Maktoob',
+          t.translate('auth_sign_in_subtitle'),
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.038),
+            fontSize: 14.sp,
             color: Colors.white.withValues(alpha: 0.9),
             letterSpacing: _isArabic ? 0 : 0.3,
           ),
@@ -272,7 +272,7 @@ class _LoginScreenState extends State<LoginScreen>
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
         child: Container(
-          padding: EdgeInsets.all(context.dynamicWidth(0.06)),
+          padding: EdgeInsets.all(23.w),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(28),
@@ -290,65 +290,64 @@ class _LoginScreenState extends State<LoginScreen>
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Phone/Email Field
-                _buildModernTextField(
-                  controller: _loginController,
-                  label: _isArabic ? 'رقم الهاتف أو البريد' : 'Phone or Email',
-                  hint: _isArabic
-                      ? 'أدخل رقم هاتفك أو بريدك'
-                      : 'Enter your phone or email',
-                  prefixIcon: Icons.person_outline_rounded,
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return _isArabic
-                          ? 'الرجاء إدخال رقم الهاتف أو البريد'
-                          : 'Please enter your phone or email';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: context.dynamicHeight(0.02)),
-                // Password Field
-                _buildModernTextField(
-                  controller: _passwordController,
-                  label: _isArabic ? 'كلمة المرور' : 'Password',
-                  hint: _isArabic ? 'أدخل كلمة المرور' : 'Enter your password',
-                  prefixIcon: Icons.lock_outline_rounded,
-                  obscureText: _obscurePassword,
-                  suffixIcon: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
+                Builder(builder: (context) {
+                  final t = AppLocalizations.of(context)!;
+                  return _buildModernTextField(
+                    controller: _loginController,
+                    label: t.translate('auth_phone_or_email'),
+                    hint: t.translate('auth_phone_or_email_hint'),
+                    prefixIcon: Icons.person_outline_rounded,
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return t.translate('auth_phone_or_email_required');
+                      }
+                      return null;
                     },
-                    child: Icon(
-                      _obscurePassword
-                          ? Icons.visibility_off_outlined
-                          : Icons.visibility_outlined,
-                      color: AppColors.gray400,
-                      size: 22,
+                  );
+                }),
+                SizedBox(height: 16.h),
+                // Password Field
+                Builder(builder: (context) {
+                  final t = AppLocalizations.of(context)!;
+                  return _buildModernTextField(
+                    controller: _passwordController,
+                    label: t.translate('auth_password'),
+                    hint: t.translate('auth_password_hint'),
+                    prefixIcon: Icons.lock_outline_rounded,
+                    obscureText: _obscurePassword,
+                    suffixIcon: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                      child: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                        color: AppColors.gray400,
+                        size: 22,
+                      ),
                     ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return _isArabic
-                          ? 'الرجاء إدخال كلمة المرور'
-                          : 'Please enter your password';
-                    }
-                    if (value.length < 6) {
-                      return _isArabic
-                          ? 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'
-                          : 'Password must be at least 6 characters';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: context.dynamicHeight(0.012)),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return t.translate('auth_password_required');
+                      }
+                      if (value.length < 6) {
+                        return t.translate('auth_password_min_length');
+                      }
+                      return null;
+                    },
+                  );
+                }),
+                SizedBox(height: 10.h),
                 // Forgot Password
                 Align(
                   alignment: AlignmentDirectional.centerEnd,
                   child: TextButton(
                     onPressed: () {
+                      final t = AppLocalizations.of(context)!;
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -357,9 +356,7 @@ class _LoginScreenState extends State<LoginScreen>
                             onSuccess: () {
                               AppSnackBar.showSuccess(
                                 context,
-                                message: _isArabic
-                                    ? 'تم تغيير كلمة المرور بنجاح'
-                                    : 'Password changed successfully',
+                                message: t.translate('auth_password_changed'),
                               );
                             },
                           ),
@@ -372,16 +369,16 @@ class _LoginScreenState extends State<LoginScreen>
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     child: Text(
-                      _isArabic ? 'نسيت كلمة المرور؟' : 'Forgot Password?',
+                      AppLocalizations.of(context)!.translate('auth_forgot_password'),
                       style: TextStyle(
                         color: AppColors.primaryColor,
                         fontWeight: FontWeight.w600,
-                        fontSize: context.dynamicWidth(0.033),
+                        fontSize: 12.sp,
                       ),
                     ),
                   ),
                 ),
-                SizedBox(height: context.dynamicHeight(0.025)),
+                SizedBox(height: 20.h),
                 // Login Button
                 _buildLoginButton(),
               ],
@@ -408,19 +405,19 @@ class _LoginScreenState extends State<LoginScreen>
         Text(
           label,
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.035),
+            fontSize: 13.sp,
             fontWeight: FontWeight.w600,
             color: AppColors.gray700,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.008)),
+        SizedBox(height: 6.h),
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
           obscureText: obscureText,
           validator: validator,
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.04),
+            fontSize: 15.sp,
             color: AppColors.gray900,
             fontWeight: FontWeight.w500,
           ),
@@ -428,7 +425,7 @@ class _LoginScreenState extends State<LoginScreen>
             hintText: hint,
             hintStyle: TextStyle(
               color: AppColors.gray400,
-              fontSize: context.dynamicWidth(0.035),
+              fontSize: 13.sp,
               fontWeight: FontWeight.w400,
             ),
             prefixIcon: Container(
@@ -456,8 +453,8 @@ class _LoginScreenState extends State<LoginScreen>
             filled: true,
             fillColor: AppColors.gray50,
             contentPadding: EdgeInsets.symmetric(
-              horizontal: context.dynamicWidth(0.04),
-              vertical: context.dynamicHeight(0.018),
+              horizontal: 15.w,
+              vertical: 15.h,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
@@ -487,7 +484,7 @@ class _LoginScreenState extends State<LoginScreen>
             ),
             errorStyle: TextStyle(
               color: AppColors.red500,
-              fontSize: context.dynamicWidth(0.03),
+              fontSize: 11.sp,
             ),
           ),
         ),
@@ -500,7 +497,7 @@ class _LoginScreenState extends State<LoginScreen>
       builder: (context, state) {
         final isLoading = state is AuthLoading;
         return Container(
-          height: context.dynamicHeight(0.065),
+          height: 53.h,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(
@@ -539,9 +536,9 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                   )
                 : Text(
-                    _isArabic ? 'تسجيل الدخول' : 'Sign In',
+                    AppLocalizations.of(context)!.translate('auth_sign_in'),
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.043),
+                      fontSize: 16.sp,
                       fontWeight: FontWeight.w700,
                       letterSpacing: _isArabic ? 0 : 0.5,
                     ),
@@ -553,14 +550,15 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _buildRegisterLink() {
+    final t = AppLocalizations.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          _isArabic ? 'ليس لديك حساب؟ ' : "Don't have an account? ",
+          t.translate('auth_no_account'),
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.95),
-            fontSize: context.dynamicWidth(0.037),
+            fontSize: 14.sp,
           ),
         ),
         GestureDetector(
@@ -579,11 +577,11 @@ class _LoginScreenState extends State<LoginScreen>
               ],
             ),
             child: Text(
-              _isArabic ? 'سجّل الآن' : 'Register',
+              t.translate('auth_register_now'),
               style: TextStyle(
                 color: AppColors.primaryColor,
                 fontWeight: FontWeight.bold,
-                fontSize: context.dynamicWidth(0.035),
+                fontSize: 13.sp,
               ),
             ),
           ),

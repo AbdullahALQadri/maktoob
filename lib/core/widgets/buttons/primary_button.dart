@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../utils/app_colors.dart';
 import '../../utils/app_strings.dart';
-import '../../utils/media_query_values.dart';
+import '../../utils/responsive.dart';
 
 /// A primary button widget with gradient support.
 ///
@@ -77,9 +77,9 @@ class PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Use responsive values when defaults are used
-    final effectiveHeight = height == 56 ? context.dynamicHeight(0.07) : height;
-    final effectiveBorderRadius = borderRadius == 12 ? context.dynamicWidth(0.03) : borderRadius;
-    final effectiveIconSize = iconSize == 20 ? context.dynamicWidth(0.05) : iconSize;
+    final effectiveHeight = height == 56 ? 57.h : height;
+    final effectiveBorderRadius = borderRadius == 12 ? 11.w : borderRadius;
+    final effectiveIconSize = iconSize == 20 ? 19.w : iconSize;
 
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 200),
@@ -99,8 +99,8 @@ class PrimaryButton extends StatelessWidget {
                   BoxShadow(
                     color: (gradientColors?.first ?? AppColors.primaryColor)
                         .withValues(alpha: 0.3),
-                    blurRadius: context.dynamicWidth(0.03),
-                    offset: Offset(0, context.dynamicHeight(0.005)),
+                    blurRadius: 11.w,
+                    offset: Offset(0, 4.h),
                   ),
                 ]
               : null,
@@ -115,8 +115,8 @@ class PrimaryButton extends StatelessWidget {
             child: Center(
               child: isLoading
                   ? SizedBox(
-                      width: context.dynamicWidth(0.06),
-                      height: context.dynamicWidth(0.06),
+                      width: 23.w,
+                      height: 23.w,
                       child: CircularProgressIndicator(
                         strokeWidth: 2.5,
                         valueColor:
@@ -134,7 +134,7 @@ class PrimaryButton extends StatelessWidget {
   Widget _buildContent(BuildContext context, double effectiveIconSize) {
     final defaultTextStyle = TextStyle(
       fontFamily: AppStrings.fontFamily,
-      fontSize: context.dynamicWidth(0.04),
+      fontSize: 15.sp,
       fontWeight: FontWeight.w600,
       color: AppColors.white,
     );
@@ -149,7 +149,7 @@ class PrimaryButton extends StatelessWidget {
             color: AppColors.white,
             size: effectiveIconSize,
           ),
-          SizedBox(width: context.dynamicWidth(0.02)),
+          SizedBox(width: 8.w),
           Text(
             text,
             style: textStyle ?? defaultTextStyle,

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/dialogs/app_dialog.dart';
 import '../../../../core/widgets/sheets/app_bottom_sheet.dart';
 import '../../../../core/widgets/snackbar/app_snackbar.dart';
@@ -19,7 +20,7 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SettingsCubit, SettingsState>(
       builder: (context, state) {
-        final isArabic = state.language == AppLanguage.ar;
+        final t = AppLocalizations.of(context)!;
 
         return Scaffold(
           backgroundColor: AppColors.gray100,
@@ -27,66 +28,66 @@ class SettingsScreen extends StatelessWidget {
             slivers: [
               // Header
               SliverToBoxAdapter(
-                child: _buildHeader(context, isArabic),
+                child: _buildHeader(context, t),
               ),
               // Content
               SliverPadding(
-                padding: EdgeInsets.all(context.dynamicWidth(0.05)),
+                padding: EdgeInsets.all(19.w),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
                     // Language Section
-                    _buildSectionTitle(context, isArabic ? 'اللغة' : 'Language'),
-                    SizedBox(height: context.dynamicHeight(0.015)),
-                    _buildLanguageCard(context, state, isArabic),
+                    _buildSectionTitle(context, t.translate('settings_language')),
+                    SizedBox(height: 12.h),
+                    _buildLanguageCard(context, state),
 
-                    SizedBox(height: context.dynamicHeight(0.03)),
+                    SizedBox(height: 24.h),
 
                     // Profile Section
-                    _buildSectionTitle(context, isArabic ? 'الحساب' : 'Account'),
-                    SizedBox(height: context.dynamicHeight(0.015)),
+                    _buildSectionTitle(context, t.translate('settings_account')),
+                    SizedBox(height: 12.h),
                     _buildSettingsCard(
                       context: context,
                       icon: Icons.person_outline,
-                      title: isArabic ? 'الملف الشخصي' : 'Profile',
-                      subtitle: isArabic ? 'إدارة معلوماتك الشخصية' : 'Manage your personal information',
-                      onTap: () => _showProfileDialog(context, isArabic),
+                      title: t.translate('settings_profile'),
+                      subtitle: t.translate('settings_profile_desc'),
+                      onTap: () => _showProfileDialog(context),
                     ),
 
-                    SizedBox(height: context.dynamicHeight(0.03)),
+                    SizedBox(height: 24.h),
 
                     // Support Section
-                    _buildSectionTitle(context, isArabic ? 'الدعم' : 'Support'),
-                    SizedBox(height: context.dynamicHeight(0.015)),
+                    _buildSectionTitle(context, t.translate('settings_support')),
+                    SizedBox(height: 12.h),
                     _buildSettingsCard(
                       context: context,
                       icon: Icons.email_outlined,
-                      title: isArabic ? 'تواصل معنا' : 'Contact Us',
-                      subtitle: isArabic ? 'تواصل مع فريق الدعم' : 'Get in touch with support team',
-                      onTap: () => _showContactDialog(context, isArabic),
+                      title: t.translate('settings_contact'),
+                      subtitle: t.translate('settings_contact_desc'),
+                      onTap: () => _showContactDialog(context),
                     ),
-                    SizedBox(height: context.dynamicHeight(0.015)),
+                    SizedBox(height: 12.h),
                     _buildSettingsCard(
                       context: context,
                       icon: Icons.help_outline,
-                      title: isArabic ? 'المساعدة' : 'Help',
-                      subtitle: isArabic ? 'الأسئلة الشائعة والدعم' : 'FAQ and support',
-                      onTap: () => _showHelpDialog(context, isArabic),
+                      title: t.translate('settings_help'),
+                      subtitle: t.translate('settings_help_desc'),
+                      onTap: () => _showHelpDialog(context),
                     ),
 
-                    SizedBox(height: context.dynamicHeight(0.03)),
+                    SizedBox(height: 24.h),
 
                     // About Section
-                    _buildSectionTitle(context, isArabic ? 'حول التطبيق' : 'About'),
-                    SizedBox(height: context.dynamicHeight(0.015)),
+                    _buildSectionTitle(context, t.translate('settings_about')),
+                    SizedBox(height: 12.h),
                     _buildSettingsCard(
                       context: context,
                       icon: Icons.info_outline,
-                      title: isArabic ? 'عن مكتوب' : 'About Maktoob',
-                      subtitle: isArabic ? 'الإصدار 1.0.0' : 'Version 1.0.0',
-                      onTap: () => _showAboutDialog(context, isArabic),
+                      title: t.translate('settings_about_maktoob'),
+                      subtitle: t.translate('settings_version'),
+                      onTap: () => _showAboutDialog(context),
                     ),
 
-                    SizedBox(height: context.dynamicHeight(0.12)),
+                    SizedBox(height: 97.h),
                   ]),
                 ),
               ),
@@ -97,7 +98,7 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, bool isArabic) {
+  Widget _buildHeader(BuildContext context, AppLocalizations t) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -113,28 +114,28 @@ class SettingsScreen extends StatelessWidget {
         bottom: false,
         child: Padding(
           padding: EdgeInsets.fromLTRB(
-            context.dynamicWidth(0.06),
-            context.dynamicHeight(0.03),
-            context.dynamicWidth(0.06),
-            context.dynamicHeight(0.04),
+            23.w,
+            24.h,
+            23.w,
+            32.h,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                isArabic ? 'الإعدادات' : 'Settings',
+                t.translate('settings_title'),
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.07),
+                  fontSize: 26.sp,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: context.dynamicHeight(0.005)),
+              SizedBox(height: 4.h),
               Text(
-                isArabic ? 'تخصيص تجربتك' : 'Customize your experience',
+                t.translate('settings_subtitle'),
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.035),
-                  color: Colors.white.withOpacity(0.8),
+                  fontSize: 13.sp,
+                  color: Colors.white.withValues(alpha: 0.8),
                 ),
               ),
             ],
@@ -148,22 +149,22 @@ class SettingsScreen extends StatelessWidget {
     return Text(
       title,
       style: TextStyle(
-        fontSize: context.dynamicWidth(0.045),
+        fontSize: 17.sp,
         fontWeight: FontWeight.bold,
         color: AppColors.gray900,
       ),
     );
   }
 
-  Widget _buildLanguageCard(BuildContext context, SettingsState state, bool isArabic) {
+  Widget _buildLanguageCard(BuildContext context, SettingsState state) {
     return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+      padding: EdgeInsets.all(15.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+        borderRadius: BorderRadius.circular(15.w),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -178,7 +179,7 @@ class SettingsScreen extends StatelessWidget {
             isSelected: state.language == AppLanguage.ar,
             onTap: () => context.read<SettingsCubit>().setLanguage(AppLanguage.ar),
           ),
-          Divider(color: AppColors.gray100, height: context.dynamicHeight(0.02)),
+          Divider(color: AppColors.gray100, height: 16.h),
           _buildLanguageOption(
             context: context,
             title: 'English',
@@ -202,18 +203,18 @@ class SettingsScreen extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(
-          vertical: context.dynamicHeight(0.015),
-          horizontal: context.dynamicWidth(0.02),
+          vertical: 12.h,
+          horizontal: 8.w,
         ),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.purple50 : Colors.transparent,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+          borderRadius: BorderRadius.circular(11.w),
         ),
         child: Row(
           children: [
             Container(
-              width: context.dynamicWidth(0.12),
-              height: context.dynamicWidth(0.12),
+              width: 45.w,
+              height: 45.w,
               decoration: BoxDecoration(
                 gradient: isSelected
                     ? LinearGradient(
@@ -221,15 +222,15 @@ class SettingsScreen extends StatelessWidget {
                       )
                     : null,
                 color: isSelected ? null : AppColors.gray100,
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+                borderRadius: BorderRadius.circular(11.w),
               ),
               child: Icon(
                 Icons.language,
                 color: isSelected ? Colors.white : AppColors.gray400,
-                size: context.dynamicWidth(0.06),
+                size: 23.w,
               ),
             ),
-            SizedBox(width: context.dynamicWidth(0.04)),
+            SizedBox(width: 15.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -237,7 +238,7 @@ class SettingsScreen extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.04),
+                      fontSize: 15.sp,
                       fontWeight: FontWeight.bold,
                       color: isSelected ? AppColors.primaryColor : AppColors.gray900,
                     ),
@@ -245,7 +246,7 @@ class SettingsScreen extends StatelessWidget {
                   Text(
                     subtitle,
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.03),
+                      fontSize: 11.sp,
                       color: AppColors.gray500,
                     ),
                   ),
@@ -254,8 +255,8 @@ class SettingsScreen extends StatelessWidget {
             ),
             if (isSelected)
               Container(
-                width: context.dynamicWidth(0.06),
-                height: context.dynamicWidth(0.06),
+                width: 23.w,
+                height: 23.w,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [AppColors.primaryColor, AppColors.tertiaryColor],
@@ -265,7 +266,7 @@ class SettingsScreen extends StatelessWidget {
                 child: Icon(
                   Icons.check,
                   color: Colors.white,
-                  size: context.dynamicWidth(0.035),
+                  size: 13.w,
                 ),
               ),
           ],
@@ -284,13 +285,13 @@ class SettingsScreen extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+        padding: EdgeInsets.all(15.w),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+          borderRadius: BorderRadius.circular(15.w),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -299,19 +300,19 @@ class SettingsScreen extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: context.dynamicWidth(0.12),
-              height: context.dynamicWidth(0.12),
+              width: 45.w,
+              height: 45.w,
               decoration: BoxDecoration(
                 color: AppColors.purple50,
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+                borderRadius: BorderRadius.circular(11.w),
               ),
               child: Icon(
                 icon,
                 color: AppColors.primaryColor,
-                size: context.dynamicWidth(0.06),
+                size: 23.w,
               ),
             ),
-            SizedBox(width: context.dynamicWidth(0.04)),
+            SizedBox(width: 15.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,7 +320,7 @@ class SettingsScreen extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.04),
+                      fontSize: 15.sp,
                       fontWeight: FontWeight.bold,
                       color: AppColors.gray900,
                     ),
@@ -327,7 +328,7 @@ class SettingsScreen extends StatelessWidget {
                   Text(
                     subtitle,
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.03),
+                      fontSize: 11.sp,
                       color: AppColors.gray500,
                     ),
                   ),
@@ -337,7 +338,7 @@ class SettingsScreen extends StatelessWidget {
             Icon(
               Icons.arrow_forward_ios,
               color: AppColors.gray400,
-              size: context.dynamicWidth(0.04),
+              size: 15.w,
             ),
           ],
         ),
@@ -345,7 +346,7 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  void _showProfileDialog(BuildContext context, bool isArabic) {
+  void _showProfileDialog(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => BlocProvider(
@@ -358,11 +359,12 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  void _showContactDialog(BuildContext context, bool isArabic) {
+  void _showContactDialog(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     AppBottomSheet.show(
       context,
-      title: isArabic ? 'تواصل معنا' : 'Contact Us',
-      subtitle: isArabic ? 'نحن هنا لمساعدتك' : 'We are here to help you',
+      title: t.translate('settings_contact'),
+      subtitle: t.translate('settings_contact_subtitle'),
       icon: Icons.contact_support_rounded,
       iconColor: AppColors.primaryColor,
       iconBackgroundColor: AppColors.purple50,
@@ -372,25 +374,25 @@ class SettingsScreen extends StatelessWidget {
           _buildContactOption(
             context: context,
             icon: Icons.email_rounded,
-            title: isArabic ? 'البريد الإلكتروني' : 'Email',
+            title: t.translate('settings_email'),
             value: 'support@maktoob.app',
-            onTap: () => _copyToClipboard(context, 'support@maktoob.app', isArabic),
+            onTap: () => _copyToClipboard(context, 'support@maktoob.app'),
           ),
-          SizedBox(height: context.dynamicHeight(0.015)),
+          SizedBox(height: 12.h),
           _buildContactOption(
             context: context,
             icon: Icons.phone_rounded,
-            title: isArabic ? 'الهاتف' : 'Phone',
+            title: t.translate('settings_phone'),
             value: '+966 XX XXX XXXX',
-            onTap: () => _copyToClipboard(context, '+966XXXXXXXX', isArabic),
+            onTap: () => _copyToClipboard(context, '+966XXXXXXXX'),
           ),
-          SizedBox(height: context.dynamicHeight(0.015)),
+          SizedBox(height: 12.h),
           _buildContactOption(
             context: context,
             icon: Icons.chat_rounded,
-            title: isArabic ? 'واتساب' : 'WhatsApp',
+            title: t.translate('settings_whatsapp'),
             value: '+966 XX XXX XXXX',
-            onTap: () => _copyToClipboard(context, '+966XXXXXXXX', isArabic),
+            onTap: () => _copyToClipboard(context, '+966XXXXXXXX'),
           ),
         ],
       ),
@@ -407,10 +409,10 @@ class SettingsScreen extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+        padding: EdgeInsets.all(15.w),
         decoration: BoxDecoration(
           color: AppColors.gray50,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
+          borderRadius: BorderRadius.circular(13.w),
           border: Border.all(
             color: AppColors.gray200,
             width: 1,
@@ -419,19 +421,19 @@ class SettingsScreen extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: context.dynamicWidth(0.11),
-              height: context.dynamicWidth(0.11),
+              width: 41.w,
+              height: 41.w,
               decoration: BoxDecoration(
                 color: AppColors.purple50,
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.025)),
+                borderRadius: BorderRadius.circular(9.w),
               ),
               child: Icon(
                 icon,
                 color: AppColors.primaryColor,
-                size: context.dynamicWidth(0.055),
+                size: 21.w,
               ),
             ),
-            SizedBox(width: context.dynamicWidth(0.035)),
+            SizedBox(width: 13.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -439,16 +441,16 @@ class SettingsScreen extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.038),
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                       color: AppColors.gray900,
                     ),
                   ),
-                  SizedBox(height: context.dynamicHeight(0.003)),
+                  SizedBox(height: 2.h),
                   Text(
                     value,
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.032),
+                      fontSize: 12.sp,
                       color: AppColors.gray500,
                     ),
                   ),
@@ -456,16 +458,16 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
             Container(
-              width: context.dynamicWidth(0.09),
-              height: context.dynamicWidth(0.09),
+              width: 34.w,
+              height: 34.w,
               decoration: BoxDecoration(
                 color: AppColors.gray100,
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.02)),
+                borderRadius: BorderRadius.circular(8.w),
               ),
               child: Icon(
                 Icons.copy_rounded,
                 color: AppColors.gray500,
-                size: context.dynamicWidth(0.045),
+                size: 17.w,
               ),
             ),
           ],
@@ -474,45 +476,46 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  void _copyToClipboard(BuildContext context, String text, bool isArabic) {
+  void _copyToClipboard(BuildContext context, String text) {
+    final t = AppLocalizations.of(context)!;
     Clipboard.setData(ClipboardData(text: text));
     AppSnackBar.showSuccess(
       context,
-      message: isArabic ? 'تم النسخ إلى الحافظة' : 'Copied to clipboard',
+      message: t.translate('common_copied'),
       duration: const Duration(seconds: 2),
     );
   }
 
-  void _showHelpDialog(BuildContext context, bool isArabic) {
+  void _showHelpDialog(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     AppDialog.showInfo(
       context,
-      title: isArabic ? 'المساعدة' : 'Help',
-      message: isArabic
-          ? 'للمساعدة، يرجى التواصل معنا عبر البريد الإلكتروني أو الهاتف'
-          : 'For help, please contact us via email or phone',
-      buttonText: isArabic ? 'حسناً' : 'OK',
+      title: t.translate('settings_help'),
+      message: t.translate('settings_help_contact'),
+      buttonText: t.translate('common_ok'),
     );
   }
 
-  void _showAboutDialog(BuildContext context, bool isArabic) {
+  void _showAboutDialog(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     AppDialog.show(
       context,
       child: Dialog(
         backgroundColor: Colors.transparent,
         insetPadding: EdgeInsets.symmetric(
-          horizontal: context.dynamicWidth(0.06),
-          vertical: context.dynamicHeight(0.03),
+          horizontal: 23.w,
+          vertical: 24.h,
         ),
         child: Container(
-          padding: EdgeInsets.all(context.dynamicWidth(0.06)),
+          padding: EdgeInsets.all(23.w),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(context.dynamicWidth(0.06)),
+            borderRadius: BorderRadius.circular(23.w),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.15),
-                blurRadius: context.dynamicWidth(0.08),
-                offset: Offset(0, context.dynamicHeight(0.02)),
+                blurRadius: 30.w,
+                offset: Offset(0, 16.h),
               ),
             ],
           ),
@@ -521,85 +524,83 @@ class SettingsScreen extends StatelessWidget {
             children: [
               // App Icon
               Container(
-                width: context.dynamicWidth(0.2),
-                height: context.dynamicWidth(0.2),
+                width: 75.w,
+                height: 75.w,
                 decoration: BoxDecoration(
                   color: AppColors.purple50,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
                       color: AppColors.primaryColor.withValues(alpha: 0.2),
-                      blurRadius: context.dynamicWidth(0.05),
-                      offset: Offset(0, context.dynamicHeight(0.01)),
+                      blurRadius: 19.w,
+                      offset: Offset(0, 8.h),
                     ),
                   ],
                 ),
                 child: Icon(
                   Icons.info_rounded,
-                  size: context.dynamicWidth(0.1),
+                  size: 38.w,
                   color: AppColors.primaryColor,
                 ),
               ),
-              SizedBox(height: context.dynamicHeight(0.02)),
+              SizedBox(height: 16.h),
               // Title
               Text(
-                isArabic ? 'عن مكتوب' : 'About Maktoob',
+                t.translate('settings_about_maktoob'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.055),
+                  fontSize: 21.sp,
                   fontWeight: FontWeight.bold,
                   color: AppColors.gray900,
                 ),
               ),
-              SizedBox(height: context.dynamicHeight(0.015)),
+              SizedBox(height: 12.h),
               // Description
               Text(
-                isArabic
-                    ? 'مكتوب - تطبيق إدارة الفعاليات والدعوات'
-                    : 'Maktoob - Event & Invitation Management App',
+                t.translate('settings_about_text'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.038),
+                  fontSize: 14.sp,
                   color: AppColors.gray600,
                   height: 1.5,
                 ),
               ),
-              SizedBox(height: context.dynamicHeight(0.01)),
+              SizedBox(height: 8.h),
               // Version badge
               Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: context.dynamicWidth(0.04),
-                  vertical: context.dynamicHeight(0.008),
+                  horizontal: 15.w,
+                  vertical: 6.h,
                 ),
                 decoration: BoxDecoration(
                   color: AppColors.gray100,
-                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.05)),
+                  borderRadius: BorderRadius.circular(19.w),
                 ),
                 child: Text(
-                  isArabic ? 'الإصدار 1.0.0' : 'Version 1.0.0',
+                  t.translate('settings_version'),
                   style: TextStyle(
-                    fontSize: context.dynamicWidth(0.032),
+                    fontSize: 12.sp,
                     color: AppColors.gray500,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
-              SizedBox(height: context.dynamicHeight(0.03)),
+              SizedBox(height: 24.h),
               // OK Button
               SizedBox(
                 width: double.infinity,
-                height: context.dynamicHeight(0.06),
+                height: 49.h,
                 child: Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [AppColors.primaryColor, AppColors.tertiaryColor],
                     ),
-                    borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
+                    borderRadius: BorderRadius.circular(13.w),
                     boxShadow: [
                       BoxShadow(
                         color: AppColors.primaryColor.withValues(alpha: 0.3),
-                        blurRadius: context.dynamicWidth(0.03),
-                        offset: Offset(0, context.dynamicHeight(0.005)),
+                        blurRadius: 11.w,
+                        offset: Offset(0, 4.h),
                       ),
                     ],
                   ),
@@ -607,12 +608,12 @@ class SettingsScreen extends StatelessWidget {
                     color: Colors.transparent,
                     child: InkWell(
                       onTap: () => Navigator.pop(context),
-                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
+                      borderRadius: BorderRadius.circular(13.w),
                       child: Center(
                         child: Text(
-                          isArabic ? 'حسناً' : 'OK',
+                          t.translate('common_ok'),
                           style: TextStyle(
-                            fontSize: context.dynamicWidth(0.04),
+                            fontSize: 15.sp,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
                           ),

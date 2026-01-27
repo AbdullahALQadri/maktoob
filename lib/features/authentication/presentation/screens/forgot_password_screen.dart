@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pinput/pinput.dart';
 
+import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/dialogs/app_dialog.dart';
 import '../../../../core/widgets/snackbar/app_snackbar.dart';
 
@@ -200,7 +201,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                   ),
                   child: Padding(
                     padding: EdgeInsets.symmetric(
-                      horizontal: context.dynamicWidth(0.06),
+                      horizontal: 23.w,
                     ),
                     child: FadeTransition(
                       opacity: _fadeAnimation,
@@ -208,15 +209,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                         position: _slideAnimation,
                         child: Column(
                           children: [
-                            SizedBox(height: context.dynamicHeight(0.02)),
+                            SizedBox(height: 16.h),
                             _buildHeader(),
-                            SizedBox(height: context.dynamicHeight(0.06)),
+                            SizedBox(height: 49.h),
                             _buildIcon(),
-                            SizedBox(height: context.dynamicHeight(0.03)),
+                            SizedBox(height: 24.h),
                             _buildTitle(),
-                            SizedBox(height: context.dynamicHeight(0.04)),
+                            SizedBox(height: 32.h),
                             _buildFormCard(),
-                            SizedBox(height: context.dynamicHeight(0.04)),
+                            SizedBox(height: 32.h),
                           ],
                         ),
                       ),
@@ -235,11 +236,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
     return Stack(
       children: [
         Positioned(
-          top: -context.dynamicWidth(0.3),
-          right: -context.dynamicWidth(0.2),
+          top: -113.w,
+          right: -75.w,
           child: Container(
-            width: context.dynamicWidth(0.7),
-            height: context.dynamicWidth(0.7),
+            width: 263.w,
+            height: 263.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
@@ -250,11 +251,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
           ),
         ),
         Positioned(
-          bottom: context.dynamicHeight(0.1),
-          left: -context.dynamicWidth(0.25),
+          bottom: 81.h,
+          left: -94.w,
           child: Container(
-            width: context.dynamicWidth(0.5),
-            height: context.dynamicWidth(0.5),
+            width: 188.w,
+            height: 188.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white.withValues(alpha: 0.05),
@@ -288,12 +289,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
             ),
           ),
         ),
-        SizedBox(width: context.dynamicWidth(0.04)),
+        SizedBox(width: 15.w),
         Expanded(
           child: Text(
-            _isArabic ? 'نسيت كلمة المرور' : 'Forgot Password',
+            AppLocalizations.of(context)!.translate('auth_forgot_password_title'),
             style: TextStyle(
-              fontSize: context.dynamicWidth(0.055),
+              fontSize: 21.sp,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -305,8 +306,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
 
   Widget _buildIcon() {
     return Container(
-      width: context.dynamicWidth(0.28),
-      height: context.dynamicWidth(0.28),
+      width: 105.w,
+      height: 105.w,
       decoration: BoxDecoration(
         color: Colors.white,
         shape: BoxShape.circle,
@@ -320,33 +321,32 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
       ),
       child: Icon(
         Icons.lock_reset_rounded,
-        size: context.dynamicWidth(0.14),
+        size: 53.w,
         color: AppColors.primaryColor,
       ),
     );
   }
 
   Widget _buildTitle() {
+    final t = AppLocalizations.of(context)!;
     return Column(
       children: [
         Text(
-          _isArabic ? 'استعادة كلمة المرور' : 'Reset Your Password',
+          t.translate('auth_reset_password_title'),
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.055),
+            fontSize: 21.sp,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.015)),
+        SizedBox(height: 12.h),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.05)),
+          padding: EdgeInsets.symmetric(horizontal: 19.w),
           child: Text(
-            _isArabic
-                ? 'أدخل رقم هاتفك المسجل وسنرسل لك رمز التحقق'
-                : 'Enter your registered phone number and we\'ll send you a verification code',
+            t.translate('auth_reset_password_subtitle'),
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: context.dynamicWidth(0.038),
+              fontSize: 14.sp,
               color: Colors.white.withValues(alpha: 0.9),
               height: 1.4,
             ),
@@ -362,7 +362,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
         child: Container(
-          padding: EdgeInsets.all(context.dynamicWidth(0.06)),
+          padding: EdgeInsets.all(23.w),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(28),
@@ -381,7 +381,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
               children: [
                 // Phone Field
                 _buildPhoneField(),
-                SizedBox(height: context.dynamicHeight(0.03)),
+                SizedBox(height: 24.h),
                 // Send OTP Button
                 _buildSendButton(),
               ],
@@ -393,18 +393,19 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
   }
 
   Widget _buildPhoneField() {
+    final t = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _isArabic ? 'رقم الهاتف' : 'Phone Number',
+          t.translate('auth_phone_number'),
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.035),
+            fontSize: 13.sp,
             fontWeight: FontWeight.w600,
             color: AppColors.gray700,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.008)),
+        SizedBox(height: 6.h),
         Row(
           children: [
             // Country Code Dropdown
@@ -418,7 +419,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                 child: DropdownButton<String>(
                   value: _selectedCountryCode,
                   padding: EdgeInsets.symmetric(
-                    horizontal: context.dynamicWidth(0.03),
+                    horizontal: 11.w,
                   ),
                   icon: Icon(Icons.arrow_drop_down, color: AppColors.gray500),
                   items: _countryCodes.map((country) {
@@ -432,7 +433,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                           Text(
                             country['code']!,
                             style: TextStyle(
-                              fontSize: context.dynamicWidth(0.035),
+                              fontSize: 13.sp,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -456,7 +457,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                 ),
               ),
             ),
-            SizedBox(width: context.dynamicWidth(0.02)),
+            SizedBox(width: 8.w),
             // Phone Input
             Expanded(
               child: TextFormField(
@@ -467,15 +468,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                   LengthLimitingTextInputFormatter(_getMaxPhoneLength()),
                 ],
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.04),
+                  fontSize: 15.sp,
                   color: AppColors.gray900,
                   fontWeight: FontWeight.w500,
                 ),
                 decoration: InputDecoration(
-                  hintText: _isArabic ? 'أدخل رقم الهاتف' : 'Enter phone number',
+                  hintText: t.translate('auth_phone_hint'),
                   hintStyle: TextStyle(
                     color: AppColors.gray400,
-                    fontSize: context.dynamicWidth(0.035),
+                    fontSize: 13.sp,
                   ),
                   prefixIcon: Container(
                     margin: const EdgeInsetsDirectional.only(start: 14, end: 10),
@@ -492,8 +493,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                   filled: true,
                   fillColor: AppColors.gray50,
                   contentPadding: EdgeInsets.symmetric(
-                    horizontal: context.dynamicWidth(0.04),
-                    vertical: context.dynamicHeight(0.018),
+                    horizontal: 15.w,
+                    vertical: 15.h,
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -514,9 +515,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return _isArabic
-                        ? 'الرجاء إدخال رقم الهاتف'
-                        : 'Please enter phone number';
+                    return t.translate('auth_phone_required');
                   }
 
                   // Remove leading 0 for validation
@@ -556,7 +555,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
 
   Widget _buildSendButton() {
     return Container(
-      height: context.dynamicHeight(0.065),
+      height: 53.h,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         gradient: LinearGradient(
@@ -595,9 +594,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                 ),
               )
             : Text(
-                _isArabic ? 'إرسال رمز التحقق' : 'Send Verification Code',
+                AppLocalizations.of(context)!.translate('auth_send_code'),
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.042),
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -702,7 +701,7 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen>
       _pinController.clear();
       AppSnackBar.showSuccess(
         context,
-        message: _isArabic ? 'تم إرسال رمز جديد' : 'New code sent',
+        message: AppLocalizations.of(context)!.translate('auth_new_code_sent'),
       );
     }
   }
@@ -731,21 +730,21 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen>
                 physics: const BouncingScrollPhysics(),
                 child: Padding(
                   padding: EdgeInsets.symmetric(
-                    horizontal: context.dynamicWidth(0.06),
+                    horizontal: 23.w,
                   ),
                   child: FadeTransition(
                     opacity: _fadeAnimation,
                     child: Column(
                       children: [
-                        SizedBox(height: context.dynamicHeight(0.02)),
+                        SizedBox(height: 16.h),
                         _buildHeader(),
-                        SizedBox(height: context.dynamicHeight(0.04)),
+                        SizedBox(height: 32.h),
                         _buildIcon(),
-                        SizedBox(height: context.dynamicHeight(0.03)),
+                        SizedBox(height: 24.h),
                         _buildTitle(),
-                        SizedBox(height: context.dynamicHeight(0.04)),
+                        SizedBox(height: 32.h),
                         _buildOtpCard(),
-                        SizedBox(height: context.dynamicHeight(0.04)),
+                        SizedBox(height: 32.h),
                       ],
                     ),
                   ),
@@ -762,11 +761,11 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen>
     return Stack(
       children: [
         Positioned(
-          top: -context.dynamicWidth(0.3),
-          right: -context.dynamicWidth(0.2),
+          top: -113.w,
+          right: -75.w,
           child: Container(
-            width: context.dynamicWidth(0.7),
-            height: context.dynamicWidth(0.7),
+            width: 263.w,
+            height: 263.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
@@ -803,12 +802,12 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen>
             ),
           ),
         ),
-        SizedBox(width: context.dynamicWidth(0.04)),
+        SizedBox(width: 15.w),
         Expanded(
           child: Text(
-            _isArabic ? 'التحقق من الرمز' : 'Verify Code',
+            AppLocalizations.of(context)!.translate('auth_verify_code_title'),
             style: TextStyle(
-              fontSize: context.dynamicWidth(0.055),
+              fontSize: 21.sp,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -820,8 +819,8 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen>
 
   Widget _buildIcon() {
     return Container(
-      width: context.dynamicWidth(0.28),
-      height: context.dynamicWidth(0.28),
+      width: 105.w,
+      height: 105.w,
       decoration: BoxDecoration(
         color: Colors.white,
         shape: BoxShape.circle,
@@ -835,34 +834,33 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen>
       ),
       child: Icon(
         Icons.mark_email_read_outlined,
-        size: context.dynamicWidth(0.14),
+        size: 53.w,
         color: AppColors.primaryColor,
       ),
     );
   }
 
   Widget _buildTitle() {
+    final t = AppLocalizations.of(context)!;
     return Column(
       children: [
         Text(
-          _isArabic ? 'أدخل رمز التحقق' : 'Enter Verification Code',
+          t.translate('auth_enter_code'),
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.055),
+            fontSize: 21.sp,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.015)),
+        SizedBox(height: 12.h),
         Text(
-          _isArabic
-              ? 'تم إرسال رمز التحقق إلى'
-              : 'We sent a verification code to',
+          t.translate('auth_code_sent_to'),
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.038),
+            fontSize: 14.sp,
             color: Colors.white.withValues(alpha: 0.9),
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.008)),
+        SizedBox(height: 6.h),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
@@ -872,7 +870,7 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen>
           child: Text(
             widget.phone,
             style: TextStyle(
-              fontSize: context.dynamicWidth(0.04),
+              fontSize: 15.sp,
               fontWeight: FontWeight.bold,
               color: Colors.white,
               letterSpacing: 1,
@@ -885,7 +883,7 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen>
 
   Widget _buildOtpCard() {
     return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.06)),
+      padding: EdgeInsets.all(23.w),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(28),
@@ -901,9 +899,9 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen>
         children: [
           // OTP Pinput
           _buildPinput(),
-          SizedBox(height: context.dynamicHeight(0.03)),
+          SizedBox(height: 24.h),
           _buildVerifyButton(),
-          SizedBox(height: context.dynamicHeight(0.025)),
+          SizedBox(height: 20.h),
           _buildResendSection(),
         ],
       ),
@@ -912,9 +910,9 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen>
 
   Widget _buildPinput() {
     // Calculate responsive sizes
-    final pinWidth = context.dynamicWidth(0.12);
-    final pinHeight = context.dynamicHeight(0.07);
-    final fontSize = context.dynamicWidth(0.055);
+    final pinWidth = 45.w;
+    final pinHeight = 57.h;
+    final fontSize = 21.w;
 
     // Default theme for unfocused state
     final defaultPinTheme = PinTheme(
@@ -998,7 +996,7 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen>
             borderRadius: BorderRadius.circular(1),
           ),
         ),
-        separatorBuilder: (index) => SizedBox(width: context.dynamicWidth(0.02)),
+        separatorBuilder: (index) => SizedBox(width: 8.w),
         hapticFeedbackType: HapticFeedbackType.lightImpact,
         closeKeyboardWhenCompleted: true,
         keyboardType: TextInputType.number,
@@ -1019,7 +1017,7 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen>
 
     return Container(
       width: double.infinity,
-      height: context.dynamicHeight(0.065),
+      height: 53.h,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         gradient: canVerify
@@ -1065,9 +1063,9 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen>
                 ),
               )
             : Text(
-                _isArabic ? 'تحقق' : 'Verify',
+                AppLocalizations.of(context)!.translate('auth_verify'),
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.043),
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -1076,16 +1074,17 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen>
   }
 
   Widget _buildResendSection() {
+    final t = AppLocalizations.of(context)!;
     return Column(
       children: [
         Text(
-          _isArabic ? 'لم تستلم الرمز؟' : "Didn't receive the code?",
+          t.translate('auth_no_code'),
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.035),
+            fontSize: 13.sp,
             color: AppColors.gray500,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.01)),
+        SizedBox(height: 8.h),
         if (_canResend)
           GestureDetector(
             onTap: _resendOtp,
@@ -1096,9 +1095,9 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen>
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                _isArabic ? 'إعادة إرسال الرمز' : 'Resend Code',
+                t.translate('auth_resend_code'),
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.037),
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
                   color: AppColors.primaryColor,
                 ),
@@ -1116,7 +1115,7 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen>
                     ? 'إعادة الإرسال بعد $_resendSeconds ثانية'
                     : 'Resend in $_resendSeconds seconds',
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.035),
+                  fontSize: 13.sp,
                   color: AppColors.gray400,
                 ),
               ),
@@ -1177,10 +1176,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
     super.dispose();
   }
 
-  bool get _isArabic {
-    return Localizations.localeOf(context).languageCode == 'ar';
-  }
-
   void _handleResetPassword() {
     if (_formKey.currentState?.validate() ?? false) {
       setState(() {
@@ -1201,13 +1196,12 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
   }
 
   void _showSuccessDialog() {
+    final t = AppLocalizations.of(context)!;
     AppDialog.showSuccess(
       context,
-      title: _isArabic ? 'تم بنجاح!' : 'Success!',
-      message: _isArabic
-          ? 'تم تغيير كلمة المرور بنجاح.\nيمكنك الآن تسجيل الدخول.'
-          : 'Your password has been changed successfully.\nYou can now login.',
-      buttonText: _isArabic ? 'تسجيل الدخول' : 'Login',
+      title: t.translate('auth_success'),
+      message: t.translate('auth_password_changed_msg'),
+      buttonText: t.translate('auth_login'),
       onPressed: widget.onSuccess,
     );
   }
@@ -1242,21 +1236,21 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
                   ),
                   child: Padding(
                     padding: EdgeInsets.symmetric(
-                      horizontal: context.dynamicWidth(0.06),
+                      horizontal: 23.w,
                     ),
                     child: FadeTransition(
                       opacity: _fadeAnimation,
                       child: Column(
                         children: [
-                          SizedBox(height: context.dynamicHeight(0.02)),
+                          SizedBox(height: 16.h),
                           _buildHeader(),
-                          SizedBox(height: context.dynamicHeight(0.06)),
+                          SizedBox(height: 49.h),
                           _buildIcon(),
-                          SizedBox(height: context.dynamicHeight(0.03)),
+                          SizedBox(height: 24.h),
                           _buildTitle(),
-                          SizedBox(height: context.dynamicHeight(0.04)),
+                          SizedBox(height: 32.h),
                           _buildFormCard(),
-                          SizedBox(height: context.dynamicHeight(0.04)),
+                          SizedBox(height: 32.h),
                         ],
                       ),
                     ),
@@ -1274,11 +1268,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
     return Stack(
       children: [
         Positioned(
-          top: -context.dynamicWidth(0.3),
-          left: -context.dynamicWidth(0.2),
+          top: -113.w,
+          left: -75.w,
           child: Container(
-            width: context.dynamicWidth(0.7),
-            height: context.dynamicWidth(0.7),
+            width: 263.w,
+            height: 263.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
@@ -1315,12 +1309,12 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
             ),
           ),
         ),
-        SizedBox(width: context.dynamicWidth(0.04)),
+        SizedBox(width: 15.w),
         Expanded(
           child: Text(
-            _isArabic ? 'كلمة مرور جديدة' : 'New Password',
+            AppLocalizations.of(context)!.translate('auth_new_password_title'),
             style: TextStyle(
-              fontSize: context.dynamicWidth(0.055),
+              fontSize: 21.sp,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -1332,8 +1326,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
 
   Widget _buildIcon() {
     return Container(
-      width: context.dynamicWidth(0.28),
-      height: context.dynamicWidth(0.28),
+      width: 105.w,
+      height: 105.w,
       decoration: BoxDecoration(
         color: Colors.white,
         shape: BoxShape.circle,
@@ -1347,33 +1341,32 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
       ),
       child: Icon(
         Icons.lock_outline_rounded,
-        size: context.dynamicWidth(0.14),
+        size: 53.w,
         color: AppColors.primaryColor,
       ),
     );
   }
 
   Widget _buildTitle() {
+    final t = AppLocalizations.of(context)!;
     return Column(
       children: [
         Text(
-          _isArabic ? 'إنشاء كلمة مرور جديدة' : 'Create New Password',
+          t.translate('auth_create_new_password'),
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.055),
+            fontSize: 21.sp,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.015)),
+        SizedBox(height: 12.h),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.05)),
+          padding: EdgeInsets.symmetric(horizontal: 19.w),
           child: Text(
-            _isArabic
-                ? 'أدخل كلمة مرور جديدة قوية لحسابك'
-                : 'Enter a strong new password for your account',
+            t.translate('auth_new_password_subtitle'),
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: context.dynamicWidth(0.038),
+              fontSize: 14.sp,
               color: Colors.white.withValues(alpha: 0.9),
               height: 1.4,
             ),
@@ -1385,7 +1378,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
 
   Widget _buildFormCard() {
     return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.06)),
+      padding: EdgeInsets.all(23.w),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(28),
@@ -1399,14 +1392,16 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
       ),
       child: Form(
         key: _formKey,
-        child: Column(
+        child: Builder(builder: (context) {
+          final t = AppLocalizations.of(context)!;
+          return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // New Password Field
             _buildPasswordField(
               controller: _passwordController,
-              label: _isArabic ? 'كلمة المرور الجديدة' : 'New Password',
-              hint: _isArabic ? 'أدخل كلمة المرور الجديدة' : 'Enter new password',
+              label: t.translate('auth_new_password'),
+              hint: t.translate('auth_new_password_hint'),
               obscure: _obscurePassword,
               onToggle: () {
                 setState(() {
@@ -1415,25 +1410,21 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
               },
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return _isArabic
-                      ? 'الرجاء إدخال كلمة المرور'
-                      : 'Please enter password';
+                  return t.translate('auth_password_required');
                 }
                 if (value.length < 6) {
-                  return _isArabic
-                      ? 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'
-                      : 'Password must be at least 6 characters';
+                  return t.translate('auth_password_min_length');
                 }
                 return null;
               },
             ),
-            SizedBox(height: context.dynamicHeight(0.02)),
+            SizedBox(height: 16.h),
 
             // Confirm Password Field
             _buildPasswordField(
               controller: _confirmPasswordController,
-              label: _isArabic ? 'تأكيد كلمة المرور' : 'Confirm Password',
-              hint: _isArabic ? 'أكد كلمة المرور' : 'Confirm password',
+              label: t.translate('auth_confirm_password'),
+              hint: t.translate('auth_confirm_password_hint2'),
               obscure: _obscureConfirmPassword,
               onToggle: () {
                 setState(() {
@@ -1442,24 +1433,21 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
               },
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return _isArabic
-                      ? 'الرجاء تأكيد كلمة المرور'
-                      : 'Please confirm password';
+                  return t.translate('auth_confirm_password_required2');
                 }
                 if (value != _passwordController.text) {
-                  return _isArabic
-                      ? 'كلمات المرور غير متطابقة'
-                      : 'Passwords do not match';
+                  return t.translate('auth_passwords_mismatch');
                 }
                 return null;
               },
             ),
-            SizedBox(height: context.dynamicHeight(0.03)),
+            SizedBox(height: 24.h),
 
             // Reset Button
             _buildResetButton(),
           ],
-        ),
+        );
+        }),
       ),
     );
   }
@@ -1478,18 +1466,18 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
         Text(
           label,
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.035),
+            fontSize: 13.sp,
             fontWeight: FontWeight.w600,
             color: AppColors.gray700,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.008)),
+        SizedBox(height: 6.h),
         TextFormField(
           controller: controller,
           obscureText: obscure,
           validator: validator,
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.04),
+            fontSize: 15.sp,
             color: AppColors.gray900,
             fontWeight: FontWeight.w500,
           ),
@@ -1497,7 +1485,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
             hintText: hint,
             hintStyle: TextStyle(
               color: AppColors.gray400,
-              fontSize: context.dynamicWidth(0.035),
+              fontSize: 13.sp,
             ),
             prefixIcon: Container(
               margin: const EdgeInsetsDirectional.only(start: 14, end: 10),
@@ -1529,8 +1517,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
             filled: true,
             fillColor: AppColors.gray50,
             contentPadding: EdgeInsets.symmetric(
-              horizontal: context.dynamicWidth(0.04),
-              vertical: context.dynamicHeight(0.018),
+              horizontal: 15.w,
+              vertical: 15.h,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -1556,7 +1544,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
 
   Widget _buildResetButton() {
     return Container(
-      height: context.dynamicHeight(0.065),
+      height: 53.h,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         gradient: LinearGradient(
@@ -1595,9 +1583,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
                 ),
               )
             : Text(
-                _isArabic ? 'تغيير كلمة المرور' : 'Reset Password',
+                AppLocalizations.of(context)!.translate('auth_reset_password'),
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.042),
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.w700,
                 ),
               ),

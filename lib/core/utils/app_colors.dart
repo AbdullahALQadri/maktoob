@@ -1,62 +1,85 @@
 import 'package:flutter/material.dart';
 
-import 'hex_color.dart';
-
 class AppColors {
+  AppColors._();
+
   // Main Brand Colors
-  static Color primaryColor = HexColor('#3AA4DB');    // Primary blue
-  static Color secondaryColor = HexColor('#FFFFFF');   // White
-  static Color tertiaryColor = HexColor('#032855');    // Dark navy blue
+  static const Color primaryColor = Color(0xFF3AA4DB);
+  static const Color secondaryColor = Color(0xFFFFFFFF);
+  static const Color tertiaryColor = Color(0xFF032855);
 
-  // Alias for primary color (for convenience)
-  static Color get primary => primaryColor;
+  static const Color primary = primaryColor;
 
-  static Color transparent = Colors.transparent;
-  static Color black = Colors.black;
-  static Color white = Colors.white;
-  static Color red = Colors.red;
-  static Color icons = HexColor('#3E3E41');
-  static Color subText = HexColor('#5B6D70');
+  static const Color transparent = Colors.transparent;
+  static const Color black = Colors.black;
+  static const Color white = Colors.white;
+  static const Color red = Colors.red;
+  static const Color icons = Color(0xFF3E3E41);
+  static const Color subText = Color(0xFF5B6D70);
 
-  // CreateEvent UI Colors
-  static Color purple600 = HexColor('#9333EA');
-  static Color pink600 = HexColor('#DB2777');
-  static Color rose600 = HexColor('#E11D48');
-  static Color gray100 = HexColor('#F3F4F6');
-  static Color gray200 = HexColor('#E5E7EB');
-  static Color gray300 = HexColor('#D1D5DB');
-  static Color gray400 = HexColor('#9CA3AF');
-  static Color gray500 = HexColor('#6B7280');
-  static Color gray600 = HexColor('#4B5563');
-  static Color gray700 = HexColor('#374151');
-  static Color gray900 = HexColor('#111827');
-  static Color green100 = HexColor('#DCFCE7');
-  static Color green600 = HexColor('#16A34A');
-  static Color yellow400 = HexColor('#FACC15');
-  static Color amber50 = HexColor('#FFFBEB');
-  static Color amber200 = HexColor('#FDE68A');
-  static Color amber500 = HexColor('#F59E0B');
-  static Color amber600 = HexColor('#D97706');
-  static Color amber700 = HexColor('#B45309');
-  static Color blue500 = HexColor('#3B82F6');
-  static Color blue600 = HexColor('#2563EB');
-  static Color cyan500 = HexColor('#06B6D4');
-  static Color cyan600 = HexColor('#0891B2');
-  static Color emerald500 = HexColor('#10B981');
-  static Color emerald600 = HexColor('#059669');
-  static Color indigo500 = HexColor('#6366F1');
-  static Color orange500 = HexColor('#F97316');
-  static Color purple500 = HexColor('#A855F7');
-  static Color pink500 = HexColor('#EC4899');
-  static Color rose500 = HexColor('#F43F5E');
-  static Color red500 = HexColor('#EF4444');
-  static Color purple50 = HexColor('#FAF5FF');
-  static Color purple100 = HexColor('#F3E8FF');
-  static Color blue50 = HexColor('#EFF6FF');
-  static Color green50 = HexColor('#F0FDF4');
-  static Color cyan50 = HexColor('#ECFEFF');
-  static Color gray50 = HexColor('#F9FAFB');
-  static Color gray800 = HexColor('#1F2937');
-  static Color red100 = HexColor('#FEE2E2');
-  static Color amber100 = HexColor('#FEF3C7');
+  // Purple
+  static const Color purple50 = Color(0xFFFAF5FF);
+  static const Color purple100 = Color(0xFFF3E8FF);
+  static const Color purple500 = Color(0xFFA855F7);
+  static const Color purple600 = Color(0xFF9333EA);
+
+  // Pink
+  static const Color pink500 = Color(0xFFEC4899);
+  static const Color pink600 = Color(0xFFDB2777);
+
+  // Rose
+  static const Color rose500 = Color(0xFFF43F5E);
+  static const Color rose600 = Color(0xFFE11D48);
+
+  // Gray
+  static const Color gray50 = Color(0xFFF9FAFB);
+  static const Color gray100 = Color(0xFFF3F4F6);
+  static const Color gray200 = Color(0xFFE5E7EB);
+  static const Color gray300 = Color(0xFFD1D5DB);
+  static const Color gray400 = Color(0xFF9CA3AF);
+  static const Color gray500 = Color(0xFF6B7280);
+  static const Color gray600 = Color(0xFF4B5563);
+  static const Color gray700 = Color(0xFF374151);
+  static const Color gray800 = Color(0xFF1F2937);
+  static const Color gray900 = Color(0xFF111827);
+
+  // Green
+  static const Color green50 = Color(0xFFF0FDF4);
+  static const Color green100 = Color(0xFFDCFCE7);
+  static const Color green600 = Color(0xFF16A34A);
+
+  // Yellow
+  static const Color yellow400 = Color(0xFFFACC15);
+
+  // Amber
+  static const Color amber50 = Color(0xFFFFFBEB);
+  static const Color amber100 = Color(0xFFFEF3C7);
+  static const Color amber200 = Color(0xFFFDE68A);
+  static const Color amber500 = Color(0xFFF59E0B);
+  static const Color amber600 = Color(0xFFD97706);
+  static const Color amber700 = Color(0xFFB45309);
+
+  // Blue
+  static const Color blue50 = Color(0xFFEFF6FF);
+  static const Color blue500 = Color(0xFF3B82F6);
+  static const Color blue600 = Color(0xFF2563EB);
+
+  // Cyan
+  static const Color cyan50 = Color(0xFFECFEFF);
+  static const Color cyan500 = Color(0xFF06B6D4);
+  static const Color cyan600 = Color(0xFF0891B2);
+
+  // Emerald
+  static const Color emerald500 = Color(0xFF10B981);
+  static const Color emerald600 = Color(0xFF059669);
+
+  // Indigo
+  static const Color indigo500 = Color(0xFF6366F1);
+
+  // Orange
+  static const Color orange500 = Color(0xFFF97316);
+
+  // Red shades
+  static const Color red100 = Color(0xFFFEE2E2);
+  static const Color red500 = Color(0xFFEF4444);
 }

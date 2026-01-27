@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/buttons/primary_button.dart';
 import '../../../../core/widgets/inputs/app_text_field.dart';
 import '../../data/models/invitation_draft_model.dart';
@@ -48,15 +48,15 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: Padding(
-          padding: EdgeInsets.all(context.dynamicWidth(0.02)),
+          padding: EdgeInsets.all(8.w),
           child: GestureDetector(
             onTap: () {
               context.read<InvitationCubit>().previousStep();
               widget.onBack?.call();
             },
             child: Container(
-              width: context.dynamicWidth(0.1),
-              height: context.dynamicWidth(0.1),
+              width: 38.w,
+              height: 38.w,
               decoration: BoxDecoration(
                 color: AppColors.gray100,
                 shape: BoxShape.circle,
@@ -68,7 +68,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
               child: Icon(
                 Icons.arrow_back_rounded,
                 color: AppColors.gray800,
-                size: context.dynamicWidth(0.055),
+                size: 21.w,
               ),
             ),
           ),
@@ -78,7 +78,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
           style: TextStyle(
             color: AppColors.gray900,
             fontWeight: FontWeight.w600,
-            fontSize: context.dynamicWidth(0.045),
+            fontSize: 17.sp,
           ),
         ),
         centerTitle: true,
@@ -90,8 +90,8 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
               // Smart Stats Dashboard
               Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: context.dynamicWidth(0.04),
-                  vertical: context.dynamicWidth(0.02),
+                  horizontal: 15.w,
+                  vertical: 8.w,
                 ),
                 child: GuestStatsCard(
                   total: state.totalGuests,
@@ -104,22 +104,22 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
               // Form and Guest List
               Expanded(
                 child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.06)),
+                  padding: EdgeInsets.symmetric(horizontal: 23.w),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: context.dynamicHeight(0.02)),
+                      SizedBox(height: 16.h),
 
                       // Add guest form
                       Text(
                         'Add a Guest',
                         style: TextStyle(
-                          fontSize: context.dynamicWidth(0.045),
+                          fontSize: 17.sp,
                           fontWeight: FontWeight.w600,
                           color: AppColors.gray800,
                         ),
                       ),
-                      SizedBox(height: context.dynamicHeight(0.015)),
+                      SizedBox(height: 12.h),
 
                       // Name field
                       AppTextField(
@@ -132,7 +132,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
                               .updateCurrentGuestName(value);
                         },
                       ),
-                      SizedBox(height: context.dynamicHeight(0.015)),
+                      SizedBox(height: 12.h),
 
                       // Phone field
                       AppTextField(
@@ -146,7 +146,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
                               .updateCurrentGuestPhone(value);
                         },
                       ),
-                      SizedBox(height: context.dynamicHeight(0.015)),
+                      SizedBox(height: 12.h),
 
                       // Email field
                       AppTextField(
@@ -160,7 +160,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
                               .updateCurrentGuestEmail(value);
                         },
                       ),
-                      SizedBox(height: context.dynamicHeight(0.02)),
+                      SizedBox(height: 16.h),
 
                       // Add button
                       SizedBox(
@@ -175,17 +175,17 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
                             foregroundColor: AppColors.primaryColor,
                             side: BorderSide(color: AppColors.primaryColor),
                             padding: EdgeInsets.symmetric(
-                              vertical: context.dynamicHeight(0.015),
+                              vertical: 12.h,
                             ),
                             shape: RoundedRectangleBorder(
                               borderRadius:
-                                  BorderRadius.circular(context.dynamicWidth(0.03)),
+                                  BorderRadius.circular(11.w),
                             ),
                           ),
                         ),
                       ),
 
-                      SizedBox(height: context.dynamicHeight(0.03)),
+                      SizedBox(height: 24.h),
 
                       // Guest list header
                       if (state.guests.isNotEmpty)
@@ -195,7 +195,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
                             Text(
                               'Guest List (${state.guests.length})',
                               style: TextStyle(
-                                fontSize: context.dynamicWidth(0.045),
+                                fontSize: 17.sp,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.gray800,
                               ),
@@ -219,7 +219,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
                         return _buildGuestTile(context, guest, index);
                       }),
 
-                      SizedBox(height: context.dynamicHeight(0.1)),
+                      SizedBox(height: 81.h),
                     ],
                   ),
                 ),
@@ -230,7 +230,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                   child: Container(
-                    padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+                    padding: EdgeInsets.all(15.w),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.85),
                       border: Border(
@@ -248,12 +248,12 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
                           // Skip option
                           if (state.guests.isEmpty)
                             Padding(
-                              padding: EdgeInsets.only(bottom: context.dynamicHeight(0.01)),
+                              padding: EdgeInsets.only(bottom: 8.h),
                               child: Text(
                                 'You can add guests later',
                                 style: TextStyle(
                                   color: AppColors.gray500,
-                                  fontSize: context.dynamicWidth(0.035),
+                                  fontSize: 13.sp,
                                 ),
                               ),
                             ),
@@ -284,24 +284,24 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
 
   Widget _buildGuestTile(BuildContext context, GuestInfoModel guest, int index) {
     return Container(
-      margin: EdgeInsets.only(bottom: context.dynamicWidth(0.025)),
-      padding: EdgeInsets.all(context.dynamicWidth(0.035)),
+      margin: EdgeInsets.only(bottom: 9.w),
+      padding: EdgeInsets.all(13.w),
       decoration: BoxDecoration(
         color: AppColors.gray50,
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+        borderRadius: BorderRadius.circular(11.w),
         border: Border.all(color: AppColors.gray200),
       ),
       child: Row(
         children: [
           // Avatar
           Container(
-            width: context.dynamicWidth(0.1),
-            height: context.dynamicWidth(0.1),
+            width: 38.w,
+            height: 38.w,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [AppColors.primaryColor, AppColors.tertiaryColor],
               ),
-              borderRadius: BorderRadius.circular(context.dynamicWidth(0.025)),
+              borderRadius: BorderRadius.circular(9.w),
             ),
             child: Center(
               child: Text(
@@ -309,12 +309,12 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: context.dynamicWidth(0.045),
+                  fontSize: 17.sp,
                 ),
               ),
             ),
           ),
-          SizedBox(width: context.dynamicWidth(0.03)),
+          SizedBox(width: 11.w),
 
           // Info
           Expanded(
@@ -325,7 +325,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
                   guest.name,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: context.dynamicWidth(0.038),
+                    fontSize: 14.sp,
                     color: AppColors.gray800,
                   ),
                 ),
@@ -333,7 +333,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
                   Text(
                     guest.phone,
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.032),
+                      fontSize: 12.sp,
                       color: AppColors.gray500,
                     ),
                   ),
@@ -349,7 +349,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
             icon: Icon(
               Icons.close,
               color: AppColors.gray400,
-              size: context.dynamicWidth(0.05),
+              size: 19.w,
             ),
             onPressed: () {
               context.read<InvitationCubit>().removeGuest(index);
@@ -385,18 +385,18 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: context.dynamicWidth(0.025),
-        vertical: context.dynamicWidth(0.01),
+        horizontal: 9.w,
+        vertical: 4.w,
       ),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.02)),
+        borderRadius: BorderRadius.circular(8.w),
       ),
       child: Text(
         text,
         style: TextStyle(
           color: textColor,
-          fontSize: context.dynamicWidth(0.028),
+          fontSize: 11.sp,
           fontWeight: FontWeight.w500,
         ),
       ),

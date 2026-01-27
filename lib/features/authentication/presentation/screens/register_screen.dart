@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/snackbar/app_snackbar.dart';
 import '../../domain/entities/user_entity.dart';
 import '../cubit/auth_cubit.dart';
@@ -309,7 +310,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                   physics: const BouncingScrollPhysics(),
                   child: Padding(
                     padding: EdgeInsets.symmetric(
-                      horizontal: context.dynamicWidth(0.06),
+                      horizontal: 23.w,
                     ),
                     child: FadeTransition(
                       opacity: _fadeAnimation,
@@ -317,13 +318,13 @@ class _RegisterScreenState extends State<RegisterScreen>
                         position: _slideAnimation,
                         child: Column(
                           children: [
-                            SizedBox(height: context.dynamicHeight(0.02)),
+                            SizedBox(height: 16.h),
                             _buildHeader(),
-                            SizedBox(height: context.dynamicHeight(0.025)),
+                            SizedBox(height: 20.h),
                             _buildFormCard(),
-                            SizedBox(height: context.dynamicHeight(0.02)),
+                            SizedBox(height: 16.h),
                             _buildLoginLink(),
-                            SizedBox(height: context.dynamicHeight(0.03)),
+                            SizedBox(height: 24.h),
                           ],
                         ),
                       ),
@@ -342,11 +343,11 @@ class _RegisterScreenState extends State<RegisterScreen>
     return Stack(
       children: [
         Positioned(
-          top: -context.dynamicWidth(0.3),
-          left: -context.dynamicWidth(0.2),
+          top: -113.w,
+          left: -75.w,
           child: Container(
-            width: context.dynamicWidth(0.7),
-            height: context.dynamicWidth(0.7),
+            width: 263.w,
+            height: 263.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
@@ -357,11 +358,11 @@ class _RegisterScreenState extends State<RegisterScreen>
           ),
         ),
         Positioned(
-          bottom: -context.dynamicWidth(0.15),
-          right: -context.dynamicWidth(0.25),
+          bottom: -56.w,
+          right: -94.w,
           child: Container(
-            width: context.dynamicWidth(0.5),
-            height: context.dynamicWidth(0.5),
+            width: 188.w,
+            height: 188.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white.withValues(alpha: 0.05),
@@ -373,6 +374,7 @@ class _RegisterScreenState extends State<RegisterScreen>
   }
 
   Widget _buildHeader() {
+    final t = AppLocalizations.of(context)!;
     return Row(
       children: [
         GestureDetector(
@@ -395,24 +397,24 @@ class _RegisterScreenState extends State<RegisterScreen>
             ),
           ),
         ),
-        SizedBox(width: context.dynamicWidth(0.04)),
+        SizedBox(width: 15.w),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                _isArabic ? 'إنشاء حساب' : 'Create Account',
+                t.translate('auth_create_account'),
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.055),
+                  fontSize: 21.sp,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
               SizedBox(height: 4),
               Text(
-                _isArabic ? 'انضم إلى مكتوب اليوم' : 'Join Maktoob today',
+                t.translate('auth_join_maktoob'),
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.033),
+                  fontSize: 12.sp,
                   color: Colors.white.withValues(alpha: 0.9),
                 ),
               ),
@@ -422,8 +424,8 @@ class _RegisterScreenState extends State<RegisterScreen>
         Hero(
           tag: 'app_logo',
           child: Container(
-            width: context.dynamicWidth(0.14),
-            height: context.dynamicWidth(0.14),
+            width: 53.w,
+            height: 53.w,
             decoration: BoxDecoration(
               color: Colors.white,
               shape: BoxShape.circle,
@@ -437,7 +439,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             ),
             child: ClipOval(
               child: Padding(
-                padding: EdgeInsets.all(context.dynamicWidth(0.02)),
+                padding: EdgeInsets.all(8.w),
                 child: Image.asset(
                   'assets/images/logo.png',
                   fit: BoxFit.contain,
@@ -456,7 +458,7 @@ class _RegisterScreenState extends State<RegisterScreen>
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
         child: Container(
-          padding: EdgeInsets.all(context.dynamicWidth(0.05)),
+          padding: EdgeInsets.all(19.w),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(28),
@@ -470,43 +472,66 @@ class _RegisterScreenState extends State<RegisterScreen>
           ),
           child: Form(
             key: _formKey,
-            child: Column(
+            child: Builder(builder: (context) {
+              final t = AppLocalizations.of(context)!;
+              return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _buildUserTypeSelector(),
-                SizedBox(height: context.dynamicHeight(0.022)),
+                SizedBox(height: 18.h),
 
                 // Name Field
                 _buildModernTextField(
                   controller: _nameController,
                   label: _selectedUserType == UserType.institution
-                      ? (_isArabic ? 'اسم المؤسسة' : 'Institution Name')
-                      : (_isArabic ? 'الاسم الكامل' : 'Full Name'),
+                      ? t.translate('auth_institution_name')
+                      : t.translate('auth_full_name'),
                   hint: _selectedUserType == UserType.institution
-                      ? (_isArabic ? 'أدخل اسم المؤسسة' : 'Enter institution name')
-                      : (_isArabic ? 'أدخل اسمك الكامل' : 'Enter your full name'),
+                      ? t.translate('auth_institution_name_hint')
+                      : t.translate('auth_full_name_hint'),
                   prefixIcon: _selectedUserType == UserType.institution
                       ? Icons.business_rounded
                       : Icons.person_outline_rounded,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return _isArabic ? 'هذا الحقل مطلوب' : 'This field is required';
+                      return t.translate('auth_field_required');
                     }
                     if (value.length < 2) {
-                      return _isArabic
-                          ? 'يجب أن يكون حرفين على الأقل'
-                          : 'Must be at least 2 characters';
+                      return t.translate('auth_min_2_chars');
                     }
                     return null;
                   },
                 ),
-                SizedBox(height: context.dynamicHeight(0.016)),
+                SizedBox(height: 13.h),
 
-                // Institution Field - Only for Institution
+                // Phone Field with Country Code
+                _buildPhoneField(),
+                SizedBox(height: 13.h),
+
+                // Email Field
+                _buildModernTextField(
+                  controller: _emailController,
+                  label: t.translate('auth_email_optional'),
+                  hint: t.translate('auth_email_hint'),
+                  prefixIcon: Icons.alternate_email_rounded,
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value != null && value.isNotEmpty) {
+                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                          .hasMatch(value)) {
+                        return t.translate('auth_email_invalid');
+                      }
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 13.h),
+
+                // Institution-only fields: Institution Field, Governorate, Address
                 if (_selectedUserType == UserType.institution) ...[
                   _buildDropdownField(
-                    label: _isArabic ? 'مجال المؤسسة' : 'Institution Field',
-                    hint: _isArabic ? 'اختر مجال المؤسسة' : 'Select institution field',
+                    label: t.translate('auth_institution_field'),
+                    hint: t.translate('auth_institution_field_hint'),
                     icon: Icons.category_outlined,
                     items: _isArabic ? _institutionFieldsAr : _institutionFields,
                     value: _selectedInstitutionFieldIndex != null
@@ -522,12 +547,12 @@ class _RegisterScreenState extends State<RegisterScreen>
                       });
                     },
                   ),
-                  SizedBox(height: context.dynamicHeight(0.016)),
+                  SizedBox(height: 13.h),
 
                   // Governorate dropdown
                   _buildDropdownField(
-                    label: _isArabic ? 'المحافظة' : 'Governorate',
-                    hint: _isArabic ? 'اختر المحافظة' : 'Select governorate',
+                    label: t.translate('auth_governorate'),
+                    hint: t.translate('auth_governorate_hint'),
                     icon: Icons.map_outlined,
                     items: _isArabic ? _governoratesAr : _governorates,
                     value: _selectedGovernorateIndex != null
@@ -549,86 +574,51 @@ class _RegisterScreenState extends State<RegisterScreen>
                       });
                     },
                   ),
-                  SizedBox(height: context.dynamicHeight(0.016)),
+                  SizedBox(height: 13.h),
 
                   // Custom Governorate text field - Only when "Other" is selected
                   if (_showCustomGovernorate)
                     _buildModernTextField(
                       controller: _customGovernorateController,
-                      label: _isArabic ? 'اسم المحافظة' : 'Governorate Name',
-                      hint: _isArabic ? 'أدخل اسم المحافظة' : 'Enter governorate name',
+                      label: t.translate('auth_governorate_name'),
+                      hint: t.translate('auth_governorate_name_hint'),
                       prefixIcon: Icons.edit_location_alt_outlined,
                       validator: (value) {
                         if (_showCustomGovernorate) {
                           if (value == null || value.isEmpty) {
-                            return _isArabic
-                                ? 'الرجاء إدخال اسم المحافظة'
-                                : 'Please enter governorate name';
+                            return t.translate('auth_governorate_required');
                           }
                           if (value.length < 2) {
-                            return _isArabic
-                                ? 'يجب أن يكون حرفين على الأقل'
-                                : 'Must be at least 2 characters';
+                            return t.translate('auth_min_2_chars');
                           }
                         }
                         return null;
                       },
                     ),
                   if (_showCustomGovernorate)
-                    SizedBox(height: context.dynamicHeight(0.016)),
-                ],
+                    SizedBox(height: 13.h),
 
-                // Phone Field with Country Code
-                _buildPhoneField(),
-                SizedBox(height: context.dynamicHeight(0.016)),
-
-                // Email Field (Optional)
-                _buildModernTextField(
-                  controller: _emailController,
-                  label: _isArabic ? 'البريد الإلكتروني (اختياري)' : 'Email (Optional)',
-                  hint: _isArabic
-                      ? 'أدخل بريدك الإلكتروني'
-                      : 'Enter your email address',
-                  prefixIcon: Icons.alternate_email_rounded,
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value != null && value.isNotEmpty) {
-                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                          .hasMatch(value)) {
-                        return _isArabic
-                            ? 'الرجاء إدخال بريد إلكتروني صحيح'
-                            : 'Please enter a valid email';
-                      }
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: context.dynamicHeight(0.016)),
-
-                // Location Field - Only for Institution
-                if (_selectedUserType == UserType.institution) ...[
+                  // Address Field
                   _buildModernTextField(
                     controller: _locationController,
-                    label: _isArabic ? 'الموقع' : 'Location',
-                    hint: _isArabic ? 'أدخل موقعك (مثال: غزة)' : 'Enter your location (e.g., Gaza)',
+                    label: t.translate('auth_location'),
+                    hint: t.translate('auth_location_hint'),
                     prefixIcon: Icons.location_on_outlined,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return _isArabic
-                            ? 'الرجاء إدخال الموقع'
-                            : 'Please enter your location';
+                        return t.translate('auth_location_required');
                       }
                       return null;
                     },
                   ),
-                  SizedBox(height: context.dynamicHeight(0.016)),
+                  SizedBox(height: 13.h),
                 ],
 
                 // Password Field
                 _buildModernTextField(
                   controller: _passwordController,
-                  label: _isArabic ? 'كلمة المرور' : 'Password',
-                  hint: _isArabic ? 'أنشئ كلمة مرور' : 'Create a password',
+                  label: t.translate('auth_password'),
+                  hint: t.translate('auth_create_password_hint'),
                   prefixIcon: Icons.lock_outline_rounded,
                   obscureText: _obscurePassword,
                   suffixIcon: GestureDetector(
@@ -647,25 +637,21 @@ class _RegisterScreenState extends State<RegisterScreen>
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return _isArabic
-                          ? 'الرجاء إدخال كلمة المرور'
-                          : 'Please enter a password';
+                      return t.translate('auth_password_enter');
                     }
                     if (value.length < 6) {
-                      return _isArabic
-                          ? 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'
-                          : 'Password must be at least 6 characters';
+                      return t.translate('auth_password_min_length');
                     }
                     return null;
                   },
                 ),
-                SizedBox(height: context.dynamicHeight(0.016)),
+                SizedBox(height: 13.h),
 
                 // Confirm Password Field
                 _buildModernTextField(
                   controller: _confirmPasswordController,
-                  label: _isArabic ? 'تأكيد كلمة المرور' : 'Confirm Password',
-                  hint: _isArabic ? 'أكد كلمة المرور' : 'Confirm your password',
+                  label: t.translate('auth_confirm_password'),
+                  hint: t.translate('auth_confirm_password_hint'),
                   prefixIcon: Icons.lock_outline_rounded,
                   obscureText: _obscureConfirmPassword,
                   suffixIcon: GestureDetector(
@@ -684,28 +670,24 @@ class _RegisterScreenState extends State<RegisterScreen>
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return _isArabic
-                          ? 'الرجاء تأكيد كلمة المرور'
-                          : 'Please confirm your password';
+                      return t.translate('auth_confirm_password_required');
                     }
                     if (value != _passwordController.text) {
-                      return _isArabic
-                          ? 'كلمات المرور غير متطابقة'
-                          : 'Passwords do not match';
+                      return t.translate('auth_passwords_mismatch');
                     }
                     return null;
                   },
                 ),
-                SizedBox(height: context.dynamicHeight(0.025)),
+                SizedBox(height: 20.h),
 
                 // Register Button
                 _buildRegisterButton(),
 
                 // Info text for institution
                 if (_selectedUserType == UserType.institution) ...[
-                  SizedBox(height: context.dynamicHeight(0.015)),
+                  SizedBox(height: 12.h),
                   Container(
-                    padding: EdgeInsets.all(context.dynamicWidth(0.03)),
+                    padding: EdgeInsets.all(11.w),
                     decoration: BoxDecoration(
                       color: AppColors.amber50,
                       borderRadius: BorderRadius.circular(12),
@@ -718,14 +700,12 @@ class _RegisterScreenState extends State<RegisterScreen>
                           color: AppColors.amber600,
                           size: 20,
                         ),
-                        SizedBox(width: context.dynamicWidth(0.02)),
+                        SizedBox(width: 8.w),
                         Expanded(
                           child: Text(
-                            _isArabic
-                                ? 'سيتم مراجعة حسابك من قبل الإدارة بعد التحقق من رقم الهاتف'
-                                : 'Your account will be reviewed by admin after phone verification',
+                            t.translate('auth_institution_review'),
                             style: TextStyle(
-                              fontSize: context.dynamicWidth(0.028),
+                              fontSize: 11.sp,
                               color: AppColors.amber700,
                             ),
                           ),
@@ -735,7 +715,8 @@ class _RegisterScreenState extends State<RegisterScreen>
                   ),
                 ],
               ],
-            ),
+            );
+            }),
           ),
         ),
       ),
@@ -743,18 +724,19 @@ class _RegisterScreenState extends State<RegisterScreen>
   }
 
   Widget _buildUserTypeSelector() {
+    final t = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _isArabic ? 'نوع الحساب' : 'Account Type',
+          t.translate('auth_account_type'),
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.035),
+            fontSize: 13.sp,
             fontWeight: FontWeight.w600,
             color: AppColors.gray700,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.01)),
+        SizedBox(height: 8.h),
         Container(
           decoration: BoxDecoration(
             color: AppColors.gray100,
@@ -767,7 +749,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                 child: _buildUserTypeOption(
                   type: UserType.user,
                   icon: Icons.person_rounded,
-                  label: _isArabic ? 'فرد' : 'Individual',
+                  label: t.translate('auth_individual'),
                 ),
               ),
               const SizedBox(width: 4),
@@ -775,7 +757,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                 child: _buildUserTypeOption(
                   type: UserType.institution,
                   icon: Icons.business_rounded,
-                  label: _isArabic ? 'مؤسسة' : 'Institution',
+                  label: t.translate('auth_institution'),
                 ),
               ),
             ],
@@ -805,7 +787,7 @@ class _RegisterScreenState extends State<RegisterScreen>
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeOutCubic,
         padding: EdgeInsets.symmetric(
-          vertical: context.dynamicHeight(0.015),
+          vertical: 12.h,
         ),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primaryColor : Colors.transparent,
@@ -826,13 +808,13 @@ class _RegisterScreenState extends State<RegisterScreen>
             Icon(
               icon,
               color: isSelected ? Colors.white : AppColors.gray500,
-              size: context.dynamicWidth(0.05),
+              size: 19.w,
             ),
-            SizedBox(width: context.dynamicWidth(0.02)),
+            SizedBox(width: 8.w),
             Text(
               label,
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.035),
+                fontSize: 13.sp,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 color: isSelected ? Colors.white : AppColors.gray600,
               ),
@@ -844,18 +826,19 @@ class _RegisterScreenState extends State<RegisterScreen>
   }
 
   Widget _buildPhoneField() {
+    final t = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _isArabic ? 'رقم الهاتف' : 'Phone Number',
+          t.translate('auth_phone_number'),
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.033),
+            fontSize: 12.sp,
             fontWeight: FontWeight.w600,
             color: AppColors.gray700,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.006)),
+        SizedBox(height: 5.h),
         Row(
           children: [
             // Country Code Selector
@@ -869,8 +852,8 @@ class _RegisterScreenState extends State<RegisterScreen>
                   // Fixed Palestine code for individual users
                   ? Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: context.dynamicWidth(0.03),
-                        vertical: context.dynamicHeight(0.016),
+                        horizontal: 11.w,
+                        vertical: 13.h,
                       ),
                       child: Row(
                         children: [
@@ -879,7 +862,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                           Text(
                             '+970',
                             style: TextStyle(
-                              fontSize: context.dynamicWidth(0.038),
+                              fontSize: 14.sp,
                               fontWeight: FontWeight.w600,
                               color: AppColors.gray900,
                             ),
@@ -892,7 +875,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                       child: DropdownButton<String>(
                         value: _selectedCountryCode,
                         padding: EdgeInsets.symmetric(
-                          horizontal: context.dynamicWidth(0.03),
+                          horizontal: 11.w,
                         ),
                         icon: Icon(Icons.arrow_drop_down, color: AppColors.gray500),
                         items: _countryCodes.map((country) {
@@ -906,7 +889,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                                 Text(
                                   country['code']!,
                                   style: TextStyle(
-                                    fontSize: context.dynamicWidth(0.035),
+                                    fontSize: 13.sp,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -930,7 +913,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                       ),
                     ),
             ),
-            SizedBox(width: context.dynamicWidth(0.02)),
+            SizedBox(width: 8.w),
             // Phone Number Input
             Expanded(
               child: TextFormField(
@@ -941,15 +924,15 @@ class _RegisterScreenState extends State<RegisterScreen>
                   LengthLimitingTextInputFormatter(_getMaxPhoneLength()),
                 ],
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.038),
+                  fontSize: 14.sp,
                   color: AppColors.gray900,
                   fontWeight: FontWeight.w500,
                 ),
                 decoration: InputDecoration(
-                  hintText: _isArabic ? 'أدخل رقم الهاتف' : 'Enter phone number',
+                  hintText: t.translate('auth_phone_hint'),
                   hintStyle: TextStyle(
                     color: AppColors.gray400,
-                    fontSize: context.dynamicWidth(0.033),
+                    fontSize: 12.sp,
                     fontWeight: FontWeight.w400,
                   ),
                   prefixIcon: Container(
@@ -967,8 +950,8 @@ class _RegisterScreenState extends State<RegisterScreen>
                   filled: true,
                   fillColor: AppColors.gray50,
                   contentPadding: EdgeInsets.symmetric(
-                    horizontal: context.dynamicWidth(0.04),
-                    vertical: context.dynamicHeight(0.014),
+                    horizontal: 15.w,
+                    vertical: 11.h,
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -992,14 +975,12 @@ class _RegisterScreenState extends State<RegisterScreen>
                   ),
                   errorStyle: TextStyle(
                     color: AppColors.red500,
-                    fontSize: context.dynamicWidth(0.028),
+                    fontSize: 11.sp,
                   ),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return _isArabic
-                        ? 'الرجاء إدخال رقم الهاتف'
-                        : 'Please enter phone number';
+                    return t.translate('auth_phone_required');
                   }
 
                   // Remove leading 0 for validation
@@ -1030,9 +1011,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                   // Palestine individual users: must start with 5 (mobile)
                   if (_selectedUserType == UserType.user && _selectedCountryCode == '+970') {
                     if (!phoneNumber.startsWith('5')) {
-                      return _isArabic
-                          ? 'رقم الهاتف يجب أن يبدأ بـ 5'
-                          : 'Phone number must start with 5';
+                      return t.translate('auth_phone_start_5');
                     }
                   }
 
@@ -1060,19 +1039,19 @@ class _RegisterScreenState extends State<RegisterScreen>
         Text(
           label,
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.033),
+            fontSize: 12.sp,
             fontWeight: FontWeight.w600,
             color: AppColors.gray700,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.006)),
+        SizedBox(height: 5.h),
         DropdownButtonFormField<String>(
           value: value,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(
               color: AppColors.gray400,
-              fontSize: context.dynamicWidth(0.033),
+              fontSize: 12.sp,
               fontWeight: FontWeight.w400,
             ),
             prefixIcon: Container(
@@ -1086,8 +1065,8 @@ class _RegisterScreenState extends State<RegisterScreen>
             filled: true,
             fillColor: AppColors.gray50,
             contentPadding: EdgeInsets.symmetric(
-              horizontal: context.dynamicWidth(0.04),
-              vertical: context.dynamicHeight(0.014),
+              horizontal: 15.w,
+              vertical: 11.h,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -1111,7 +1090,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             ),
             errorStyle: TextStyle(
               color: AppColors.red500,
-              fontSize: context.dynamicWidth(0.028),
+              fontSize: 11.sp,
             ),
           ),
           items: items.map((item) {
@@ -1120,7 +1099,7 @@ class _RegisterScreenState extends State<RegisterScreen>
               child: Text(
                 item,
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.035),
+                  fontSize: 13.sp,
                   color: AppColors.gray900,
                 ),
               ),
@@ -1129,7 +1108,7 @@ class _RegisterScreenState extends State<RegisterScreen>
           onChanged: onChanged,
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return _isArabic ? 'هذا الحقل مطلوب' : 'This field is required';
+              return AppLocalizations.of(context)!.translate('auth_field_required');
             }
             return null;
           },
@@ -1154,19 +1133,19 @@ class _RegisterScreenState extends State<RegisterScreen>
         Text(
           label,
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.033),
+            fontSize: 12.sp,
             fontWeight: FontWeight.w600,
             color: AppColors.gray700,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.006)),
+        SizedBox(height: 5.h),
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
           obscureText: obscureText,
           validator: validator,
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.038),
+            fontSize: 14.sp,
             color: AppColors.gray900,
             fontWeight: FontWeight.w500,
           ),
@@ -1174,7 +1153,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             hintText: hint,
             hintStyle: TextStyle(
               color: AppColors.gray400,
-              fontSize: context.dynamicWidth(0.033),
+              fontSize: 12.sp,
               fontWeight: FontWeight.w400,
             ),
             prefixIcon: Container(
@@ -1202,8 +1181,8 @@ class _RegisterScreenState extends State<RegisterScreen>
             filled: true,
             fillColor: AppColors.gray50,
             contentPadding: EdgeInsets.symmetric(
-              horizontal: context.dynamicWidth(0.04),
-              vertical: context.dynamicHeight(0.014),
+              horizontal: 15.w,
+              vertical: 11.h,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -1227,7 +1206,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             ),
             errorStyle: TextStyle(
               color: AppColors.red500,
-              fontSize: context.dynamicWidth(0.028),
+              fontSize: 11.sp,
             ),
           ),
         ),
@@ -1240,7 +1219,7 @@ class _RegisterScreenState extends State<RegisterScreen>
       builder: (context, state) {
         final isLoading = state is AuthLoading;
         return Container(
-          height: context.dynamicHeight(0.065),
+          height: 53.h,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(
@@ -1279,9 +1258,9 @@ class _RegisterScreenState extends State<RegisterScreen>
                     ),
                   )
                 : Text(
-                    _isArabic ? 'إنشاء حساب' : 'Create Account',
+                    AppLocalizations.of(context)!.translate('auth_create_account'),
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.043),
+                      fontSize: 16.sp,
                       fontWeight: FontWeight.w700,
                       letterSpacing: _isArabic ? 0 : 0.5,
                     ),
@@ -1293,14 +1272,15 @@ class _RegisterScreenState extends State<RegisterScreen>
   }
 
   Widget _buildLoginLink() {
+    final t = AppLocalizations.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          _isArabic ? 'لديك حساب بالفعل؟ ' : 'Already have an account? ',
+          t.translate('auth_has_account'),
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.95),
-            fontSize: context.dynamicWidth(0.037),
+            fontSize: 14.sp,
           ),
         ),
         GestureDetector(
@@ -1319,11 +1299,11 @@ class _RegisterScreenState extends State<RegisterScreen>
               ],
             ),
             child: Text(
-              _isArabic ? 'تسجيل الدخول' : 'Login',
+              t.translate('auth_login'),
               style: TextStyle(
                 color: AppColors.primaryColor,
                 fontWeight: FontWeight.bold,
-                fontSize: context.dynamicWidth(0.035),
+                fontSize: 13.sp,
               ),
             ),
           ),
@@ -1339,6 +1319,7 @@ class AdminApprovalWaitingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final isArabic = Localizations.localeOf(context).languageCode == 'ar';
 
     return Scaffold(
@@ -1356,14 +1337,14 @@ class AdminApprovalWaitingScreen extends StatelessWidget {
         ),
         child: SafeArea(
           child: Padding(
-            padding: EdgeInsets.all(context.dynamicWidth(0.08)),
+            padding: EdgeInsets.all(30.w),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Icon
                 Container(
-                  width: context.dynamicWidth(0.3),
-                  height: context.dynamicWidth(0.3),
+                  width: 113.w,
+                  height: 113.w,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
@@ -1377,22 +1358,22 @@ class AdminApprovalWaitingScreen extends StatelessWidget {
                   ),
                   child: Icon(
                     Icons.hourglass_top_rounded,
-                    size: context.dynamicWidth(0.15),
+                    size: 56.w,
                     color: AppColors.amber500,
                   ),
                 ),
-                SizedBox(height: context.dynamicHeight(0.04)),
+                SizedBox(height: 32.h),
 
                 // Title
                 Text(
-                  isArabic ? 'في انتظار الموافقة' : 'Pending Approval',
+                  t.translate('auth_pending_approval'),
                   style: TextStyle(
-                    fontSize: context.dynamicWidth(0.065),
+                    fontSize: 24.sp,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
-                SizedBox(height: context.dynamicHeight(0.02)),
+                SizedBox(height: 16.h),
 
                 // Description
                 Text(
@@ -1401,16 +1382,16 @@ class AdminApprovalWaitingScreen extends StatelessWidget {
                       : 'Your phone number has been verified!\n\nYour account is now under review by the admin.\nYou will be notified once your account is approved.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: context.dynamicWidth(0.04),
+                    fontSize: 15.sp,
                     color: Colors.white.withValues(alpha: 0.9),
                     height: 1.5,
                   ),
                 ),
-                SizedBox(height: context.dynamicHeight(0.06)),
+                SizedBox(height: 49.h),
 
                 // Info Card
                 Container(
-                  padding: EdgeInsets.all(context.dynamicWidth(0.05)),
+                  padding: EdgeInsets.all(19.w),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(20),
@@ -1425,14 +1406,12 @@ class AdminApprovalWaitingScreen extends StatelessWidget {
                         color: Colors.white,
                         size: 32,
                       ),
-                      SizedBox(height: context.dynamicHeight(0.015)),
+                      SizedBox(height: 12.h),
                       Text(
-                        isArabic
-                            ? 'ستتلقى إشعاراً عند الموافقة'
-                            : 'You will receive a notification upon approval',
+                        t.translate('auth_notification_approval'),
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: context.dynamicWidth(0.035),
+                          fontSize: 13.sp,
                           color: Colors.white,
                         ),
                       ),
@@ -1445,7 +1424,7 @@ class AdminApprovalWaitingScreen extends StatelessWidget {
                 // Back to Login Button
                 SizedBox(
                   width: double.infinity,
-                  height: context.dynamicHeight(0.065),
+                  height: 53.h,
                   child: ElevatedButton(
                     onPressed: () {
                       // Navigate back to login
@@ -1460,9 +1439,9 @@ class AdminApprovalWaitingScreen extends StatelessWidget {
                       elevation: 0,
                     ),
                     child: Text(
-                      isArabic ? 'العودة لتسجيل الدخول' : 'Back to Login',
+                      t.translate('auth_back_to_login'),
                       style: TextStyle(
-                        fontSize: context.dynamicWidth(0.042),
+                        fontSize: 16.sp,
                         fontWeight: FontWeight.w700,
                       ),
                     ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../data/models/event_models.dart';
 
 class TemplateSelectionWidget extends StatelessWidget {
@@ -27,19 +27,19 @@ class TemplateSelectionWidget extends StatelessWidget {
         Text(
           'Choose Template',
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.05),
+            fontSize: 19.sp,
             fontWeight: FontWeight.bold,
             color: AppColors.gray900,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.02)),
+        SizedBox(height: 16.h),
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            crossAxisSpacing: context.dynamicWidth(0.03),
-            mainAxisSpacing: context.dynamicWidth(0.03),
+            crossAxisSpacing: 11.w,
+            mainAxisSpacing: 11.w,
             childAspectRatio: 1.1,
           ),
           itemCount: templates.length,
@@ -53,7 +53,7 @@ class TemplateSelectionWidget extends StatelessWidget {
             );
           },
         ),
-        SizedBox(height: context.dynamicHeight(0.015)),
+        SizedBox(height: 12.h),
         _CustomTemplateButton(
           isActive: requestCustomTemplate,
           onTap: onToggleCustomTemplate,
@@ -80,7 +80,7 @@ class _TemplateCard extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+        padding: EdgeInsets.all(15.w),
         decoration: BoxDecoration(
           gradient: isSelected
               ? LinearGradient(
@@ -90,12 +90,12 @@ class _TemplateCard extends StatelessWidget {
                 )
               : null,
           color: isSelected ? null : Colors.white,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+          borderRadius: BorderRadius.circular(15.w),
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? template.gradientColors.first.withOpacity(0.3)
-                  : Colors.black.withOpacity(0.05),
+                  ? template.gradientColors.first.withValues(alpha: 0.3)
+                  : Colors.black.withValues(alpha: 0.05),
               blurRadius: isSelected ? 16 : 8,
               offset: const Offset(0, 4),
             ),
@@ -108,13 +108,13 @@ class _TemplateCard extends StatelessWidget {
               children: [
                 Text(
                   template.preview,
-                  style: TextStyle(fontSize: context.dynamicWidth(0.09)),
+                  style: TextStyle(fontSize: 34.sp),
                 ),
-                SizedBox(height: context.dynamicHeight(0.015)),
+                SizedBox(height: 12.h),
                 Text(
                   template.name,
                   style: TextStyle(
-                    fontSize: context.dynamicWidth(0.033),
+                    fontSize: 12.sp,
                     fontWeight: FontWeight.bold,
                     color: isSelected ? Colors.white : AppColors.gray900,
                   ),
@@ -123,17 +123,17 @@ class _TemplateCard extends StatelessWidget {
             ),
             if (isSelected)
               Positioned(
-                top: -context.dynamicWidth(0.01),
-                right: -context.dynamicWidth(0.01),
+                top: -4.w,
+                right: -4.w,
                 child: Container(
-                  width: context.dynamicWidth(0.06),
-                  height: context.dynamicWidth(0.06),
+                  width: 23.w,
+                  height: 23.w,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -141,7 +141,7 @@ class _TemplateCard extends StatelessWidget {
                   ),
                   child: Icon(
                     Icons.check,
-                    size: context.dynamicWidth(0.035),
+                    size: 13.w,
                     color: AppColors.primaryColor,
                   ),
                 ),
@@ -169,7 +169,7 @@ class _CustomTemplateButton extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         width: double.infinity,
-        padding: EdgeInsets.all(context.dynamicWidth(0.05)),
+        padding: EdgeInsets.all(19.w),
         decoration: BoxDecoration(
           gradient: isActive
               ? LinearGradient(
@@ -179,15 +179,15 @@ class _CustomTemplateButton extends StatelessWidget {
                 )
               : null,
           color: isActive ? null : Colors.white,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+          borderRadius: BorderRadius.circular(15.w),
           border: isActive
               ? null
-              : Border.all(color: AppColors.purple500.withOpacity(0.5), width: 2),
+              : Border.all(color: AppColors.purple500.withValues(alpha: 0.5), width: 2),
           boxShadow: [
             BoxShadow(
               color: isActive
-                  ? AppColors.primaryColor.withOpacity(0.3)
-                  : Colors.black.withOpacity(0.05),
+                  ? AppColors.primaryColor.withValues(alpha: 0.3)
+                  : Colors.black.withValues(alpha: 0.05),
               blurRadius: isActive ? 16 : 8,
               offset: const Offset(0, 4),
             ),
@@ -198,24 +198,24 @@ class _CustomTemplateButton extends StatelessWidget {
             Icon(
               Icons.star,
               color: isActive ? Colors.white : AppColors.primaryColor,
-              size: context.dynamicWidth(0.07),
+              size: 26.w,
             ),
-            SizedBox(height: context.dynamicHeight(0.01)),
+            SizedBox(height: 8.h),
             Text(
               'Request Custom Template',
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.038),
+                fontSize: 14.sp,
                 fontWeight: FontWeight.bold,
                 color: isActive ? Colors.white : AppColors.gray900,
               ),
             ),
-            SizedBox(height: context.dynamicHeight(0.005)),
+            SizedBox(height: 4.h),
             Text(
               'Our team will create a unique design for you',
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.03),
+                fontSize: 11.sp,
                 color: isActive
-                    ? Colors.white.withOpacity(0.8)
+                    ? Colors.white.withValues(alpha: 0.8)
                     : AppColors.gray600,
               ),
               textAlign: TextAlign.center,

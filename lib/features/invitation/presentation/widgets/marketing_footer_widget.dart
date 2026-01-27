@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/utils/app_colors.dart';
@@ -30,7 +30,7 @@ class MarketingFooterWidget extends StatelessWidget {
         gradient: LinearGradient(
           colors: [
             AppColors.purple50,
-            AppColors.tertiaryColor.withOpacity(0.1),
+            AppColors.tertiaryColor.withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(screenWidth * 0.03),
@@ -98,7 +98,7 @@ class MarketingFooterWidget extends StatelessWidget {
         vertical: screenWidth * 0.02,
       ),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
+        color: Colors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(screenWidth * 0.015),
       ),
       child: Row(
@@ -114,7 +114,7 @@ class MarketingFooterWidget extends StatelessWidget {
             child: Text(
               'Created with Maktoob',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
                 fontSize: screenWidth * 0.025,
               ),
             ),

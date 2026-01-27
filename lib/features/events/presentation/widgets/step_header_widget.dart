@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 
 class StepHeaderWidget extends StatelessWidget {
   final int currentStep;
@@ -34,18 +34,18 @@ class StepHeaderWidget extends StatelessWidget {
           children: [
             // Animated background circle
             Positioned(
-              top: -context.dynamicWidth(0.05),
-              right: -context.dynamicWidth(0.05),
+              top: -19.w,
+              right: -19.w,
               child: TweenAnimationBuilder<double>(
                 tween: Tween(begin: 1.0, end: 1.5),
                 duration: const Duration(seconds: 10),
                 builder: (context, value, child) {
                   return Container(
-                    width: context.dynamicWidth(0.4),
-                    height: context.dynamicWidth(0.4),
+                    width: 150.w,
+                    height: 150.w,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white.withOpacity(0.1),
+                      color: Colors.white.withValues(alpha: 0.1),
                     ),
                   );
                 },
@@ -53,10 +53,10 @@ class StepHeaderWidget extends StatelessWidget {
             ),
             Padding(
               padding: EdgeInsets.fromLTRB(
-                context.dynamicWidth(0.06),
-                context.dynamicHeight(0.025),
-                context.dynamicWidth(0.06),
-                context.dynamicHeight(0.04),
+                23.w,
+                20.h,
+                23.w,
+                32.h,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,26 +64,26 @@ class StepHeaderWidget extends StatelessWidget {
                   // Step badge
                   Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: context.dynamicWidth(0.03),
-                      vertical: context.dynamicHeight(0.008),
+                      horizontal: 11.w,
+                      vertical: 6.h,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.05)),
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(19.w),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
                           Icons.auto_awesome,
-                          size: context.dynamicWidth(0.035),
+                          size: 13.w,
                           color: Colors.white,
                         ),
-                        SizedBox(width: context.dynamicWidth(0.015)),
+                        SizedBox(width: 6.w),
                         Text(
                           'Step $currentStep of $totalSteps',
                           style: TextStyle(
-                            fontSize: context.dynamicWidth(0.03),
+                            fontSize: 11.sp,
                             fontWeight: FontWeight.w500,
                             color: Colors.white,
                           ),
@@ -91,24 +91,24 @@ class StepHeaderWidget extends StatelessWidget {
                       ],
                     ),
                   ),
-                  SizedBox(height: context.dynamicHeight(0.015)),
+                  SizedBox(height: 12.h),
                   Text(
                     'Create Event',
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.07),
+                      fontSize: 26.sp,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(height: context.dynamicHeight(0.005)),
+                  SizedBox(height: 4.h),
                   Text(
                     "Let's make something amazing",
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.035),
-                      color: Colors.white.withOpacity(0.8),
+                      fontSize: 13.sp,
+                      color: Colors.white.withValues(alpha: 0.8),
                     ),
                   ),
-                  SizedBox(height: context.dynamicHeight(0.03)),
+                  SizedBox(height: 24.h),
                   // Progress bar
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -116,25 +116,25 @@ class StepHeaderWidget extends StatelessWidget {
                       Text(
                         'Progress',
                         style: TextStyle(
-                          fontSize: context.dynamicWidth(0.03),
-                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 11.sp,
+                          color: Colors.white.withValues(alpha: 0.8),
                         ),
                       ),
                       Text(
                         '${(progress * 100).round()}%',
                         style: TextStyle(
-                          fontSize: context.dynamicWidth(0.03),
-                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 11.sp,
+                          color: Colors.white.withValues(alpha: 0.8),
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: context.dynamicHeight(0.01)),
+                  SizedBox(height: 8.h),
                   Container(
-                    height: context.dynamicHeight(0.01),
+                    height: 8.h,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.01)),
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(4.w),
                     ),
                     child: LayoutBuilder(
                       builder: (context, constraints) {
@@ -143,13 +143,13 @@ class StepHeaderWidget extends StatelessWidget {
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 500),
                             width: constraints.maxWidth * progress,
-                            height: context.dynamicHeight(0.01),
+                            height: 8.h,
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(context.dynamicWidth(0.01)),
+                              borderRadius: BorderRadius.circular(4.w),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.white.withOpacity(0.5),
+                                  color: Colors.white.withValues(alpha: 0.5),
                                   blurRadius: 8,
                                 ),
                               ],

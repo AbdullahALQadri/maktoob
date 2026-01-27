@@ -26,7 +26,17 @@
       "Bash(C:devflutterbinflutter.bat pub get)",
       "Bash(find:*)",
       "Bash(flutter pub outdated:*)",
-      "Bash(flutter build:*)"
+      "Bash(flutter build:*)",
+      "Bash(while read f)",
+      "Bash(do if grep -q \"extensions.dart\" \"$f\")",
+      "Bash(then echo \"BOTH: $f\")",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(do sed -i 's/media_query_values\\\\.dart/extensions.dart/g' \"$f\")",
+      "Bash(do sed -i 's/\\\\.withOpacity\\(\\\\\\(.*\\\\\\)\\)/\\\\.withValues\\(alpha: \\\\1\\)/g' \"$f\")",
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(dart --version:*)"
     ]
   }
 }

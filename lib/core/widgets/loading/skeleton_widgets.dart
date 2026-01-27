@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../../utils/app_colors.dart';
 import 'shimmer_loading.dart';
@@ -64,7 +64,7 @@ class StatCardSkeleton extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: AppColors.gray300.withOpacity(0.3),
+              color: AppColors.gray300.withValues(alpha: 0.3),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -139,7 +139,7 @@ class RecentEventCardSkeleton extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: AppColors.gray300.withOpacity(0.3),
+              color: AppColors.gray300.withValues(alpha: 0.3),
               blurRadius: 15,
               offset: const Offset(0, 4),
             ),
@@ -216,7 +216,7 @@ class ResponseRateCardSkeleton extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: AppColors.gray300.withOpacity(0.3),
+              color: AppColors.gray300.withValues(alpha: 0.3),
               blurRadius: 20,
               offset: const Offset(0, 4),
             ),
@@ -277,8 +277,8 @@ class HomeScreenSkeleton extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AppColors.primaryColor.withOpacity(0.7),
-                  AppColors.tertiaryColor.withOpacity(0.7),
+                  AppColors.primaryColor.withValues(alpha: 0.7),
+                  AppColors.tertiaryColor.withValues(alpha: 0.7),
                 ],
               ),
             ),
@@ -291,26 +291,26 @@ class HomeScreenSkeleton extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ShimmerLoading(
-                        baseColor: Colors.white.withOpacity(0.2),
-                        highlightColor: Colors.white.withOpacity(0.4),
+                        baseColor: Colors.white.withValues(alpha: 0.2),
+                        highlightColor: Colors.white.withValues(alpha: 0.4),
                         child: Container(
                           width: 120,
                           height: 32,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(20),
                           ),
                         ),
                       ),
                       const SizedBox(height: 16),
                       ShimmerLoading(
-                        baseColor: Colors.white.withOpacity(0.2),
-                        highlightColor: Colors.white.withOpacity(0.4),
+                        baseColor: Colors.white.withValues(alpha: 0.2),
+                        highlightColor: Colors.white.withValues(alpha: 0.4),
                         child: Container(
                           width: 200,
                           height: 36,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
@@ -385,7 +385,7 @@ class EventListItemSkeleton extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: AppColors.gray300.withOpacity(0.3),
+              color: AppColors.gray300.withValues(alpha: 0.3),
               blurRadius: 16,
               offset: const Offset(0, 8),
             ),
@@ -582,7 +582,7 @@ class VenueCardSkeleton extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: AppColors.gray300.withOpacity(0.3),
+              color: AppColors.gray300.withValues(alpha: 0.3),
               blurRadius: 15,
               offset: const Offset(0, 4),
             ),
@@ -677,8 +677,8 @@ class EventDetailsSkeleton extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AppColors.primaryColor.withOpacity(0.7),
-                  AppColors.tertiaryColor.withOpacity(0.7),
+                  AppColors.primaryColor.withValues(alpha: 0.7),
+                  AppColors.tertiaryColor.withValues(alpha: 0.7),
                 ],
               ),
             ),
@@ -692,26 +692,26 @@ class EventDetailsSkeleton extends StatelessWidget {
                     Row(
                       children: [
                         ShimmerLoading(
-                          baseColor: Colors.white.withOpacity(0.2),
-                          highlightColor: Colors.white.withOpacity(0.4),
+                          baseColor: Colors.white.withValues(alpha: 0.2),
+                          highlightColor: Colors.white.withValues(alpha: 0.4),
                           child: Container(
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
                         ),
                         const Spacer(),
                         ShimmerLoading(
-                          baseColor: Colors.white.withOpacity(0.2),
-                          highlightColor: Colors.white.withOpacity(0.4),
+                          baseColor: Colors.white.withValues(alpha: 0.2),
+                          highlightColor: Colors.white.withValues(alpha: 0.4),
                           child: Container(
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
@@ -722,13 +722,13 @@ class EventDetailsSkeleton extends StatelessWidget {
                     Row(
                       children: [
                         ShimmerLoading(
-                          baseColor: Colors.white.withOpacity(0.2),
-                          highlightColor: Colors.white.withOpacity(0.4),
+                          baseColor: Colors.white.withValues(alpha: 0.2),
+                          highlightColor: Colors.white.withValues(alpha: 0.4),
                           child: Container(
                             width: 64,
                             height: 64,
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(20),
                             ),
                           ),
@@ -739,13 +739,13 @@ class EventDetailsSkeleton extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               ShimmerLoading(
-                                baseColor: Colors.white.withOpacity(0.2),
-                                highlightColor: Colors.white.withOpacity(0.4),
+                                baseColor: Colors.white.withValues(alpha: 0.2),
+                                highlightColor: Colors.white.withValues(alpha: 0.4),
                                 child: Container(
                                   width: 180,
                                   height: 24,
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
+                                    color: Colors.white.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                 ),
@@ -754,26 +754,26 @@ class EventDetailsSkeleton extends StatelessWidget {
                               Row(
                                 children: [
                                   ShimmerLoading(
-                                    baseColor: Colors.white.withOpacity(0.2),
-                                    highlightColor: Colors.white.withOpacity(0.4),
+                                    baseColor: Colors.white.withValues(alpha: 0.2),
+                                    highlightColor: Colors.white.withValues(alpha: 0.4),
                                     child: Container(
                                       width: 70,
                                       height: 28,
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.2),
+                                        color: Colors.white.withValues(alpha: 0.2),
                                         borderRadius: BorderRadius.circular(20),
                                       ),
                                     ),
                                   ),
                                   const SizedBox(width: 8),
                                   ShimmerLoading(
-                                    baseColor: Colors.white.withOpacity(0.2),
-                                    highlightColor: Colors.white.withOpacity(0.4),
+                                    baseColor: Colors.white.withValues(alpha: 0.2),
+                                    highlightColor: Colors.white.withValues(alpha: 0.4),
                                     child: Container(
                                       width: 60,
                                       height: 28,
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.2),
+                                        color: Colors.white.withValues(alpha: 0.2),
                                         borderRadius: BorderRadius.circular(20),
                                       ),
                                     ),
@@ -816,7 +816,7 @@ class _QuickStatsSkeleton extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: AppColors.gray300.withOpacity(0.3),
+              color: AppColors.gray300.withValues(alpha: 0.3),
               blurRadius: 20,
               offset: const Offset(0, 4),
             ),
@@ -865,7 +865,7 @@ class _TabBarSkeleton extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: AppColors.gray300.withOpacity(0.2),
+              color: AppColors.gray300.withValues(alpha: 0.2),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -909,7 +909,7 @@ class _EventContentSkeleton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.gray300.withOpacity(0.3),
+                    color: AppColors.gray300.withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 4),
                   ),
@@ -953,7 +953,7 @@ class _EventContentSkeleton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.gray300.withOpacity(0.3),
+                    color: AppColors.gray300.withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 4),
                   ),
@@ -1075,7 +1075,7 @@ class ScannerStatsSkeleton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.gray300.withOpacity(0.3),
+                    color: AppColors.gray300.withValues(alpha: 0.3),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -1159,7 +1159,7 @@ class BankDetailsCardSkeleton extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: AppColors.gray300.withOpacity(0.3),
+              color: AppColors.gray300.withValues(alpha: 0.3),
               blurRadius: 20,
               offset: const Offset(0, 4),
             ),

@@ -1,4 +1,4 @@
-import 'dart:ui';
+﻿import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -170,7 +170,7 @@ class WhatsAppPaymentScreen extends StatelessWidget {
                 Text(
                   package.nameAr,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                     fontSize: screenWidth * 0.032,
                   ),
                 ),
@@ -201,7 +201,7 @@ class WhatsAppPaymentScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(screenWidth * 0.035),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF25D366).withOpacity(0.3),
+              color: const Color(0xFF25D366).withValues(alpha: 0.3),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -240,7 +240,7 @@ class WhatsAppPaymentScreen extends StatelessWidget {
                 Text(
                   'We\'ll guide you through the payment',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontSize: screenWidth * 0.032,
                   ),
                 ),
@@ -441,10 +441,10 @@ class WhatsAppPaymentScreen extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.all(screenWidth * 0.04),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.85),
+            color: Colors.white.withValues(alpha: 0.85),
             border: Border(
               top: BorderSide(
-                color: AppColors.gray200.withOpacity(0.5),
+                color: AppColors.gray200.withValues(alpha: 0.5),
                 width: 0.5,
               ),
             ),

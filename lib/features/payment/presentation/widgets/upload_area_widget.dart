@@ -1,4 +1,4 @@
-import 'package:file_picker/file_picker.dart';
+﻿import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/utils/app_colors.dart';
@@ -42,15 +42,15 @@ class UploadAreaWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: uploadSuccess
-              ? AppColors.green600.withOpacity(0.5)
+              ? AppColors.green600.withValues(alpha: 0.5)
               : selectedFile != null
-                  ? AppColors.primaryColor.withOpacity(0.3)
+                  ? AppColors.primaryColor.withValues(alpha: 0.3)
                   : AppColors.gray200,
           width: 2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -80,8 +80,8 @@ class UploadAreaWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppColors.blue500.withOpacity(0.1),
-                    AppColors.purple500.withOpacity(0.1),
+                    AppColors.blue500.withValues(alpha: 0.1),
+                    AppColors.purple500.withValues(alpha: 0.1),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(24),
@@ -180,7 +180,7 @@ class UploadAreaWidget extends StatelessWidget {
               icon: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.red500.withOpacity(0.1),
+                  color: AppColors.red500.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
@@ -306,7 +306,7 @@ class UploadAreaWidget extends StatelessWidget {
                   borderRadius: BorderRadius.circular(5),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primaryColor.withOpacity(0.4),
+                      color: AppColors.primaryColor.withValues(alpha: 0.4),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
                     ),
@@ -368,7 +368,7 @@ class UploadAreaWidget extends StatelessWidget {
             color: AppColors.green50,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppColors.green600.withOpacity(0.2),
+              color: AppColors.green600.withValues(alpha: 0.2),
             ),
           ),
           child: Row(

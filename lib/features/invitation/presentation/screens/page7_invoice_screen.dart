@@ -10,7 +10,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/snackbar/app_snackbar.dart';
 import '../cubit/invitation_cubit.dart';
@@ -109,11 +109,11 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const CircularProgressIndicator(),
-            SizedBox(height: context.dynamicHeight(0.02)),
+            SizedBox(height: 16.h),
             Text(
               l?.translate('invitation_loading_invoice') ?? 'Loading invoice...',
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.04),
+                fontSize: 15.sp,
                 color: Colors.grey,
               ),
             ),
@@ -125,40 +125,40 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
     if (state.invoiceError != null) {
       return Center(
         child: Padding(
-          padding: EdgeInsets.all(context.dynamicWidth(0.06)),
+          padding: EdgeInsets.all(23.w),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 Icons.error_outline,
-                size: context.dynamicWidth(0.16),
+                size: 60.w,
                 color: Colors.red.shade300,
               ),
-              SizedBox(height: context.dynamicHeight(0.02)),
+              SizedBox(height: 16.h),
               Text(
                 l?.translate('invitation_invoice_error') ?? 'Error loading invoice',
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.045),
+                  fontSize: 17.sp,
                   fontWeight: FontWeight.bold,
                   color: Colors.grey.shade800,
                 ),
               ),
-              SizedBox(height: context.dynamicHeight(0.01)),
+              SizedBox(height: 8.h),
               Text(
                 state.invoiceError!,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.035),
+                  fontSize: 13.sp,
                   color: Colors.grey.shade600,
                 ),
               ),
-              SizedBox(height: context.dynamicHeight(0.03)),
+              SizedBox(height: 24.h),
               AppButton(
                 text: l?.translate('common_retry') ?? 'Retry',
                 onPressed: () {
                   context.read<InvitationCubit>().loadInvoice();
                 },
-                width: context.dynamicWidth(0.5),
+                width: 188.w,
               ),
             ],
           ),
@@ -167,18 +167,18 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
     }
 
     return SingleChildScrollView(
-      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+      padding: EdgeInsets.all(15.w),
       child: RepaintBoundary(
         key: _invoiceKey,
         child: Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+            borderRadius: BorderRadius.circular(15.w),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: context.dynamicWidth(0.05),
-                offset: Offset(0, context.dynamicHeight(0.01)),
+                blurRadius: 19.w,
+                offset: Offset(0, 8.h),
               ),
             ],
           ),
@@ -269,12 +269,12 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
 
   Widget _buildInvoiceHeader(BuildContext context, InvitationState state, AppLocalizations? l) {
     return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.06)),
+      padding: EdgeInsets.all(23.w),
       decoration: BoxDecoration(
         color: AppColors.primary,
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(context.dynamicWidth(0.04)),
-          topRight: Radius.circular(context.dynamicWidth(0.04)),
+          topLeft: Radius.circular(15.w),
+          topRight: Radius.circular(15.w),
         ),
       ),
       child: Column(
@@ -283,30 +283,30 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
           Icon(
             Icons.receipt_long,
             color: Colors.white,
-            size: context.dynamicWidth(0.12),
+            size: 45.w,
           ),
-          SizedBox(height: context.dynamicHeight(0.015)),
+          SizedBox(height: 12.h),
           Text(
             l?.translate('invitation_event_invoice') ?? 'Event Invoice',
             style: TextStyle(
               color: Colors.white,
-              fontSize: context.dynamicWidth(0.06),
+              fontSize: 23.sp,
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: context.dynamicHeight(0.01)),
+          SizedBox(height: 8.h),
           Text(
             '${l?.translate('invitation_invoice_number') ?? 'Invoice number'}: ${state.invoiceSummary?.invoiceNumber ?? (l?.translate('invitation_new') ?? 'New')}',
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.9),
-              fontSize: context.dynamicWidth(0.035),
+              fontSize: 13.sp,
             ),
           ),
           Text(
             '${l?.translate('invitation_date') ?? 'Date'}: ${_formatDate(DateTime.now())}',
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.9),
-              fontSize: context.dynamicWidth(0.035),
+              fontSize: 13.sp,
             ),
           ),
         ],
@@ -316,7 +316,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
 
   Widget _buildEventDetails(BuildContext context, InvitationState state, AppLocalizations? l, bool isEnglish) {
     return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.05)),
+      padding: EdgeInsets.all(19.w),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(color: Colors.grey.shade200),
@@ -328,12 +328,12 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
           Text(
             l?.translate('invitation_event_details') ?? 'Event Details',
             style: TextStyle(
-              fontSize: context.dynamicWidth(0.04),
+              fontSize: 15.sp,
               fontWeight: FontWeight.bold,
               color: AppColors.primary,
             ),
           ),
-          SizedBox(height: context.dynamicHeight(0.02)),
+          SizedBox(height: 16.h),
           _buildDetailItem(
             context,
             l?.translate('invitation_event_name_label') ?? 'Event Name',
@@ -385,19 +385,19 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
 
   Widget _buildDetailItem(BuildContext context, String label, String value, IconData icon) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.008)),
+      padding: EdgeInsets.symmetric(vertical: 6.h),
       child: Row(
         children: [
           Icon(
             icon,
-            size: context.dynamicWidth(0.045),
+            size: 17.w,
             color: Colors.grey.shade500,
           ),
-          SizedBox(width: context.dynamicWidth(0.025)),
+          SizedBox(width: 9.w),
           Text(
             '$label: ',
             style: TextStyle(
-              fontSize: context.dynamicWidth(0.033),
+              fontSize: 12.sp,
               color: Colors.grey.shade600,
             ),
           ),
@@ -405,7 +405,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
             child: Text(
               value,
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.033),
+                fontSize: 12.sp,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -419,31 +419,31 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
     final invoice = state.invoiceSummary;
 
     return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.05)),
+      padding: EdgeInsets.all(19.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             l?.translate('invitation_invoice_details') ?? 'Invoice Details',
             style: TextStyle(
-              fontSize: context.dynamicWidth(0.04),
+              fontSize: 15.sp,
               fontWeight: FontWeight.bold,
               color: AppColors.primary,
             ),
           ),
-          SizedBox(height: context.dynamicHeight(0.02)),
+          SizedBox(height: 16.h),
 
           // Table Header
           Container(
             padding: EdgeInsets.symmetric(
-              vertical: context.dynamicHeight(0.015),
-              horizontal: context.dynamicWidth(0.04),
+              vertical: 12.h,
+              horizontal: 15.w,
             ),
             decoration: BoxDecoration(
               color: Colors.grey.shade100,
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(context.dynamicWidth(0.02)),
-                topRight: Radius.circular(context.dynamicWidth(0.02)),
+                topLeft: Radius.circular(8.w),
+                topRight: Radius.circular(8.w),
               ),
             ),
             child: Row(
@@ -454,7 +454,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
                     l?.translate('invitation_item') ?? 'Item',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: context.dynamicWidth(0.035),
+                      fontSize: 13.sp,
                     ),
                   ),
                 ),
@@ -465,7 +465,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
                     textAlign: TextAlign.left,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: context.dynamicWidth(0.035),
+                      fontSize: 13.sp,
                     ),
                   ),
                 ),
@@ -495,8 +495,8 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
           if (state.selectedServices.isNotEmpty) ...[
             Container(
               padding: EdgeInsets.symmetric(
-                vertical: context.dynamicHeight(0.01),
-                horizontal: context.dynamicWidth(0.04),
+                vertical: 8.h,
+                horizontal: 15.w,
               ),
               decoration: BoxDecoration(
                 border: Border(
@@ -508,7 +508,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
                   Text(
                     '${l?.translate('invitation_extra_services') ?? 'Extra Services'}:',
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.033),
+                      fontSize: 12.sp,
                       color: Colors.grey.shade600,
                       fontStyle: FontStyle.italic,
                     ),
@@ -533,8 +533,8 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
   Widget _buildInvoiceRow(BuildContext context, String label, double price, {bool indent = false}) {
     return Container(
       padding: EdgeInsets.symmetric(
-        vertical: context.dynamicHeight(0.015),
-        horizontal: context.dynamicWidth(0.04),
+        vertical: 12.h,
+        horizontal: 15.w,
       ),
       decoration: BoxDecoration(
         border: Border(
@@ -548,7 +548,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
             child: Text(
               label,
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.033),
+                fontSize: 12.sp,
                 color: indent ? Colors.grey.shade600 : Colors.grey.shade800,
               ),
             ),
@@ -559,7 +559,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
               '${price.toStringAsFixed(0)} ₪',
               textAlign: TextAlign.left,
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.033),
+                fontSize: 12.sp,
                 fontWeight: indent ? FontWeight.normal : FontWeight.w500,
               ),
             ),
@@ -596,7 +596,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
     total = invoice?.totalPrice ?? total;
 
     return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.05)),
+      padding: EdgeInsets.all(19.w),
       decoration: BoxDecoration(
         color: AppColors.primary.withValues(alpha: 0.1),
       ),
@@ -606,24 +606,24 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
           Text(
             l?.translate('invitation_total') ?? 'Total',
             style: TextStyle(
-              fontSize: context.dynamicWidth(0.05),
+              fontSize: 19.sp,
               fontWeight: FontWeight.bold,
               color: AppColors.primary,
             ),
           ),
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: context.dynamicWidth(0.06),
-              vertical: context.dynamicHeight(0.015),
+              horizontal: 23.w,
+              vertical: 12.h,
             ),
             decoration: BoxDecoration(
               color: AppColors.primary,
-              borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+              borderRadius: BorderRadius.circular(11.w),
             ),
             child: Text(
               '${total.toStringAsFixed(0)} ₪',
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.055),
+                fontSize: 21.sp,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
@@ -636,11 +636,11 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
 
   Widget _buildInvoiceFooter(BuildContext context, AppLocalizations? l) {
     return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.05)),
+      padding: EdgeInsets.all(19.w),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(context.dynamicWidth(0.04)),
-          bottomRight: Radius.circular(context.dynamicWidth(0.04)),
+          bottomLeft: Radius.circular(15.w),
+          bottomRight: Radius.circular(15.w),
         ),
       ),
       child: Column(
@@ -648,15 +648,15 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
           Text(
             l?.translate('invitation_thank_you') ?? 'Thank you for using Maktoob app',
             style: TextStyle(
-              fontSize: context.dynamicWidth(0.035),
+              fontSize: 13.sp,
               color: Colors.grey.shade600,
             ),
           ),
-          SizedBox(height: context.dynamicHeight(0.01)),
+          SizedBox(height: 8.h),
           Text(
             '${l?.translate('invitation_support') ?? 'For support'}: support@maktoob.app',
             style: TextStyle(
-              fontSize: context.dynamicWidth(0.03),
+              fontSize: 11.sp,
               color: Colors.grey.shade500,
             ),
           ),
@@ -667,14 +667,14 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
 
   Widget _buildActionButtons(BuildContext context, InvitationState state, AppLocalizations? l) {
     return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+      padding: EdgeInsets.all(15.w),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: context.dynamicWidth(0.025),
-            offset: Offset(0, -context.dynamicHeight(0.005)),
+            blurRadius: 9.w,
+            offset: Offset(0, -4.h),
           ),
         ],
       ),
@@ -683,26 +683,26 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
         children: [
           // WhatsApp notice
           Container(
-            padding: EdgeInsets.all(context.dynamicWidth(0.03)),
-            margin: EdgeInsets.only(bottom: context.dynamicHeight(0.015)),
+            padding: EdgeInsets.all(11.w),
+            margin: EdgeInsets.only(bottom: 12.h),
             decoration: BoxDecoration(
               color: Colors.green.shade50,
-              borderRadius: BorderRadius.circular(context.dynamicWidth(0.02)),
+              borderRadius: BorderRadius.circular(8.w),
               border: Border.all(color: Colors.green.shade200),
             ),
             child: Row(
               children: [
                 Icon(
                   Icons.info_outline,
-                  size: context.dynamicWidth(0.045),
+                  size: 17.w,
                   color: Colors.green.shade700,
                 ),
-                SizedBox(width: context.dynamicWidth(0.02)),
+                SizedBox(width: 8.w),
                 Expanded(
                   child: Text(
                     l?.translate('invitation_invoice_delivery_notice') ?? 'Invoice will be sent via WhatsApp or within the app',
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.03),
+                      fontSize: 11.sp,
                       color: Colors.green.shade700,
                     ),
                   ),
@@ -727,7 +727,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
                 ),
               ),
 
-              SizedBox(width: context.dynamicWidth(0.03)),
+              SizedBox(width: 11.w),
 
               // Save as Draft Button
               Expanded(
@@ -744,7 +744,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
                 ),
               ),
 
-              SizedBox(width: context.dynamicWidth(0.03)),
+              SizedBox(width: 11.w),
 
               // Save & Send Button
               Expanded(
@@ -786,36 +786,36 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: context.dynamicWidth(0.2),
-              height: context.dynamicWidth(0.2),
+              width: 75.w,
+              height: 75.w,
               decoration: BoxDecoration(
                 color: Colors.green.shade100,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.check_circle,
-                size: context.dynamicWidth(0.12),
+                size: 45.w,
                 color: Colors.green.shade700,
               ),
             ),
-            SizedBox(height: context.dynamicHeight(0.03)),
+            SizedBox(height: 24.h),
             Text(
               isDraft
                   ? (l?.translate('invitation_saved_as_draft') ?? 'Saved as Draft')
                   : (l?.translate('invitation_saved_successfully') ?? 'Saved Successfully!'),
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.05),
+                fontSize: 19.sp,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: context.dynamicHeight(0.01)),
+            SizedBox(height: 8.h),
             Text(
               isDraft
                   ? (l?.translate('invitation_continue_later') ?? 'You can continue creating the event later')
                   : (l?.translate('invitation_sent_via_whatsapp') ?? 'Invoice sent via WhatsApp'),
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.035),
+                fontSize: 13.sp,
                 color: Colors.grey.shade600,
               ),
             ),

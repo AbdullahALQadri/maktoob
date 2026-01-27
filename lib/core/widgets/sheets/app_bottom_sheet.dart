@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../utils/app_colors.dart';
 import '../../utils/app_strings.dart';
-import '../../utils/media_query_values.dart';
+import '../../utils/responsive.dart';
 import '../buttons/primary_button.dart';
 import '../buttons/secondary_button.dart';
 
@@ -168,7 +168,7 @@ class AppBottomSheet extends StatelessWidget {
     Color? iconBackgroundColor,
   }) {
     final effectiveBorderRadius = borderRadius == 24
-        ? context.dynamicWidth(0.06)
+        ? 23.w
         : borderRadius;
     return showModalBottomSheet<T>(
       context: context,
@@ -409,13 +409,13 @@ class AppBottomSheet extends StatelessWidget {
     final effectiveMaxHeight = maxHeight ?? 0.9;
     final effectiveMinHeight = minHeight ?? 0.1;
     final effectiveBorderRadius = borderRadius == 24
-        ? context.dynamicWidth(0.06)
+        ? 23.w
         : borderRadius;
     final defaultPadding = EdgeInsets.fromLTRB(
-      context.dynamicWidth(0.06),
+      23.w,
       0,
-      context.dynamicWidth(0.06),
-      context.dynamicHeight(0.03),
+      23.w,
+      24.h,
     );
 
     Widget content = Container(
@@ -509,35 +509,35 @@ class _SheetHeader extends StatelessWidget {
         // Drag handle
         if (showDragHandle)
           Container(
-            margin: EdgeInsets.only(top: context.dynamicHeight(0.015)),
-            width: context.dynamicWidth(0.1),
-            height: context.dynamicHeight(0.005),
+            margin: EdgeInsets.only(top: 12.h),
+            width: 38.w,
+            height: 4.h,
             decoration: BoxDecoration(
               color: AppColors.gray300,
-              borderRadius: BorderRadius.circular(context.dynamicWidth(0.01)),
+              borderRadius: BorderRadius.circular(4.w),
             ),
           ),
 
         // Icon (if provided)
         if (icon != null) ...[
-          SizedBox(height: context.dynamicHeight(0.025)),
+          SizedBox(height: 20.h),
           Container(
-            width: context.dynamicWidth(0.16),
-            height: context.dynamicWidth(0.16),
+            width: 60.w,
+            height: 60.w,
             decoration: BoxDecoration(
               color: iconBackgroundColor ?? AppColors.purple50,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
                   color: (iconColor ?? AppColors.primaryColor).withValues(alpha: 0.2),
-                  blurRadius: context.dynamicWidth(0.04),
-                  offset: Offset(0, context.dynamicHeight(0.008)),
+                  blurRadius: 15.w,
+                  offset: Offset(0, 6.h),
                 ),
               ],
             ),
             child: Icon(
               icon,
-              size: context.dynamicWidth(0.08),
+              size: 30.w,
               color: iconColor ?? AppColors.primaryColor,
             ),
           ),
@@ -547,10 +547,10 @@ class _SheetHeader extends StatelessWidget {
         if (title != null || showCloseButton)
           Padding(
             padding: EdgeInsets.fromLTRB(
-              context.dynamicWidth(0.06),
-              icon != null ? context.dynamicHeight(0.02) : context.dynamicHeight(0.02),
-              context.dynamicWidth(0.06),
-              context.dynamicHeight(0.01),
+              23.w,
+              icon != null ? 16.h : 16.h,
+              23.w,
+              8.h,
             ),
             child: Row(
               children: [
@@ -565,19 +565,19 @@ class _SheetHeader extends StatelessWidget {
                           textAlign: icon != null ? TextAlign.center : TextAlign.start,
                           style: TextStyle(
                             fontFamily: AppStrings.fontFamily,
-                            fontSize: context.dynamicWidth(0.05),
+                            fontSize: 19.sp,
                             fontWeight: FontWeight.bold,
                             color: AppColors.gray900,
                           ),
                         ),
                         if (subtitle != null) ...[
-                          SizedBox(height: context.dynamicHeight(0.005)),
+                          SizedBox(height: 4.h),
                           Text(
                             subtitle!,
                             textAlign: icon != null ? TextAlign.center : TextAlign.start,
                             style: TextStyle(
                               fontFamily: AppStrings.fontFamily,
-                              fontSize: context.dynamicWidth(0.035),
+                              fontSize: 13.sp,
                               color: AppColors.gray500,
                             ),
                           ),
@@ -592,7 +592,7 @@ class _SheetHeader extends StatelessWidget {
                 // Action
                 if (action != null) ...[
                   action!,
-                  SizedBox(width: context.dynamicWidth(0.03)),
+                  SizedBox(width: 11.w),
                 ],
 
                 // Close button
@@ -600,15 +600,15 @@ class _SheetHeader extends StatelessWidget {
                   GestureDetector(
                     onTap: onClose ?? () => Navigator.of(context).pop(),
                     child: Container(
-                      width: context.dynamicWidth(0.09),
-                      height: context.dynamicWidth(0.09),
+                      width: 34.w,
+                      height: 34.w,
                       decoration: BoxDecoration(
                         color: AppColors.gray100,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.close_rounded,
-                        size: context.dynamicWidth(0.05),
+                        size: 19.w,
                         color: AppColors.gray500,
                       ),
                     ),
@@ -620,10 +620,10 @@ class _SheetHeader extends StatelessWidget {
         // Divider for sheets without icon
         if (title != null && icon == null)
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.06)),
+            padding: EdgeInsets.symmetric(horizontal: 23.w),
             child: Divider(
               color: AppColors.gray100,
-              height: context.dynamicHeight(0.02),
+              height: 16.h,
             ),
           ),
       ],
@@ -656,32 +656,32 @@ class _ConfirmSheet extends StatelessWidget {
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: AppStrings.fontFamily,
-            fontSize: context.dynamicWidth(0.038),
+            fontSize: 14.sp,
             color: AppColors.gray600,
             height: 1.5,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.03)),
+        SizedBox(height: 24.h),
         Row(
           children: [
             Expanded(
               child: SecondaryButton(
                 text: cancelText,
                 onPressed: () => Navigator.of(context).pop(false),
-                height: context.dynamicHeight(0.06),
-                borderRadius: context.dynamicWidth(0.035),
+                height: 49.h,
+                borderRadius: 13.w,
                 useGradientBorder: false,
                 borderColor: AppColors.gray300,
                 textColor: AppColors.gray700,
               ),
             ),
-            SizedBox(width: context.dynamicWidth(0.03)),
+            SizedBox(width: 11.w),
             Expanded(
               child: PrimaryButton(
                 text: confirmText,
                 onPressed: () => Navigator.of(context).pop(true),
-                height: context.dynamicHeight(0.06),
-                borderRadius: context.dynamicWidth(0.035),
+                height: 49.h,
+                borderRadius: 13.w,
                 gradientColors: confirmColor != null
                     ? [confirmColor!, confirmColor!.withValues(alpha: 0.8)]
                     : null,
@@ -719,20 +719,20 @@ class _InfoSheet extends StatelessWidget {
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: AppStrings.fontFamily,
-            fontSize: context.dynamicWidth(0.038),
+            fontSize: 14.sp,
             color: AppColors.gray600,
             height: 1.5,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.03)),
+        SizedBox(height: 24.h),
         PrimaryButton(
           text: buttonText,
           onPressed: () {
             Navigator.of(context).pop();
             onPressed?.call();
           },
-          height: context.dynamicHeight(0.06),
-          borderRadius: context.dynamicWidth(0.035),
+          height: 49.h,
+          borderRadius: 13.w,
           gradientColors: buttonColor != null
               ? [buttonColor!, buttonColor!.withValues(alpha: 0.8)]
               : null,
@@ -761,14 +761,14 @@ class _OptionsSheet<T> extends StatelessWidget {
         return GestureDetector(
           onTap: () => Navigator.of(context).pop(option.value),
           child: Container(
-            margin: EdgeInsets.only(bottom: context.dynamicHeight(0.01)),
+            margin: EdgeInsets.only(bottom: 8.h),
             padding: EdgeInsets.symmetric(
-              horizontal: context.dynamicWidth(0.04),
-              vertical: context.dynamicHeight(0.018),
+              horizontal: 15.w,
+              vertical: 15.h,
             ),
             decoration: BoxDecoration(
               color: isSelected ? AppColors.purple50 : AppColors.gray50,
-              borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
+              borderRadius: BorderRadius.circular(13.w),
               border: Border.all(
                 color: isSelected ? AppColors.primaryColor : AppColors.gray200,
                 width: isSelected ? 2 : 1,
@@ -778,21 +778,21 @@ class _OptionsSheet<T> extends StatelessWidget {
               children: [
                 if (option.icon != null) ...[
                   Container(
-                    width: context.dynamicWidth(0.1),
-                    height: context.dynamicWidth(0.1),
+                    width: 38.w,
+                    height: 38.w,
                     decoration: BoxDecoration(
                       color: isSelected
                           ? AppColors.primaryColor.withValues(alpha: 0.1)
                           : AppColors.gray100,
-                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.025)),
+                      borderRadius: BorderRadius.circular(9.w),
                     ),
                     child: Icon(
                       option.icon,
                       color: isSelected ? AppColors.primaryColor : AppColors.gray500,
-                      size: context.dynamicWidth(0.05),
+                      size: 19.w,
                     ),
                   ),
-                  SizedBox(width: context.dynamicWidth(0.03)),
+                  SizedBox(width: 11.w),
                 ],
                 Expanded(
                   child: Column(
@@ -802,18 +802,18 @@ class _OptionsSheet<T> extends StatelessWidget {
                         option.label,
                         style: TextStyle(
                           fontFamily: AppStrings.fontFamily,
-                          fontSize: context.dynamicWidth(0.04),
+                          fontSize: 15.sp,
                           fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                           color: isSelected ? AppColors.primaryColor : AppColors.gray900,
                         ),
                       ),
                       if (option.subtitle != null) ...[
-                        SizedBox(height: context.dynamicHeight(0.003)),
+                        SizedBox(height: 2.h),
                         Text(
                           option.subtitle!,
                           style: TextStyle(
                             fontFamily: AppStrings.fontFamily,
-                            fontSize: context.dynamicWidth(0.032),
+                            fontSize: 12.sp,
                             color: AppColors.gray500,
                           ),
                         ),
@@ -823,8 +823,8 @@ class _OptionsSheet<T> extends StatelessWidget {
                 ),
                 if (isSelected)
                   Container(
-                    width: context.dynamicWidth(0.06),
-                    height: context.dynamicWidth(0.06),
+                    width: 23.w,
+                    height: 23.w,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [AppColors.primaryColor, AppColors.tertiaryColor],
@@ -834,7 +834,7 @@ class _OptionsSheet<T> extends StatelessWidget {
                     child: Icon(
                       Icons.check_rounded,
                       color: Colors.white,
-                      size: context.dynamicWidth(0.035),
+                      size: 13.w,
                     ),
                   ),
               ],
@@ -865,43 +865,43 @@ class _ActionsSheet<T> extends StatelessWidget {
           return GestureDetector(
             onTap: () => Navigator.of(context).pop(action.value),
             child: Container(
-              margin: EdgeInsets.only(bottom: context.dynamicHeight(0.01)),
+              margin: EdgeInsets.only(bottom: 8.h),
               padding: EdgeInsets.symmetric(
-                horizontal: context.dynamicWidth(0.04),
-                vertical: context.dynamicHeight(0.018),
+                horizontal: 15.w,
+                vertical: 15.h,
               ),
               decoration: BoxDecoration(
                 color: action.isDestructive
                     ? AppColors.red500.withValues(alpha: 0.05)
                     : AppColors.gray50,
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
+                borderRadius: BorderRadius.circular(13.w),
               ),
               child: Row(
                 children: [
                   if (action.icon != null) ...[
                     Container(
-                      width: context.dynamicWidth(0.1),
-                      height: context.dynamicWidth(0.1),
+                      width: 38.w,
+                      height: 38.w,
                       decoration: BoxDecoration(
                         color: action.isDestructive
                             ? AppColors.red500.withValues(alpha: 0.1)
                             : AppColors.gray100,
-                        borderRadius: BorderRadius.circular(context.dynamicWidth(0.025)),
+                        borderRadius: BorderRadius.circular(9.w),
                       ),
                       child: Icon(
                         action.icon,
                         color: action.isDestructive ? AppColors.red500 : AppColors.gray600,
-                        size: context.dynamicWidth(0.05),
+                        size: 19.w,
                       ),
                     ),
-                    SizedBox(width: context.dynamicWidth(0.03)),
+                    SizedBox(width: 11.w),
                   ],
                   Expanded(
                     child: Text(
                       action.label,
                       style: TextStyle(
                         fontFamily: AppStrings.fontFamily,
-                        fontSize: context.dynamicWidth(0.04),
+                        fontSize: 15.sp,
                         fontWeight: FontWeight.w500,
                         color: action.isDestructive ? AppColors.red500 : AppColors.gray900,
                       ),
@@ -910,7 +910,7 @@ class _ActionsSheet<T> extends StatelessWidget {
                   Icon(
                     Icons.chevron_right_rounded,
                     color: action.isDestructive ? AppColors.red500 : AppColors.gray400,
-                    size: context.dynamicWidth(0.05),
+                    size: 19.w,
                   ),
                 ],
               ),
@@ -918,22 +918,22 @@ class _ActionsSheet<T> extends StatelessWidget {
           );
         }),
         if (cancelText != null) ...[
-          SizedBox(height: context.dynamicHeight(0.01)),
+          SizedBox(height: 8.h),
           GestureDetector(
             onTap: () => Navigator.of(context).pop(),
             child: Container(
               width: double.infinity,
-              padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.018)),
+              padding: EdgeInsets.symmetric(vertical: 15.h),
               decoration: BoxDecoration(
                 color: AppColors.gray100,
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
+                borderRadius: BorderRadius.circular(13.w),
               ),
               child: Text(
                 cancelText!,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: AppStrings.fontFamily,
-                  fontSize: context.dynamicWidth(0.04),
+                  fontSize: 15.sp,
                   fontWeight: FontWeight.w600,
                   color: AppColors.gray700,
                 ),

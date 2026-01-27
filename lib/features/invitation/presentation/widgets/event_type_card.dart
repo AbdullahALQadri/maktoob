@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../../../../core/utils/app_colors.dart';
 import '../../data/models/invitation_draft_model.dart';
@@ -40,7 +40,7 @@ class EventTypeCard extends StatelessWidget {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: eventType.gradientColors.first.withOpacity(0.3),
+                    color: eventType.gradientColors.first.withValues(alpha: 0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -75,7 +75,7 @@ class EventTypeCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: screenWidth * 0.032,
                       color: isSelected
-                          ? Colors.white.withOpacity(0.85)
+                          ? Colors.white.withValues(alpha: 0.85)
                           : AppColors.gray500,
                     ),
                   ),

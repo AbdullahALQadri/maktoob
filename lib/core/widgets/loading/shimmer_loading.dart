@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../../utils/app_colors.dart';
 
@@ -214,9 +214,9 @@ class _GradientShimmerState extends State<GradientShimmer>
   List<Color> get _gradientColors =>
       widget.gradientColors ??
       [
-        AppColors.primaryColor.withOpacity(0.1),
-        AppColors.tertiaryColor.withOpacity(0.2),
-        AppColors.primaryColor.withOpacity(0.1),
+        AppColors.primaryColor.withValues(alpha: 0.1),
+        AppColors.tertiaryColor.withValues(alpha: 0.2),
+        AppColors.primaryColor.withValues(alpha: 0.1),
       ];
 
   @override

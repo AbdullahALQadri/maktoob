@@ -1,13 +1,10 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../data/models/event_models.dart' hide EventDetails, CustomVenue, GuestInfo;
 import '../cubit/create_event/create_event_cubit.dart';
 import '../cubit/create_event/create_event_state.dart';
-import '../widgets/step_header_widget.dart';
 import '../widgets/package_card_widget.dart';
 import '../widgets/venue_card_widget.dart';
 import '../widgets/event_type_card_widget.dart';
@@ -117,7 +114,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
             slivers: [
               // Collapsible Header
               SliverAppBar(
-                expandedHeight: context.dynamicHeight(0.18),
+                expandedHeight: 146.h,
                 collapsedHeight: kToolbarHeight,
                 pinned: true,
                 automaticallyImplyLeading: false,
@@ -126,7 +123,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 flexibleSpace: LayoutBuilder(
                   builder: (context, constraints) {
                     final expandRatio = ((constraints.maxHeight - kToolbarHeight) /
-                            (context.dynamicHeight(0.18) - kToolbarHeight))
+                            (146.h - kToolbarHeight))
                         .clamp(0.0, 1.0);
                     final isCollapsed = expandRatio < 0.3;
 
@@ -141,9 +138,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                             // Expanded content
                             if (!isCollapsed)
                               Positioned(
-                                left: context.dynamicWidth(0.05),
-                                right: context.dynamicWidth(0.05),
-                                bottom: context.dynamicHeight(0.01),
+                                left: 19.w,
+                                right: 19.w,
+                                bottom: 8.h,
                                 child: Opacity(
                                   opacity: expandRatio,
                                   child: Column(
@@ -153,32 +150,32 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                                       // Step badge
                                       Container(
                                         padding: EdgeInsets.symmetric(
-                                          horizontal: context.dynamicWidth(0.025),
-                                          vertical: context.dynamicHeight(0.004),
+                                          horizontal: 9.w,
+                                          vertical: 3.h,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.2),
+                                          color: Colors.white.withValues(alpha: 0.2),
                                           borderRadius: BorderRadius.circular(20),
                                         ),
                                         child: Text(
                                           'Step ${state.currentStepNumber} of ${state.totalSteps}',
                                           style: TextStyle(
-                                            fontSize: context.dynamicWidth(0.028),
+                                            fontSize: 11.sp,
                                             fontWeight: FontWeight.w500,
                                             color: Colors.white,
                                           ),
                                         ),
                                       ),
-                                      SizedBox(height: context.dynamicHeight(0.005)),
+                                      SizedBox(height: 4.h),
                                       Text(
                                         'Create Event',
                                         style: TextStyle(
-                                          fontSize: context.dynamicWidth(0.055),
+                                          fontSize: 21.sp,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.white,
                                         ),
                                       ),
-                                      SizedBox(height: context.dynamicHeight(0.008)),
+                                      SizedBox(height: 6.h),
                                       // Progress bar
                                       Row(
                                         children: [
@@ -188,16 +185,16 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                                               child: LinearProgressIndicator(
                                                 value: progress,
                                                 minHeight: 6,
-                                                backgroundColor: Colors.white.withOpacity(0.2),
+                                                backgroundColor: Colors.white.withValues(alpha: 0.2),
                                                 valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                                               ),
                                             ),
                                           ),
-                                          SizedBox(width: context.dynamicWidth(0.03)),
+                                          SizedBox(width: 11.w),
                                           Text(
                                             '${(progress * 100).round()}%',
                                             style: TextStyle(
-                                              fontSize: context.dynamicWidth(0.03),
+                                              fontSize: 11.sp,
                                               fontWeight: FontWeight.w600,
                                               color: Colors.white,
                                             ),
@@ -211,12 +208,12 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                             // Collapsed title
                             if (isCollapsed)
                               Positioned(
-                                left: context.dynamicWidth(0.05),
+                                left: 19.w,
                                 bottom: 12,
                                 child: Text(
                                   'Create Event • Step ${state.currentStepNumber}/${state.totalSteps}',
                                   style: TextStyle(
-                                    fontSize: context.dynamicWidth(0.04),
+                                    fontSize: 15.sp,
                                     fontWeight: FontWeight.w600,
                                     color: Colors.white,
                                   ),
@@ -232,10 +229,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
               // Content
               SliverPadding(
                 padding: EdgeInsets.fromLTRB(
-                  context.dynamicWidth(0.04),
-                  context.dynamicHeight(0.02),
-                  context.dynamicWidth(0.04),
-                  context.dynamicHeight(0.15),
+                  15.w,
+                  16.h,
+                  15.w,
+                  122.h,
                 ),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
@@ -252,16 +249,16 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           bottomNavigationBar: showBottomBar
               ? Container(
                   padding: EdgeInsets.fromLTRB(
-                    context.dynamicWidth(0.04),
-                    context.dynamicHeight(0.015),
-                    context.dynamicWidth(0.04),
-                    context.dynamicHeight(0.03),
+                    15.w,
+                    12.h,
+                    15.w,
+                    24.h,
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
+                        color: Colors.black.withValues(alpha: 0.08),
                         blurRadius: 10,
                         offset: const Offset(0, -2),
                       ),
@@ -422,7 +419,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
               isPrimary: false,
             ),
           ),
-          SizedBox(width: context.dynamicWidth(0.03)),
+          SizedBox(width: 11.w),
           Expanded(
             child: _buildButton(
               'Submit & Pay',
@@ -441,19 +438,19 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       children: [
         if (!state.isFirstStep)
           Container(
-            width: context.dynamicHeight(0.055),
-            height: context.dynamicHeight(0.055),
-            margin: EdgeInsets.only(right: context.dynamicWidth(0.03)),
+            width: 45.h,
+            height: 45.h,
+            margin: EdgeInsets.only(right: 11.w),
             child: Material(
               color: AppColors.gray200,
-              borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+              borderRadius: BorderRadius.circular(11.w),
               child: InkWell(
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+                borderRadius: BorderRadius.circular(11.w),
                 onTap: () => context.read<CreateEventCubit>().previousStep(),
                 child: Icon(
                   Icons.arrow_back,
                   color: AppColors.gray700,
-                  size: context.dynamicWidth(0.05),
+                  size: 19.w,
                 ),
               ),
             ),
@@ -485,19 +482,19 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       color: enabled
           ? (isPrimary ? null : AppColors.gray200)
           : AppColors.gray200,
-      borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+      borderRadius: BorderRadius.circular(11.w),
       child: InkWell(
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+        borderRadius: BorderRadius.circular(11.w),
         onTap: onTap,
         child: Container(
-          height: context.dynamicHeight(0.055),
+          height: 45.h,
           decoration: enabled && isPrimary
               ? BoxDecoration(
-                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+                  borderRadius: BorderRadius.circular(11.w),
                   color: AppColors.primaryColor,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primaryColor.withOpacity(0.25),
+                      color: AppColors.primaryColor.withValues(alpha: 0.25),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -507,8 +504,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           child: isLoading
               ? Center(
                   child: SizedBox(
-                    width: context.dynamicWidth(0.05),
-                    height: context.dynamicWidth(0.05),
+                    width: 19.w,
+                    height: 19.w,
                     child: const CircularProgressIndicator(
                       strokeWidth: 2,
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
@@ -522,18 +519,18 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                       text,
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        fontSize: context.dynamicWidth(0.038),
+                        fontSize: 14.sp,
                         color: enabled
                             ? (isPrimary ? Colors.white : AppColors.gray700)
                             : AppColors.gray400,
                       ),
                     ),
                     if (trailing != null) ...[
-                      SizedBox(width: context.dynamicWidth(0.02)),
+                      SizedBox(width: 8.w),
                       Icon(
                         trailing,
                         color: enabled ? Colors.white : AppColors.gray400,
-                        size: context.dynamicWidth(0.045),
+                        size: 17.w,
                       ),
                     ],
                   ],

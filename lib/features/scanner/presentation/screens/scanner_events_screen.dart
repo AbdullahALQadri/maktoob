@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/loading/skeleton_widgets.dart';
 import '../../../../injection_container.dart' as di;
 import '../../../events/domain/entities/event_entity.dart';
@@ -59,15 +59,14 @@ class _ScannerEventsContentState extends State<_ScannerEventsContent>
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final isArabic = !(l?.isEnLocale ?? true);
+    final t = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.gray100,
       body: Column(
         children: [
           // Header
-          _buildHeader(context, isArabic),
+          _buildHeader(context, t),
           // Content
           Expanded(
             child: BlocBuilder<EventsListCubit, EventsListState>(
@@ -77,7 +76,7 @@ class _ScannerEventsContentState extends State<_ScannerEventsContent>
                 }
 
                 if (state.isFailure) {
-                  return _buildErrorState(context, state.errorMessage ?? '', isArabic);
+                  return _buildErrorState(context, state.errorMessage ?? '', t);
                 }
 
                 final ongoingEvents = state.events
@@ -85,10 +84,10 @@ class _ScannerEventsContentState extends State<_ScannerEventsContent>
                     .toList();
 
                 if (ongoingEvents.isEmpty) {
-                  return _buildEmptyState(context, isArabic);
+                  return _buildEmptyState(context, t);
                 }
 
-                return _buildEventsList(context, ongoingEvents, isArabic);
+                return _buildEventsList(context, ongoingEvents, t);
               },
             ),
           ),
@@ -97,7 +96,7 @@ class _ScannerEventsContentState extends State<_ScannerEventsContent>
     );
   }
 
-  Widget _buildHeader(BuildContext context, bool isArabic) {
+  Widget _buildHeader(BuildContext context, AppLocalizations t) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -113,10 +112,10 @@ class _ScannerEventsContentState extends State<_ScannerEventsContent>
           opacity: _fadeController,
           child: Padding(
             padding: EdgeInsets.only(
-              left: context.dynamicWidth(0.04),
-              right: context.dynamicWidth(0.04),
-              top: context.dynamicHeight(0.02),
-              bottom: context.dynamicHeight(0.03),
+              left: 15.w,
+              right: 15.w,
+              top: 16.h,
+              bottom: 24.h,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,12 +130,12 @@ class _ScannerEventsContentState extends State<_ScannerEventsContent>
                       scale: value,
                       child: Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: context.dynamicWidth(0.03),
-                          vertical: context.dynamicHeight(0.008),
+                          horizontal: 11.w,
+                          vertical: 6.h,
                         ),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(context.dynamicWidth(0.05)),
+                          borderRadius: BorderRadius.circular(19.w),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -144,14 +143,14 @@ class _ScannerEventsContentState extends State<_ScannerEventsContent>
                             Icon(
                               Icons.qr_code_scanner,
                               color: Colors.white,
-                              size: context.dynamicWidth(0.04),
+                              size: 15.w,
                             ),
-                            SizedBox(width: context.dynamicWidth(0.015)),
+                            SizedBox(width: 6.w),
                             Text(
-                              isArabic ? 'ماسح الضيوف' : 'Guest Scanner',
+                              t.translate('scanner_guest_scanner'),
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: context.dynamicWidth(0.03),
+                                fontSize: 11.sp,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -161,7 +160,7 @@ class _ScannerEventsContentState extends State<_ScannerEventsContent>
                     );
                   },
                 ),
-                SizedBox(height: context.dynamicHeight(0.015)),
+                SizedBox(height: 12.h),
                 // Title
                 TweenAnimationBuilder<Offset>(
                   tween: Tween(begin: const Offset(0, 20), end: Offset.zero),
@@ -171,23 +170,21 @@ class _ScannerEventsContentState extends State<_ScannerEventsContent>
                     return Transform.translate(offset: offset, child: child);
                   },
                   child: Text(
-                    isArabic ? 'اختر المناسبة' : 'Select Event',
+                    t.translate('scanner_select_event'),
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: context.dynamicWidth(0.065),
+                      fontSize: 24.sp,
                       fontWeight: FontWeight.bold,
                       letterSpacing: -0.5,
                     ),
                   ),
                 ),
-                SizedBox(height: context.dynamicHeight(0.008)),
+                SizedBox(height: 6.h),
                 Text(
-                  isArabic
-                      ? 'اختر المناسبة لبدء مسح دعوات الضيوف'
-                      : 'Choose an event to start scanning guest invitations',
+                  t.translate('scanner_select_event_desc'),
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.9),
-                    fontSize: context.dynamicWidth(0.035),
+                    fontSize: 13.sp,
                   ),
                 ),
               ],
@@ -200,7 +197,7 @@ class _ScannerEventsContentState extends State<_ScannerEventsContent>
 
   Widget _buildLoadingState(BuildContext context) {
     return ListView.builder(
-      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+      padding: EdgeInsets.all(15.w),
       itemCount: 4,
       itemBuilder: (context, index) {
         return const RecentEventCardSkeleton();
@@ -208,61 +205,61 @@ class _ScannerEventsContentState extends State<_ScannerEventsContent>
     );
   }
 
-  Widget _buildErrorState(BuildContext context, String message, bool isArabic) {
+  Widget _buildErrorState(BuildContext context, String message, AppLocalizations t) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(context.dynamicWidth(0.08)),
+        padding: EdgeInsets.all(30.w),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: context.dynamicWidth(0.2),
-              height: context.dynamicWidth(0.2),
+              width: 75.w,
+              height: 75.w,
               decoration: BoxDecoration(
                 color: AppColors.red500.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.error_outline,
-                size: context.dynamicWidth(0.1),
+                size: 38.w,
                 color: AppColors.red500,
               ),
             ),
-            SizedBox(height: context.dynamicHeight(0.025)),
+            SizedBox(height: 20.h),
             Text(
-              isArabic ? 'حدث خطأ ما' : 'Something went wrong',
+              t.translate('home_something_wrong'),
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.045),
+                fontSize: 17.sp,
                 fontWeight: FontWeight.bold,
                 color: AppColors.gray900,
               ),
             ),
-            SizedBox(height: context.dynamicHeight(0.01)),
+            SizedBox(height: 8.h),
             Text(
               message,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.gray500,
-                fontSize: context.dynamicWidth(0.035),
+                fontSize: 13.sp,
               ),
             ),
-            SizedBox(height: context.dynamicHeight(0.03)),
+            SizedBox(height: 24.h),
             ElevatedButton(
               onPressed: () => context.read<EventsListCubit>().refreshEvents(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryColor,
                 foregroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(
-                  horizontal: context.dynamicWidth(0.08),
-                  vertical: context.dynamicHeight(0.015),
+                  horizontal: 30.w,
+                  vertical: 12.h,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+                  borderRadius: BorderRadius.circular(11.w),
                 ),
               ),
               child: Text(
-                isArabic ? 'حاول مرة أخرى' : 'Try Again',
-                style: TextStyle(fontSize: context.dynamicWidth(0.035)),
+                t.translate('home_try_again'),
+                style: TextStyle(fontSize: 13.sp),
               ),
             ),
           ],
@@ -271,43 +268,41 @@ class _ScannerEventsContentState extends State<_ScannerEventsContent>
     );
   }
 
-  Widget _buildEmptyState(BuildContext context, bool isArabic) {
+  Widget _buildEmptyState(BuildContext context, AppLocalizations t) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(context.dynamicWidth(0.08)),
+        padding: EdgeInsets.all(30.w),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: context.dynamicWidth(0.25),
-              height: context.dynamicWidth(0.25),
+              width: 94.w,
+              height: 94.w,
               decoration: BoxDecoration(
                 color: AppColors.primaryColor.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.event_busy,
-                size: context.dynamicWidth(0.12),
+                size: 45.w,
                 color: AppColors.primaryColor,
               ),
             ),
-            SizedBox(height: context.dynamicHeight(0.03)),
+            SizedBox(height: 24.h),
             Text(
-              isArabic ? 'لا توجد مناسبات جارية' : 'No Ongoing Events',
+              t.translate('scanner_no_ongoing_events'),
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.05),
+                fontSize: 19.sp,
                 fontWeight: FontWeight.bold,
                 color: AppColors.gray900,
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: context.dynamicHeight(0.015)),
+            SizedBox(height: 12.h),
             Text(
-              isArabic
-                  ? 'لا توجد مناسبات نشطة للمسح حالياً.\nقم بإنشاء مناسبة جديدة للبدء.'
-                  : 'No active events available for scanning.\nCreate a new event to get started.',
+              t.translate('scanner_no_ongoing_events_desc'),
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.035),
+                fontSize: 13.sp,
                 color: AppColors.gray500,
                 height: 1.5,
               ),
@@ -320,16 +315,16 @@ class _ScannerEventsContentState extends State<_ScannerEventsContent>
   }
 
   Widget _buildEventsList(
-      BuildContext context, List<EventEntity> events, bool isArabic) {
+      BuildContext context, List<EventEntity> events, AppLocalizations t) {
     return RefreshIndicator(
       onRefresh: () => context.read<EventsListCubit>().refreshEvents(),
       color: AppColors.primaryColor,
       child: ListView.builder(
         padding: EdgeInsets.only(
-          left: context.dynamicWidth(0.04),
-          right: context.dynamicWidth(0.04),
-          top: context.dynamicWidth(0.04),
-          bottom: context.dynamicHeight(0.12),
+          left: 15.w,
+          right: 15.w,
+          top: 15.w,
+          bottom: 97.h,
         ),
         itemCount: events.length,
         itemBuilder: (context, index) {
@@ -337,7 +332,6 @@ class _ScannerEventsContentState extends State<_ScannerEventsContent>
           return _ScannerEventCard(
             event: event,
             index: index,
-            isArabic: isArabic,
             onTap: widget.onEventSelected != null
                 ? () => widget.onEventSelected!(event)
                 : null,
@@ -351,18 +345,18 @@ class _ScannerEventsContentState extends State<_ScannerEventsContent>
 class _ScannerEventCard extends StatelessWidget {
   final EventEntity event;
   final int index;
-  final bool isArabic;
   final VoidCallback? onTap;
 
   const _ScannerEventCard({
     required this.event,
     required this.index,
-    required this.isArabic,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
       duration: Duration(milliseconds: 400 + (index * 100)),
@@ -377,22 +371,22 @@ class _ScannerEventCard extends StatelessWidget {
         );
       },
       child: Container(
-        margin: EdgeInsets.only(bottom: context.dynamicHeight(0.02)),
+        margin: EdgeInsets.only(bottom: 16.h),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
             onTap: onTap,
-            borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+            borderRadius: BorderRadius.circular(15.w),
             child: Container(
-              padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+              padding: EdgeInsets.all(15.w),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+                borderRadius: BorderRadius.circular(15.w),
                 boxShadow: [
                   BoxShadow(
                     color: AppColors.primaryColor.withValues(alpha: 0.08),
-                    blurRadius: context.dynamicWidth(0.05),
-                    offset: Offset(0, context.dynamicHeight(0.01)),
+                    blurRadius: 19.w,
+                    offset: Offset(0, 8.h),
                   ),
                 ],
               ),
@@ -404,8 +398,8 @@ class _ScannerEventCard extends StatelessWidget {
                     children: [
                       // Event type icon
                       Container(
-                        width: context.dynamicWidth(0.12),
-                        height: context.dynamicWidth(0.12),
+                        width: 45.w,
+                        height: 45.w,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
@@ -416,15 +410,15 @@ class _ScannerEventCard extends StatelessWidget {
                             ],
                           ),
                           borderRadius:
-                              BorderRadius.circular(context.dynamicWidth(0.03)),
+                              BorderRadius.circular(11.w),
                         ),
                         child: Icon(
                           _getEventIcon(event.type),
                           color: Colors.white,
-                          size: context.dynamicWidth(0.06),
+                          size: 23.w,
                         ),
                       ),
-                      SizedBox(width: context.dynamicWidth(0.035)),
+                      SizedBox(width: 13.w),
                       // Event name and type
                       Expanded(
                         child: Column(
@@ -433,27 +427,27 @@ class _ScannerEventCard extends StatelessWidget {
                             Text(
                               event.name,
                               style: TextStyle(
-                                fontSize: context.dynamicWidth(0.042),
+                                fontSize: 16.sp,
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.gray900,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            SizedBox(height: context.dynamicHeight(0.005)),
+                            SizedBox(height: 4.h),
                             Container(
                               padding: EdgeInsets.symmetric(
-                                horizontal: context.dynamicWidth(0.02),
-                                vertical: context.dynamicHeight(0.003),
+                                horizontal: 8.w,
+                                vertical: 2.h,
                               ),
                               decoration: BoxDecoration(
                                 color: AppColors.green600.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(context.dynamicWidth(0.015)),
+                                borderRadius: BorderRadius.circular(6.w),
                               ),
                               child: Text(
                                 event.type,
                                 style: TextStyle(
-                                  fontSize: context.dynamicWidth(0.028),
+                                  fontSize: 11.sp,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.green600,
                                 ),
@@ -464,13 +458,13 @@ class _ScannerEventCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: context.dynamicHeight(0.02)),
+                  SizedBox(height: 16.h),
                   // Divider
                   Container(
-                    height: context.dynamicHeight(0.001),
+                    height: 1.h,
                     color: AppColors.gray200,
                   ),
-                  SizedBox(height: context.dynamicHeight(0.015)),
+                  SizedBox(height: 12.h),
                   // Event details row
                   Row(
                     children: [
@@ -492,34 +486,34 @@ class _ScannerEventCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: context.dynamicHeight(0.015)),
+                  SizedBox(height: 12.h),
                   // Stats row
                   Container(
-                    padding: EdgeInsets.all(context.dynamicWidth(0.03)),
+                    padding: EdgeInsets.all(11.w),
                     decoration: BoxDecoration(
                       color: AppColors.gray100,
-                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.025)),
+                      borderRadius: BorderRadius.circular(9.w),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         _buildStatItem(
                           context,
-                          isArabic ? 'المتوقع' : 'Expected',
+                          t.translate('scanner_expected'),
                           event.attending.toString(),
                           AppColors.blue500,
                         ),
                         _buildStatDivider(context),
                         _buildStatItem(
                           context,
-                          isArabic ? 'تم التحقق' : 'Checked In',
+                          t.translate('scanner_checked_in'),
                           event.checkedIn.toString(),
                           AppColors.green600,
                         ),
                         _buildStatDivider(context),
                         _buildStatItem(
                           context,
-                          isArabic ? 'في الانتظار' : 'Pending',
+                          t.translate('scanner_pending'),
                           (event.attending - event.checkedIn).toString(),
                           AppColors.amber500,
                         ),
@@ -541,15 +535,15 @@ class _ScannerEventCard extends StatelessWidget {
       children: [
         Icon(
           icon,
-          size: context.dynamicWidth(0.04),
+          size: 15.w,
           color: AppColors.gray500,
         ),
-        SizedBox(width: context.dynamicWidth(0.02)),
+        SizedBox(width: 8.w),
         Expanded(
           child: Text(
             text,
             style: TextStyle(
-              fontSize: context.dynamicWidth(0.03),
+              fontSize: 11.sp,
               color: AppColors.gray600,
               height: 1.4,
             ),
@@ -568,16 +562,16 @@ class _ScannerEventCard extends StatelessWidget {
         Text(
           value,
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.045),
+            fontSize: 17.sp,
             fontWeight: FontWeight.bold,
             color: color,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.003)),
+        SizedBox(height: 2.h),
         Text(
           label,
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.025),
+            fontSize: 9.sp,
             color: AppColors.gray500,
             fontWeight: FontWeight.w500,
           ),
@@ -588,8 +582,8 @@ class _ScannerEventCard extends StatelessWidget {
 
   Widget _buildStatDivider(BuildContext context) {
     return Container(
-      width: context.dynamicWidth(0.002),
-      height: context.dynamicHeight(0.04),
+      width: 1.w,
+      height: 32.h,
       color: AppColors.gray300,
     );
   }

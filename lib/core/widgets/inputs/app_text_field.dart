@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../utils/app_colors.dart';
 import '../../utils/app_strings.dart';
-import '../../utils/media_query_values.dart';
+import '../../utils/responsive.dart';
 
 /// A reusable text field widget with consistent styling.
 ///
@@ -200,12 +200,12 @@ class _AppTextFieldState extends State<AppTextField> {
             widget.labelText!,
             style: TextStyle(
               fontFamily: AppStrings.fontFamily,
-              fontSize: context.dynamicWidth(0.035),
+              fontSize: 13.sp,
               fontWeight: FontWeight.w500,
               color: AppColors.gray700,
             ),
           ),
-          SizedBox(height: context.dynamicHeight(0.01)),
+          SizedBox(height: 8.h),
         ],
         TextFormField(
           controller: widget.controller,
@@ -230,7 +230,7 @@ class _AppTextFieldState extends State<AppTextField> {
           cursorColor: AppColors.primaryColor,
           style: TextStyle(
             fontFamily: AppStrings.fontFamily,
-            fontSize: context.dynamicWidth(0.04),
+            fontSize: 15.sp,
             fontWeight: FontWeight.w400,
             color: AppColors.gray900,
           ),
@@ -238,7 +238,7 @@ class _AppTextFieldState extends State<AppTextField> {
             hintText: widget.hintText,
             hintStyle: TextStyle(
               fontFamily: AppStrings.fontFamily,
-              fontSize: context.dynamicWidth(0.04),
+              fontSize: 15.sp,
               fontWeight: FontWeight.w400,
               color: AppColors.gray400,
             ),
@@ -246,7 +246,7 @@ class _AppTextFieldState extends State<AppTextField> {
             helperText: widget.helperText,
             helperStyle: TextStyle(
               fontFamily: AppStrings.fontFamily,
-              fontSize: context.dynamicWidth(0.03),
+              fontSize: 11.sp,
               color: AppColors.gray500,
             ),
             counterText: widget.showCounter ? null : '',
@@ -254,8 +254,8 @@ class _AppTextFieldState extends State<AppTextField> {
             fillColor: widget.fillColor ?? AppColors.gray100,
             contentPadding: widget.contentPadding ??
                 EdgeInsets.symmetric(
-                  horizontal: context.dynamicWidth(0.04),
-                  vertical: context.dynamicHeight(0.02),
+                  horizontal: 15.w,
+                  vertical: 16.h,
                 ),
             prefixIcon: _buildPrefixIcon(context),
             suffixIcon: _buildSuffixIcon(context),
@@ -279,8 +279,8 @@ class _AppTextFieldState extends State<AppTextField> {
     if (widget.prefix != null) {
       return Padding(
         padding: EdgeInsetsDirectional.only(
-          start: context.dynamicWidth(0.03),
-          end: context.dynamicWidth(0.02),
+          start: 11.w,
+          end: 8.w,
         ),
         child: widget.prefix,
       );
@@ -288,12 +288,12 @@ class _AppTextFieldState extends State<AppTextField> {
     if (widget.prefixIcon != null) {
       return Padding(
         padding: EdgeInsetsDirectional.only(
-          start: context.dynamicWidth(0.03),
-          end: context.dynamicWidth(0.02),
+          start: 11.w,
+          end: 8.w,
         ),
         child: Icon(
           widget.prefixIcon,
-          size: context.dynamicWidth(0.055),
+          size: 21.w,
           color: _isFocused ? AppColors.primaryColor : AppColors.gray400,
         ),
       );
@@ -310,10 +310,10 @@ class _AppTextFieldState extends State<AppTextField> {
           });
         },
         child: Padding(
-          padding: EdgeInsetsDirectional.only(end: context.dynamicWidth(0.03)),
+          padding: EdgeInsetsDirectional.only(end: 11.w),
           child: Icon(
             _obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-            size: context.dynamicWidth(0.055),
+            size: 21.w,
             color: AppColors.gray400,
           ),
         ),
@@ -323,7 +323,7 @@ class _AppTextFieldState extends State<AppTextField> {
       return GestureDetector(
         onTap: widget.onSuffixTap,
         child: Padding(
-          padding: EdgeInsetsDirectional.only(end: context.dynamicWidth(0.03)),
+          padding: EdgeInsetsDirectional.only(end: 11.w),
           child: widget.suffix,
         ),
       );
@@ -332,10 +332,10 @@ class _AppTextFieldState extends State<AppTextField> {
       return GestureDetector(
         onTap: widget.onSuffixTap,
         child: Padding(
-          padding: EdgeInsetsDirectional.only(end: context.dynamicWidth(0.03)),
+          padding: EdgeInsetsDirectional.only(end: 11.w),
           child: Icon(
             widget.suffixIcon,
-            size: context.dynamicWidth(0.055),
+            size: 21.w,
             color: AppColors.gray400,
           ),
         ),
@@ -346,7 +346,7 @@ class _AppTextFieldState extends State<AppTextField> {
 
   OutlineInputBorder _buildBorder(BuildContext context, Color color, {double width = 1}) {
     return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+      borderRadius: BorderRadius.circular(11.w),
       borderSide: BorderSide(color: color, width: width),
     );
   }

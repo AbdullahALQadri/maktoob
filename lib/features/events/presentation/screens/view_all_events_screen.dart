@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/loading/skeleton_widgets.dart';
 import '../../../../injection_container.dart' as di;
 import '../../domain/entities/event_entity.dart';
@@ -56,15 +56,14 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final isArabic = !(l?.isEnLocale ?? true);
+    final t = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.gray100,
       body: Column(
         children: [
           // Header with gradient
-          _buildHeader(context, l, isArabic),
+          _buildHeader(context, t),
           // Tab content
           Expanded(
             child: BlocBuilder<EventsListCubit, EventsListState>(
@@ -74,7 +73,7 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
                 }
 
                 if (state.isFailure) {
-                  return _buildErrorState(context, state.errorMessage ?? '');
+                  return _buildErrorState(context, state.errorMessage ?? '', t);
                 }
 
                 return TabBarView(
@@ -85,8 +84,7 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
                       state.events
                           .where((e) => e.status == EventStatus.active)
                           .toList(),
-                      l,
-                      isArabic,
+                      t,
                       EventStatus.active,
                     ),
                     _buildEventsList(
@@ -94,8 +92,7 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
                       state.events
                           .where((e) => e.status == EventStatus.completed)
                           .toList(),
-                      l,
-                      isArabic,
+                      t,
                       EventStatus.completed,
                     ),
                     _buildEventsList(
@@ -103,8 +100,7 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
                       state.events
                           .where((e) => e.status == EventStatus.draft)
                           .toList(),
-                      l,
-                      isArabic,
+                      t,
                       EventStatus.draft,
                     ),
                   ],
@@ -117,8 +113,7 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
     );
   }
 
-  Widget _buildHeader(
-      BuildContext context, AppLocalizations? l, bool isArabic) {
+  Widget _buildHeader(BuildContext context, AppLocalizations t) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -138,8 +133,8 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
             // Back button and title
             Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: context.dynamicWidth(0.04),
-                vertical: context.dynamicHeight(0.015),
+                horizontal: 15.w,
+                vertical: 12.h,
               ),
               child: Row(
                 children: [
@@ -163,12 +158,12 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
                       ),
                     ),
                   ),
-                  SizedBox(width: context.dynamicWidth(0.04)),
+                  SizedBox(width: 15.w),
                   Text(
-                    isArabic ? 'جميع المناسبات' : 'All Events',
+                    t.translate('events_all_events'),
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: context.dynamicWidth(0.055),
+                      fontSize: 21.sp,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -176,20 +171,19 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
               ),
             ),
             // Tab bar
-            _buildTabBar(context, l, isArabic),
+            _buildTabBar(context, t),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTabBar(
-      BuildContext context, AppLocalizations? l, bool isArabic) {
+  Widget _buildTabBar(BuildContext context, AppLocalizations t) {
     return BlocBuilder<EventsListCubit, EventsListState>(
       builder: (context, state) {
         return Container(
           margin: EdgeInsets.symmetric(
-            horizontal: context.dynamicWidth(0.04),
+            horizontal: 15.w,
           ),
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.15),
@@ -207,29 +201,29 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
             labelColor: AppColors.primaryColor,
             unselectedLabelColor: Colors.white.withValues(alpha: 0.9),
             labelStyle: TextStyle(
-              fontSize: context.dynamicWidth(0.032),
+              fontSize: 12.sp,
               fontWeight: FontWeight.w600,
             ),
             unselectedLabelStyle: TextStyle(
-              fontSize: context.dynamicWidth(0.032),
+              fontSize: 12.sp,
               fontWeight: FontWeight.w500,
             ),
             tabs: [
               _buildTab(
                 context,
-                isArabic ? 'جارية' : 'Ongoing',
+                t.translate('events_ongoing'),
                 state.activeEvents,
                 AppColors.green600,
               ),
               _buildTab(
                 context,
-                isArabic ? 'مكتملة' : 'Completed',
+                t.translate('events_completed'),
                 state.completedEvents,
                 AppColors.blue500,
               ),
               _buildTab(
                 context,
-                isArabic ? 'مسودة' : 'Draft',
+                t.translate('events_draft'),
                 state.draftEvents,
                 AppColors.amber500,
               ),
@@ -265,7 +259,7 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
               child: Text(
                 count.toString(),
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.025),
+                  fontSize: 9.sp,
                   fontWeight: FontWeight.bold,
                   color: badgeColor,
                 ),
@@ -280,19 +274,18 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
   Widget _buildEventsList(
     BuildContext context,
     List<EventEntity> events,
-    AppLocalizations? l,
-    bool isArabic,
+    AppLocalizations t,
     EventStatus status,
   ) {
     if (events.isEmpty) {
-      return _buildEmptyState(context, status, isArabic);
+      return _buildEmptyState(context, status, t);
     }
 
     return RefreshIndicator(
       onRefresh: () => context.read<EventsListCubit>().refreshEvents(),
       color: AppColors.primaryColor,
       child: ListView.builder(
-        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+        padding: EdgeInsets.all(15.w),
         itemCount: events.length,
         itemBuilder: (context, index) {
           final event = events[index];
@@ -309,7 +302,7 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
   }
 
   Widget _buildEmptyState(
-      BuildContext context, EventStatus status, bool isArabic) {
+      BuildContext context, EventStatus status, AppLocalizations t) {
     String title;
     String subtitle;
     IconData icon;
@@ -317,26 +310,20 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
 
     switch (status) {
       case EventStatus.active:
-        title = isArabic ? 'لا توجد مناسبات جارية' : 'No Ongoing Events';
-        subtitle = isArabic
-            ? 'ابدأ بإنشاء مناسبة جديدة'
-            : 'Start by creating a new event';
+        title = t.translate('events_no_ongoing');
+        subtitle = t.translate('events_start_creating');
         icon = Icons.event_available;
         color = AppColors.green600;
         break;
       case EventStatus.completed:
-        title = isArabic ? 'لا توجد مناسبات مكتملة' : 'No Completed Events';
-        subtitle = isArabic
-            ? 'المناسبات المكتملة ستظهر هنا'
-            : 'Completed events will appear here';
+        title = t.translate('events_no_completed');
+        subtitle = t.translate('events_completed_appear');
         icon = Icons.check_circle_outline;
         color = AppColors.blue500;
         break;
       case EventStatus.draft:
-        title = isArabic ? 'لا توجد مسودات' : 'No Drafts';
-        subtitle = isArabic
-            ? 'المسودات المحفوظة ستظهر هنا'
-            : 'Saved drafts will appear here';
+        title = t.translate('events_no_drafts');
+        subtitle = t.translate('events_drafts_appear');
         icon = Icons.edit_note;
         color = AppColors.amber500;
         break;
@@ -344,38 +331,38 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
 
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(context.dynamicWidth(0.08)),
+        padding: EdgeInsets.all(30.w),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: context.dynamicWidth(0.2),
-              height: context.dynamicWidth(0.2),
+              width: 75.w,
+              height: 75.w,
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
-                size: context.dynamicWidth(0.1),
+                size: 38.w,
                 color: color,
               ),
             ),
-            SizedBox(height: context.dynamicHeight(0.025)),
+            SizedBox(height: 20.h),
             Text(
               title,
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.045),
+                fontSize: 17.sp,
                 fontWeight: FontWeight.bold,
                 color: AppColors.gray900,
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: context.dynamicHeight(0.01)),
+            SizedBox(height: 8.h),
             Text(
               subtitle,
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.035),
+                fontSize: 13.sp,
                 color: AppColors.gray500,
               ),
               textAlign: TextAlign.center,
@@ -386,53 +373,53 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
     );
   }
 
-  Widget _buildErrorState(BuildContext context, String message) {
+  Widget _buildErrorState(BuildContext context, String message, AppLocalizations t) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(context.dynamicWidth(0.08)),
+        padding: EdgeInsets.all(30.w),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.error_outline,
-              size: context.dynamicWidth(0.16),
+              size: 60.w,
               color: AppColors.red500,
             ),
-            SizedBox(height: context.dynamicHeight(0.02)),
+            SizedBox(height: 16.h),
             Text(
-              'Something went wrong',
+              t.translate('home_something_wrong'),
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.045),
+                fontSize: 17.sp,
                 fontWeight: FontWeight.bold,
                 color: AppColors.gray900,
               ),
             ),
-            SizedBox(height: context.dynamicHeight(0.01)),
+            SizedBox(height: 8.h),
             Text(
               message,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.gray500,
-                fontSize: context.dynamicWidth(0.035),
+                fontSize: 13.sp,
               ),
             ),
-            SizedBox(height: context.dynamicHeight(0.03)),
+            SizedBox(height: 24.h),
             ElevatedButton(
               onPressed: () => context.read<EventsListCubit>().refreshEvents(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryColor,
                 foregroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(
-                  horizontal: context.dynamicWidth(0.08),
-                  vertical: context.dynamicHeight(0.015),
+                  horizontal: 30.w,
+                  vertical: 12.h,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+                  borderRadius: BorderRadius.circular(11.w),
                 ),
               ),
               child: Text(
-                'Try Again',
-                style: TextStyle(fontSize: context.dynamicWidth(0.035)),
+                t.translate('home_try_again'),
+                style: TextStyle(fontSize: 13.sp),
               ),
             ),
           ],
@@ -448,7 +435,7 @@ class _LoadingContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+      padding: EdgeInsets.all(15.w),
       itemCount: 5,
       itemBuilder: (context, index) {
         return const RecentEventCardSkeleton();

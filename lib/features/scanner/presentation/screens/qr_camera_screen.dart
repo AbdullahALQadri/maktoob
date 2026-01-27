@@ -3,7 +3,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 
 /// Screen that displays the camera for QR code scanning
 class QRCameraScreen extends StatefulWidget {
@@ -80,8 +80,7 @@ class _QRCameraScreenState extends State<QRCameraScreen>
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final isArabic = !(l?.isEnLocale ?? true);
+    final t = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -93,22 +92,22 @@ class _QRCameraScreenState extends State<QRCameraScreen>
             onDetect: _onDetect,
           ),
           // Overlay with scan area
-          _buildOverlay(context, isArabic),
+          _buildOverlay(context),
           // Top bar with close and torch buttons
-          _buildTopBar(context, isArabic),
+          _buildTopBar(context, t),
           // Bottom instruction text
-          _buildBottomInstruction(context, isArabic),
+          _buildBottomInstruction(context, t),
         ],
       ),
     );
   }
 
-  Widget _buildTopBar(BuildContext context, bool isArabic) {
+  Widget _buildTopBar(BuildContext context, AppLocalizations t) {
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: context.dynamicWidth(0.04),
-          vertical: context.dynamicHeight(0.02),
+          horizontal: 15.w,
+          vertical: 16.h,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -132,10 +131,10 @@ class _QRCameraScreenState extends State<QRCameraScreen>
             ),
             // Title
             Text(
-              isArabic ? 'مسح QR' : 'Scan QR',
+              t.translate('scanner_scan_qr_short'),
               style: TextStyle(
                 color: Colors.white,
-                fontSize: context.dynamicWidth(0.045),
+                fontSize: 17.sp,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -164,8 +163,8 @@ class _QRCameraScreenState extends State<QRCameraScreen>
     );
   }
 
-  Widget _buildOverlay(BuildContext context, bool isArabic) {
-    final scanAreaSize = context.dynamicWidth(0.7);
+  Widget _buildOverlay(BuildContext context) {
+    final scanAreaSize = 263.w;
 
     return Stack(
       children: [
@@ -290,19 +289,19 @@ class _QRCameraScreenState extends State<QRCameraScreen>
     );
   }
 
-  Widget _buildBottomInstruction(BuildContext context, bool isArabic) {
+  Widget _buildBottomInstruction(BuildContext context, AppLocalizations t) {
     return Positioned(
-      bottom: context.dynamicHeight(0.12),
+      bottom: 97.h,
       left: 0,
       right: 0,
       child: Column(
         children: [
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: context.dynamicWidth(0.06),
-              vertical: context.dynamicHeight(0.015),
+              horizontal: 23.w,
+              vertical: 12.h,
             ),
-            margin: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.1)),
+            margin: EdgeInsets.symmetric(horizontal: 38.w),
             decoration: BoxDecoration(
               color: Colors.black.withValues(alpha: 0.6),
               borderRadius: BorderRadius.circular(12),
@@ -314,16 +313,14 @@ class _QRCameraScreenState extends State<QRCameraScreen>
                 Icon(
                   Icons.qr_code,
                   color: Colors.white.withValues(alpha: 0.9),
-                  size: context.dynamicWidth(0.05),
+                  size: 19.w,
                 ),
-                SizedBox(width: context.dynamicWidth(0.02)),
+                SizedBox(width: 8.w),
                 Text(
-                  isArabic
-                      ? 'ضع رمز QR داخل الإطار'
-                      : 'Place QR code inside the frame',
+                  t.translate('scanner_place_qr'),
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.9),
-                    fontSize: context.dynamicWidth(0.035),
+                    fontSize: 13.sp,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

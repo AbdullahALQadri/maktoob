@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
 import '../../utils/app_colors.dart';
@@ -170,15 +170,15 @@ class _ScanningIndicatorState extends State<ScanningIndicator>
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: _gradientColors.first.withOpacity(0.3),
+          color: _gradientColors.first.withValues(alpha: 0.3),
           width: 2,
         ),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            _gradientColors.first.withOpacity(0.05),
-            _gradientColors.last.withOpacity(0.05),
+            _gradientColors.first.withValues(alpha: 0.05),
+            _gradientColors.last.withValues(alpha: 0.05),
           ],
         ),
       ),
@@ -198,7 +198,7 @@ class _ScanningIndicatorState extends State<ScanningIndicator>
         ),
         boxShadow: [
           BoxShadow(
-            color: _gradientColors.first.withOpacity(0.4),
+            color: _gradientColors.first.withValues(alpha: 0.4),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -234,7 +234,7 @@ class _ScanningIndicatorState extends State<ScanningIndicator>
               ),
               boxShadow: [
                 BoxShadow(
-                  color: _gradientColors.first.withOpacity(0.8),
+                  color: _gradientColors.first.withValues(alpha: 0.8),
                   blurRadius: 10,
                   spreadRadius: 2,
                 ),
@@ -292,10 +292,10 @@ class _RotatingRingPainter extends CustomPainter {
 
     final gradient = SweepGradient(
       colors: [
-        gradientColors.first.withOpacity(0.0),
+        gradientColors.first.withValues(alpha: 0.0),
         gradientColors.first,
         gradientColors.last,
-        gradientColors.last.withOpacity(0.0),
+        gradientColors.last.withValues(alpha: 0.0),
       ],
       stops: const [0.0, 0.25, 0.75, 1.0],
     );
@@ -374,7 +374,7 @@ class _AnimatedDotState extends State<_AnimatedDot>
           height: 8,
           margin: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
-            color: widget.color.withOpacity(_animation.value),
+            color: widget.color.withValues(alpha: _animation.value),
             shape: BoxShape.circle,
           ),
         );

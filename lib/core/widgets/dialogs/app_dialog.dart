@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../utils/app_colors.dart';
 import '../../utils/app_strings.dart';
-import '../../utils/media_query_values.dart';
+import '../../utils/responsive.dart';
 import '../buttons/primary_button.dart';
 import '../buttons/secondary_button.dart';
 
@@ -303,23 +303,23 @@ class AppDialog extends StatelessWidget {
     return Dialog(
       backgroundColor: AppColors.transparent,
       insetPadding: EdgeInsets.symmetric(
-        horizontal: context.dynamicWidth(0.06),
-        vertical: context.dynamicHeight(0.03),
+        horizontal: 23.w,
+        vertical: 24.h,
       ),
       child: Container(
         constraints: BoxConstraints(
-          maxWidth: context.dynamicWidth(0.9),
-          maxHeight: context.dynamicHeight(0.85),
+          maxWidth: 338.w,
+          maxHeight: 690.h,
         ),
-        padding: EdgeInsets.all(context.dynamicWidth(0.06)),
+        padding: EdgeInsets.all(23.w),
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.06)),
+          borderRadius: BorderRadius.circular(23.w),
           boxShadow: [
             BoxShadow(
               color: AppColors.black.withValues(alpha: 0.15),
-              blurRadius: context.dynamicWidth(0.08),
-              offset: Offset(0, context.dynamicHeight(0.02)),
+              blurRadius: 30.w,
+              offset: Offset(0, 16.h),
             ),
           ],
         ),
@@ -334,15 +334,15 @@ class AppDialog extends StatelessWidget {
                   child: GestureDetector(
                     onTap: () => Navigator.of(context).pop(),
                     child: Container(
-                      width: context.dynamicWidth(0.09),
-                      height: context.dynamicWidth(0.09),
+                      width: 34.w,
+                      height: 34.w,
                       decoration: BoxDecoration(
                         color: AppColors.gray100,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.close,
-                        size: context.dynamicWidth(0.05),
+                        size: 19.w,
                         color: AppColors.gray500,
                       ),
                     ),
@@ -354,13 +354,13 @@ class AppDialog extends StatelessWidget {
 
               // Title
               if (title != null) ...[
-                SizedBox(height: context.dynamicHeight(0.02)),
+                SizedBox(height: 16.h),
                 Text(
                   title!,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: AppStrings.fontFamily,
-                    fontSize: context.dynamicWidth(0.055),
+                    fontSize: 21.sp,
                     fontWeight: FontWeight.bold,
                     color: _getTitleColor(),
                   ),
@@ -369,17 +369,17 @@ class AppDialog extends StatelessWidget {
 
               // Message
               if (message != null) ...[
-                SizedBox(height: context.dynamicHeight(0.012)),
+                SizedBox(height: 10.h),
                 Padding(
                   padding: EdgeInsets.symmetric(
-                    horizontal: context.dynamicWidth(0.02),
+                    horizontal: 8.w,
                   ),
                   child: Text(
                     message!,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: AppStrings.fontFamily,
-                      fontSize: context.dynamicWidth(0.038),
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w400,
                       color: AppColors.gray600,
                       height: 1.5,
@@ -390,13 +390,13 @@ class AppDialog extends StatelessWidget {
 
               // Custom content
               if (content != null) ...[
-                SizedBox(height: context.dynamicHeight(0.025)),
+                SizedBox(height: 20.h),
                 content!,
               ],
 
               // Buttons
               if (primaryButtonText != null || secondaryButtonText != null) ...[
-                SizedBox(height: context.dynamicHeight(0.03)),
+                SizedBox(height: 24.h),
                 _buildButtons(context),
               ],
             ],
@@ -423,22 +423,22 @@ class AppDialog extends StatelessWidget {
     final dialogIconBackground = iconBackgroundColor ?? _getIconBackground();
 
     return Container(
-      width: context.dynamicWidth(0.2),
-      height: context.dynamicWidth(0.2),
+      width: 75.w,
+      height: 75.w,
       decoration: BoxDecoration(
         color: dialogIconBackground,
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
             color: dialogIconColor.withValues(alpha: 0.2),
-            blurRadius: context.dynamicWidth(0.05),
-            offset: Offset(0, context.dynamicHeight(0.01)),
+            blurRadius: 19.w,
+            offset: Offset(0, 8.h),
           ),
         ],
       ),
       child: Icon(
         dialogIcon,
-        size: context.dynamicWidth(0.1),
+        size: 38.w,
         color: dialogIconColor,
       ),
     );
@@ -490,8 +490,8 @@ class AppDialog extends StatelessWidget {
   }
 
   Widget _buildButtons(BuildContext context) {
-    final buttonHeight = context.dynamicHeight(0.06);
-    final borderRadius = context.dynamicWidth(0.035);
+    final buttonHeight = 49.h;
+    final borderRadius = 13.w;
 
     if (secondaryButtonText != null && primaryButtonText != null) {
       return Row(
@@ -507,7 +507,7 @@ class AppDialog extends StatelessWidget {
               textColor: AppColors.gray700,
             ),
           ),
-          SizedBox(width: context.dynamicWidth(0.03)),
+          SizedBox(width: 11.w),
           Expanded(
             child: PrimaryButton(
               text: primaryButtonText!,

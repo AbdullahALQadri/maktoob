@@ -1,4 +1,4 @@
-import 'dart:ui';
+﻿import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -123,10 +123,10 @@ class PackageSelectionScreen extends StatelessWidget {
                   child: Container(
                     padding: EdgeInsets.all(screenWidth * 0.04),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.85),
+                      color: Colors.white.withValues(alpha: 0.85),
                       border: Border(
                         top: BorderSide(
-                          color: AppColors.gray200.withOpacity(0.5),
+                          color: AppColors.gray200.withValues(alpha: 0.5),
                           width: 0.5,
                         ),
                       ),

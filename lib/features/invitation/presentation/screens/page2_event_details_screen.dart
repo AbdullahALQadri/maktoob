@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/buttons/primary_button.dart';
 import '../../../../core/widgets/buttons/secondary_button.dart';
 import '../../../../core/widgets/inputs/app_text_field.dart';
@@ -69,15 +69,15 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
                 child: Form(
                 key: _formKey,
                 child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.05)),
+                  padding: EdgeInsets.symmetric(horizontal: 19.w),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: context.dynamicHeight(0.025)),
+                      SizedBox(height: 20.h),
 
                       // Event Name (Required)
                       _buildSectionTitle(context, l?.translate('invitation_event_name_required') ?? 'Event Name *'),
-                      SizedBox(height: context.dynamicHeight(0.01)),
+                      SizedBox(height: 8.h),
                       AppTextField(
                         controller: _nameController,
                         hintText: l?.translate('invitation_enter_event_name') ?? 'Enter event name',
@@ -89,15 +89,15 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
 
                       // Event Type Form Fields (bride/groom for marriage/engagement)
                       if (!state.isCustomEventType && !state.isCustomTemplate && state.eventTypeFormFields.isNotEmpty) ...[
-                        SizedBox(height: context.dynamicHeight(0.025)),
+                        SizedBox(height: 20.h),
                         _buildEventTypeFormFields(context, state, l),
                       ],
 
-                      SizedBox(height: context.dynamicHeight(0.025)),
+                      SizedBox(height: 20.h),
 
                       // Description (Optional)
                       _buildSectionTitle(context, l?.translate('invitation_description_optional_label') ?? 'Description (Optional)'),
-                      SizedBox(height: context.dynamicHeight(0.01)),
+                      SizedBox(height: 8.h),
                       AppTextField(
                         controller: _descriptionController,
                         hintText: l?.translate('invitation_add_event_description') ?? 'Add a description for your event...',
@@ -110,33 +110,33 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
                         },
                       ),
 
-                      SizedBox(height: context.dynamicHeight(0.025)),
+                      SizedBox(height: 20.h),
 
                       // Date (Required)
                       _buildSectionTitle(context, l?.translate('invitation_date_required') ?? 'Date *'),
-                      SizedBox(height: context.dynamicHeight(0.01)),
+                      SizedBox(height: 8.h),
                       _buildDatePicker(context, state, l),
 
-                      SizedBox(height: context.dynamicHeight(0.025)),
+                      SizedBox(height: 20.h),
 
                       // Time (Required)
                       _buildSectionTitle(context, l?.translate('invitation_time_required') ?? 'Time *'),
-                      SizedBox(height: context.dynamicHeight(0.01)),
+                      SizedBox(height: 8.h),
                       _buildTimePicker(context, state, l),
 
-                      SizedBox(height: context.dynamicHeight(0.025)),
+                      SizedBox(height: 20.h),
 
                       // Location (Required)
                       _buildSectionTitle(context, l?.translate('invitation_location_required') ?? 'Location *'),
-                      SizedBox(height: context.dynamicHeight(0.01)),
+                      SizedBox(height: 8.h),
                       _buildLocationSection(context, state, l),
 
-                      SizedBox(height: context.dynamicHeight(0.025)),
+                      SizedBox(height: 20.h),
 
                       // Partner with Guests (Optional) - Switch + Number
                       _buildCompanionsSection(context, state, l),
 
-                      SizedBox(height: context.dynamicHeight(0.12)),
+                      SizedBox(height: 97.h),
                     ],
                   ),
                 ),
@@ -156,7 +156,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
     return Text(
       title,
       style: TextStyle(
-        fontSize: context.dynamicWidth(0.035),
+        fontSize: 13.sp,
         fontWeight: FontWeight.w500,
         color: AppColors.gray700,
       ),
@@ -167,10 +167,10 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
     final isEnabled = state.partnerWithGuests != null && state.partnerWithGuests! > 0;
 
     return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+      padding: EdgeInsets.all(15.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+        borderRadius: BorderRadius.circular(11.w),
         border: Border.all(color: Colors.grey.shade300),
       ),
       child: Column(
@@ -186,14 +186,14 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
                     Icon(
                       Icons.people_outline,
                       color: AppColors.primary,
-                      size: context.dynamicWidth(0.055),
+                      size: 21.w,
                     ),
-                    SizedBox(width: context.dynamicWidth(0.03)),
+                    SizedBox(width: 11.w),
                     Flexible(
                       child: Text(
                         l?.translate('invitation_allow_companions') ?? 'Allow Companions',
                         style: TextStyle(
-                          fontSize: context.dynamicWidth(0.038),
+                          fontSize: 14.sp,
                           fontWeight: FontWeight.w500,
                           color: Colors.grey.shade800,
                         ),
@@ -216,13 +216,13 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  width: context.dynamicWidth(0.14),
-                  height: context.dynamicWidth(0.08),
+                  width: 53.w,
+                  height: 30.w,
                   decoration: BoxDecoration(
                     color: isEnabled
                         ? AppColors.primary
                         : Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+                    borderRadius: BorderRadius.circular(15.w),
                   ),
                   child: AnimatedAlign(
                     duration: const Duration(milliseconds: 200),
@@ -230,9 +230,9 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
                         ? Alignment.centerRight
                         : Alignment.centerLeft,
                     child: Container(
-                      width: context.dynamicWidth(0.06),
-                      height: context.dynamicWidth(0.06),
-                      margin: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.01)),
+                      width: 23.w,
+                      height: 23.w,
+                      margin: EdgeInsets.symmetric(horizontal: 4.w),
                       decoration: const BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
@@ -246,15 +246,15 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
 
           // Number picker (only show when enabled)
           if (isEnabled) ...[
-            SizedBox(height: context.dynamicHeight(0.02)),
+            SizedBox(height: 16.h),
             Text(
               l?.translate('invitation_companions_count') ?? 'Number of companions per guest (1-10)',
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.032),
+                fontSize: 12.sp,
                 color: Colors.grey.shade600,
               ),
             ),
-            SizedBox(height: context.dynamicHeight(0.015)),
+            SizedBox(height: 12.h),
             Row(
               children: [
                 // Decrease button
@@ -273,17 +273,17 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
                 // Number display
                 Expanded(
                   child: Container(
-                    margin: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.04)),
-                    padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.015)),
+                    margin: EdgeInsets.symmetric(horizontal: 15.w),
+                    padding: EdgeInsets.symmetric(vertical: 12.h),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.02)),
+                      borderRadius: BorderRadius.circular(8.w),
                     ),
                     child: Text(
                       '${state.partnerWithGuests ?? 1}',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: context.dynamicWidth(0.05),
+                        fontSize: 19.sp,
                         fontWeight: FontWeight.bold,
                         color: AppColors.primary,
                       ),
@@ -318,18 +318,18 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
   }) {
     return Material(
       color: onPressed != null ? AppColors.primary : Colors.grey.shade300,
-      borderRadius: BorderRadius.circular(context.dynamicWidth(0.02)),
+      borderRadius: BorderRadius.circular(8.w),
       child: InkWell(
         onTap: onPressed,
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.02)),
+        borderRadius: BorderRadius.circular(8.w),
         child: Container(
-          width: context.dynamicWidth(0.12),
-          height: context.dynamicWidth(0.12),
+          width: 45.w,
+          height: 45.w,
           alignment: Alignment.center,
           child: Icon(
             icon,
             color: Colors.white,
-            size: context.dynamicWidth(0.06),
+            size: 23.w,
           ),
         ),
       ),
@@ -341,18 +341,18 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
       onTap: () => _selectDate(context),
       child: Container(
         padding: EdgeInsets.symmetric(
-          horizontal: context.dynamicWidth(0.04),
-          vertical: context.dynamicHeight(0.018),
+          horizontal: 15.w,
+          vertical: 15.h,
         ),
         decoration: BoxDecoration(
           color: AppColors.gray50,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+          borderRadius: BorderRadius.circular(11.w),
           border: Border.all(color: AppColors.gray200),
         ),
         child: Row(
           children: [
-            Icon(Icons.calendar_today, color: AppColors.gray500, size: context.dynamicWidth(0.05)),
-            SizedBox(width: context.dynamicWidth(0.03)),
+            Icon(Icons.calendar_today, color: AppColors.gray500, size: 19.w),
+            SizedBox(width: 11.w),
             Expanded(
               child: Text(
                 state.eventDate != null
@@ -362,7 +362,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
                   color: state.eventDate != null
                       ? AppColors.gray800
                       : AppColors.gray400,
-                  fontSize: context.dynamicWidth(0.038),
+                  fontSize: 14.sp,
                 ),
               ),
             ),
@@ -393,13 +393,13 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
               headerBackgroundColor: AppColors.primaryColor,
               headerForegroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+                borderRadius: BorderRadius.circular(15.w),
               ),
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
                 textStyle: TextStyle(
-                  fontSize: context.dynamicWidth(0.04),
+                  fontSize: 15.sp,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -425,18 +425,18 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
       onTap: () => _selectTime(context),
       child: Container(
         padding: EdgeInsets.symmetric(
-          horizontal: context.dynamicWidth(0.04),
-          vertical: context.dynamicHeight(0.018),
+          horizontal: 15.w,
+          vertical: 15.h,
         ),
         decoration: BoxDecoration(
           color: AppColors.gray50,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+          borderRadius: BorderRadius.circular(11.w),
           border: Border.all(color: AppColors.gray200),
         ),
         child: Row(
           children: [
-            Icon(Icons.access_time, color: AppColors.gray500, size: context.dynamicWidth(0.05)),
-            SizedBox(width: context.dynamicWidth(0.03)),
+            Icon(Icons.access_time, color: AppColors.gray500, size: 19.w),
+            SizedBox(width: 11.w),
             Expanded(
               child: Text(
                 state.eventTime != null
@@ -446,7 +446,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
                   color: state.eventTime != null
                       ? AppColors.gray800
                       : AppColors.gray400,
-                  fontSize: context.dynamicWidth(0.038),
+                  fontSize: 14.sp,
                 ),
               ),
             ),
@@ -455,7 +455,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
                 onTap: () {
                   // Clear time - need to add method to cubit
                 },
-                child: Icon(Icons.close, color: AppColors.gray400, size: context.dynamicWidth(0.045)),
+                child: Icon(Icons.close, color: AppColors.gray400, size: 17.w),
               )
             else
               Icon(Icons.arrow_drop_down, color: AppColors.gray400),
@@ -481,19 +481,19 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
             timePickerTheme: TimePickerThemeData(
               backgroundColor: Colors.white,
               hourMinuteShape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+                borderRadius: BorderRadius.circular(11.w),
               ),
               dayPeriodShape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+                borderRadius: BorderRadius.circular(11.w),
               ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+                borderRadius: BorderRadius.circular(15.w),
               ),
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
                 textStyle: TextStyle(
-                  fontSize: context.dynamicWidth(0.04),
+                  fontSize: 15.sp,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -531,7 +531,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
             onTap: () => _showVenueSelector(context, state, l),
           ),
 
-          SizedBox(height: context.dynamicHeight(0.015)),
+          SizedBox(height: 12.h),
 
           // Google Maps option
           _buildLocationOption(
@@ -556,27 +556,27 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
         : state.customLocation?.address;
 
     return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+      padding: EdgeInsets.all(15.w),
       decoration: BoxDecoration(
         color: AppColors.primaryColor.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+        borderRadius: BorderRadius.circular(11.w),
         border: Border.all(color: AppColors.primaryColor.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(context.dynamicWidth(0.025)),
+            padding: EdgeInsets.all(9.w),
             decoration: BoxDecoration(
               color: AppColors.primaryColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(context.dynamicWidth(0.025)),
+              borderRadius: BorderRadius.circular(9.w),
             ),
             child: Icon(
               isVenue ? Icons.location_city : Icons.location_on,
               color: AppColors.primaryColor,
-              size: context.dynamicWidth(0.06),
+              size: 23.w,
             ),
           ),
-          SizedBox(width: context.dynamicWidth(0.03)),
+          SizedBox(width: 11.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -584,7 +584,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: context.dynamicWidth(0.038),
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     color: AppColors.gray800,
                   ),
@@ -593,7 +593,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
                   Text(
                     subtitle,
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.032),
+                      fontSize: 12.sp,
                       color: AppColors.gray500,
                     ),
                     maxLines: 1,
@@ -628,23 +628,23 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+        padding: EdgeInsets.all(15.w),
         decoration: BoxDecoration(
           color: AppColors.gray50,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+          borderRadius: BorderRadius.circular(11.w),
           border: Border.all(color: AppColors.gray200),
         ),
         child: Row(
           children: [
             Container(
-              padding: EdgeInsets.all(context.dynamicWidth(0.025)),
+              padding: EdgeInsets.all(9.w),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.025)),
+                borderRadius: BorderRadius.circular(9.w),
               ),
-              child: Icon(icon, color: AppColors.primaryColor, size: context.dynamicWidth(0.06)),
+              child: Icon(icon, color: AppColors.primaryColor, size: 23.w),
             ),
-            SizedBox(width: context.dynamicWidth(0.03)),
+            SizedBox(width: 11.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -652,7 +652,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.038),
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
                       color: AppColors.gray800,
                     ),
@@ -660,14 +660,14 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
                   Text(
                     subtitle,
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.032),
+                      fontSize: 12.sp,
                       color: AppColors.gray500,
                     ),
                   ),
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios, color: AppColors.gray400, size: context.dynamicWidth(0.04)),
+            Icon(Icons.arrow_forward_ios, color: AppColors.gray400, size: 15.w),
           ],
         ),
       ),
@@ -707,6 +707,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
       return const SizedBox.shrink();
     }
 
+    final t = AppLocalizations.of(context)!;
     final isArabic = Localizations.localeOf(context).languageCode == 'ar';
 
     return Column(
@@ -714,9 +715,9 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
       children: [
         _buildSectionTitle(
           context,
-          isArabic ? 'معلومات العروسين' : 'Couple Information',
+          t.translate('invitation_couple_info'),
         ),
-        SizedBox(height: context.dynamicHeight(0.01)),
+        SizedBox(height: 8.h),
         ...state.eventTypeFormFields.map((field) {
           // Choose appropriate icon based on field key
           IconData fieldIcon = Icons.person_outline;
@@ -733,7 +734,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
               : (field.hint ?? field.label);
 
           return Padding(
-            padding: EdgeInsets.only(bottom: context.dynamicHeight(0.02)),
+            padding: EdgeInsets.only(bottom: 16.h),
             child: AppTextField(
               labelText: label,
               hintText: hint,
@@ -753,14 +754,14 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
 
   Widget _buildBottomBar(BuildContext context, InvitationState state, AppLocalizations? l) {
     return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+      padding: EdgeInsets.all(15.w),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: context.dynamicWidth(0.025),
-            offset: Offset(0, -context.dynamicHeight(0.005)),
+            blurRadius: 9.w,
+            offset: Offset(0, -4.h),
           ),
         ],
       ),
@@ -773,7 +774,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
                 onPressed: () => context.read<InvitationCubit>().previousStep(),
               ),
             ),
-            SizedBox(width: context.dynamicWidth(0.03)),
+            SizedBox(width: 11.w),
             Expanded(
               flex: 2,
               child: PrimaryButton(
@@ -815,17 +816,17 @@ class _VenueSelectorContent extends StatelessWidget {
     final l = AppLocalizations.of(context);
     if (venues.isEmpty) {
       return Padding(
-        padding: EdgeInsets.all(context.dynamicWidth(0.08)),
+        padding: EdgeInsets.all(30.w),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.location_off, size: context.dynamicWidth(0.12), color: AppColors.gray300),
-            SizedBox(height: context.dynamicHeight(0.02)),
+            Icon(Icons.location_off, size: 45.w, color: AppColors.gray300),
+            SizedBox(height: 16.h),
             Text(
               l?.translate('invitation_no_venues_available') ?? 'No venues available',
               style: TextStyle(
                 color: AppColors.gray500,
-                fontSize: context.dynamicWidth(0.04),
+                fontSize: 15.sp,
               ),
             ),
           ],
@@ -840,32 +841,32 @@ class _VenueSelectorContent extends StatelessWidget {
         final venue = venues[index];
         return ListTile(
           contentPadding: EdgeInsets.symmetric(
-            horizontal: context.dynamicWidth(0.04),
-            vertical: context.dynamicHeight(0.005),
+            horizontal: 15.w,
+            vertical: 4.h,
           ),
           leading: Container(
-            padding: EdgeInsets.all(context.dynamicWidth(0.02)),
+            padding: EdgeInsets.all(8.w),
             decoration: BoxDecoration(
               color: AppColors.primaryColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(context.dynamicWidth(0.02)),
+              borderRadius: BorderRadius.circular(8.w),
             ),
             child: Icon(
               Icons.location_city,
               color: AppColors.primaryColor,
-              size: context.dynamicWidth(0.06),
+              size: 23.w,
             ),
           ),
           title: Text(
             venue.name,
-            style: TextStyle(fontSize: context.dynamicWidth(0.04)),
+            style: TextStyle(fontSize: 15.sp),
           ),
           subtitle: venue.address != null
               ? Text(
                   venue.address!,
-                  style: TextStyle(fontSize: context.dynamicWidth(0.032)),
+                  style: TextStyle(fontSize: 12.sp),
                 )
               : null,
-          trailing: Icon(Icons.arrow_forward_ios, size: context.dynamicWidth(0.04)),
+          trailing: Icon(Icons.arrow_forward_ios, size: 15.w),
           onTap: () {
             context.read<InvitationCubit>().selectVenue(venue);
             Navigator.pop(context);

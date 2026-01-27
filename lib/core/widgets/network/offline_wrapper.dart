@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../utils/app_colors.dart';
-import '../../utils/media_query_values.dart';
+import '../../utils/responsive.dart';
 
 /// A wrapper widget that handles offline/online states.
 /// Simplified version without flutter_offline dependency.
@@ -42,61 +42,61 @@ class OfflineScreen extends StatelessWidget {
       body: SafeArea(
         child: Center(
           child: Padding(
-            padding: EdgeInsets.all(context.dynamicWidth(0.08)),
+            padding: EdgeInsets.all(30.w),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  padding: EdgeInsets.all(context.dynamicWidth(0.08)),
+                  padding: EdgeInsets.all(30.w),
                   decoration: BoxDecoration(
                     color: AppColors.gray200,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.wifi_off_rounded,
-                    size: context.dynamicWidth(0.2),
+                    size: 75.w,
                     color: AppColors.gray400,
                   ),
                 ),
-                SizedBox(height: context.dynamicHeight(0.04)),
+                SizedBox(height: 32.h),
                 Text(
                   'No Internet Connection',
                   style: TextStyle(
-                    fontSize: context.dynamicWidth(0.06),
+                    fontSize: 23.sp,
                     fontWeight: FontWeight.bold,
                     color: AppColors.gray900,
                   ),
                 ),
-                SizedBox(height: context.dynamicHeight(0.015)),
+                SizedBox(height: 12.h),
                 Text(
                   message ?? 'Please check your internet connection and try again.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: context.dynamicWidth(0.04),
+                    fontSize: 15.sp,
                     color: AppColors.gray500,
                     height: 1.5,
                   ),
                 ),
                 if (onRetry != null) ...[
-                  SizedBox(height: context.dynamicHeight(0.04)),
+                  SizedBox(height: 32.h),
                   Material(
                     color: Colors.transparent,
                     child: InkWell(
                       onTap: onRetry,
-                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+                      borderRadius: BorderRadius.circular(15.w),
                       child: Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: context.dynamicWidth(0.08),
-                          vertical: context.dynamicHeight(0.018),
+                          horizontal: 30.w,
+                          vertical: 15.h,
                         ),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [AppColors.primaryColor, AppColors.tertiaryColor],
                           ),
-                          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+                          borderRadius: BorderRadius.circular(15.w),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.primaryColor.withOpacity(0.3),
+                              color: AppColors.primaryColor.withValues(alpha: 0.3),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
@@ -108,14 +108,14 @@ class OfflineScreen extends StatelessWidget {
                             Icon(
                               Icons.refresh_rounded,
                               color: Colors.white,
-                              size: context.dynamicWidth(0.05),
+                              size: 19.w,
                             ),
-                            SizedBox(width: context.dynamicWidth(0.02)),
+                            SizedBox(width: 8.w),
                             Text(
                               'Try Again',
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: context.dynamicWidth(0.04),
+                                fontSize: 15.sp,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),

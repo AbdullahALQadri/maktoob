@@ -3,19 +3,6 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 /// Extension methods on BuildContext for easy access to common properties.
-///
-/// Example usage:
-/// ```dart
-/// // Access theme
-/// final primaryColor = context.primaryColor;
-///
-/// // Access media query
-/// final screenWidth = context.screenWidth;
-/// final isTablet = context.isTablet;
-///
-/// // Show snackbar
-/// context.showSuccessSnackBar('Item saved successfully');
-/// ```
 extension ContextExtensions on BuildContext {
   // ===== Theme Extensions =====
 
@@ -77,23 +64,7 @@ extension ContextExtensions on BuildContext {
   bool get isPortrait =>
       MediaQuery.of(this).orientation == Orientation.portrait;
 
-  // ===== Device Type Extensions =====
-
-  /// Returns whether the device is a phone (width < 600).
-  bool get isPhone => screenWidth < 600;
-
-  /// Returns whether the device is a tablet (width >= 600 && width < 900).
-  bool get isTablet => screenWidth >= 600 && screenWidth < 900;
-
-  /// Returns whether the device is a desktop (width >= 900).
-  bool get isDesktop => screenWidth >= 900;
-
-  /// Returns the device type.
-  DeviceType get deviceType {
-    if (screenWidth < 600) return DeviceType.phone;
-    if (screenWidth < 900) return DeviceType.tablet;
-    return DeviceType.desktop;
-  }
+  EdgeInsets get safePadding => MediaQuery.of(this).viewPadding;
 
   // ===== Navigation Extensions =====
 
@@ -443,9 +414,3 @@ extension ListExtensions<T> on List<T> {
   }
 }
 
-/// Device type enum for responsive design.
-enum DeviceType {
-  phone,
-  tablet,
-  desktop,
-}

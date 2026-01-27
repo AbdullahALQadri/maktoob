@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/snackbar/app_snackbar.dart';
@@ -60,6 +61,7 @@ class _ManualGuestFormState extends State<ManualGuestForm> {
   }
 
   void _addGuest() {
+    final t = AppLocalizations.of(context)!;
     if (_formKey.currentState!.validate()) {
       final normalizedPhone = _normalizePhone(_phoneController.text.trim());
 
@@ -79,7 +81,7 @@ class _ManualGuestFormState extends State<ManualGuestForm> {
       // Show success feedback
       AppSnackBar.showSuccess(
         context,
-        message: 'تمت إضافة ${guest.name}',
+        message: '${t.translate('guest_added_success')} ${guest.name}',
         duration: const Duration(seconds: 2),
       );
     }
@@ -87,6 +89,7 @@ class _ManualGuestFormState extends State<ManualGuestForm> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -94,7 +97,7 @@ class _ManualGuestFormState extends State<ManualGuestForm> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -113,9 +116,9 @@ class _ManualGuestFormState extends State<ManualGuestForm> {
                   color: AppColors.primary,
                 ),
                 const SizedBox(width: 8),
-                const Text(
-                  'إضافة مدعو يدوياً',
-                  style: TextStyle(
+                Text(
+                  t.translate('guest_add_manual'),
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -128,8 +131,8 @@ class _ManualGuestFormState extends State<ManualGuestForm> {
             AppTextField(
               controller: _nameController,
               focusNode: _nameFocusNode,
-              labelText: 'اسم المدعو',
-              hintText: 'أدخل اسم المدعو',
+              labelText: t.translate('guest_name_label'),
+              hintText: t.translate('guest_name_hint'),
               prefixIcon: Icons.person_outline,
               textInputAction: TextInputAction.next,
               onSubmitted: (_) {
@@ -137,10 +140,10 @@ class _ManualGuestFormState extends State<ManualGuestForm> {
               },
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'يرجى إدخال اسم المدعو';
+                  return t.translate('guest_name_required');
                 }
                 if (value.trim().length < 2) {
-                  return 'الاسم قصير جداً';
+                  return t.translate('guest_name_short');
                 }
                 return null;
               },
@@ -151,8 +154,8 @@ class _ManualGuestFormState extends State<ManualGuestForm> {
             AppTextField(
               controller: _phoneController,
               focusNode: _phoneFocusNode,
-              labelText: 'رقم الهاتف',
-              hintText: '+972 أو +970',
+              labelText: t.translate('guest_phone_label'),
+              hintText: '+972 / +970',
               prefixIcon: Icons.phone_outlined,
               keyboardType: TextInputType.phone,
               textInputAction: TextInputAction.done,
@@ -162,10 +165,10 @@ class _ManualGuestFormState extends State<ManualGuestForm> {
               onSubmitted: (_) => _addGuest(),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'يرجى إدخال رقم الهاتف';
+                  return t.translate('guest_phone_required');
                 }
                 if (!_isValidPalestinianNumber(value)) {
-                  return 'يرجى إدخال رقم فلسطيني صحيح (+972 أو +970)';
+                  return t.translate('guest_phone_invalid');
                 }
                 return null;
               },
@@ -174,7 +177,7 @@ class _ManualGuestFormState extends State<ManualGuestForm> {
 
             // Phone format hint
             Text(
-              'صيغة الرقم: +972XXXXXXXXX أو +970XXXXXXXXX',
+              t.translate('guest_phone_format'),
               style: TextStyle(
                 fontSize: 11,
                 color: Colors.grey.shade600,
@@ -184,7 +187,7 @@ class _ManualGuestFormState extends State<ManualGuestForm> {
 
             // Add Button
             AppButton(
-              text: 'إضافة المدعو',
+              text: t.translate('guest_add_button'),
               onPressed: _addGuest,
               width: double.infinity,
               icon: Icons.add,

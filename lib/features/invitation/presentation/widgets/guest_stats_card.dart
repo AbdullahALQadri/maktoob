@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../../../../core/utils/app_colors.dart';
 
@@ -32,7 +32,7 @@ class GuestStatsCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(screenWidth * 0.04),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryColor.withOpacity(0.3),
+            color: AppColors.primaryColor.withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 6),
           ),
@@ -48,7 +48,7 @@ class GuestStatsCard extends StatelessWidget {
                 width: screenWidth * 0.15,
                 height: screenWidth * 0.15,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -78,7 +78,7 @@ class GuestStatsCard extends StatelessWidget {
                     total == 0 ? 'Add your first guest' : 'invited to your event',
                     style: TextStyle(
                       fontSize: screenWidth * 0.032,
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha: 0.8),
                     ),
                   ),
                 ],
@@ -131,7 +131,7 @@ class GuestStatsCard extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: screenWidth * 0.025),
         margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.01),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.15),
+          color: Colors.white.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(screenWidth * 0.025),
         ),
         child: Column(
@@ -163,7 +163,7 @@ class GuestStatsCard extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: screenWidth * 0.028,
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
               ),
             ),
           ],

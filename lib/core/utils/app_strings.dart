@@ -1,4 +1,6 @@
 class AppStrings {
+  AppStrings._();
+
   static const String appName = "MAKTOOB";
   static const String fontFamily = "Satoshi";
 
@@ -24,19 +26,4 @@ class AppStrings {
     arabicCode,
     ukrainianCode,
   ];
-
-  static const String n974 = "974";
-
-//                     AppLocalizations.of(context)!.translate("key").toString()
-//                     AppLocalizations.of(context)!.translate("there_is_no_data_to_display").toString()
-//                     AppLocalizations.of(context)!.translate("field_is_required").toString()
-
-//                     (AppLocalizations.of(context)!
-//                         .locale
-//                         .languageCode ==
-//                     "en"
-//                     ? state.ordersDetails.data.serviceDetails
-//                         .category.nameEn
-//                         : state.ordersDetails.data.serviceDetails
-//                         .category.name),
 }

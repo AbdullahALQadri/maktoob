@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/snackbar/app_snackbar.dart';
 import '../../../../core/widgets/loading/skeleton_widgets.dart';
 import '../../data/models/event_model.dart';
@@ -51,6 +52,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return BlocConsumer<EventDetailsCubit, EventDetailsState>(
       listener: (context, state) {
         if (state.errorMessage != null) {
@@ -78,7 +80,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                   Icon(Icons.error_outline, size: 64, color: AppColors.red500),
                   const SizedBox(height: 16),
                   Text(
-                    'Error loading event',
+                    t.translate('event_details_error'),
                     style: TextStyle(fontSize: 18, color: AppColors.gray700),
                   ),
                   const SizedBox(height: 16),
@@ -86,7 +88,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                     onPressed: () {
                       context.read<EventDetailsCubit>().loadEventDetails(widget.eventId);
                     },
-                    child: const Text('Retry'),
+                    child: Text(t.translate('common_retry')),
                   ),
                 ],
               ),
@@ -99,17 +101,17 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           body: NestedScrollView(
             headerSliverBuilder: (context, innerBoxIsScrolled) {
               return [
-                SliverToBoxAdapter(child: _buildHeader(state)),
-                SliverToBoxAdapter(child: _buildQuickStats(state)),
-                SliverToBoxAdapter(child: _buildTabBar()),
+                SliverToBoxAdapter(child: _buildHeader(state, t)),
+                SliverToBoxAdapter(child: _buildQuickStats(state, t)),
+                SliverToBoxAdapter(child: _buildTabBar(t)),
               ];
             },
             body: TabBarView(
               controller: _tabController,
               children: [
-                _buildOverviewTab(state),
-                _buildGuestsTab(state),
-                _buildDetailsTab(state),
+                _buildOverviewTab(state, t),
+                _buildGuestsTab(state, t),
+                _buildDetailsTab(state, t),
               ],
             ),
           ),
@@ -139,7 +141,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     return AppColors.purple500;
   }
 
-  Widget _buildHeader(EventDetailsState state) {
+  Widget _buildHeader(EventDetailsState state, AppLocalizations t) {
     final event = state.event!;
     return Container(
       decoration: BoxDecoration(
@@ -161,7 +163,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                 height: 160,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                 ),
               ),
             ),
@@ -173,7 +175,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                 height: 120,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.05),
+                  color: Colors.white.withValues(alpha: 0.05),
                 ),
               ),
             ),
@@ -210,10 +212,10 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                           if (value == 'edit') {
                             AppSnackBar.showInfo(
                               context,
-                              message: 'Edit event tapped',
+                              message: t.translate('event_details_edit'),
                             );
                           } else if (value == 'delete') {
-                            _showDeleteConfirmation(state);
+                            _showDeleteConfirmation(state, t);
                           }
                         },
                         shape: RoundedRectangleBorder(
@@ -229,7 +231,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                                 Icon(Icons.edit_outlined, color: AppColors.primaryColor, size: 20),
                                 const SizedBox(width: 12),
                                 Text(
-                                  'Edit Event',
+                                  t.translate('event_details_edit'),
                                   style: TextStyle(
                                     color: AppColors.gray900,
                                     fontWeight: FontWeight.w500,
@@ -245,7 +247,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                                 Icon(Icons.delete_outline, color: AppColors.red500, size: 20),
                                 const SizedBox(width: 12),
                                 Text(
-                                  'Delete Event',
+                                  t.translate('event_details_delete'),
                                   style: TextStyle(
                                     color: AppColors.red500,
                                     fontWeight: FontWeight.w500,
@@ -283,7 +285,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                         width: 64,
                         height: 64,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Icon(
@@ -310,12 +312,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                               children: [
                                 _buildBadge(
                                   event.type,
-                                  Colors.white.withOpacity(0.2),
+                                  Colors.white.withValues(alpha: 0.2),
                                   Colors.white,
                                 ),
                                 const SizedBox(width: 8),
                                 _buildBadge(
-                                  _getStatusLabel(event.status),
+                                  _getStatusLabel(event.status, t),
                                   event.status == EventStatus.active
                                       ? AppColors.green600
                                       : AppColors.amber500,
@@ -337,14 +339,14 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     );
   }
 
-  String _getStatusLabel(EventStatus status) {
+  String _getStatusLabel(EventStatus status, AppLocalizations t) {
     switch (status) {
       case EventStatus.active:
-        return 'Active';
+        return t.translate('events_active');
       case EventStatus.draft:
-        return 'Draft';
+        return t.translate('events_draft');
       case EventStatus.completed:
-        return 'Completed';
+        return t.translate('events_completed');
     }
   }
 
@@ -366,17 +368,17 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     );
   }
 
-  Widget _buildQuickStats(EventDetailsState state) {
+  Widget _buildQuickStats(EventDetailsState state, AppLocalizations t) {
     final event = state.event!;
     return Container(
-      margin: EdgeInsets.all(context.dynamicWidth(0.04)),
-      padding: EdgeInsets.all(context.dynamicWidth(0.05)),
+      margin: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(19.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.06)),
+        borderRadius: BorderRadius.circular(23.w),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -386,25 +388,25 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         children: [
           Expanded(
             child: _buildStatItem(
-              'Invited',
+              t.translate('event_details_invited'),
               event.invitations.toString(),
               AppColors.blue500,
               Icons.mail_outline,
             ),
           ),
-          Container(width: 1, height: context.dynamicWidth(0.12), color: AppColors.gray200),
+          Container(width: 1, height: 45.w, color: AppColors.gray200),
           Expanded(
             child: _buildStatItem(
-              'Attending',
+              t.translate('event_details_attending'),
               event.attending.toString(),
               AppColors.green600,
               Icons.check_circle_outline,
             ),
           ),
-          Container(width: 1, height: context.dynamicWidth(0.12), color: AppColors.gray200),
+          Container(width: 1, height: 45.w, color: AppColors.gray200),
           Expanded(
             child: _buildStatItem(
-              'Declined',
+              t.translate('event_details_declined'),
               event.declined.toString(),
               AppColors.red500,
               Icons.cancel_outlined,
@@ -419,41 +421,41 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     return Column(
       children: [
         Container(
-          width: context.dynamicWidth(0.1),
-          height: context.dynamicWidth(0.1),
+          width: 38.w,
+          height: 38.w,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: color, size: context.dynamicWidth(0.05)),
+          child: Icon(icon, color: color, size: 19.w),
         ),
-        SizedBox(height: context.dynamicHeight(0.01)),
+        SizedBox(height: 8.h),
         Text(
           value,
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.06),
+            fontSize: 23.sp,
             fontWeight: FontWeight.bold,
             color: AppColors.gray900,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.003)),
+        SizedBox(height: 2.h),
         Text(
           label,
-          style: TextStyle(fontSize: context.dynamicWidth(0.03), color: AppColors.gray500),
+          style: TextStyle(fontSize: 11.sp, color: AppColors.gray500),
         ),
       ],
     );
   }
 
-  Widget _buildTabBar() {
+  Widget _buildTabBar(AppLocalizations t) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.04)),
+      margin: EdgeInsets.symmetric(horizontal: 15.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+        borderRadius: BorderRadius.circular(15.w),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -465,39 +467,39 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           gradient: LinearGradient(
             colors: [AppColors.primaryColor, AppColors.tertiaryColor],
           ),
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+          borderRadius: BorderRadius.circular(15.w),
         ),
         indicatorSize: TabBarIndicatorSize.tab,
-        indicatorPadding: EdgeInsets.all(context.dynamicWidth(0.01)),
+        indicatorPadding: EdgeInsets.all(4.w),
         labelColor: Colors.white,
         unselectedLabelColor: AppColors.gray600,
-        labelStyle: TextStyle(fontWeight: FontWeight.w600, fontSize: context.dynamicWidth(0.035)),
-        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: context.dynamicWidth(0.035)),
+        labelStyle: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.sp),
+        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: 13.sp),
         dividerColor: Colors.transparent,
-        tabs: const [
-          Tab(text: 'Overview'),
-          Tab(text: 'Guests'),
-          Tab(text: 'Details'),
+        tabs: [
+          Tab(text: t.translate('event_details_overview')),
+          Tab(text: t.translate('event_details_guests')),
+          Tab(text: t.translate('event_details_details')),
         ],
       ),
     );
   }
 
-  Widget _buildOverviewTab(EventDetailsState state) {
+  Widget _buildOverviewTab(EventDetailsState state, AppLocalizations t) {
     final event = state.event!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          _buildEventInfoCard(event),
+          _buildEventInfoCard(event, t),
           const SizedBox(height: 16),
-          _buildResponseAnalyticsCard(state),
+          _buildResponseAnalyticsCard(state, t),
         ],
       ),
     );
   }
 
-  Widget _buildEventInfoCard(EventEntity event) {
+  Widget _buildEventInfoCard(EventEntity event, AppLocalizations t) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -505,7 +507,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -528,7 +530,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
               ),
               const SizedBox(width: 12),
               Text(
-                'Event Information',
+                t.translate('event_details_info'),
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -540,7 +542,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           const SizedBox(height: 20),
           _buildInfoRow(
             Icons.calendar_today,
-            'Date & Time',
+            t.translate('event_details_date_time'),
             event.eventDate != null
                 ? _formatDateTime(event.eventDate!)
                 : '${event.date} at ${event.time}',
@@ -549,7 +551,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           const SizedBox(height: 16),
           _buildInfoRow(
             Icons.location_on,
-            'Venue',
+            t.translate('event_details_venue'),
             event.venueAddress != null
                 ? '${event.venue}\n${event.venueAddress}'
                 : event.venue,
@@ -559,7 +561,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
             const SizedBox(height: 16),
             _buildInfoRow(
               Icons.access_time,
-              'RSVP Deadline',
+              t.translate('event_details_rsvp_deadline'),
               _formatDate(event.rsvpDeadline!),
               AppColors.amber500,
             ),
@@ -577,7 +579,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, color: color, size: 20),
@@ -604,7 +606,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     );
   }
 
-  Widget _buildResponseAnalyticsCard(EventDetailsState state) {
+  Widget _buildResponseAnalyticsCard(EventDetailsState state, AppLocalizations t) {
     final event = state.event!;
     final total = event.invitations;
     final attendingPercent = total > 0 ? (event.attending / total * 100).round() : 0;
@@ -621,7 +623,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -644,7 +646,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
               ),
               const SizedBox(width: 12),
               Text(
-                'Response Analytics',
+                t.translate('event_details_analytics'),
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -654,13 +656,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
             ],
           ),
           const SizedBox(height: 24),
-          _buildProgressBar('Attending', event.attending, total, attendingPercent, AppColors.green600),
+          _buildProgressBar(t.translate('event_details_attending'), event.attending, total, attendingPercent, AppColors.green600),
           const SizedBox(height: 16),
-          _buildProgressBar('Pending', event.pending, total, pendingPercent, AppColors.amber500),
+          _buildProgressBar(t.translate('event_details_pending'), event.pending, total, pendingPercent, AppColors.amber500),
           const SizedBox(height: 16),
-          _buildProgressBar('Declined', event.declined, total, declinedPercent, AppColors.red500),
+          _buildProgressBar(t.translate('event_details_declined'), event.declined, total, declinedPercent, AppColors.red500),
           const SizedBox(height: 16),
-          _buildProgressBar('Checked In', event.checkedIn, event.attending, checkedInPercent, AppColors.primaryColor),
+          _buildProgressBar(t.translate('event_details_checked_in'), event.checkedIn, event.attending, checkedInPercent, AppColors.primaryColor),
         ],
       ),
     );
@@ -705,7 +707,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                       borderRadius: BorderRadius.circular(5),
                       boxShadow: [
                         BoxShadow(
-                          color: color.withOpacity(0.4),
+                          color: color.withValues(alpha: 0.4),
                           blurRadius: 6,
                           offset: const Offset(0, 2),
                         ),
@@ -721,12 +723,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     );
   }
 
-  Widget _buildGuestsTab(EventDetailsState state) {
+  Widget _buildGuestsTab(EventDetailsState state, AppLocalizations t) {
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.all(16),
-          child: _buildSearchBar(state),
+          child: _buildSearchBar(state, t),
         ),
         Expanded(
           child: ListView.builder(
@@ -742,7 +744,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                     child: Opacity(opacity: value, child: child),
                   );
                 },
-                child: _buildGuestCard(state.filteredGuests[index]),
+                child: _buildGuestCard(state.filteredGuests[index], t),
               );
             },
           ),
@@ -751,14 +753,14 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     );
   }
 
-  Widget _buildSearchBar(EventDetailsState state) {
+  Widget _buildSearchBar(EventDetailsState state, AppLocalizations t) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -770,7 +772,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           context.read<EventDetailsCubit>().searchGuests(value);
         },
         decoration: InputDecoration(
-          hintText: 'Search guests by name, email, or phone...',
+          hintText: t.translate('event_details_search_guests'),
           hintStyle: TextStyle(color: AppColors.gray400, fontSize: 14),
           prefixIcon: Icon(Icons.search, color: AppColors.gray400),
           suffixIcon: state.guestSearchQuery.isNotEmpty
@@ -789,7 +791,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     );
   }
 
-  Widget _buildGuestCard(GuestEntity guest) {
+  Widget _buildGuestCard(GuestEntity guest, AppLocalizations t) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -798,7 +800,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 15,
             offset: const Offset(0, 4),
           ),
@@ -815,13 +817,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                   gradient: LinearGradient(
                     colors: [
                       _getAvatarColor(guest),
-                      _getAvatarColor(guest).withOpacity(0.7),
+                      _getAvatarColor(guest).withValues(alpha: 0.7),
                     ],
                   ),
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: _getAvatarColor(guest).withOpacity(0.3),
+                      color: _getAvatarColor(guest).withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -852,7 +854,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                       ),
                     ),
                     const SizedBox(height: 4),
-                    _buildGuestStatusBadge(guest.status),
+                    _buildGuestStatusBadge(guest.status, t),
                   ],
                 ),
               ),
@@ -873,7 +875,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        guest.isCheckedIn ? 'Checked In' : 'Not Checked In',
+                        guest.isCheckedIn
+                            ? t.translate('event_details_checked_in')
+                            : t.translate('event_details_not_checked_in'),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
@@ -901,7 +905,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                   const SizedBox(height: 8),
                   _buildGuestInfoRow(
                     Icons.people_outline,
-                    '${guest.companions} companion${guest.companions > 1 ? 's' : ''}',
+                    '${guest.companions} ${guest.companions > 1 ? t.translate('event_details_companions') : t.translate('event_details_companion')}',
                   ),
                 ],
               ],
@@ -912,7 +916,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     );
   }
 
-  Widget _buildGuestStatusBadge(GuestStatus status) {
+  Widget _buildGuestStatusBadge(GuestStatus status, AppLocalizations t) {
     Color backgroundColor;
     Color textColor;
     String label;
@@ -921,17 +925,17 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
       case GuestStatus.attending:
         backgroundColor = AppColors.green100;
         textColor = AppColors.green600;
-        label = 'Attending';
+        label = t.translate('event_details_attending');
         break;
       case GuestStatus.declined:
         backgroundColor = AppColors.red100;
         textColor = AppColors.red500;
-        label = 'Declined';
+        label = t.translate('event_details_declined');
         break;
       case GuestStatus.pending:
         backgroundColor = AppColors.amber100;
         textColor = AppColors.amber600;
-        label = 'Pending';
+        label = t.translate('event_details_pending');
         break;
     }
 
@@ -963,20 +967,20 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     );
   }
 
-  Widget _buildDetailsTab(EventDetailsState state) {
+  Widget _buildDetailsTab(EventDetailsState state, AppLocalizations t) {
     final event = state.event!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          _buildPackageDetailsCard(event),
+          _buildPackageDetailsCard(event, t),
           const SizedBox(height: 16),
-          _buildTemplateInfoCard(event),
+          _buildTemplateInfoCard(event, t),
           const SizedBox(height: 16),
-          _buildEventSettingsCard(event),
+          _buildEventSettingsCard(event, t),
           if (event.description != null && event.description!.isNotEmpty) ...[
             const SizedBox(height: 16),
-            _buildDescriptionCard(event),
+            _buildDescriptionCard(event, t),
           ],
           const SizedBox(height: 32),
         ],
@@ -984,7 +988,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     );
   }
 
-  Widget _buildPackageDetailsCard(EventEntity event) {
+  Widget _buildPackageDetailsCard(EventEntity event, AppLocalizations t) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -992,7 +996,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -1015,7 +1019,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
               ),
               const SizedBox(width: 12),
               Text(
-                'Package Details',
+                t.translate('event_details_package'),
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -1030,12 +1034,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppColors.yellow400.withOpacity(0.2),
-                  AppColors.amber500.withOpacity(0.1),
+                  AppColors.yellow400.withValues(alpha: 0.2),
+                  AppColors.amber500.withValues(alpha: 0.1),
                 ],
               ),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.amber500.withOpacity(0.3)),
+              border: Border.all(color: AppColors.amber500.withValues(alpha: 0.3)),
             ),
             child: Row(
               children: [
@@ -1046,7 +1050,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        event.packageName ?? 'Standard Package',
+                        event.packageName ?? t.translate('event_details_standard_package'),
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -1055,7 +1059,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Up to ${event.invitations} invitations',
+                        '${t.translate('event_details_up_to')} ${event.invitations} ${t.translate('event_details_invitations')}',
                         style: TextStyle(fontSize: 13, color: AppColors.gray600),
                       ),
                     ],
@@ -1077,7 +1081,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     );
   }
 
-  Widget _buildTemplateInfoCard(EventEntity event) {
+  Widget _buildTemplateInfoCard(EventEntity event, AppLocalizations t) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -1085,7 +1089,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -1108,7 +1112,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
               ),
               const SizedBox(width: 12),
               Text(
-                'Template Info',
+                t.translate('event_details_template'),
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -1145,7 +1149,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        event.templateName ?? 'Standard Template',
+                        event.templateName ?? t.translate('event_details_standard_template'),
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -1154,7 +1158,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Premium invitation template',
+                        t.translate('event_details_premium_template'),
                         style: TextStyle(fontSize: 13, color: AppColors.gray600),
                       ),
                     ],
@@ -1163,11 +1167,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryColor.withOpacity(0.1),
+                    color: AppColors.primaryColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    'Preview',
+                    t.translate('common_preview'),
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -1183,7 +1187,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     );
   }
 
-  Widget _buildEventSettingsCard(EventEntity event) {
+  Widget _buildEventSettingsCard(EventEntity event, AppLocalizations t) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -1191,7 +1195,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -1214,7 +1218,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
               ),
               const SizedBox(width: 12),
               Text(
-                'Event Settings',
+                t.translate('event_details_settings'),
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -1224,13 +1228,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
             ],
           ),
           const SizedBox(height: 20),
-          _buildSettingRow('Allow Companions', event.allowCompanions ? 'Yes' : 'No', Icons.people_outline),
+          _buildSettingRow(t.translate('event_details_allow_companions'), event.allowCompanions ? t.translate('event_details_yes') : t.translate('event_details_no'), Icons.people_outline),
           const SizedBox(height: 12),
-          _buildSettingRow('Max Companions per Guest', event.maxCompanions.toString(), Icons.person_add_outlined),
+          _buildSettingRow(t.translate('event_details_max_companions'), event.maxCompanions.toString(), Icons.person_add_outlined),
           const SizedBox(height: 12),
-          _buildSettingRow('QR Code Check-in', 'Enabled', Icons.qr_code),
+          _buildSettingRow(t.translate('event_details_qr_checkin'), t.translate('event_details_enabled'), Icons.qr_code),
           const SizedBox(height: 12),
-          _buildSettingRow('RSVP Required', 'Yes', Icons.event_available),
+          _buildSettingRow(t.translate('event_details_rsvp_required'), t.translate('event_details_yes'), Icons.event_available),
         ],
       ),
     );
@@ -1273,7 +1277,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     );
   }
 
-  Widget _buildDescriptionCard(EventEntity event) {
+  Widget _buildDescriptionCard(EventEntity event, AppLocalizations t) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -1281,7 +1285,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -1304,7 +1308,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
               ),
               const SizedBox(width: 12),
               Text(
-                'Description',
+                t.translate('event_details_description'),
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -1323,7 +1327,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     );
   }
 
-  void _showDeleteConfirmation(EventDetailsState state) {
+  void _showDeleteConfirmation(EventDetailsState state, AppLocalizations t) {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -1333,23 +1337,23 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppColors.red500.withOpacity(0.1),
+                color: AppColors.red500.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.warning_amber_rounded, color: AppColors.red500, size: 24),
             ),
             const SizedBox(width: 12),
-            const Text('Delete Event'),
+            Text(t.translate('event_details_delete')),
           ],
         ),
         content: Text(
-          'Are you sure you want to delete "${state.event?.name}"? This action cannot be undone.',
+          '${t.translate('event_details_delete_confirm')} "${state.event?.name}"? ${t.translate('event_details_delete_warning')}',
           style: TextStyle(color: AppColors.gray700),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: Text('Cancel', style: TextStyle(color: AppColors.gray600)),
+            child: Text(t.translate('common_cancel'), style: TextStyle(color: AppColors.gray600)),
           ),
           BlocBuilder<EventDetailsCubit, EventDetailsState>(
             builder: (context, state) {
@@ -1363,7 +1367,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                           widget.onBack();
                           AppSnackBar.showSuccess(
                             context,
-                            message: 'Event deleted successfully',
+                            message: t.translate('event_details_deleted'),
                           );
                         }
                       },
@@ -1380,7 +1384,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                           valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       )
-                    : const Text('Delete', style: TextStyle(color: Colors.white)),
+                    : Text(t.translate('common_delete'), style: const TextStyle(color: Colors.white)),
               );
             },
           ),

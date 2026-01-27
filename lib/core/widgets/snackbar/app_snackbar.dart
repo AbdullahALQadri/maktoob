@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../utils/app_colors.dart';
 import '../../utils/app_strings.dart';
-import '../../utils/media_query_values.dart';
+import '../../utils/responsive.dart';
 
 /// A modern, uniform SnackBar utility for the entire application.
 ///
@@ -171,12 +171,12 @@ class AppSnackBar {
         behavior: SnackBarBehavior.floating,
         elevation: 0,
         margin: EdgeInsets.symmetric(
-          horizontal: context.dynamicWidth(0.04),
-          vertical: context.dynamicHeight(0.015),
+          horizontal: 15.w,
+          vertical: 12.h,
         ),
         padding: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.045)),
+          borderRadius: BorderRadius.circular(17.w),
         ),
         duration: duration,
         dismissDirection: DismissDirection.horizontal,
@@ -250,7 +250,7 @@ class _GlassSnackBarContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(context.dynamicWidth(0.045)),
+      borderRadius: BorderRadius.circular(17.w),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
         child: Container(
@@ -264,7 +264,7 @@ class _GlassSnackBarContent extends StatelessWidget {
                 Colors.white.withValues(alpha: 0.05),
               ],
             ),
-            borderRadius: BorderRadius.circular(context.dynamicWidth(0.045)),
+            borderRadius: BorderRadius.circular(17.w),
             border: Border.all(
               color: Colors.white.withValues(alpha: 0.2),
               width: 1,
@@ -281,21 +281,21 @@ class _GlassSnackBarContent extends StatelessWidget {
             // Inner dark overlay for better readability
             decoration: BoxDecoration(
               color: AppColors.gray900.withValues(alpha: 0.75),
-              borderRadius: BorderRadius.circular(context.dynamicWidth(0.045)),
+              borderRadius: BorderRadius.circular(17.w),
             ),
             padding: EdgeInsets.symmetric(
-              horizontal: context.dynamicWidth(0.04),
-              vertical: context.dynamicHeight(0.018),
+              horizontal: 15.w,
+              vertical: 15.h,
             ),
             child: Row(
               children: [
                 // Accent colored icon container
                 Container(
-                  width: context.dynamicWidth(0.11),
-                  height: context.dynamicWidth(0.11),
+                  width: 41.w,
+                  height: 41.w,
                   decoration: BoxDecoration(
                     color: accentColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+                    borderRadius: BorderRadius.circular(11.w),
                     border: Border.all(
                       color: accentColor.withValues(alpha: 0.3),
                       width: 1,
@@ -304,10 +304,10 @@ class _GlassSnackBarContent extends StatelessWidget {
                   child: Icon(
                     icon,
                     color: accentColor,
-                    size: context.dynamicWidth(0.055),
+                    size: 21.w,
                   ),
                 ),
-                SizedBox(width: context.dynamicWidth(0.035)),
+                SizedBox(width: 13.w),
                 // Text content
                 Expanded(
                   child: Column(
@@ -319,18 +319,18 @@ class _GlassSnackBarContent extends StatelessWidget {
                           title!,
                           style: TextStyle(
                             fontFamily: AppStrings.fontFamily,
-                            fontSize: context.dynamicWidth(0.038),
+                            fontSize: 14.sp,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
                         ),
-                        SizedBox(height: context.dynamicHeight(0.004)),
+                        SizedBox(height: 3.h),
                       ],
                       Text(
                         message,
                         style: TextStyle(
                           fontFamily: AppStrings.fontFamily,
-                          fontSize: context.dynamicWidth(0.035),
+                          fontSize: 13.sp,
                           fontWeight: title != null ? FontWeight.w400 : FontWeight.w500,
                           color: Colors.white.withValues(alpha: 0.9),
                           height: 1.3,
@@ -343,7 +343,7 @@ class _GlassSnackBarContent extends StatelessWidget {
                 ),
                 // Action button
                 if (actionLabel != null && onAction != null) ...[
-                  SizedBox(width: context.dynamicWidth(0.02)),
+                  SizedBox(width: 8.w),
                   GestureDetector(
                     onTap: () {
                       ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -351,12 +351,12 @@ class _GlassSnackBarContent extends StatelessWidget {
                     },
                     child: Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: context.dynamicWidth(0.035),
-                        vertical: context.dynamicHeight(0.01),
+                        horizontal: 13.w,
+                        vertical: 8.h,
                       ),
                       decoration: BoxDecoration(
                         color: accentColor.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(context.dynamicWidth(0.025)),
+                        borderRadius: BorderRadius.circular(9.w),
                         border: Border.all(
                           color: accentColor.withValues(alpha: 0.4),
                           width: 1,
@@ -366,7 +366,7 @@ class _GlassSnackBarContent extends StatelessWidget {
                         actionLabel!,
                         style: TextStyle(
                           fontFamily: AppStrings.fontFamily,
-                          fontSize: context.dynamicWidth(0.032),
+                          fontSize: 12.sp,
                           fontWeight: FontWeight.w600,
                           color: accentColor,
                         ),
@@ -376,10 +376,10 @@ class _GlassSnackBarContent extends StatelessWidget {
                 ],
                 // Close/dismiss indicator
                 if (actionLabel == null) ...[
-                  SizedBox(width: context.dynamicWidth(0.02)),
+                  SizedBox(width: 8.w),
                   Container(
-                    width: context.dynamicWidth(0.08),
-                    height: context.dynamicWidth(0.08),
+                    width: 30.w,
+                    height: 30.w,
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
@@ -387,7 +387,7 @@ class _GlassSnackBarContent extends StatelessWidget {
                     child: Icon(
                       Icons.close_rounded,
                       color: Colors.white.withValues(alpha: 0.6),
-                      size: context.dynamicWidth(0.04),
+                      size: 15.w,
                     ),
                   ),
                 ],

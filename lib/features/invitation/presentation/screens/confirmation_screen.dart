@@ -5,7 +5,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/buttons/primary_button.dart';
 import '../../../../core/widgets/snackbar/app_snackbar.dart';
 import '../cubit/invitation_cubit.dart';
@@ -75,17 +75,17 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
         builder: (context, state) {
           return SafeArea(
             child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.06)),
+              padding: EdgeInsets.symmetric(horizontal: 23.w),
               child: Column(
                 children: [
-                  SizedBox(height: context.dynamicHeight(0.05)),
+                  SizedBox(height: 41.h),
 
                   // Success animation
                   ScaleTransition(
                     scale: _scaleAnimation,
                     child: Container(
-                      width: context.dynamicWidth(0.25),
-                      height: context.dynamicWidth(0.25),
+                      width: 94.w,
+                      height: 94.w,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [AppColors.green600, AppColors.emerald500],
@@ -102,12 +102,12 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                       child: Icon(
                         Icons.check,
                         color: Colors.white,
-                        size: context.dynamicWidth(0.12),
+                        size: 45.w,
                       ),
                     ),
                   ),
 
-                  SizedBox(height: context.dynamicHeight(0.03)),
+                  SizedBox(height: 24.h),
 
                   // Success message
                   FadeTransition(
@@ -117,16 +117,16 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                         Text(
                           'Your invitation is live!',
                           style: TextStyle(
-                            fontSize: context.dynamicWidth(0.065),
+                            fontSize: 24.sp,
                             fontWeight: FontWeight.bold,
                             color: AppColors.gray900,
                           ),
                         ),
-                        SizedBox(height: context.dynamicHeight(0.01)),
+                        SizedBox(height: 8.h),
                         Text(
                           'Share it with your guests',
                           style: TextStyle(
-                            fontSize: context.dynamicWidth(0.04),
+                            fontSize: 15.sp,
                             color: AppColors.gray500,
                           ),
                         ),
@@ -134,16 +134,16 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                     ),
                   ),
 
-                  SizedBox(height: context.dynamicHeight(0.04)),
+                  SizedBox(height: 32.h),
 
                   // QR Code
                   FadeTransition(
                     opacity: _fadeAnimation,
                     child: Container(
-                      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+                      padding: EdgeInsets.all(15.w),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+                        borderRadius: BorderRadius.circular(15.w),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.1),
@@ -157,7 +157,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                           QrImageView(
                             data: state.shareLink ?? 'https://maktoob.app',
                             version: QrVersions.auto,
-                            size: context.dynamicWidth(0.45),
+                            size: 169.w,
                             backgroundColor: Colors.white,
                             eyeStyle: QrEyeStyle(
                               eyeShape: QrEyeShape.square,
@@ -168,12 +168,12 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                               color: AppColors.gray800,
                             ),
                           ),
-                          SizedBox(height: context.dynamicWidth(0.03)),
+                          SizedBox(height: 11.w),
                           Text(
                             'Scan to view invitation',
                             style: TextStyle(
                               color: AppColors.gray500,
-                              fontSize: context.dynamicWidth(0.035),
+                              fontSize: 13.sp,
                             ),
                           ),
                         ],
@@ -181,7 +181,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                     ),
                   ),
 
-                  SizedBox(height: context.dynamicHeight(0.03)),
+                  SizedBox(height: 24.h),
 
                   // Share link
                   FadeTransition(
@@ -189,7 +189,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                     child: _buildShareLinkCard(context, state),
                   ),
 
-                  SizedBox(height: context.dynamicHeight(0.025)),
+                  SizedBox(height: 20.h),
 
                   // Share buttons
                   FadeTransition(
@@ -197,7 +197,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                     child: _buildShareButtons(context, state),
                   ),
 
-                  SizedBox(height: context.dynamicHeight(0.03)),
+                  SizedBox(height: 24.h),
 
                   // Marketing footer (only for free plan)
                   if (state.isFreePlanSelected)
@@ -206,7 +206,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                       child: const MarketingFooterWidget(),
                     ),
 
-                  SizedBox(height: context.dynamicHeight(0.03)),
+                  SizedBox(height: 24.h),
 
                   // Action buttons
                   FadeTransition(
@@ -220,7 +220,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                             onPressed: widget.onGoToDashboard,
                           ),
                         ),
-                        SizedBox(height: context.dynamicHeight(0.015)),
+                        SizedBox(height: 12.h),
                         TextButton(
                           onPressed: () {
                             context.read<InvitationCubit>().reset();
@@ -230,7 +230,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                             'Create Another Invitation',
                             style: TextStyle(
                               color: AppColors.primaryColor,
-                              fontSize: context.dynamicWidth(0.038),
+                              fontSize: 14.sp,
                             ),
                           ),
                         ),
@@ -238,7 +238,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                     ),
                   ),
 
-                  SizedBox(height: context.dynamicHeight(0.04)),
+                  SizedBox(height: 32.h),
                 ],
               ),
             ),
@@ -252,10 +252,10 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
     final link = state.shareLink ?? 'Generating link...';
 
     return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+      padding: EdgeInsets.all(15.w),
       decoration: BoxDecoration(
         color: AppColors.gray50,
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+        borderRadius: BorderRadius.circular(11.w),
         border: Border.all(color: AppColors.gray200),
       ),
       child: Row(
@@ -268,15 +268,15 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                   'Invitation Link',
                   style: TextStyle(
                     color: AppColors.gray500,
-                    fontSize: context.dynamicWidth(0.032),
+                    fontSize: 12.sp,
                   ),
                 ),
-                SizedBox(height: context.dynamicWidth(0.01)),
+                SizedBox(height: 4.w),
                 Text(
                   link,
                   style: TextStyle(
                     color: AppColors.gray800,
-                    fontSize: context.dynamicWidth(0.035),
+                    fontSize: 13.sp,
                     fontWeight: FontWeight.w500,
                   ),
                   overflow: TextOverflow.ellipsis,
@@ -289,7 +289,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
             icon: Icon(
               Icons.copy,
               color: AppColors.primaryColor,
-              size: context.dynamicWidth(0.06),
+              size: 23.w,
             ),
           ),
         ],
@@ -338,24 +338,24 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
       child: Column(
         children: [
           Container(
-            width: context.dynamicWidth(0.15),
-            height: context.dynamicWidth(0.15),
+            width: 56.w,
+            height: 56.w,
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+              borderRadius: BorderRadius.circular(15.w),
             ),
             child: Icon(
               icon,
               color: color,
-              size: context.dynamicWidth(0.07),
+              size: 26.w,
             ),
           ),
-          SizedBox(height: context.dynamicWidth(0.02)),
+          SizedBox(height: 8.w),
           Text(
             label,
             style: TextStyle(
               color: AppColors.gray600,
-              fontSize: context.dynamicWidth(0.032),
+              fontSize: 12.sp,
             ),
           ),
         ],

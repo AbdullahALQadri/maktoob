@@ -72,13 +72,6 @@ class _MainShellState extends State<MainShell> {
     });
   }
 
-  void _onEventCreated(String eventId) {
-    setState(() {
-      _selectedEventId = eventId;
-      _showPaymentUpload = true;
-    });
-  }
-
   void _onAddEventTap() {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -151,22 +144,21 @@ class _MainShellState extends State<MainShell> {
   }
 
   List<AdaptiveNavItem> _buildNavItems(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final isArabic = !(l?.isEnLocale ?? true);
+    final t = AppLocalizations.of(context)!;
 
     return [
       AdaptiveNavItem(
-        label: isArabic ? 'الرئيسية' : 'Home',
+        label: t.translate('nav_home'),
         icon: Icons.grid_view_outlined,
         activeIcon: Icons.grid_view_rounded,
       ),
       AdaptiveNavItem(
-        label: isArabic ? 'الماسح' : 'Scanner',
+        label: t.translate('nav_scanner'),
         icon: Icons.crop_free_outlined,
         activeIcon: Icons.crop_free_rounded,
       ),
       AdaptiveNavItem(
-        label: isArabic ? 'الإعدادات' : 'Settings',
+        label: t.translate('nav_settings'),
         icon: Icons.bookmark_border_outlined,
         activeIcon: Icons.bookmark,
       ),

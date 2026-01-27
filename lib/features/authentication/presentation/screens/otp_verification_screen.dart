@@ -3,8 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
 
+import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/snackbar/app_snackbar.dart';
 import '../../domain/entities/user_entity.dart';
 
@@ -103,7 +104,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
       // Show snackbar
       AppSnackBar.showSuccess(
         context,
-        message: _isArabic ? 'تم إرسال رمز جديد' : 'New code sent',
+        message: AppLocalizations.of(context)!.translate('auth_new_code_sent'),
       );
     }
   }
@@ -136,21 +137,21 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                 physics: const BouncingScrollPhysics(),
                 child: Padding(
                   padding: EdgeInsets.symmetric(
-                    horizontal: context.dynamicWidth(0.06),
+                    horizontal: 23.w,
                   ),
                   child: FadeTransition(
                     opacity: _fadeAnimation,
                     child: Column(
                       children: [
-                        SizedBox(height: context.dynamicHeight(0.02)),
+                        SizedBox(height: 16.h),
                         _buildHeader(),
-                        SizedBox(height: context.dynamicHeight(0.04)),
+                        SizedBox(height: 32.h),
                         _buildIcon(),
-                        SizedBox(height: context.dynamicHeight(0.03)),
+                        SizedBox(height: 24.h),
                         _buildTitle(),
-                        SizedBox(height: context.dynamicHeight(0.04)),
+                        SizedBox(height: 32.h),
                         _buildOtpCard(),
-                        SizedBox(height: context.dynamicHeight(0.04)),
+                        SizedBox(height: 32.h),
                       ],
                     ),
                   ),
@@ -167,11 +168,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
     return Stack(
       children: [
         Positioned(
-          top: -context.dynamicWidth(0.3),
-          right: -context.dynamicWidth(0.2),
+          top: -113.w,
+          right: -75.w,
           child: Container(
-            width: context.dynamicWidth(0.7),
-            height: context.dynamicWidth(0.7),
+            width: 263.w,
+            height: 263.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
@@ -182,11 +183,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
           ),
         ),
         Positioned(
-          bottom: context.dynamicHeight(0.1),
-          left: -context.dynamicWidth(0.25),
+          bottom: 81.h,
+          left: -94.w,
           child: Container(
-            width: context.dynamicWidth(0.5),
-            height: context.dynamicWidth(0.5),
+            width: 188.w,
+            height: 188.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white.withValues(alpha: 0.05),
@@ -220,12 +221,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
             ),
           ),
         ),
-        SizedBox(width: context.dynamicWidth(0.04)),
+        SizedBox(width: 15.w),
         Expanded(
           child: Text(
-            _isArabic ? 'التحقق من الهاتف' : 'Phone Verification',
+            AppLocalizations.of(context)!.translate('auth_phone_verification'),
             style: TextStyle(
-              fontSize: context.dynamicWidth(0.055),
+              fontSize: 21.sp,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -237,8 +238,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
 
   Widget _buildIcon() {
     return Container(
-      width: context.dynamicWidth(0.28),
-      height: context.dynamicWidth(0.28),
+      width: 105.w,
+      height: 105.w,
       decoration: BoxDecoration(
         color: Colors.white,
         shape: BoxShape.circle,
@@ -252,34 +253,33 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
       ),
       child: Icon(
         Icons.sms_outlined,
-        size: context.dynamicWidth(0.14),
+        size: 53.w,
         color: AppColors.primaryColor,
       ),
     );
   }
 
   Widget _buildTitle() {
+    final t = AppLocalizations.of(context)!;
     return Column(
       children: [
         Text(
-          _isArabic ? 'أدخل رمز التحقق' : 'Enter Verification Code',
+          t.translate('auth_enter_code'),
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.055),
+            fontSize: 21.sp,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.015)),
+        SizedBox(height: 12.h),
         Text(
-          _isArabic
-              ? 'تم إرسال رمز التحقق إلى'
-              : 'We sent a verification code to',
+          t.translate('auth_code_sent_to'),
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.038),
+            fontSize: 14.sp,
             color: Colors.white.withValues(alpha: 0.9),
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.008)),
+        SizedBox(height: 6.h),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
@@ -289,7 +289,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
           child: Text(
             widget.phone,
             style: TextStyle(
-              fontSize: context.dynamicWidth(0.04),
+              fontSize: 15.sp,
               fontWeight: FontWeight.bold,
               color: Colors.white,
               letterSpacing: 1,
@@ -302,7 +302,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
 
   Widget _buildOtpCard() {
     return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.06)),
+      padding: EdgeInsets.all(23.w),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(28),
@@ -318,11 +318,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
         children: [
           // OTP Pinput
           _buildPinput(),
-          SizedBox(height: context.dynamicHeight(0.03)),
+          SizedBox(height: 24.h),
 
           // Verify Button
           _buildVerifyButton(),
-          SizedBox(height: context.dynamicHeight(0.025)),
+          SizedBox(height: 20.h),
 
           // Resend Section
           _buildResendSection(),
@@ -333,9 +333,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
 
   Widget _buildPinput() {
     // Calculate responsive sizes
-    final pinWidth = context.dynamicWidth(0.12);
-    final pinHeight = context.dynamicHeight(0.07);
-    final fontSize = context.dynamicWidth(0.055);
+    final pinWidth = 45.w;
+    final pinHeight = 57.h;
+    final fontSize = 21.w;
 
     // Default theme for unfocused state
     final defaultPinTheme = PinTheme(
@@ -419,7 +419,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
             borderRadius: BorderRadius.circular(1),
           ),
         ),
-        separatorBuilder: (index) => SizedBox(width: context.dynamicWidth(0.02)),
+        separatorBuilder: (index) => SizedBox(width: 8.w),
         hapticFeedbackType: HapticFeedbackType.lightImpact,
         closeKeyboardWhenCompleted: true,
         keyboardType: TextInputType.number,
@@ -440,7 +440,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
 
     return Container(
       width: double.infinity,
-      height: context.dynamicHeight(0.065),
+      height: 53.h,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         gradient: canVerify
@@ -486,9 +486,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                 ),
               )
             : Text(
-                _isArabic ? 'تحقق' : 'Verify',
+                AppLocalizations.of(context)!.translate('auth_verify'),
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.043),
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -497,16 +497,17 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
   }
 
   Widget _buildResendSection() {
+    final t = AppLocalizations.of(context)!;
     return Column(
       children: [
         Text(
-          _isArabic ? 'لم تستلم الرمز؟' : "Didn't receive the code?",
+          t.translate('auth_no_code'),
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.035),
+            fontSize: 13.sp,
             color: AppColors.gray500,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.01)),
+        SizedBox(height: 8.h),
         if (_canResend)
           GestureDetector(
             onTap: _resendOtp,
@@ -517,9 +518,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                _isArabic ? 'إعادة إرسال الرمز' : 'Resend Code',
+                t.translate('auth_resend_code'),
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.037),
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
                   color: AppColors.primaryColor,
                 ),
@@ -541,7 +542,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                     ? 'إعادة الإرسال بعد $_resendSeconds ثانية'
                     : 'Resend in $_resendSeconds seconds',
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.035),
+                  fontSize: 13.sp,
                   color: AppColors.gray400,
                 ),
               ),

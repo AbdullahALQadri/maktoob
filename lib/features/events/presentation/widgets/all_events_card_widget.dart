@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../domain/entities/event_entity.dart';
 
 /// Card widget for displaying events in the View All Events screen
@@ -33,7 +33,7 @@ class AllEventsCardWidget extends StatelessWidget {
         );
       },
       child: Padding(
-        padding: EdgeInsets.only(bottom: context.dynamicHeight(0.015)),
+        padding: EdgeInsets.only(bottom: 12.h),
         child: GestureDetector(
           onTap: onTap,
           child: _buildEventCard(context),
@@ -46,7 +46,7 @@ class AllEventsCardWidget extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.05)),
+        borderRadius: BorderRadius.circular(19.w),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
@@ -59,7 +59,7 @@ class AllEventsCardWidget extends StatelessWidget {
         children: [
           // Header with gradient accent
           Container(
-            padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+            padding: EdgeInsets.all(15.w),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
@@ -67,27 +67,27 @@ class AllEventsCardWidget extends StatelessWidget {
                 colors: _getStatusGradient(),
               ),
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(context.dynamicWidth(0.05)),
-                topRight: Radius.circular(context.dynamicWidth(0.05)),
+                topLeft: Radius.circular(19.w),
+                topRight: Radius.circular(19.w),
               ),
             ),
             child: Row(
               children: [
                 // Event icon
                 Container(
-                  width: context.dynamicWidth(0.12),
-                  height: context.dynamicWidth(0.12),
+                  width: 45.w,
+                  height: 45.w,
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+                    borderRadius: BorderRadius.circular(11.w),
                   ),
                   child: Icon(
                     _getEventIcon(),
                     color: Colors.white,
-                    size: context.dynamicWidth(0.06),
+                    size: 23.w,
                   ),
                 ),
-                SizedBox(width: context.dynamicWidth(0.03)),
+                SizedBox(width: 11.w),
                 // Event name and type
                 Expanded(
                   child: Column(
@@ -96,18 +96,18 @@ class AllEventsCardWidget extends StatelessWidget {
                       Text(
                         event.name,
                         style: TextStyle(
-                          fontSize: context.dynamicWidth(0.042),
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: context.dynamicHeight(0.004)),
+                      SizedBox(height: 3.h),
                       Text(
                         event.type,
                         style: TextStyle(
-                          fontSize: context.dynamicWidth(0.032),
+                          fontSize: 12.sp,
                           color: Colors.white.withValues(alpha: 0.85),
                         ),
                       ),
@@ -121,7 +121,7 @@ class AllEventsCardWidget extends StatelessWidget {
           ),
           // Body with details
           Padding(
-            padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+            padding: EdgeInsets.all(15.w),
             child: Column(
               children: [
                 // Date and venue row
@@ -135,7 +135,7 @@ class AllEventsCardWidget extends StatelessWidget {
                         AppColors.blue500,
                       ),
                     ),
-                    SizedBox(width: context.dynamicWidth(0.04)),
+                    SizedBox(width: 15.w),
                     Expanded(
                       child: _buildInfoItem(
                         context,
@@ -146,17 +146,17 @@ class AllEventsCardWidget extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: context.dynamicHeight(0.012)),
+                SizedBox(height: 10.h),
                 _buildInfoItem(
                   context,
                   Icons.location_on_outlined,
                   event.venue,
                   AppColors.orange500,
                 ),
-                SizedBox(height: context.dynamicHeight(0.02)),
+                SizedBox(height: 16.h),
                 // Stats row
                 _buildStatsRow(context),
-                SizedBox(height: context.dynamicHeight(0.015)),
+                SizedBox(height: 12.h),
                 // Response rate progress
                 _buildProgressBar(context),
               ],
@@ -192,12 +192,12 @@ class AllEventsCardWidget extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: context.dynamicWidth(0.025),
-        vertical: context.dynamicHeight(0.006),
+        horizontal: 9.w,
+        vertical: 5.h,
       ),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+        borderRadius: BorderRadius.circular(15.w),
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.3),
           width: 1,
@@ -206,7 +206,7 @@ class AllEventsCardWidget extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          fontSize: context.dynamicWidth(0.028),
+          fontSize: 11.sp,
           fontWeight: FontWeight.w600,
           color: textColor,
         ),
@@ -223,23 +223,23 @@ class AllEventsCardWidget extends StatelessWidget {
     return Row(
       children: [
         Container(
-          padding: EdgeInsets.all(context.dynamicWidth(0.018)),
+          padding: EdgeInsets.all(7.w),
           decoration: BoxDecoration(
             color: iconColor.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(context.dynamicWidth(0.02)),
+            borderRadius: BorderRadius.circular(8.w),
           ),
           child: Icon(
             icon,
-            size: context.dynamicWidth(0.038),
+            size: 14.w,
             color: iconColor,
           ),
         ),
-        SizedBox(width: context.dynamicWidth(0.02)),
+        SizedBox(width: 8.w),
         Expanded(
           child: Text(
             text,
             style: TextStyle(
-              fontSize: context.dynamicWidth(0.032),
+              fontSize: 12.sp,
               color: AppColors.gray700,
             ),
             maxLines: 1,
@@ -253,11 +253,11 @@ class AllEventsCardWidget extends StatelessWidget {
   Widget _buildStatsRow(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: context.dynamicWidth(0.03),
-        vertical: context.dynamicHeight(0.012)),
+        horizontal: 11.w,
+        vertical: 10.h),
       decoration: BoxDecoration(
         color: AppColors.gray50,
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+        borderRadius: BorderRadius.circular(11.w),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -298,7 +298,7 @@ class AllEventsCardWidget extends StatelessWidget {
         Text(
           value,
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.045),
+            fontSize: 17.sp,
             fontWeight: FontWeight.bold,
             color: color,
           ),
@@ -306,7 +306,7 @@ class AllEventsCardWidget extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.026),
+            fontSize: 10.sp,
             color: AppColors.gray500,
           ),
         ),
@@ -317,7 +317,7 @@ class AllEventsCardWidget extends StatelessWidget {
   Widget _buildDivider(BuildContext context) {
     return Container(
       width: 1,
-      height: context.dynamicHeight(0.04),
+      height: 32.h,
       color: AppColors.gray200,
     );
   }
@@ -334,31 +334,31 @@ class AllEventsCardWidget extends StatelessWidget {
             Text(
               'Response Rate',
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.03),
+                fontSize: 11.sp,
                 color: AppColors.gray500,
               ),
             ),
             Text(
               '${event.responseRate.toInt()}%',
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.03),
+                fontSize: 11.sp,
                 fontWeight: FontWeight.w600,
                 color: _getStatusColor(),
               ),
             ),
           ],
         ),
-        SizedBox(height: context.dynamicHeight(0.006)),
+        SizedBox(height: 5.h),
         ClipRRect(
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.01)),
+          borderRadius: BorderRadius.circular(4.w),
           child: SizedBox(
-            height: context.dynamicHeight(0.008),
+            height: 6.h,
             child: Stack(
               children: [
                 Container(
                   decoration: BoxDecoration(
                     color: AppColors.gray200,
-                    borderRadius: BorderRadius.circular(context.dynamicWidth(0.01)),
+                    borderRadius: BorderRadius.circular(4.w),
                   ),
                 ),
                 FractionallySizedBox(
@@ -368,7 +368,7 @@ class AllEventsCardWidget extends StatelessWidget {
                       gradient: LinearGradient(
                         colors: _getStatusGradient(),
                       ),
-                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.01)),
+                      borderRadius: BorderRadius.circular(4.w),
                     ),
                   ),
                 ),

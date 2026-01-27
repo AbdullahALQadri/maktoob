@@ -6,8 +6,6 @@ import '../../domain/entities/stat_entity.dart';
 import '../../domain/repositories/home_repository.dart';
 import '../datasources/home_local_data_source.dart';
 import '../datasources/home_remote_data_source.dart';
-import '../models/recent_event_model.dart';
-import '../models/stat_model.dart';
 
 class HomeRepositoryImpl implements HomeRepository {
   final HomeRemoteDataSource remoteDataSource;

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/buttons/primary_button.dart';
 import '../cubit/invitation_cubit.dart';
 import '../cubit/invitation_state.dart';
@@ -81,32 +81,32 @@ class _LandingScreenState extends State<LandingScreen>
         ),
         child: SafeArea(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.06)),
+            padding: EdgeInsets.symmetric(horizontal: 23.w),
             child: Column(
               children: [
                 // Top spacer
-                SizedBox(height: context.dynamicHeight(0.08)),
+                SizedBox(height: 65.h),
 
                 // Logo/Brand area
                 FadeTransition(
                   opacity: _fadeAnimation,
                   child: Container(
-                    width: context.dynamicWidth(0.25),
-                    height: context.dynamicWidth(0.25),
+                    width: 94.w,
+                    height: 94.w,
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.06)),
+                      borderRadius: BorderRadius.circular(23.w),
                     ),
                     child: Center(
                       child: Text(
                         '📨',
-                        style: TextStyle(fontSize: context.dynamicWidth(0.12)),
+                        style: TextStyle(fontSize: 45.sp),
                       ),
                     ),
                   ),
                 ),
 
-                SizedBox(height: context.dynamicHeight(0.04)),
+                SizedBox(height: 32.h),
 
                 // Main heading
                 SlideTransition(
@@ -117,7 +117,7 @@ class _LandingScreenState extends State<LandingScreen>
                       'Invite people in a way that\nmatches your special occasion',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: context.dynamicWidth(0.065),
+                        fontSize: 24.sp,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                         height: 1.3,
@@ -126,7 +126,7 @@ class _LandingScreenState extends State<LandingScreen>
                   ),
                 ),
 
-                SizedBox(height: context.dynamicHeight(0.02)),
+                SizedBox(height: 16.h),
 
                 // Subtitle
                 SlideTransition(
@@ -137,7 +137,7 @@ class _LandingScreenState extends State<LandingScreen>
                       'One link – QR code – Full organization',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: context.dynamicWidth(0.04),
+                        fontSize: 15.sp,
                         color: Colors.white.withValues(alpha: 0.85),
                         height: 1.5,
                       ),
@@ -157,7 +157,7 @@ class _LandingScreenState extends State<LandingScreen>
                   ),
                 ),
 
-                SizedBox(height: context.dynamicHeight(0.04)),
+                SizedBox(height: 32.h),
 
                 // Primary CTA
                 SlideTransition(
@@ -171,7 +171,7 @@ class _LandingScreenState extends State<LandingScreen>
                         onPressed: _onGetStarted,
                         gradientColors: const [Colors.white, Colors.white],
                         textStyle: TextStyle(
-                          fontSize: context.dynamicWidth(0.04),
+                          fontSize: 15.sp,
                           fontWeight: FontWeight.w600,
                           color: AppColors.primaryColor,
                         ),
@@ -180,7 +180,7 @@ class _LandingScreenState extends State<LandingScreen>
                   ),
                 ),
 
-                SizedBox(height: context.dynamicHeight(0.02)),
+                SizedBox(height: 16.h),
 
                 // Secondary option - Login
                 FadeTransition(
@@ -191,13 +191,13 @@ class _LandingScreenState extends State<LandingScreen>
                       'Already have an account? Sign in',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.9),
-                        fontSize: context.dynamicWidth(0.035),
+                        fontSize: 13.sp,
                       ),
                     ),
                   ),
                 ),
 
-                SizedBox(height: context.dynamicHeight(0.04)),
+                SizedBox(height: 32.h),
               ],
             ),
           ),
@@ -219,25 +219,25 @@ class _LandingScreenState extends State<LandingScreen>
         return Column(
           children: [
             Container(
-              width: context.dynamicWidth(0.14),
-              height: context.dynamicWidth(0.14),
+              width: 53.w,
+              height: 53.w,
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
+                borderRadius: BorderRadius.circular(13.w),
               ),
               child: Center(
                 child: Text(
                   feature['icon']!,
-                  style: TextStyle(fontSize: context.dynamicWidth(0.06)),
+                  style: TextStyle(fontSize: 23.sp),
                 ),
               ),
             ),
-            SizedBox(height: context.dynamicWidth(0.02)),
+            SizedBox(height: 8.w),
             Text(
               feature['text']!,
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.9),
-                fontSize: context.dynamicWidth(0.03),
+                fontSize: 11.sp,
               ),
             ),
           ],

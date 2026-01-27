@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../domain/entities/stat_entity.dart';
 
 class StatCardWidget extends StatelessWidget {
@@ -32,37 +32,37 @@ class StatCardWidget extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+          borderRadius: BorderRadius.circular(15.w),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 20,
               offset: const Offset(0, 4),
             ),
           ],
         ),
         child: Padding(
-          padding: EdgeInsets.all(context.dynamicWidth(0.03)),
+          padding: EdgeInsets.all(11.w),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: context.dynamicWidth(0.09),
-                height: context.dynamicWidth(0.09),
+                width: 34.w,
+                height: 34.w,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: stat.gradientColors,
                   ),
-                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.025)),
+                  borderRadius: BorderRadius.circular(9.w),
                 ),
                 child: Icon(
                   stat.icon,
                   color: Colors.white,
-                  size: context.dynamicWidth(0.045),
+                  size: 17.w,
                 ),
               ),
-              SizedBox(height: context.dynamicHeight(0.01)),
+              SizedBox(height: 8.h),
               Flexible(
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
@@ -70,7 +70,7 @@ class StatCardWidget extends StatelessWidget {
                   child: Text(
                     stat.value,
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.055),
+                      fontSize: 21.sp,
                       fontWeight: FontWeight.bold,
                       color: AppColors.gray900,
                     ),
@@ -78,11 +78,11 @@ class StatCardWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: context.dynamicHeight(0.003)),
+              SizedBox(height: 2.h),
               Text(
                 stat.label,
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.03),
+                  fontSize: 11.sp,
                   color: AppColors.gray500,
                   fontWeight: FontWeight.w500,
                 ),

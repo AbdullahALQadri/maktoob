@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../screens/create_event_screen.dart';
 
 class EventDetailsWidget extends StatefulWidget {
@@ -61,13 +61,13 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
               headerBackgroundColor: AppColors.primaryColor,
               headerForegroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+                borderRadius: BorderRadius.circular(15.w),
               ),
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
                 textStyle: TextStyle(
-                  fontSize: context.dynamicWidth(0.04),
+                  fontSize: 15.sp,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -123,19 +123,19 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
             timePickerTheme: TimePickerThemeData(
               backgroundColor: Colors.white,
               hourMinuteShape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+                borderRadius: BorderRadius.circular(11.w),
               ),
               dayPeriodShape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+                borderRadius: BorderRadius.circular(11.w),
               ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+                borderRadius: BorderRadius.circular(15.w),
               ),
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
                 textStyle: TextStyle(
-                  fontSize: context.dynamicWidth(0.04),
+                  fontSize: 15.sp,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -182,20 +182,20 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
         Text(
           'Event Details',
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.05),
+            fontSize: 19.sp,
             fontWeight: FontWeight.bold,
             color: AppColors.gray900,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.02)),
+        SizedBox(height: 16.h),
         Container(
-          padding: EdgeInsets.all(context.dynamicWidth(0.05)),
+          padding: EdgeInsets.all(19.w),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+            borderRadius: BorderRadius.circular(15.w),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -206,7 +206,7 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
             children: [
               // Event Name
               _buildLabel(context, 'Event Name'),
-              SizedBox(height: context.dynamicHeight(0.01)),
+              SizedBox(height: 8.h),
               _buildTextField(
                 context: context,
                 controller: _nameController,
@@ -220,7 +220,7 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
                   allowCompanions: d.allowCompanions,
                 )),
               ),
-              SizedBox(height: context.dynamicHeight(0.02)),
+              SizedBox(height: 16.h),
 
               // Date and Time
               Row(
@@ -230,7 +230,7 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildLabel(context, 'Date'),
-                        SizedBox(height: context.dynamicHeight(0.01)),
+                        SizedBox(height: 8.h),
                         _buildDateButton(
                           context,
                           _formatDate(widget.eventDetails.date),
@@ -239,13 +239,13 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
                       ],
                     ),
                   ),
-                  SizedBox(width: context.dynamicWidth(0.03)),
+                  SizedBox(width: 11.w),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildLabel(context, 'Time'),
-                        SizedBox(height: context.dynamicHeight(0.01)),
+                        SizedBox(height: 8.h),
                         _buildDateButton(
                           context,
                           _formatTime(widget.eventDetails.time),
@@ -256,24 +256,24 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
                   ),
                 ],
               ),
-              SizedBox(height: context.dynamicHeight(0.02)),
+              SizedBox(height: 16.h),
 
               // Response Deadline
               _buildLabel(context, 'Response Deadline'),
-              SizedBox(height: context.dynamicHeight(0.01)),
+              SizedBox(height: 8.h),
               _buildDateButton(
                 context,
                 _formatDate(widget.eventDetails.responseDeadline),
                 () => _selectDate(context, true),
               ),
-              SizedBox(height: context.dynamicHeight(0.02)),
+              SizedBox(height: 16.h),
 
               // Companions Toggle
               Container(
-                padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+                padding: EdgeInsets.all(15.w),
                 decoration: BoxDecoration(
                   color: AppColors.purple50,
-                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+                  borderRadius: BorderRadius.circular(11.w),
                 ),
                 child: Column(
                   children: [
@@ -286,16 +286,16 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
                             Text(
                               'Allow Companions',
                               style: TextStyle(
-                                fontSize: context.dynamicWidth(0.035),
+                                fontSize: 13.sp,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.gray900,
                               ),
                             ),
-                            SizedBox(height: context.dynamicHeight(0.003)),
+                            SizedBox(height: 2.h),
                             Text(
                               'Guests can bring +1',
                               style: TextStyle(
-                                fontSize: context.dynamicWidth(0.03),
+                                fontSize: 11.sp,
                                 color: AppColors.gray600,
                               ),
                             ),
@@ -312,13 +312,13 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
                           )),
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
-                            width: context.dynamicWidth(0.14),
-                            height: context.dynamicWidth(0.08),
+                            width: 53.w,
+                            height: 30.w,
                             decoration: BoxDecoration(
                               color: widget.eventDetails.allowCompanions
                                   ? AppColors.primaryColor
                                   : AppColors.gray300,
-                              borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+                              borderRadius: BorderRadius.circular(15.w),
                             ),
                             child: AnimatedAlign(
                               duration: const Duration(milliseconds: 200),
@@ -326,9 +326,9 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
                                   ? Alignment.centerRight
                                   : Alignment.centerLeft,
                               child: Container(
-                                width: context.dynamicWidth(0.06),
-                                height: context.dynamicWidth(0.06),
-                                margin: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.01)),
+                                width: 23.w,
+                                height: 23.w,
+                                margin: EdgeInsets.symmetric(horizontal: 4.w),
                                 decoration: const BoxDecoration(
                                   color: Colors.white,
                                   shape: BoxShape.circle,
@@ -340,7 +340,7 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
                       ],
                     ),
                     if (widget.eventDetails.allowCompanions) ...[
-                      SizedBox(height: context.dynamicHeight(0.015)),
+                      SizedBox(height: 12.h),
                       _buildTextField(
                         context: context,
                         controller: _maxCompanionsController,
@@ -373,7 +373,7 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
     return Text(
       text,
       style: TextStyle(
-        fontSize: context.dynamicWidth(0.035),
+        fontSize: 13.sp,
         fontWeight: FontWeight.w600,
         color: AppColors.gray700,
       ),
@@ -391,27 +391,27 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
       controller: controller,
       keyboardType: keyboardType,
       onChanged: onChanged,
-      style: TextStyle(fontSize: context.dynamicWidth(0.035)),
+      style: TextStyle(fontSize: 13.sp),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyle(fontSize: context.dynamicWidth(0.035)),
+        hintStyle: TextStyle(fontSize: 13.sp),
         filled: true,
         fillColor: AppColors.gray100,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+          borderRadius: BorderRadius.circular(11.w),
           borderSide: BorderSide(color: AppColors.gray100, width: 2),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+          borderRadius: BorderRadius.circular(11.w),
           borderSide: BorderSide(color: AppColors.gray100, width: 2),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+          borderRadius: BorderRadius.circular(11.w),
           borderSide: BorderSide(color: AppColors.primaryColor, width: 2),
         ),
         contentPadding: EdgeInsets.symmetric(
-          horizontal: context.dynamicWidth(0.04),
-          vertical: context.dynamicHeight(0.018),
+          horizontal: 15.w,
+          vertical: 15.h,
         ),
       ),
     );
@@ -423,18 +423,18 @@ class _EventDetailsWidgetState extends State<EventDetailsWidget> {
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(
-          horizontal: context.dynamicWidth(0.04),
-          vertical: context.dynamicHeight(0.018),
+          horizontal: 15.w,
+          vertical: 15.h,
         ),
         decoration: BoxDecoration(
           color: AppColors.gray100,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+          borderRadius: BorderRadius.circular(11.w),
           border: Border.all(color: AppColors.gray100, width: 2),
         ),
         child: Text(
           text,
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.035),
+            fontSize: 13.sp,
             color: text.startsWith('Select') ? AppColors.gray400 : AppColors.gray900,
           ),
         ),

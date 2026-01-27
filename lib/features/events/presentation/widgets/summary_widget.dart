@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../data/models/event_models.dart' hide CustomVenue, EventDetails, GuestInfo;
 import '../screens/create_event_screen.dart';
 
@@ -41,30 +41,30 @@ class SummaryWidget extends StatelessWidget {
         Text(
           'Summary',
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.05),
+            fontSize: 19.sp,
             fontWeight: FontWeight.bold,
             color: AppColors.gray900,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.02)),
+        SizedBox(height: 16.h),
         _buildSummaryCard(
           context: context,
           title: 'Package',
           content: '${selectedPackage.name} - \$${selectedPackage.price}',
         ),
-        SizedBox(height: context.dynamicHeight(0.015)),
+        SizedBox(height: 12.h),
         _buildSummaryCard(
           context: context,
           title: 'Venue',
           content: selectedVenue?.name ?? customVenue?.name ?? 'Not selected',
         ),
-        SizedBox(height: context.dynamicHeight(0.015)),
+        SizedBox(height: 12.h),
         _buildSummaryCard(
           context: context,
           title: 'Event Type',
           content: selectedEventType?.name ?? customEventType ?? 'Not selected',
         ),
-        SizedBox(height: context.dynamicHeight(0.015)),
+        SizedBox(height: 12.h),
         _buildSummaryCard(
           context: context,
           title: 'Template',
@@ -72,9 +72,9 @@ class SummaryWidget extends StatelessWidget {
               ? 'Custom Template (Requested)'
               : selectedTemplate?.name ?? 'Not selected',
         ),
-        SizedBox(height: context.dynamicHeight(0.015)),
+        SizedBox(height: 12.h),
         _buildEventDetailsCard(context),
-        SizedBox(height: context.dynamicHeight(0.015)),
+        SizedBox(height: 12.h),
         _buildGuestsCard(context),
       ],
     );
@@ -87,13 +87,13 @@ class SummaryWidget extends StatelessWidget {
   }) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(context.dynamicWidth(0.05)),
+      padding: EdgeInsets.all(19.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+        borderRadius: BorderRadius.circular(15.w),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -105,16 +105,16 @@ class SummaryWidget extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: context.dynamicWidth(0.038),
+              fontSize: 14.sp,
               fontWeight: FontWeight.bold,
               color: AppColors.gray900,
             ),
           ),
-          SizedBox(height: context.dynamicHeight(0.01)),
+          SizedBox(height: 8.h),
           Text(
             content,
             style: TextStyle(
-              fontSize: context.dynamicWidth(0.035),
+              fontSize: 13.sp,
               color: AppColors.gray600,
             ),
           ),
@@ -138,13 +138,13 @@ class SummaryWidget extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(context.dynamicWidth(0.05)),
+      padding: EdgeInsets.all(19.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+        borderRadius: BorderRadius.circular(15.w),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -156,22 +156,22 @@ class SummaryWidget extends StatelessWidget {
           Text(
             'Event Details',
             style: TextStyle(
-              fontSize: context.dynamicWidth(0.038),
+              fontSize: 14.sp,
               fontWeight: FontWeight.bold,
               color: AppColors.gray900,
             ),
           ),
-          SizedBox(height: context.dynamicHeight(0.015)),
+          SizedBox(height: 12.h),
           _buildDetailRow(context, 'Name', eventDetails.name.isEmpty ? 'Not set' : eventDetails.name),
-          SizedBox(height: context.dynamicHeight(0.01)),
+          SizedBox(height: 8.h),
           _buildDetailRow(
             context,
             'Date',
             '${formatDate(eventDetails.date)}${eventDetails.time != null ? ' at ${formatTime(eventDetails.time)}' : ''}',
           ),
-          SizedBox(height: context.dynamicHeight(0.01)),
+          SizedBox(height: 8.h),
           _buildDetailRow(context, 'RSVP Deadline', formatDate(eventDetails.responseDeadline)),
-          SizedBox(height: context.dynamicHeight(0.01)),
+          SizedBox(height: 8.h),
           _buildDetailRow(
             context,
             'Companions',
@@ -191,7 +191,7 @@ class SummaryWidget extends StatelessWidget {
         Text(
           '$label: ',
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.035),
+            fontSize: 13.sp,
             fontWeight: FontWeight.w600,
             color: AppColors.gray700,
           ),
@@ -200,7 +200,7 @@ class SummaryWidget extends StatelessWidget {
           child: Text(
             value,
             style: TextStyle(
-              fontSize: context.dynamicWidth(0.035),
+              fontSize: 13.sp,
               color: AppColors.gray600,
             ),
           ),
@@ -212,13 +212,13 @@ class SummaryWidget extends StatelessWidget {
   Widget _buildGuestsCard(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(context.dynamicWidth(0.05)),
+      padding: EdgeInsets.all(19.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+        borderRadius: BorderRadius.circular(15.w),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -230,17 +230,17 @@ class SummaryWidget extends StatelessWidget {
           Text(
             'Guests',
             style: TextStyle(
-              fontSize: context.dynamicWidth(0.038),
+              fontSize: 14.sp,
               fontWeight: FontWeight.bold,
               color: AppColors.gray900,
             ),
           ),
-          SizedBox(height: context.dynamicHeight(0.015)),
+          SizedBox(height: 12.h),
           if (guestMethod == GuestMethod.invite)
             Text(
               'Guests will be reached via WhatsApp, Email & SMS',
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.035),
+                fontSize: 13.sp,
                 color: AppColors.gray600,
               ),
             ),
@@ -248,7 +248,7 @@ class SummaryWidget extends StatelessWidget {
             Text(
               'Excel file uploaded: ${excelFile!.path.split('/').last}',
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.035),
+                fontSize: 13.sp,
                 color: AppColors.gray600,
               ),
             ),
@@ -256,25 +256,25 @@ class SummaryWidget extends StatelessWidget {
             Text(
               '${manualGuests.length} guests added',
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.035),
+                fontSize: 13.sp,
                 fontWeight: FontWeight.w600,
                 color: AppColors.gray600,
               ),
             ),
-            SizedBox(height: context.dynamicHeight(0.015)),
+            SizedBox(height: 12.h),
             ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: context.dynamicHeight(0.2)),
+              constraints: BoxConstraints(maxHeight: 162.h),
               child: ListView.builder(
                 shrinkWrap: true,
                 itemCount: manualGuests.length,
                 itemBuilder: (context, index) {
                   final guest = manualGuests[index];
                   return Container(
-                    margin: EdgeInsets.only(bottom: context.dynamicHeight(0.01)),
-                    padding: EdgeInsets.all(context.dynamicWidth(0.02)),
+                    margin: EdgeInsets.only(bottom: 8.h),
+                    padding: EdgeInsets.all(8.w),
                     decoration: BoxDecoration(
                       color: AppColors.gray100,
-                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.02)),
+                      borderRadius: BorderRadius.circular(8.w),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -282,7 +282,7 @@ class SummaryWidget extends StatelessWidget {
                         Text(
                           guest.name,
                           style: TextStyle(
-                            fontSize: context.dynamicWidth(0.033),
+                            fontSize: 12.sp,
                             fontWeight: FontWeight.w600,
                             color: AppColors.gray900,
                           ),
@@ -290,7 +290,7 @@ class SummaryWidget extends StatelessWidget {
                         Text(
                           guest.email,
                           style: TextStyle(
-                            fontSize: context.dynamicWidth(0.03),
+                            fontSize: 11.sp,
                             color: AppColors.gray600,
                           ),
                         ),
@@ -305,7 +305,7 @@ class SummaryWidget extends StatelessWidget {
             Text(
               'No guest method selected',
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.035),
+                fontSize: 13.sp,
                 color: AppColors.gray600,
               ),
             ),

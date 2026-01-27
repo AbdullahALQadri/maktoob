@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../../../../core/utils/app_colors.dart';
 import '../../data/models/invitation_draft_model.dart';
@@ -39,7 +39,7 @@ class InvitationPreviewWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(screenWidth * 0.04),
         boxShadow: [
           BoxShadow(
-            color: template.first.withOpacity(0.3),
+            color: template.first.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -58,7 +58,7 @@ class InvitationPreviewWidget extends StatelessWidget {
                 height: screenWidth * 0.4,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                 ),
               ),
             ),
@@ -70,7 +70,7 @@ class InvitationPreviewWidget extends StatelessWidget {
                 height: screenWidth * 0.5,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.05),
+                  color: Colors.white.withValues(alpha: 0.05),
                 ),
               ),
             ),
@@ -118,7 +118,7 @@ class InvitationPreviewWidget extends StatelessWidget {
                         children: [
                           Icon(
                             Icons.location_on_outlined,
-                            color: _getTextColor().withOpacity(0.8),
+                            color: _getTextColor().withValues(alpha: 0.8),
                             size: screenWidth * 0.04,
                           ),
                           SizedBox(width: screenWidth * 0.01),
@@ -126,7 +126,7 @@ class InvitationPreviewWidget extends StatelessWidget {
                             location!,
                             style: TextStyle(
                               fontSize: screenWidth * 0.032,
-                              color: _getTextColor().withOpacity(0.8),
+                              color: _getTextColor().withValues(alpha: 0.8),
                             ),
                           ),
                         ],
@@ -143,14 +143,14 @@ class InvitationPreviewWidget extends StatelessWidget {
                         vertical: screenWidth * 0.015,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
+                        color: Colors.white.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(screenWidth * 0.02),
                       ),
                       child: Text(
                         'Created with Maktoob',
                         style: TextStyle(
                           fontSize: screenWidth * 0.025,
-                          color: _getTextColor().withOpacity(0.7),
+                          color: _getTextColor().withValues(alpha: 0.7),
                         ),
                       ),
                     ),
@@ -198,7 +198,7 @@ class InvitationPreviewWidget extends StatelessWidget {
           style: TextStyle(
             fontSize: screenWidth * 0.035,
             fontWeight: FontWeight.w400,
-            color: _getTextColor().withOpacity(0.8),
+            color: _getTextColor().withValues(alpha: 0.8),
           ),
         ),
         Text(
@@ -234,7 +234,7 @@ class InvitationPreviewWidget extends StatelessWidget {
       children: [
         Icon(
           Icons.calendar_today_outlined,
-          color: _getTextColor().withOpacity(0.8),
+          color: _getTextColor().withValues(alpha: 0.8),
           size: screenWidth * 0.04,
         ),
         SizedBox(width: screenWidth * 0.015),
@@ -242,7 +242,7 @@ class InvitationPreviewWidget extends StatelessWidget {
           dateTimeText,
           style: TextStyle(
             fontSize: screenWidth * 0.035,
-            color: _getTextColor().withOpacity(0.9),
+            color: _getTextColor().withValues(alpha: 0.9),
             fontWeight: FontWeight.w500,
           ),
         ),

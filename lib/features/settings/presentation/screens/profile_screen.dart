@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/dialogs/app_dialog.dart';
 import '../../../../core/widgets/loading/shimmer_loading.dart';
@@ -31,8 +31,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final isArabic = !(l?.isEnLocale ?? true);
+    final t = AppLocalizations.of(context)!;
+    final isArabic = !t.isEnLocale;
 
     return Scaffold(
       backgroundColor: AppColors.gray100,
@@ -55,7 +55,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }
 
           if (state is ProfileError && state.user == null) {
-            return _buildErrorState(context, state.message, isArabic);
+            return _buildErrorState(context, state.message);
           }
 
           UserEntity? user;
@@ -93,29 +93,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         // Content skeleton
         SliverPadding(
-          padding: EdgeInsets.all(context.dynamicWidth(0.05)),
+          padding: EdgeInsets.all(19.w),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               // User Type Section skeleton
               _buildSectionTitleSkeleton(context),
-              SizedBox(height: context.dynamicHeight(0.015)),
+              SizedBox(height: 12.h),
               _buildUserTypeCardSkeleton(context),
 
-              SizedBox(height: context.dynamicHeight(0.03)),
+              SizedBox(height: 24.h),
 
               // Personal Info Section skeleton
               _buildSectionTitleSkeleton(context),
-              SizedBox(height: context.dynamicHeight(0.015)),
+              SizedBox(height: 12.h),
               _buildInfoCardSkeleton(context),
 
-              SizedBox(height: context.dynamicHeight(0.03)),
+              SizedBox(height: 24.h),
 
               // Account Actions Section skeleton
               _buildSectionTitleSkeleton(context),
-              SizedBox(height: context.dynamicHeight(0.015)),
+              SizedBox(height: 12.h),
               _buildActionsCardSkeleton(context),
 
-              SizedBox(height: context.dynamicHeight(0.12)),
+              SizedBox(height: 97.h),
             ]),
           ),
         ),
@@ -142,8 +142,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // App bar skeleton
             Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: context.dynamicWidth(0.05),
-                vertical: context.dynamicHeight(0.015),
+                horizontal: 19.w,
+                vertical: 12.h,
               ),
               child: Row(
                 children: [
@@ -180,10 +180,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // Name and info skeleton
             Padding(
               padding: EdgeInsets.fromLTRB(
-                context.dynamicWidth(0.06),
-                context.dynamicHeight(0.02),
-                context.dynamicWidth(0.06),
-                context.dynamicHeight(0.04),
+                23.w,
+                16.h,
+                23.w,
+                32.h,
               ),
               child: Column(
                 children: [
@@ -192,7 +192,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     baseColor: Colors.white.withValues(alpha: 0.2),
                     highlightColor: Colors.white.withValues(alpha: 0.4),
                     child: Container(
-                      width: context.dynamicWidth(0.4),
+                      width: 150.w,
                       height: 28,
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.2),
@@ -200,13 +200,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: context.dynamicHeight(0.01)),
+                  SizedBox(height: 8.h),
                   // Email skeleton
                   ShimmerLoading(
                     baseColor: Colors.white.withValues(alpha: 0.2),
                     highlightColor: Colors.white.withValues(alpha: 0.4),
                     child: Container(
-                      width: context.dynamicWidth(0.5),
+                      width: 188.w,
                       height: 16,
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.2),
@@ -214,7 +214,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: context.dynamicHeight(0.015)),
+                  SizedBox(height: 12.h),
                   // User type badge skeleton
                   ShimmerLoading(
                     baseColor: Colors.white.withValues(alpha: 0.2),
@@ -240,7 +240,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildSectionTitleSkeleton(BuildContext context) {
     return ShimmerLoading(
       child: SkeletonBox(
-        width: context.dynamicWidth(0.35),
+        width: 131.w,
         height: 22,
         borderRadius: 6,
       ),
@@ -250,10 +250,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildUserTypeCardSkeleton(BuildContext context) {
     return ShimmerLoading(
       child: Container(
-        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+        padding: EdgeInsets.all(15.w),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+          borderRadius: BorderRadius.circular(15.w),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -265,7 +265,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           children: [
             _buildUserTypeOptionSkeleton(context),
-            Divider(color: AppColors.gray100, height: context.dynamicHeight(0.02)),
+            Divider(color: AppColors.gray100, height: 16.h),
             _buildUserTypeOptionSkeleton(context),
           ],
         ),
@@ -276,29 +276,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildUserTypeOptionSkeleton(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(
-        vertical: context.dynamicHeight(0.015),
-        horizontal: context.dynamicWidth(0.02),
+        vertical: 12.h,
+        horizontal: 8.w,
       ),
       child: Row(
         children: [
           SkeletonBox(
-            width: context.dynamicWidth(0.12),
-            height: context.dynamicWidth(0.12),
-            borderRadius: context.dynamicWidth(0.03),
+            width: 45.w,
+            height: 45.w,
+            borderRadius: 11.w,
           ),
-          SizedBox(width: context.dynamicWidth(0.04)),
+          SizedBox(width: 15.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SkeletonBox(
-                  width: context.dynamicWidth(0.3),
+                  width: 113.w,
                   height: 18,
                   borderRadius: 4,
                 ),
-                SizedBox(height: context.dynamicHeight(0.005)),
+                SizedBox(height: 4.h),
                 SkeletonBox(
-                  width: context.dynamicWidth(0.5),
+                  width: 188.w,
                   height: 14,
                   borderRadius: 4,
                 ),
@@ -313,10 +313,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildInfoCardSkeleton(BuildContext context) {
     return ShimmerLoading(
       child: Container(
-        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+        padding: EdgeInsets.all(15.w),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+          borderRadius: BorderRadius.circular(15.w),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -328,11 +328,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           children: [
             _buildInfoRowSkeleton(context),
-            Divider(color: AppColors.gray100, height: context.dynamicHeight(0.025)),
+            Divider(color: AppColors.gray100, height: 20.h),
             _buildInfoRowSkeleton(context),
-            Divider(color: AppColors.gray100, height: context.dynamicHeight(0.025)),
+            Divider(color: AppColors.gray100, height: 20.h),
             _buildInfoRowSkeleton(context),
-            Divider(color: AppColors.gray100, height: context.dynamicHeight(0.025)),
+            Divider(color: AppColors.gray100, height: 20.h),
             _buildInfoRowSkeleton(context),
           ],
         ),
@@ -344,23 +344,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Row(
       children: [
         SkeletonBox(
-          width: context.dynamicWidth(0.1),
-          height: context.dynamicWidth(0.1),
-          borderRadius: context.dynamicWidth(0.025),
+          width: 38.w,
+          height: 38.w,
+          borderRadius: 9.w,
         ),
-        SizedBox(width: context.dynamicWidth(0.04)),
+        SizedBox(width: 15.w),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SkeletonBox(
-                width: context.dynamicWidth(0.2),
+                width: 75.w,
                 height: 14,
                 borderRadius: 4,
               ),
-              SizedBox(height: context.dynamicHeight(0.005)),
+              SizedBox(height: 4.h),
               SkeletonBox(
-                width: context.dynamicWidth(0.45),
+                width: 169.w,
                 height: 18,
                 borderRadius: 4,
               ),
@@ -376,7 +376,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+          borderRadius: BorderRadius.circular(15.w),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -402,25 +402,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildActionItemSkeleton(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+      padding: EdgeInsets.all(15.w),
       child: Row(
         children: [
           SkeletonBox(
-            width: context.dynamicWidth(0.055),
-            height: context.dynamicWidth(0.055),
+            width: 21.w,
+            height: 21.w,
             borderRadius: 6,
           ),
-          SizedBox(width: context.dynamicWidth(0.04)),
+          SizedBox(width: 15.w),
           Expanded(
             child: SkeletonBox(
-              width: context.dynamicWidth(0.35),
+              width: 131.w,
               height: 18,
               borderRadius: 4,
             ),
           ),
           SkeletonBox(
-            width: context.dynamicWidth(0.04),
-            height: context.dynamicWidth(0.04),
+            width: 15.w,
+            height: 15.w,
             borderRadius: 4,
           ),
         ],
@@ -428,42 +428,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildErrorState(BuildContext context, String message, bool isArabic) {
+  Widget _buildErrorState(BuildContext context, String message) {
+    final t = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(context.dynamicWidth(0.08)),
+        padding: EdgeInsets.all(30.w),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.error_outline,
-              size: context.dynamicWidth(0.2),
+              size: 75.w,
               color: AppColors.red500,
             ),
-            SizedBox(height: context.dynamicHeight(0.02)),
+            SizedBox(height: 16.h),
             Text(
               message,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.04),
+                fontSize: 15.sp,
                 color: AppColors.gray600,
               ),
             ),
-            SizedBox(height: context.dynamicHeight(0.03)),
+            SizedBox(height: 24.h),
             ElevatedButton(
               onPressed: () => context.read<ProfileCubit>().loadProfile(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryColor,
                 foregroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(
-                  horizontal: context.dynamicWidth(0.08),
-                  vertical: context.dynamicHeight(0.015),
+                  horizontal: 30.w,
+                  vertical: 12.h,
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text(isArabic ? 'إعادة المحاولة' : 'Retry'),
+              child: Text(t.translate('common_retry')),
             ),
           ],
         ),
@@ -487,38 +488,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             // Profile Content
             SliverPadding(
-              padding: EdgeInsets.all(context.dynamicWidth(0.05)),
+              padding: EdgeInsets.all(19.w),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
                   // User Type Section
                   _buildSectionTitle(
                     context,
-                    isArabic ? 'نوع الحساب' : 'Account Type',
+                    AppLocalizations.of(context)!.translate('profile_account_type'),
                   ),
-                  SizedBox(height: context.dynamicHeight(0.015)),
+                  SizedBox(height: 12.h),
                   _buildUserTypeCard(context, user, isArabic),
 
-                  SizedBox(height: context.dynamicHeight(0.03)),
+                  SizedBox(height: 24.h),
 
                   // Personal Info Section
                   _buildSectionTitle(
                     context,
-                    isArabic ? 'المعلومات الشخصية' : 'Personal Information',
+                    AppLocalizations.of(context)!.translate('profile_personal_info'),
                   ),
-                  SizedBox(height: context.dynamicHeight(0.015)),
-                  _buildInfoCard(context, user, isArabic),
+                  SizedBox(height: 12.h),
+                  _buildInfoCard(context, user),
 
-                  SizedBox(height: context.dynamicHeight(0.03)),
+                  SizedBox(height: 24.h),
 
                   // Account Actions Section
                   _buildSectionTitle(
                     context,
-                    isArabic ? 'إجراءات الحساب' : 'Account Actions',
+                    AppLocalizations.of(context)!.translate('profile_account_actions'),
                   ),
-                  SizedBox(height: context.dynamicHeight(0.015)),
-                  _buildActionsCard(context, isArabic),
+                  SizedBox(height: 12.h),
+                  _buildActionsCard(context),
 
-                  SizedBox(height: context.dynamicHeight(0.12)),
+                  SizedBox(height: 97.h),
                 ]),
               ),
             ),
@@ -529,7 +530,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             color: Colors.black.withValues(alpha: 0.3),
             child: Center(
               child: Container(
-                padding: EdgeInsets.all(context.dynamicWidth(0.06)),
+                padding: EdgeInsets.all(23.w),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
@@ -545,6 +546,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildHeader(BuildContext context, UserEntity user, bool isArabic) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -563,8 +565,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // App bar
             Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: context.dynamicWidth(0.05),
-                vertical: context.dynamicHeight(0.015),
+                horizontal: 19.w,
+                vertical: 12.h,
               ),
               child: Row(
                 children: [
@@ -590,9 +592,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const Spacer(),
                   Text(
-                    isArabic ? 'الملف الشخصي' : 'Profile',
+                    t.translate('profile_title'),
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.05),
+                      fontSize: 19.sp,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
@@ -606,10 +608,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // Name and info
             Padding(
               padding: EdgeInsets.fromLTRB(
-                context.dynamicWidth(0.06),
-                context.dynamicHeight(0.02),
-                context.dynamicWidth(0.06),
-                context.dynamicHeight(0.04),
+                23.w,
+                16.h,
+                23.w,
+                32.h,
               ),
               child: Column(
                 children: [
@@ -617,27 +619,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Text(
                     user.name,
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.06),
+                      fontSize: 23.sp,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: context.dynamicHeight(0.005)),
+                  SizedBox(height: 4.h),
                   // Email
                   Text(
                     user.email,
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.035),
+                      fontSize: 13.sp,
                       color: Colors.white.withValues(alpha: 0.8),
                     ),
                   ),
-                  SizedBox(height: context.dynamicHeight(0.015)),
+                  SizedBox(height: 12.h),
                   // User type badge
                   Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: context.dynamicWidth(0.04),
-                      vertical: context.dynamicHeight(0.008),
+                      horizontal: 15.w,
+                      vertical: 6.h,
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.2),
@@ -654,15 +656,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ? Icons.business
                               : Icons.person,
                           color: Colors.white,
-                          size: context.dynamicWidth(0.04),
+                          size: 15.w,
                         ),
-                        SizedBox(width: context.dynamicWidth(0.02)),
+                        SizedBox(width: 8.w),
                         Text(
                           isArabic
                               ? user.userType.displayNameAr
                               : user.userType.displayName,
                           style: TextStyle(
-                            fontSize: context.dynamicWidth(0.032),
+                            fontSize: 12.sp,
                             color: Colors.white,
                             fontWeight: FontWeight.w500,
                           ),
@@ -671,20 +673,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   if (user.isVerified) ...[
-                    SizedBox(height: context.dynamicHeight(0.01)),
+                    SizedBox(height: 8.h),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
                           Icons.verified,
                           color: Colors.white,
-                          size: context.dynamicWidth(0.04),
+                          size: 15.w,
                         ),
-                        SizedBox(width: context.dynamicWidth(0.01)),
+                        SizedBox(width: 4.w),
                         Text(
-                          isArabic ? 'موثّق' : 'Verified',
+                          t.translate('profile_verified'),
                           style: TextStyle(
-                            fontSize: context.dynamicWidth(0.03),
+                            fontSize: 11.sp,
                             color: Colors.white,
                           ),
                         ),
@@ -704,7 +706,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Text(
       title,
       style: TextStyle(
-        fontSize: context.dynamicWidth(0.045),
+        fontSize: 17.sp,
         fontWeight: FontWeight.bold,
         color: AppColors.gray900,
       ),
@@ -716,11 +718,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     UserEntity user,
     bool isArabic,
   ) {
+    final t = AppLocalizations.of(context)!;
     return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+      padding: EdgeInsets.all(15.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+        borderRadius: BorderRadius.circular(15.w),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -733,21 +736,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           _buildUserTypeOption(
             context: context,
-            title: isArabic ? 'فرد' : 'Individual',
-            subtitle: isArabic
-                ? 'حساب شخصي لإدارة الفعاليات الخاصة'
-                : 'Personal account for managing private events',
+            title: t.translate('auth_individual'),
+            subtitle: t.translate('profile_individual_desc'),
             icon: Icons.person,
             isSelected: user.userType == UserType.user,
             onTap: () => _showChangeUserTypeDialog(context, UserType.user, isArabic),
           ),
-          Divider(color: AppColors.gray100, height: context.dynamicHeight(0.02)),
+          Divider(color: AppColors.gray100, height: 16.h),
           _buildUserTypeOption(
             context: context,
-            title: isArabic ? 'مؤسسة' : 'Institution',
-            subtitle: isArabic
-                ? 'حساب أعمال لإدارة الفعاليات التجارية'
-                : 'Business account for managing commercial events',
+            title: t.translate('auth_institution'),
+            subtitle: t.translate('profile_institution_desc'),
             icon: Icons.business,
             isSelected: user.userType == UserType.institution,
             onTap: () => _showChangeUserTypeDialog(context, UserType.institution, isArabic),
@@ -769,18 +768,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(
-          vertical: context.dynamicHeight(0.015),
-          horizontal: context.dynamicWidth(0.02),
+          vertical: 12.h,
+          horizontal: 8.w,
         ),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.purple50 : Colors.transparent,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+          borderRadius: BorderRadius.circular(11.w),
         ),
         child: Row(
           children: [
             Container(
-              width: context.dynamicWidth(0.12),
-              height: context.dynamicWidth(0.12),
+              width: 45.w,
+              height: 45.w,
               decoration: BoxDecoration(
                 gradient: isSelected
                     ? LinearGradient(
@@ -788,15 +787,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       )
                     : null,
                 color: isSelected ? null : AppColors.gray100,
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+                borderRadius: BorderRadius.circular(11.w),
               ),
               child: Icon(
                 icon,
                 color: isSelected ? Colors.white : AppColors.gray400,
-                size: context.dynamicWidth(0.06),
+                size: 23.w,
               ),
             ),
-            SizedBox(width: context.dynamicWidth(0.04)),
+            SizedBox(width: 15.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -804,7 +803,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.04),
+                      fontSize: 15.sp,
                       fontWeight: FontWeight.bold,
                       color: isSelected ? AppColors.primaryColor : AppColors.gray900,
                     ),
@@ -812,7 +811,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Text(
                     subtitle,
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.028),
+                      fontSize: 11.sp,
                       color: AppColors.gray500,
                     ),
                   ),
@@ -821,8 +820,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             if (isSelected)
               Container(
-                width: context.dynamicWidth(0.06),
-                height: context.dynamicWidth(0.06),
+                width: 23.w,
+                height: 23.w,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [AppColors.primaryColor, AppColors.tertiaryColor],
@@ -832,7 +831,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Icon(
                   Icons.check,
                   color: Colors.white,
-                  size: context.dynamicWidth(0.035),
+                  size: 13.w,
                 ),
               ),
           ],
@@ -841,12 +840,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildInfoCard(BuildContext context, UserEntity user, bool isArabic) {
+  Widget _buildInfoCard(BuildContext context, UserEntity user) {
+    final t = AppLocalizations.of(context)!;
     return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+      padding: EdgeInsets.all(15.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+        borderRadius: BorderRadius.circular(15.w),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -860,31 +860,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildInfoRow(
             context: context,
             icon: Icons.person_outline,
-            label: isArabic ? 'الاسم' : 'Name',
+            label: t.translate('profile_name'),
             value: user.name,
           ),
-          Divider(color: AppColors.gray100, height: context.dynamicHeight(0.025)),
+          Divider(color: AppColors.gray100, height: 20.h),
           _buildInfoRow(
             context: context,
             icon: Icons.email_outlined,
-            label: isArabic ? 'البريد الإلكتروني' : 'Email',
+            label: t.translate('profile_email'),
             value: user.email,
           ),
           if (user.phone != null) ...[
-            Divider(color: AppColors.gray100, height: context.dynamicHeight(0.025)),
+            Divider(color: AppColors.gray100, height: 20.h),
             _buildInfoRow(
               context: context,
               icon: Icons.phone_outlined,
-              label: isArabic ? 'رقم الهاتف' : 'Phone',
+              label: t.translate('profile_phone'),
               value: user.phone!,
             ),
           ],
           if (user.companyName != null) ...[
-            Divider(color: AppColors.gray100, height: context.dynamicHeight(0.025)),
+            Divider(color: AppColors.gray100, height: 20.h),
             _buildInfoRow(
               context: context,
               icon: Icons.business_outlined,
-              label: isArabic ? 'اسم المنظمة' : 'Organization',
+              label: t.translate('profile_organization'),
               value: user.companyName!,
             ),
           ],
@@ -902,19 +902,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Row(
       children: [
         Container(
-          width: context.dynamicWidth(0.1),
-          height: context.dynamicWidth(0.1),
+          width: 38.w,
+          height: 38.w,
           decoration: BoxDecoration(
             color: AppColors.purple50,
-            borderRadius: BorderRadius.circular(context.dynamicWidth(0.025)),
+            borderRadius: BorderRadius.circular(9.w),
           ),
           child: Icon(
             icon,
             color: AppColors.primaryColor,
-            size: context.dynamicWidth(0.05),
+            size: 19.w,
           ),
         ),
-        SizedBox(width: context.dynamicWidth(0.04)),
+        SizedBox(width: 15.w),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -922,15 +922,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.03),
+                  fontSize: 11.sp,
                   color: AppColors.gray500,
                 ),
               ),
-              SizedBox(height: context.dynamicHeight(0.003)),
+              SizedBox(height: 2.h),
               Text(
                 value,
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.038),
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.w500,
                   color: AppColors.gray900,
                 ),
@@ -942,11 +942,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildActionsCard(BuildContext context, bool isArabic) {
+  Widget _buildActionsCard(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+        borderRadius: BorderRadius.circular(15.w),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -960,31 +961,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildActionItem(
             context: context,
             icon: Icons.edit_outlined,
-            title: isArabic ? 'تعديل الملف الشخصي' : 'Edit Profile',
-            onTap: () => _showEditProfileDialog(context, isArabic),
+            title: t.translate('profile_edit'),
+            onTap: () => _showEditProfileDialog(context),
           ),
           Divider(color: AppColors.gray100, height: 1),
           _buildActionItem(
             context: context,
             icon: Icons.lock_outline,
-            title: isArabic ? 'تغيير كلمة المرور' : 'Change Password',
-            onTap: () => _showChangePasswordDialog(context, isArabic),
+            title: t.translate('profile_change_password'),
+            onTap: () => _showChangePasswordDialog(context),
           ),
           Divider(color: AppColors.gray100, height: 1),
           _buildActionItem(
             context: context,
             icon: Icons.logout,
-            title: isArabic ? 'تسجيل الخروج' : 'Logout',
+            title: t.translate('profile_logout'),
             isDestructive: false,
-            onTap: () => _showLogoutDialog(context, isArabic),
+            onTap: () => _showLogoutDialog(context),
           ),
           Divider(color: AppColors.gray100, height: 1),
           _buildActionItem(
             context: context,
             icon: Icons.delete_outline,
-            title: isArabic ? 'حذف الحساب' : 'Delete Account',
+            title: t.translate('profile_delete'),
             isDestructive: true,
-            onTap: () => _showDeleteAccountDialog(context, isArabic),
+            onTap: () => _showDeleteAccountDialog(context),
           ),
         ],
       ),
@@ -1001,20 +1002,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+        padding: EdgeInsets.all(15.w),
         child: Row(
           children: [
             Icon(
               icon,
               color: isDestructive ? AppColors.red500 : AppColors.gray600,
-              size: context.dynamicWidth(0.055),
+              size: 21.w,
             ),
-            SizedBox(width: context.dynamicWidth(0.04)),
+            SizedBox(width: 15.w),
             Expanded(
               child: Text(
                 title,
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.04),
+                  fontSize: 15.sp,
                   fontWeight: FontWeight.w500,
                   color: isDestructive ? AppColors.red500 : AppColors.gray900,
                 ),
@@ -1023,7 +1024,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Icon(
               Icons.arrow_forward_ios,
               color: AppColors.gray400,
-              size: context.dynamicWidth(0.04),
+              size: 15.w,
             ),
           ],
         ),
@@ -1036,6 +1037,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     UserType newType,
     bool isArabic,
   ) {
+    final t = AppLocalizations.of(context)!;
     final profileCubit = context.read<ProfileCubit>();
     final currentState = profileCubit.state;
     UserEntity? currentUser;
@@ -1062,22 +1064,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
             return Dialog(
               backgroundColor: Colors.transparent,
               insetPadding: EdgeInsets.symmetric(
-                horizontal: context.dynamicWidth(0.06),
-                vertical: context.dynamicHeight(0.03),
+                horizontal: 23.w,
+                vertical: 24.h,
               ),
               child: Container(
                 constraints: BoxConstraints(
-                  maxWidth: context.dynamicWidth(0.9),
+                  maxWidth: 338.w,
                 ),
-                padding: EdgeInsets.all(context.dynamicWidth(0.06)),
+                padding: EdgeInsets.all(23.w),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.06)),
+                  borderRadius: BorderRadius.circular(23.w),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.15),
-                      blurRadius: context.dynamicWidth(0.08),
-                      offset: Offset(0, context.dynamicHeight(0.02)),
+                      blurRadius: 30.w,
+                      offset: Offset(0, 16.h),
                     ),
                   ],
                 ),
@@ -1087,65 +1089,65 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       // Icon
                       Container(
-                        width: context.dynamicWidth(0.2),
-                        height: context.dynamicWidth(0.2),
+                        width: 75.w,
+                        height: 75.w,
                         decoration: BoxDecoration(
                           color: AppColors.purple50,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
                               color: AppColors.primaryColor.withValues(alpha: 0.2),
-                              blurRadius: context.dynamicWidth(0.05),
-                              offset: Offset(0, context.dynamicHeight(0.01)),
+                              blurRadius: 19.w,
+                              offset: Offset(0, 8.h),
                             ),
                           ],
                         ),
                         child: Icon(
                           isConvertingToOrg ? Icons.business_rounded : Icons.person_rounded,
-                          size: context.dynamicWidth(0.1),
+                          size: 38.w,
                           color: AppColors.primaryColor,
                         ),
                       ),
-                      SizedBox(height: context.dynamicHeight(0.02)),
+                      SizedBox(height: 16.h),
                       // Title
                       Text(
-                        isArabic ? 'تغيير نوع الحساب' : 'Change Account Type',
+                        t.translate('profile_change_type'),
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: context.dynamicWidth(0.055),
+                          fontSize: 21.sp,
                           fontWeight: FontWeight.bold,
                           color: AppColors.gray900,
                         ),
                       ),
-                      SizedBox(height: context.dynamicHeight(0.012)),
+                      SizedBox(height: 10.h),
                       // Message
                       Padding(
                         padding: EdgeInsets.symmetric(
-                          horizontal: context.dynamicWidth(0.02),
+                          horizontal: 8.w,
                         ),
                         child: Text(
                           isArabic
-                              ? 'هل أنت متأكد من تغيير نوع حسابك إلى "${newType.displayNameAr}"؟'
-                              : 'Are you sure you want to change your account type to "${newType.displayName}"?',
+                              ? '${t.translate('profile_change_type_confirm')} "${newType.displayNameAr}"؟'
+                              : '${t.translate('profile_change_type_confirm')} "${newType.displayName}"?',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: context.dynamicWidth(0.038),
+                            fontSize: 14.sp,
                             color: AppColors.gray600,
                             height: 1.5,
                           ),
                         ),
                       ),
-                      SizedBox(height: context.dynamicHeight(0.025)),
+                      SizedBox(height: 20.h),
                       // Reason TextField
                       AppTextField(
                         controller: reasonController,
-                        labelText: isArabic ? 'سبب التحويل' : 'Reason for conversion',
-                        hintText: isArabic ? 'أدخل سبب التحويل...' : 'Enter reason...',
+                        labelText: t.translate('profile_conversion_reason'),
+                        hintText: t.translate('profile_conversion_reason_hint'),
                         prefixIcon: Icons.description_outlined,
                         maxLines: 3,
                         onChanged: (_) => setState(() {}),
                       ),
-                      SizedBox(height: context.dynamicHeight(0.03)),
+                      SizedBox(height: 24.h),
                       // Buttons
                       Row(
                         children: [
@@ -1153,16 +1155,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: GestureDetector(
                               onTap: () => Navigator.pop(dialogContext),
                               child: Container(
-                                height: context.dynamicHeight(0.06),
+                                height: 49.h,
                                 decoration: BoxDecoration(
                                   color: AppColors.gray100,
-                                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
+                                  borderRadius: BorderRadius.circular(13.w),
                                 ),
                                 child: Center(
                                   child: Text(
-                                    isArabic ? 'إلغاء' : 'Cancel',
+                                    t.translate('common_cancel'),
                                     style: TextStyle(
-                                      fontSize: context.dynamicWidth(0.04),
+                                      fontSize: 15.sp,
                                       fontWeight: FontWeight.w600,
                                       color: AppColors.gray700,
                                     ),
@@ -1171,7 +1173,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
                           ),
-                          SizedBox(width: context.dynamicWidth(0.03)),
+                          SizedBox(width: 11.w),
                           Expanded(
                             child: GestureDetector(
                               onTap: canConfirm
@@ -1185,7 +1187,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   : null,
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 200),
-                                height: context.dynamicHeight(0.06),
+                                height: 49.h,
                                 decoration: BoxDecoration(
                                   gradient: canConfirm
                                       ? LinearGradient(
@@ -1196,22 +1198,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         )
                                       : null,
                                   color: canConfirm ? null : AppColors.gray300,
-                                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
+                                  borderRadius: BorderRadius.circular(13.w),
                                   boxShadow: canConfirm
                                       ? [
                                           BoxShadow(
                                             color: AppColors.primaryColor.withValues(alpha: 0.3),
-                                            blurRadius: context.dynamicWidth(0.03),
-                                            offset: Offset(0, context.dynamicHeight(0.005)),
+                                            blurRadius: 11.w,
+                                            offset: Offset(0, 4.h),
                                           ),
                                         ]
                                       : null,
                                 ),
                                 child: Center(
                                   child: Text(
-                                    isArabic ? 'تأكيد' : 'Confirm',
+                                    t.translate('common_confirm'),
                                     style: TextStyle(
-                                      fontSize: context.dynamicWidth(0.04),
+                                      fontSize: 15.sp,
                                       fontWeight: FontWeight.w600,
                                       color: canConfirm ? Colors.white : AppColors.gray500,
                                     ),
@@ -1245,37 +1247,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _showEditProfileDialog(BuildContext context, bool isArabic) {
+  void _showEditProfileDialog(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     AppDialog.showInfo(
       context,
-      title: isArabic ? 'تعديل الملف الشخصي' : 'Edit Profile',
-      message: isArabic
-          ? 'ميزة تعديل الملف الشخصي قيد التطوير'
-          : 'Edit profile feature coming soon',
-      buttonText: isArabic ? 'حسناً' : 'OK',
+      title: t.translate('profile_edit'),
+      message: t.translate('profile_edit_coming'),
+      buttonText: t.translate('common_ok'),
     );
   }
 
-  void _showChangePasswordDialog(BuildContext context, bool isArabic) {
+  void _showChangePasswordDialog(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     AppDialog.showInfo(
       context,
-      title: isArabic ? 'تغيير كلمة المرور' : 'Change Password',
-      message: isArabic
-          ? 'ميزة تغيير كلمة المرور قيد التطوير'
-          : 'Change password feature coming soon',
-      buttonText: isArabic ? 'حسناً' : 'OK',
+      title: t.translate('profile_change_password'),
+      message: t.translate('profile_change_password_coming'),
+      buttonText: t.translate('common_ok'),
     );
   }
 
-  void _showLogoutDialog(BuildContext context, bool isArabic) async {
+  void _showLogoutDialog(BuildContext context) async {
+    final t = AppLocalizations.of(context)!;
     final confirmed = await AppDialog.showConfirmation(
       context,
-      title: isArabic ? 'تسجيل الخروج' : 'Logout',
-      message: isArabic
-          ? 'هل أنت متأكد من تسجيل الخروج؟'
-          : 'Are you sure you want to logout?',
-      confirmText: isArabic ? 'تسجيل الخروج' : 'Logout',
-      cancelText: isArabic ? 'إلغاء' : 'Cancel',
+      title: t.translate('profile_logout'),
+      message: t.translate('profile_logout_confirm'),
+      confirmText: t.translate('profile_logout'),
+      cancelText: t.translate('common_cancel'),
       type: DialogType.warning,
       icon: Icons.logout_rounded,
     );
@@ -1285,15 +1284,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  void _showDeleteAccountDialog(BuildContext context, bool isArabic) async {
+  void _showDeleteAccountDialog(BuildContext context) async {
+    final t = AppLocalizations.of(context)!;
     final confirmed = await AppDialog.showConfirmation(
       context,
-      title: isArabic ? 'حذف الحساب' : 'Delete Account',
-      message: isArabic
-          ? 'هل أنت متأكد من حذف حسابك؟ هذا الإجراء لا يمكن التراجع عنه.'
-          : 'Are you sure you want to delete your account? This action cannot be undone.',
-      confirmText: isArabic ? 'حذف' : 'Delete',
-      cancelText: isArabic ? 'إلغاء' : 'Cancel',
+      title: t.translate('profile_delete'),
+      message: t.translate('profile_delete_confirm'),
+      confirmText: t.translate('common_delete'),
+      cancelText: t.translate('common_cancel'),
       type: DialogType.error,
       icon: Icons.delete_forever_rounded,
     );

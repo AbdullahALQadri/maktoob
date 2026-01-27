@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../../../../core/utils/app_colors.dart';
 import '../../data/models/golden_package_model.dart';
@@ -44,14 +44,14 @@ class GoldenPackageCard extends StatelessWidget {
               boxShadow: isSelected
                   ? [
                       BoxShadow(
-                        color: package.gradientColors.first.withOpacity(0.3),
+                        color: package.gradientColors.first.withValues(alpha: 0.3),
                         blurRadius: 15,
                         offset: const Offset(0, 6),
                       ),
                     ]
                   : [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -88,7 +88,7 @@ class GoldenPackageCard extends StatelessWidget {
                             style: TextStyle(
                               fontSize: screenWidth * 0.032,
                               color: isSelected
-                                  ? Colors.white.withOpacity(0.8)
+                                  ? Colors.white.withValues(alpha: 0.8)
                                   : AppColors.gray500,
                             ),
                           ),
@@ -114,7 +114,7 @@ class GoldenPackageCard extends StatelessWidget {
                             style: TextStyle(
                               fontSize: screenWidth * 0.028,
                               color: isSelected
-                                  ? Colors.white.withOpacity(0.7)
+                                  ? Colors.white.withValues(alpha: 0.7)
                                   : AppColors.gray400,
                             ),
                           ),
@@ -135,8 +135,8 @@ class GoldenPackageCard extends StatelessWidget {
                             height: screenWidth * 0.05,
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? Colors.white.withOpacity(0.2)
-                                  : AppColors.green600.withOpacity(0.1),
+                                  ? Colors.white.withValues(alpha: 0.2)
+                                  : AppColors.green600.withValues(alpha: 0.1),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
@@ -153,7 +153,7 @@ class GoldenPackageCard extends StatelessWidget {
                             style: TextStyle(
                               fontSize: screenWidth * 0.035,
                               color: isSelected
-                                  ? Colors.white.withOpacity(0.9)
+                                  ? Colors.white.withValues(alpha: 0.9)
                                   : AppColors.gray700,
                             ),
                           ),
@@ -204,7 +204,7 @@ class GoldenPackageCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(screenWidth * 0.02),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.amber500.withOpacity(0.3),
+                      color: AppColors.amber500.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),

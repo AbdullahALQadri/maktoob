@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
@@ -72,6 +73,7 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
   }
 
   Future<void> _loadContacts() async {
+    final t = AppLocalizations.of(context)!;
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -105,18 +107,18 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
         });
       } else if (status.isPermanentlyDenied) {
         setState(() {
-          _errorMessage = 'تم رفض الوصول إلى جهات الاتصال بشكل دائم. يرجى تفعيله من الإعدادات.';
+          _errorMessage = t.translate('contacts_permission_denied');
           _isLoading = false;
         });
       } else {
         setState(() {
-          _errorMessage = 'يرجى السماح بالوصول إلى جهات الاتصال';
+          _errorMessage = t.translate('contacts_permission_required');
           _isLoading = false;
         });
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'حدث خطأ أثناء تحميل جهات الاتصال';
+        _errorMessage = t.translate('contacts_error_loading');
         _isLoading = false;
       });
     }
@@ -191,9 +193,10 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('اختر جهات الاتصال'),
+        title: Text(t.translate('contacts_select_title')),
         centerTitle: true,
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
@@ -202,7 +205,7 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
           TextButton(
             onPressed: _selectedPhones.isEmpty ? null : _confirmSelection,
             child: Text(
-              'تأكيد (${_selectedPhones.length})',
+              '${t.translate('common_confirm')} (${_selectedPhones.length})',
               style: TextStyle(
                 color: _selectedPhones.isEmpty
                     ? Colors.white54
@@ -221,7 +224,7 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
             color: Colors.white,
             child: AppTextField(
               controller: _searchController,
-              hintText: 'بحث عن جهة اتصال...',
+              hintText: t.translate('contacts_search_hint'),
               prefixIcon: Icons.search,
               onChanged: _filterContacts,
             ),
@@ -230,7 +233,7 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
           // Info banner
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            color: AppColors.primary.withOpacity(0.1),
+            color: AppColors.primary.withValues(alpha: 0.1),
             child: Row(
               children: [
                 Icon(
@@ -241,7 +244,7 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'يتم عرض جهات الاتصال بأرقام فلسطينية فقط (+972 / +970)',
+                    t.translate('contacts_palestinian_only'),
                     style: TextStyle(
                       fontSize: 12,
                       color: AppColors.primary,
@@ -265,14 +268,14 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, -4),
                   ),
                 ],
               ),
               child: AppButton(
-                text: 'إضافة ${_selectedPhones.length} مدعو',
+                text: '${t.translate('guest_add_button')} (${_selectedPhones.length})',
                 onPressed: _confirmSelection,
                 width: double.infinity,
               ),
@@ -283,14 +286,15 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
   }
 
   Widget _buildContent() {
+    final t = AppLocalizations.of(context)!;
     if (_isLoading) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('جاري تحميل جهات الاتصال...'),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(t.translate('contacts_loading')),
           ],
         ),
       );
@@ -318,15 +322,15 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
                 ),
               ),
               const SizedBox(height: 24),
-              if (_errorMessage!.contains('الإعدادات'))
+              if (_errorMessage == t.translate('contacts_permission_denied'))
                 AppButton(
-                  text: 'فتح الإعدادات',
+                  text: t.translate('contacts_open_settings'),
                   onPressed: () => openAppSettings(),
                   width: 200,
                 )
               else
                 AppButton(
-                  text: 'إعادة المحاولة',
+                  text: t.translate('contacts_retry'),
                   onPressed: _loadContacts,
                   width: 200,
                 ),
@@ -349,8 +353,8 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
             const SizedBox(height: 16),
             Text(
               _contacts.isEmpty
-                  ? 'لا توجد جهات اتصال بأرقام فلسطينية'
-                  : 'لا توجد نتائج للبحث',
+                  ? t.translate('contacts_no_palestinian')
+                  : t.translate('contacts_no_results'),
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey.shade600,

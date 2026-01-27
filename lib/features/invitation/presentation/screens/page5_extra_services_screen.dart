@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../data/models/extra_service_model.dart';
 import '../cubit/invitation_cubit.dart';
@@ -50,8 +50,8 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
                 // Paid Services Badge
                 Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: context.dynamicWidth(0.04),
-                    vertical: context.dynamicHeight(0.012),
+                    horizontal: 15.w,
+                    vertical: 10.h,
                   ),
                   color: Colors.amber.shade100,
                   child: Row(
@@ -59,14 +59,14 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
                       Icon(
                         Icons.monetization_on,
                         color: Colors.amber.shade800,
-                        size: context.dynamicWidth(0.05),
+                        size: 19.w,
                       ),
-                      SizedBox(width: context.dynamicWidth(0.02)),
+                      SizedBox(width: 8.w),
                       Expanded(
                         child: Text(
                           l?.translate('invitation_paid_services_notice') ?? 'These are paid services that will be added to the final invoice',
                           style: TextStyle(
-                            fontSize: context.dynamicWidth(0.032),
+                            fontSize: 12.sp,
                             color: Colors.amber.shade900,
                             fontWeight: FontWeight.w500,
                           ),
@@ -102,11 +102,11 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const CircularProgressIndicator(),
-            SizedBox(height: context.dynamicHeight(0.02)),
+            SizedBox(height: 16.h),
             Text(
               l?.translate('invitation_loading_services') ?? 'Loading services...',
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.04),
+                fontSize: 15.sp,
                 color: Colors.grey,
               ),
             ),
@@ -118,40 +118,40 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
     if (state.servicesError != null) {
       return Center(
         child: Padding(
-          padding: EdgeInsets.all(context.dynamicWidth(0.06)),
+          padding: EdgeInsets.all(23.w),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 Icons.error_outline,
-                size: context.dynamicWidth(0.16),
+                size: 60.w,
                 color: Colors.red.shade300,
               ),
-              SizedBox(height: context.dynamicHeight(0.02)),
+              SizedBox(height: 16.h),
               Text(
                 l?.translate('invitation_services_error') ?? 'Error loading services',
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.045),
+                  fontSize: 17.sp,
                   fontWeight: FontWeight.bold,
                   color: Colors.grey.shade800,
                 ),
               ),
-              SizedBox(height: context.dynamicHeight(0.01)),
+              SizedBox(height: 8.h),
               Text(
                 state.servicesError!,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.035),
+                  fontSize: 13.sp,
                   color: Colors.grey.shade600,
                 ),
               ),
-              SizedBox(height: context.dynamicHeight(0.03)),
+              SizedBox(height: 24.h),
               AppButton(
                 text: l?.translate('common_retry') ?? 'Retry',
                 onPressed: () {
                   context.read<InvitationCubit>().loadExtraServices();
                 },
-                width: context.dynamicWidth(0.5),
+                width: 188.w,
               ),
             ],
           ),
@@ -162,29 +162,29 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
     if (state.availableServices.isEmpty) {
       return Center(
         child: Padding(
-          padding: EdgeInsets.all(context.dynamicWidth(0.06)),
+          padding: EdgeInsets.all(23.w),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 Icons.room_service_outlined,
-                size: context.dynamicWidth(0.2),
+                size: 75.w,
                 color: Colors.grey.shade400,
               ),
-              SizedBox(height: context.dynamicHeight(0.02)),
+              SizedBox(height: 16.h),
               Text(
                 l?.translate('invitation_no_services') ?? 'No extra services available',
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.045),
+                  fontSize: 17.sp,
                   fontWeight: FontWeight.bold,
                   color: Colors.grey.shade700,
                 ),
               ),
-              SizedBox(height: context.dynamicHeight(0.01)),
+              SizedBox(height: 8.h),
               Text(
                 l?.translate('invitation_continue_next_step') ?? 'You can continue to the next step',
                 style: TextStyle(
-                  fontSize: context.dynamicWidth(0.035),
+                  fontSize: 13.sp,
                   color: Colors.grey.shade500,
                 ),
               ),
@@ -195,7 +195,7 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
     }
 
     return SingleChildScrollView(
-      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+      padding: EdgeInsets.all(15.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -203,11 +203,11 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
           Text(
             l?.translate('invitation_select_services') ?? 'Select the extra services you want for your event',
             style: TextStyle(
-              fontSize: context.dynamicWidth(0.038),
+              fontSize: 14.sp,
               color: Colors.grey.shade700,
             ),
           ),
-          SizedBox(height: context.dynamicHeight(0.02)),
+          SizedBox(height: 16.h),
 
           // Services Grid
           GridView.builder(
@@ -215,8 +215,8 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              crossAxisSpacing: context.dynamicWidth(0.03),
-              mainAxisSpacing: context.dynamicWidth(0.03),
+              crossAxisSpacing: 11.w,
+              mainAxisSpacing: 11.w,
               childAspectRatio: 0.85,
             ),
             itemCount: state.availableServices.length,
@@ -240,17 +240,17 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withOpacity(0.1) : Colors.white,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+          color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : Colors.white,
+          borderRadius: BorderRadius.circular(15.w),
           border: Border.all(
             color: isSelected ? AppColors.primary : Colors.grey.shade300,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: context.dynamicWidth(0.025),
-              offset: Offset(0, context.dynamicHeight(0.005)),
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 9.w,
+              offset: Offset(0, 4.h),
             ),
           ],
         ),
@@ -258,29 +258,29 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
           children: [
             // Content
             Padding(
-              padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+              padding: EdgeInsets.all(15.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Icon
                   Container(
-                    width: context.dynamicWidth(0.14),
-                    height: context.dynamicWidth(0.14),
+                    width: 53.w,
+                    height: 53.w,
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? AppColors.primary.withOpacity(0.2)
+                          ? AppColors.primary.withValues(alpha: 0.2)
                           : Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+                      borderRadius: BorderRadius.circular(11.w),
                     ),
                     child: service.iconUrl != null
                         ? ClipRRect(
-                            borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+                            borderRadius: BorderRadius.circular(11.w),
                             child: Image.network(
                               service.iconUrl!,
                               fit: BoxFit.cover,
                               errorBuilder: (_, __, ___) => Icon(
                                 Icons.room_service,
-                                size: context.dynamicWidth(0.07),
+                                size: 26.w,
                                 color: isSelected
                                     ? AppColors.primary
                                     : Colors.grey.shade600,
@@ -289,13 +289,13 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
                           )
                         : Icon(
                             Icons.room_service,
-                            size: context.dynamicWidth(0.07),
+                            size: 26.w,
                             color: isSelected
                                 ? AppColors.primary
                                 : Colors.grey.shade600,
                           ),
                   ),
-                  SizedBox(height: context.dynamicHeight(0.015)),
+                  SizedBox(height: 12.h),
 
                   // Primary Name (based on language)
                   Text(
@@ -304,7 +304,7 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.035),
+                      fontSize: 13.sp,
                       fontWeight: FontWeight.bold,
                       color: isSelected
                           ? AppColors.primary
@@ -314,14 +314,14 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
 
                   // Secondary Name if different
                   if (service.name != service.nameAr) ...[
-                    SizedBox(height: context.dynamicHeight(0.005)),
+                    SizedBox(height: 4.h),
                     Text(
                       isEnglish ? service.nameAr : service.name,
                       textAlign: TextAlign.center,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: context.dynamicWidth(0.028),
+                        fontSize: 11.sp,
                         color: Colors.grey.shade500,
                       ),
                     ),
@@ -332,19 +332,19 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
                   // Price
                   Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: context.dynamicWidth(0.03),
-                      vertical: context.dynamicHeight(0.008),
+                      horizontal: 11.w,
+                      vertical: 6.h,
                     ),
                     decoration: BoxDecoration(
                       color: isSelected
                           ? AppColors.primary
                           : Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.05)),
+                      borderRadius: BorderRadius.circular(19.w),
                     ),
                     child: Text(
                       '${service.price.toStringAsFixed(0)} ₪',
                       style: TextStyle(
-                        fontSize: context.dynamicWidth(0.035),
+                        fontSize: 13.sp,
                         fontWeight: FontWeight.bold,
                         color: isSelected ? Colors.white : Colors.grey.shade700,
                       ),
@@ -357,11 +357,11 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
             // Selection indicator
             if (isSelected)
               Positioned(
-                top: context.dynamicWidth(0.02),
-                right: context.dynamicWidth(0.02),
+                top: 8.w,
+                right: 8.w,
                 child: Container(
-                  width: context.dynamicWidth(0.06),
-                  height: context.dynamicWidth(0.06),
+                  width: 23.w,
+                  height: 23.w,
                   decoration: BoxDecoration(
                     color: AppColors.primary,
                     shape: BoxShape.circle,
@@ -369,7 +369,7 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
                   child: Icon(
                     Icons.check,
                     color: Colors.white,
-                    size: context.dynamicWidth(0.04),
+                    size: 15.w,
                   ),
                 ),
               ),
@@ -386,12 +386,12 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
     );
 
     return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+      padding: EdgeInsets.all(15.w),
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.1),
+        color: AppColors.primary.withValues(alpha: 0.1),
         border: Border(
           top: BorderSide(
-            color: AppColors.primary.withOpacity(0.3),
+            color: AppColors.primary.withValues(alpha: 0.3),
           ),
         ),
       ),
@@ -400,9 +400,9 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
           Icon(
             Icons.shopping_cart,
             color: AppColors.primary,
-            size: context.dynamicWidth(0.06),
+            size: 23.w,
           ),
-          SizedBox(width: context.dynamicWidth(0.03)),
+          SizedBox(width: 11.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -411,13 +411,13 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
                   '${l?.translate('invitation_selected_services') ?? 'Selected services'}: ${state.selectedServices.length}',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: context.dynamicWidth(0.035),
+                    fontSize: 13.sp,
                   ),
                 ),
                 Text(
                   state.selectedServices.map((s) => isEnglish ? s.name : s.nameAr).join(isEnglish ? ', ' : ' ، '),
                   style: TextStyle(
-                    fontSize: context.dynamicWidth(0.03),
+                    fontSize: 11.sp,
                     color: Colors.grey.shade700,
                   ),
                   maxLines: 1,
@@ -428,19 +428,19 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
           ),
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: context.dynamicWidth(0.03),
-              vertical: context.dynamicHeight(0.01),
+              horizontal: 11.w,
+              vertical: 8.h,
             ),
             decoration: BoxDecoration(
               color: AppColors.primary,
-              borderRadius: BorderRadius.circular(context.dynamicWidth(0.02)),
+              borderRadius: BorderRadius.circular(8.w),
             ),
             child: Text(
               '${totalPrice.toStringAsFixed(0)} ₪',
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
-                fontSize: context.dynamicWidth(0.035),
+                fontSize: 13.sp,
               ),
             ),
           ),
@@ -451,7 +451,7 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
 
   Widget _buildNavigationButtons(BuildContext context, InvitationState state, AppLocalizations? l) {
     return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+      padding: EdgeInsets.all(15.w),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -476,7 +476,7 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
             ),
           ),
 
-          SizedBox(width: context.dynamicWidth(0.03)),
+          SizedBox(width: 11.w),
 
           // Next Button (can proceed without selecting any services)
           Expanded(

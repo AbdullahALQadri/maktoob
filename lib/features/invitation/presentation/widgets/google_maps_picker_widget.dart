@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 
+import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/services/permissions/permission_service.dart';
@@ -111,25 +112,25 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
   }
 
   void _showPermissionDeniedDialog() {
+    final t = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('إذن الموقع مطلوب'),
-        content: const Text(
-          'يحتاج التطبيق إلى إذن الموقع لعرض موقعك الحالي على الخريطة. '
-          'يمكنك متابعة اختيار الموقع يدويًا أو منح الإذن من الإعدادات.',
+        title: Text(t.translate('map_location_permission_title')),
+        content: Text(
+          t.translate('map_location_permission_msg'),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('متابعة بدون إذن'),
+            child: Text(t.translate('map_continue_without')),
           ),
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
               await PermissionService.instance.openAppSettings();
             },
-            child: const Text('فتح الإعدادات'),
+            child: Text(t.translate('map_open_settings')),
           ),
         ],
       ),
@@ -145,10 +146,11 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
   }
 
   Future<void> _onMapTapped(LatLng position) async {
+    final t = AppLocalizations.of(context)!;
     if (!_isWithinGaza(position)) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'يرجى اختيار موقع داخل قطاع غزة فقط';
+          _errorMessage = t.translate('map_gaza_only');
         });
       }
       return;
@@ -162,7 +164,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
       });
     }
 
-    String address = 'موقع محدد (${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)})';
+    String address = '${t.translate('map_selected_location')} (${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)})';
 
     try {
       // Get address from coordinates
@@ -188,7 +190,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
           addressParts.add(placemark.country!);
         }
 
-        address = addressParts.isNotEmpty ? addressParts.join(', ') : 'موقع محدد';
+        address = addressParts.isNotEmpty ? addressParts.join(', ') : t.translate('map_selected_location');
       }
     } catch (e) {
       // Keep the coordinate-based address set above
@@ -216,6 +218,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
   }
 
   Widget _buildGoogleMap() {
+    final t = AppLocalizations.of(context)!;
     try {
       return GoogleMap(
         initialCameraPosition: CameraPosition(
@@ -232,7 +235,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
                   markerId: const MarkerId('selected'),
                   position: _selectedPosition!,
                   infoWindow: InfoWindow(
-                    title: 'الموقع المحدد',
+                    title: t.translate('map_selected_location'),
                     snippet: _selectedAddress,
                   ),
                 ),
@@ -261,6 +264,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
   }
 
   Widget _buildMapErrorWidget() {
+    final t = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -274,7 +278,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
             ),
             const SizedBox(height: 16),
             Text(
-              'تعذر تحميل الخريطة',
+              t.translate('map_load_error'),
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -283,7 +287,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
             ),
             const SizedBox(height: 8),
             Text(
-              'يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى',
+              t.translate('map_check_internet'),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
@@ -292,7 +296,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
             ),
             const SizedBox(height: 24),
             AppButton(
-              text: 'إعادة المحاولة',
+              text: t.translate('contacts_retry'),
               onPressed: () {
                 setState(() {
                   _mapLoadError = false;
@@ -303,7 +307,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
             const SizedBox(height: 12),
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('العودة'),
+              child: Text(t.translate('map_go_back')),
             ),
           ],
         ),
@@ -313,11 +317,12 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     // Show loading while checking permission
     if (_isCheckingPermission) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('اختر الموقع'),
+          title: Text(t.translate('map_select_location')),
           centerTitle: true,
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
@@ -330,7 +335,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('اختر الموقع'),
+        title: Text(t.translate('map_select_location')),
         centerTitle: true,
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
@@ -387,7 +392,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -403,9 +408,9 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
                               color: AppColors.primary,
                             ),
                             const SizedBox(width: 8),
-                            const Text(
-                              'الموقع المحدد',
-                              style: TextStyle(
+                            Text(
+                              t.translate('map_selected_location'),
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14,
                               ),
@@ -436,7 +441,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
                 // Confirm button
                 if (_selectedPosition != null && !_isLoading)
                   AppButton(
-                    text: 'تأكيد الموقع',
+                    text: t.translate('map_confirm_location'),
                     onPressed: _confirmSelection,
                     width: double.infinity,
                   ),
@@ -451,7 +456,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -464,10 +469,10 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
                           color: AppColors.primary,
                         ),
                         const SizedBox(width: 12),
-                        const Expanded(
+                        Expanded(
                           child: Text(
-                            'انقر على الخريطة لتحديد موقع الحدث',
-                            style: TextStyle(
+                            t.translate('map_tap_instruction'),
+                            style: const TextStyle(
                               fontSize: 14,
                               color: Colors.black87,
                             ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../data/models/event_models.dart' hide CustomVenue;
 import '../screens/create_event_screen.dart';
 
@@ -32,19 +32,19 @@ class VenueSelectionWidget extends StatelessWidget {
         Text(
           'Select Venue',
           style: TextStyle(
-            fontSize: context.dynamicWidth(0.05),
+            fontSize: 19.sp,
             fontWeight: FontWeight.bold,
             color: AppColors.gray900,
           ),
         ),
-        SizedBox(height: context.dynamicHeight(0.02)),
+        SizedBox(height: 16.h),
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            crossAxisSpacing: context.dynamicWidth(0.03),
-            mainAxisSpacing: context.dynamicWidth(0.03),
+            crossAxisSpacing: 11.w,
+            mainAxisSpacing: 11.w,
             childAspectRatio: 1.1,
           ),
           itemCount: venues.length,
@@ -58,13 +58,13 @@ class VenueSelectionWidget extends StatelessWidget {
             );
           },
         ),
-        SizedBox(height: context.dynamicHeight(0.015)),
+        SizedBox(height: 12.h),
         _CustomVenueButton(
           isActive: showCustomVenue,
           onTap: onToggleCustomVenue,
         ),
         if (showCustomVenue) ...[
-          SizedBox(height: context.dynamicHeight(0.015)),
+          SizedBox(height: 12.h),
           _CustomVenueForm(
             customVenue: customVenue,
             onChanged: onCustomVenueChanged,
@@ -92,7 +92,7 @@ class _VenueCard extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+        padding: EdgeInsets.all(15.w),
         decoration: BoxDecoration(
           gradient: isSelected
               ? LinearGradient(
@@ -102,12 +102,12 @@ class _VenueCard extends StatelessWidget {
                 )
               : null,
           color: isSelected ? null : Colors.white,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+          borderRadius: BorderRadius.circular(15.w),
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? AppColors.primaryColor.withOpacity(0.3)
-                  : Colors.black.withOpacity(0.05),
+                  ? AppColors.primaryColor.withValues(alpha: 0.3)
+                  : Colors.black.withValues(alpha: 0.05),
               blurRadius: isSelected ? 16 : 8,
               offset: const Offset(0, 4),
             ),
@@ -118,26 +118,26 @@ class _VenueCard extends StatelessWidget {
           children: [
             Text(
               venue.icon,
-              style: TextStyle(fontSize: context.dynamicWidth(0.07)),
+              style: TextStyle(fontSize: 26.sp),
             ),
-            SizedBox(height: context.dynamicHeight(0.01)),
+            SizedBox(height: 8.h),
             Text(
               venue.name,
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.033),
+                fontSize: 12.sp,
                 fontWeight: FontWeight.bold,
                 color: isSelected ? Colors.white : AppColors.gray900,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-            SizedBox(height: context.dynamicHeight(0.005)),
+            SizedBox(height: 4.h),
             Text(
               'Capacity: ${venue.capacity}',
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.028),
+                fontSize: 11.sp,
                 color: isSelected
-                    ? Colors.white.withOpacity(0.8)
+                    ? Colors.white.withValues(alpha: 0.8)
                     : AppColors.gray600,
               ),
             ),
@@ -163,10 +163,10 @@ class _CustomVenueButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+        padding: EdgeInsets.all(15.w),
         decoration: BoxDecoration(
           color: isActive ? AppColors.purple50 : Colors.white,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+          borderRadius: BorderRadius.circular(15.w),
           border: Border.all(
             color: isActive ? AppColors.primaryColor : AppColors.gray300,
             width: 2,
@@ -178,13 +178,13 @@ class _CustomVenueButton extends StatelessWidget {
             Icon(
               Icons.add,
               color: AppColors.primaryColor,
-              size: context.dynamicWidth(0.06),
+              size: 23.w,
             ),
-            SizedBox(height: context.dynamicHeight(0.005)),
+            SizedBox(height: 4.h),
             Text(
               'Add Custom Venue',
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.035),
+                fontSize: 13.sp,
                 fontWeight: FontWeight.bold,
                 color: AppColors.gray900,
               ),
@@ -208,13 +208,13 @@ class _CustomVenueForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+      padding: EdgeInsets.all(15.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
+        borderRadius: BorderRadius.circular(15.w),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -232,7 +232,7 @@ class _CustomVenueForm extends StatelessWidget {
               capacity: customVenue.capacity,
             )),
           ),
-          SizedBox(height: context.dynamicHeight(0.015)),
+          SizedBox(height: 12.h),
           _buildTextField(
             context: context,
             hint: 'Address',
@@ -243,7 +243,7 @@ class _CustomVenueForm extends StatelessWidget {
               capacity: customVenue.capacity,
             )),
           ),
-          SizedBox(height: context.dynamicHeight(0.015)),
+          SizedBox(height: 12.h),
           _buildTextField(
             context: context,
             hint: 'Capacity',
@@ -271,27 +271,27 @@ class _CustomVenueForm extends StatelessWidget {
       initialValue: value,
       keyboardType: keyboardType,
       onChanged: onChanged,
-      style: TextStyle(fontSize: context.dynamicWidth(0.035)),
+      style: TextStyle(fontSize: 13.sp),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyle(fontSize: context.dynamicWidth(0.035)),
+        hintStyle: TextStyle(fontSize: 13.sp),
         filled: true,
         fillColor: AppColors.gray100,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+          borderRadius: BorderRadius.circular(11.w),
           borderSide: BorderSide(color: AppColors.gray100, width: 2),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+          borderRadius: BorderRadius.circular(11.w),
           borderSide: BorderSide(color: AppColors.gray100, width: 2),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+          borderRadius: BorderRadius.circular(11.w),
           borderSide: BorderSide(color: AppColors.primaryColor, width: 2),
         ),
         contentPadding: EdgeInsets.symmetric(
-          horizontal: context.dynamicWidth(0.04),
-          vertical: context.dynamicHeight(0.018),
+          horizontal: 15.w,
+          vertical: 15.h,
         ),
       ),
     );
