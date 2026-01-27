@@ -39,7 +39,11 @@ class AppRoutes {
 
       // Splash Screen
       case Routes.splash:
-        return _buildRoute(const SplashScreen(), settings);
+        final args = settings.arguments as Map<String, dynamic>?;
+        return _buildRoute(
+          SplashScreen(onFinished: args?['onFinished'] ?? () {}),
+          settings,
+        );
 
       // Login Screen
       case Routes.login:

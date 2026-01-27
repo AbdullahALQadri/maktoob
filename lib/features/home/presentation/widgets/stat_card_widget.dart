@@ -32,7 +32,7 @@ class StatCardWidget extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(15.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.08),
@@ -42,27 +42,27 @@ class StatCardWidget extends StatelessWidget {
           ],
         ),
         child: Padding(
-          padding: EdgeInsets.all(11.w),
+          padding: EdgeInsets.all(context.dynamicWidth(0.029)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 34.w,
-                height: 34.w,
+                width: context.dynamicWidth(0.091),
+                height: context.dynamicWidth(0.091),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: stat.gradientColors,
                   ),
-                  borderRadius: BorderRadius.circular(9.w),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.024)),
                 ),
                 child: Icon(
                   stat.icon,
                   color: Colors.white,
-                  size: 17.w,
+                  size: context.dynamicWidth(0.045),
                 ),
               ),
-              SizedBox(height: 8.h),
+              SizedBox(height: context.dynamicHeight(0.01)),
               Flexible(
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
@@ -70,7 +70,7 @@ class StatCardWidget extends StatelessWidget {
                   child: Text(
                     stat.value,
                     style: TextStyle(
-                      fontSize: 21.sp,
+                      fontSize: context.dynamicWidth(0.056),
                       fontWeight: FontWeight.bold,
                       color: AppColors.gray900,
                     ),
@@ -78,11 +78,11 @@ class StatCardWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 2.h),
+              SizedBox(height: context.dynamicHeight(0.002)),
               Text(
                 stat.label,
                 style: TextStyle(
-                  fontSize: 11.sp,
+                  fontSize: context.dynamicWidth(0.029),
                   color: AppColors.gray500,
                   fontWeight: FontWeight.w500,
                 ),

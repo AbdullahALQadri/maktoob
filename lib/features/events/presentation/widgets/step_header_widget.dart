@@ -34,15 +34,15 @@ class StepHeaderWidget extends StatelessWidget {
           children: [
             // Animated background circle
             Positioned(
-              top: -19.w,
-              right: -19.w,
+              top: -context.dynamicWidth(0.051),
+              right: -context.dynamicWidth(0.051),
               child: TweenAnimationBuilder<double>(
                 tween: Tween(begin: 1.0, end: 1.5),
                 duration: const Duration(seconds: 10),
                 builder: (context, value, child) {
                   return Container(
-                    width: 150.w,
-                    height: 150.w,
+                    width: context.dynamicWidth(0.4),
+                    height: context.dynamicWidth(0.4),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: Colors.white.withValues(alpha: 0.1),
@@ -53,10 +53,10 @@ class StepHeaderWidget extends StatelessWidget {
             ),
             Padding(
               padding: EdgeInsets.fromLTRB(
-                23.w,
-                20.h,
-                23.w,
-                32.h,
+                context.dynamicWidth(0.061),
+                context.dynamicHeight(0.025),
+                context.dynamicWidth(0.061),
+                context.dynamicHeight(0.039),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,26 +64,26 @@ class StepHeaderWidget extends StatelessWidget {
                   // Step badge
                   Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 11.w,
-                      vertical: 6.h,
+                      horizontal: context.dynamicWidth(0.029),
+                      vertical: context.dynamicHeight(0.007),
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(19.w),
+                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.051)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
                           Icons.auto_awesome,
-                          size: 13.w,
+                          size: context.dynamicWidth(0.035),
                           color: Colors.white,
                         ),
-                        SizedBox(width: 6.w),
+                        SizedBox(width: context.dynamicWidth(0.016)),
                         Text(
                           'Step $currentStep of $totalSteps',
                           style: TextStyle(
-                            fontSize: 11.sp,
+                            fontSize: context.dynamicWidth(0.029),
                             fontWeight: FontWeight.w500,
                             color: Colors.white,
                           ),
@@ -91,24 +91,24 @@ class StepHeaderWidget extends StatelessWidget {
                       ],
                     ),
                   ),
-                  SizedBox(height: 12.h),
+                  SizedBox(height: context.dynamicHeight(0.015)),
                   Text(
                     'Create Event',
                     style: TextStyle(
-                      fontSize: 26.sp,
+                      fontSize: context.dynamicWidth(0.069),
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 4.h),
+                  SizedBox(height: context.dynamicHeight(0.005)),
                   Text(
                     "Let's make something amazing",
                     style: TextStyle(
-                      fontSize: 13.sp,
+                      fontSize: context.dynamicWidth(0.035),
                       color: Colors.white.withValues(alpha: 0.8),
                     ),
                   ),
-                  SizedBox(height: 24.h),
+                  SizedBox(height: context.dynamicHeight(0.03)),
                   // Progress bar
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -116,25 +116,25 @@ class StepHeaderWidget extends StatelessWidget {
                       Text(
                         'Progress',
                         style: TextStyle(
-                          fontSize: 11.sp,
+                          fontSize: context.dynamicWidth(0.029),
                           color: Colors.white.withValues(alpha: 0.8),
                         ),
                       ),
                       Text(
                         '${(progress * 100).round()}%',
                         style: TextStyle(
-                          fontSize: 11.sp,
+                          fontSize: context.dynamicWidth(0.029),
                           color: Colors.white.withValues(alpha: 0.8),
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: context.dynamicHeight(0.01)),
                   Container(
-                    height: 8.h,
+                    height: context.dynamicHeight(0.01),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(4.w),
+                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.011)),
                     ),
                     child: LayoutBuilder(
                       builder: (context, constraints) {
@@ -143,10 +143,10 @@ class StepHeaderWidget extends StatelessWidget {
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 500),
                             width: constraints.maxWidth * progress,
-                            height: 8.h,
+                            height: context.dynamicHeight(0.01),
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(4.w),
+                              borderRadius: BorderRadius.circular(context.dynamicWidth(0.011)),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.white.withValues(alpha: 0.5),

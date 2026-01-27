@@ -200,12 +200,12 @@ class _AppTextFieldState extends State<AppTextField> {
             widget.labelText!,
             style: TextStyle(
               fontFamily: AppStrings.fontFamily,
-              fontSize: 13.sp,
+              fontSize: context.dynamicWidth(0.035),
               fontWeight: FontWeight.w500,
               color: AppColors.gray700,
             ),
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: context.dynamicHeight(0.01)),
         ],
         TextFormField(
           controller: widget.controller,
@@ -230,7 +230,7 @@ class _AppTextFieldState extends State<AppTextField> {
           cursorColor: AppColors.primaryColor,
           style: TextStyle(
             fontFamily: AppStrings.fontFamily,
-            fontSize: 15.sp,
+            fontSize: context.dynamicWidth(0.04),
             fontWeight: FontWeight.w400,
             color: AppColors.gray900,
           ),
@@ -238,7 +238,7 @@ class _AppTextFieldState extends State<AppTextField> {
             hintText: widget.hintText,
             hintStyle: TextStyle(
               fontFamily: AppStrings.fontFamily,
-              fontSize: 15.sp,
+              fontSize: context.dynamicWidth(0.04),
               fontWeight: FontWeight.w400,
               color: AppColors.gray400,
             ),
@@ -246,7 +246,7 @@ class _AppTextFieldState extends State<AppTextField> {
             helperText: widget.helperText,
             helperStyle: TextStyle(
               fontFamily: AppStrings.fontFamily,
-              fontSize: 11.sp,
+              fontSize: context.dynamicWidth(0.029),
               color: AppColors.gray500,
             ),
             counterText: widget.showCounter ? null : '',
@@ -254,8 +254,8 @@ class _AppTextFieldState extends State<AppTextField> {
             fillColor: widget.fillColor ?? AppColors.gray100,
             contentPadding: widget.contentPadding ??
                 EdgeInsets.symmetric(
-                  horizontal: 15.w,
-                  vertical: 16.h,
+                  horizontal: context.dynamicWidth(0.04),
+                  vertical: context.dynamicHeight(0.02),
                 ),
             prefixIcon: _buildPrefixIcon(context),
             suffixIcon: _buildSuffixIcon(context),
@@ -279,8 +279,8 @@ class _AppTextFieldState extends State<AppTextField> {
     if (widget.prefix != null) {
       return Padding(
         padding: EdgeInsetsDirectional.only(
-          start: 11.w,
-          end: 8.w,
+          start: context.dynamicWidth(0.029),
+          end: context.dynamicWidth(0.021),
         ),
         child: widget.prefix,
       );
@@ -288,12 +288,12 @@ class _AppTextFieldState extends State<AppTextField> {
     if (widget.prefixIcon != null) {
       return Padding(
         padding: EdgeInsetsDirectional.only(
-          start: 11.w,
-          end: 8.w,
+          start: context.dynamicWidth(0.029),
+          end: context.dynamicWidth(0.021),
         ),
         child: Icon(
           widget.prefixIcon,
-          size: 21.w,
+          size: context.dynamicWidth(0.056),
           color: _isFocused ? AppColors.primaryColor : AppColors.gray400,
         ),
       );
@@ -310,10 +310,10 @@ class _AppTextFieldState extends State<AppTextField> {
           });
         },
         child: Padding(
-          padding: EdgeInsetsDirectional.only(end: 11.w),
+          padding: EdgeInsetsDirectional.only(end: context.dynamicWidth(0.029)),
           child: Icon(
             _obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-            size: 21.w,
+            size: context.dynamicWidth(0.056),
             color: AppColors.gray400,
           ),
         ),
@@ -323,7 +323,7 @@ class _AppTextFieldState extends State<AppTextField> {
       return GestureDetector(
         onTap: widget.onSuffixTap,
         child: Padding(
-          padding: EdgeInsetsDirectional.only(end: 11.w),
+          padding: EdgeInsetsDirectional.only(end: context.dynamicWidth(0.029)),
           child: widget.suffix,
         ),
       );
@@ -332,10 +332,10 @@ class _AppTextFieldState extends State<AppTextField> {
       return GestureDetector(
         onTap: widget.onSuffixTap,
         child: Padding(
-          padding: EdgeInsetsDirectional.only(end: 11.w),
+          padding: EdgeInsetsDirectional.only(end: context.dynamicWidth(0.029)),
           child: Icon(
             widget.suffixIcon,
-            size: 21.w,
+            size: context.dynamicWidth(0.056),
             color: AppColors.gray400,
           ),
         ),
@@ -346,7 +346,7 @@ class _AppTextFieldState extends State<AppTextField> {
 
   OutlineInputBorder _buildBorder(BuildContext context, Color color, {double width = 1}) {
     return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(11.w),
+      borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
       borderSide: BorderSide(color: color, width: width),
     );
   }

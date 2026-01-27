@@ -81,32 +81,32 @@ class _LandingScreenState extends State<LandingScreen>
         ),
         child: SafeArea(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 23.w),
+            padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.061)),
             child: Column(
               children: [
                 // Top spacer
-                SizedBox(height: 65.h),
+                SizedBox(height: context.dynamicHeight(0.08)),
 
                 // Logo/Brand area
                 FadeTransition(
                   opacity: _fadeAnimation,
                   child: Container(
-                    width: 94.w,
-                    height: 94.w,
+                    width: context.dynamicWidth(0.251),
+                    height: context.dynamicWidth(0.251),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(23.w),
+                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.061)),
                     ),
                     child: Center(
                       child: Text(
                         '📨',
-                        style: TextStyle(fontSize: 45.sp),
+                        style: TextStyle(fontSize: context.dynamicWidth(0.12)),
                       ),
                     ),
                   ),
                 ),
 
-                SizedBox(height: 32.h),
+                SizedBox(height: context.dynamicHeight(0.039)),
 
                 // Main heading
                 SlideTransition(
@@ -117,7 +117,7 @@ class _LandingScreenState extends State<LandingScreen>
                       'Invite people in a way that\nmatches your special occasion',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 24.sp,
+                        fontSize: context.dynamicWidth(0.064),
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                         height: 1.3,
@@ -126,7 +126,7 @@ class _LandingScreenState extends State<LandingScreen>
                   ),
                 ),
 
-                SizedBox(height: 16.h),
+                SizedBox(height: context.dynamicHeight(0.02)),
 
                 // Subtitle
                 SlideTransition(
@@ -137,7 +137,7 @@ class _LandingScreenState extends State<LandingScreen>
                       'One link – QR code – Full organization',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 15.sp,
+                        fontSize: context.dynamicWidth(0.04),
                         color: Colors.white.withValues(alpha: 0.85),
                         height: 1.5,
                       ),
@@ -157,7 +157,7 @@ class _LandingScreenState extends State<LandingScreen>
                   ),
                 ),
 
-                SizedBox(height: 32.h),
+                SizedBox(height: context.dynamicHeight(0.039)),
 
                 // Primary CTA
                 SlideTransition(
@@ -171,7 +171,7 @@ class _LandingScreenState extends State<LandingScreen>
                         onPressed: _onGetStarted,
                         gradientColors: const [Colors.white, Colors.white],
                         textStyle: TextStyle(
-                          fontSize: 15.sp,
+                          fontSize: context.dynamicWidth(0.04),
                           fontWeight: FontWeight.w600,
                           color: AppColors.primaryColor,
                         ),
@@ -180,7 +180,7 @@ class _LandingScreenState extends State<LandingScreen>
                   ),
                 ),
 
-                SizedBox(height: 16.h),
+                SizedBox(height: context.dynamicHeight(0.02)),
 
                 // Secondary option - Login
                 FadeTransition(
@@ -191,13 +191,13 @@ class _LandingScreenState extends State<LandingScreen>
                       'Already have an account? Sign in',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.9),
-                        fontSize: 13.sp,
+                        fontSize: context.dynamicWidth(0.035),
                       ),
                     ),
                   ),
                 ),
 
-                SizedBox(height: 32.h),
+                SizedBox(height: context.dynamicHeight(0.039)),
               ],
             ),
           ),
@@ -219,25 +219,25 @@ class _LandingScreenState extends State<LandingScreen>
         return Column(
           children: [
             Container(
-              width: 53.w,
-              height: 53.w,
+              width: context.dynamicWidth(0.141),
+              height: context.dynamicWidth(0.141),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(13.w),
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
               ),
               child: Center(
                 child: Text(
                   feature['icon']!,
-                  style: TextStyle(fontSize: 23.sp),
+                  style: TextStyle(fontSize: context.dynamicWidth(0.061)),
                 ),
               ),
             ),
-            SizedBox(height: 8.w),
+            SizedBox(height: context.dynamicWidth(0.021)),
             Text(
               feature['text']!,
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.9),
-                fontSize: 11.sp,
+                fontSize: context.dynamicWidth(0.029),
               ),
             ),
           ],

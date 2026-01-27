@@ -75,8 +75,8 @@ class _EventsScreenState extends State<EventsScreen> {
           colors: [AppColors.blue600, AppColors.primaryColor],
         ),
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(30.w),
-          bottomRight: Radius.circular(30.w),
+          bottomLeft: Radius.circular(context.dynamicWidth(0.08)),
+          bottomRight: Radius.circular(context.dynamicWidth(0.08)),
         ),
         boxShadow: [
           BoxShadow(
@@ -90,10 +90,10 @@ class _EventsScreenState extends State<EventsScreen> {
         bottom: false,
         child: Padding(
           padding: EdgeInsets.fromLTRB(
-            15.w,
-            16.h,
-            15.w,
-            15.w,
+            context.dynamicWidth(0.04),
+            context.dynamicHeight(0.02),
+            context.dynamicWidth(0.04),
+            context.dynamicWidth(0.04),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,15 +104,15 @@ class _EventsScreenState extends State<EventsScreen> {
                   Text(
                     t.translate('events_title'),
                     style: TextStyle(
-                      fontSize: 26.sp,
+                      fontSize: context.dynamicWidth(0.069),
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
                   Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 11.w,
-                      vertical: 6.h,
+                      horizontal: context.dynamicWidth(0.029),
+                      vertical: context.dynamicHeight(0.007),
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.2),
@@ -123,13 +123,13 @@ class _EventsScreenState extends State<EventsScreen> {
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
-                        fontSize: 13.sp,
+                        fontSize: context.dynamicWidth(0.035),
                       ),
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 20.h),
+              SizedBox(height: context.dynamicHeight(0.025)),
               _buildSearchBar(state, t),
             ],
           ),
@@ -155,7 +155,7 @@ class _EventsScreenState extends State<EventsScreen> {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(15.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.1),
@@ -169,24 +169,24 @@ class _EventsScreenState extends State<EventsScreen> {
           onChanged: (value) {
             context.read<EventsListCubit>().searchEvents(value);
           },
-          style: TextStyle(fontSize: 15.sp),
+          style: TextStyle(fontSize: context.dynamicWidth(0.04)),
           decoration: InputDecoration(
             hintText: t.translate('events_search'),
             hintStyle: TextStyle(
               color: AppColors.gray400,
-              fontSize: 15.sp,
+              fontSize: context.dynamicWidth(0.04),
             ),
             prefixIcon: Icon(
               Icons.search,
               color: AppColors.gray400,
-              size: 23.w,
+              size: context.dynamicWidth(0.061),
             ),
             suffixIcon: state.searchQuery.isNotEmpty
                 ? IconButton(
                     icon: Icon(
                       Icons.clear,
                       color: AppColors.gray400,
-                      size: 19.w,
+                      size: context.dynamicWidth(0.051),
                     ),
                     onPressed: () {
                       _searchController.clear();
@@ -196,8 +196,8 @@ class _EventsScreenState extends State<EventsScreen> {
                 : null,
             border: InputBorder.none,
             contentPadding: EdgeInsets.symmetric(
-              horizontal: 19.w,
-              vertical: 16.h,
+              horizontal: context.dynamicWidth(0.051),
+              vertical: context.dynamicHeight(0.02),
             ),
           ),
         ),
@@ -214,15 +214,15 @@ class _EventsScreenState extends State<EventsScreen> {
     ];
 
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 16.h),
+      padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.02)),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: 15.w),
+        padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.04)),
         child: Row(
           children: filters.map((filter) {
             final isSelected = state.filterStatus == filter['status'];
             return Padding(
-              padding: EdgeInsets.only(right: 11.w),
+              padding: EdgeInsets.only(right: context.dynamicWidth(0.029)),
               child: _FilterTab(
                 label: filter['label'] as String,
                 isSelected: isSelected,
@@ -251,38 +251,38 @@ class _EventsScreenState extends State<EventsScreen> {
           children: [
             Icon(
               Icons.error_outline,
-              size: 60.w,
+              size: context.dynamicWidth(0.16),
               color: AppColors.red500,
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: context.dynamicHeight(0.02)),
             Text(
               t.translate('events_error_loading'),
               style: TextStyle(
-                fontSize: 17.sp,
+                fontSize: context.dynamicWidth(0.045),
                 fontWeight: FontWeight.w600,
                 color: AppColors.gray700,
               ),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.dynamicHeight(0.01)),
             Text(
               state.errorMessage ?? t.translate('events_try_again'),
               style: TextStyle(
-                fontSize: 13.sp,
+                fontSize: context.dynamicWidth(0.035),
                 color: AppColors.gray500,
               ),
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: context.dynamicHeight(0.02)),
             ElevatedButton(
               onPressed: () {
                 context.read<EventsListCubit>().loadEvents();
               },
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(
-                  horizontal: 23.w,
-                  vertical: 12.h,
+                  horizontal: context.dynamicWidth(0.061),
+                  vertical: context.dynamicHeight(0.015),
                 ),
               ),
-              child: Text(t.translate('common_retry'), style: TextStyle(fontSize: 13.sp)),
+              child: Text(t.translate('common_retry'), style: TextStyle(fontSize: context.dynamicWidth(0.035))),
             ),
           ],
         ),
@@ -298,23 +298,23 @@ class _EventsScreenState extends State<EventsScreen> {
           children: [
             Icon(
               Icons.event_busy,
-              size: 60.w,
+              size: context.dynamicWidth(0.16),
               color: AppColors.gray400,
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: context.dynamicHeight(0.02)),
             Text(
               t.translate('events_not_found'),
               style: TextStyle(
-                fontSize: 17.sp,
+                fontSize: context.dynamicWidth(0.045),
                 fontWeight: FontWeight.w600,
                 color: AppColors.gray500,
               ),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.dynamicHeight(0.01)),
             Text(
               t.translate('events_adjust_search'),
               style: TextStyle(
-                fontSize: 13.sp,
+                fontSize: context.dynamicWidth(0.035),
                 color: AppColors.gray400,
               ),
             ),
@@ -327,10 +327,10 @@ class _EventsScreenState extends State<EventsScreen> {
       onRefresh: () => context.read<EventsListCubit>().refreshEvents(),
       child: ListView.builder(
         padding: EdgeInsets.fromLTRB(
-          15.w,
+          context.dynamicWidth(0.04),
           0,
-          15.w,
-          15.w,
+          context.dynamicWidth(0.04),
+          context.dynamicWidth(0.04),
         ),
         itemCount: events.length,
         itemBuilder: (context, index) {
@@ -348,7 +348,7 @@ class _EventsScreenState extends State<EventsScreen> {
               );
             },
             child: Padding(
-              padding: EdgeInsets.only(bottom: 16.h),
+              padding: EdgeInsets.only(bottom: context.dynamicHeight(0.02)),
               child: _EventCard(
                 event: events[index],
                 onUploadPayment: () {
@@ -384,8 +384,8 @@ class _FilterTab extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: EdgeInsets.symmetric(
-          horizontal: 19.w,
-          vertical: 10.h,
+          horizontal: context.dynamicWidth(0.051),
+          vertical: context.dynamicHeight(0.012),
         ),
         decoration: BoxDecoration(
           gradient: isSelected
@@ -408,7 +408,7 @@ class _FilterTab extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 13.sp,
+            fontSize: context.dynamicWidth(0.035),
             fontWeight: FontWeight.w600,
             color: isSelected ? Colors.white : AppColors.gray600,
           ),
@@ -464,7 +464,7 @@ class _EventCardState extends State<_EventCard> {
           transform: Matrix4.identity()..scale(_isHovered ? 1.02 : 1.0),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(23.w),
+            borderRadius: BorderRadius.circular(context.dynamicWidth(0.061)),
             boxShadow: [
               BoxShadow(
                 color: _isHovered
@@ -490,7 +490,7 @@ class _EventCardState extends State<_EventCard> {
 
   Widget _buildCardHeader(BuildContext context, AppLocalizations t) {
     return Container(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -498,26 +498,26 @@ class _EventCardState extends State<_EventCard> {
           colors: _gradient,
         ),
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(23.w),
-          topRight: Radius.circular(23.w),
+          topLeft: Radius.circular(context.dynamicWidth(0.061)),
+          topRight: Radius.circular(context.dynamicWidth(0.061)),
         ),
       ),
       child: Row(
         children: [
           Container(
-            width: 45.w,
-            height: 45.w,
+            width: context.dynamicWidth(0.12),
+            height: context.dynamicWidth(0.12),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(11.w),
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
             ),
             child: Icon(
               _icon,
               color: Colors.white,
-              size: 23.w,
+              size: context.dynamicWidth(0.061),
             ),
           ),
-          SizedBox(width: 11.w),
+          SizedBox(width: context.dynamicWidth(0.029)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -525,18 +525,18 @@ class _EventCardState extends State<_EventCard> {
                 Text(
                   widget.event.name,
                   style: TextStyle(
-                    fontSize: 17.sp,
+                    fontSize: context.dynamicWidth(0.045),
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 4.h),
+                SizedBox(height: context.dynamicHeight(0.005)),
                 Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 9.w,
-                    vertical: 4.h,
+                    horizontal: context.dynamicWidth(0.024),
+                    vertical: context.dynamicHeight(0.005),
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.2),
@@ -545,7 +545,7 @@ class _EventCardState extends State<_EventCard> {
                   child: Text(
                     widget.event.type,
                     style: TextStyle(
-                      fontSize: 11.sp,
+                      fontSize: context.dynamicWidth(0.029),
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
                     ),
@@ -585,8 +585,8 @@ class _EventCardState extends State<_EventCard> {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: 11.w,
-        vertical: 6.h,
+        horizontal: context.dynamicWidth(0.029),
+        vertical: context.dynamicHeight(0.007),
       ),
       decoration: BoxDecoration(
         color: bgColor,
@@ -595,7 +595,7 @@ class _EventCardState extends State<_EventCard> {
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 11.sp,
+          fontSize: context.dynamicWidth(0.029),
           fontWeight: FontWeight.w600,
           color: textColor,
         ),
@@ -605,18 +605,18 @@ class _EventCardState extends State<_EventCard> {
 
   Widget _buildCardBody(BuildContext context, AppLocalizations t) {
     return Padding(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildInfoRow(context, Icons.calendar_today, '${widget.event.date} at ${widget.event.time}'),
-          SizedBox(height: 8.h),
+          SizedBox(height: context.dynamicHeight(0.01)),
           _buildInfoRow(context, Icons.location_on, widget.event.venue),
-          SizedBox(height: 8.h),
+          SizedBox(height: context.dynamicHeight(0.01)),
           _buildInfoRow(context, Icons.mail_outline, '${widget.event.invitations} ${t.translate('events_invitations_sent')}'),
-          SizedBox(height: 16.h),
+          SizedBox(height: context.dynamicHeight(0.02)),
           _buildProgressSection(context, t),
-          SizedBox(height: 16.h),
+          SizedBox(height: context.dynamicHeight(0.02)),
           _buildStatsRow(context, t),
         ],
       ),
@@ -628,15 +628,15 @@ class _EventCardState extends State<_EventCard> {
       children: [
         Icon(
           icon,
-          size: 17.w,
+          size: context.dynamicWidth(0.045),
           color: AppColors.gray400,
         ),
-        SizedBox(width: 9.w),
+        SizedBox(width: context.dynamicWidth(0.024)),
         Expanded(
           child: Text(
             text,
             style: TextStyle(
-              fontSize: 13.sp,
+              fontSize: context.dynamicWidth(0.035),
               color: AppColors.gray600,
             ),
             maxLines: 1,
@@ -657,7 +657,7 @@ class _EventCardState extends State<_EventCard> {
             Text(
               t.translate('events_response_rate'),
               style: TextStyle(
-                fontSize: 12.sp,
+                fontSize: context.dynamicWidth(0.032),
                 fontWeight: FontWeight.w600,
                 color: AppColors.gray700,
               ),
@@ -665,21 +665,21 @@ class _EventCardState extends State<_EventCard> {
             Text(
               '${widget.event.responseRate.toStringAsFixed(0)}%',
               style: TextStyle(
-                fontSize: 12.sp,
+                fontSize: context.dynamicWidth(0.032),
                 fontWeight: FontWeight.bold,
                 color: AppColors.primaryColor,
               ),
             ),
           ],
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: context.dynamicHeight(0.01)),
         TweenAnimationBuilder<double>(
           tween: Tween(begin: 0, end: widget.event.responseRate / 100),
           duration: const Duration(milliseconds: 800),
           curve: Curves.easeOutCubic,
           builder: (context, value, child) {
             return Container(
-              height: 8.h,
+              height: context.dynamicHeight(0.01),
               decoration: BoxDecoration(
                 color: AppColors.gray200,
                 borderRadius: BorderRadius.circular(4),
@@ -711,7 +711,7 @@ class _EventCardState extends State<_EventCard> {
         ),
         Container(
           width: 1,
-          height: 41.h,
+          height: context.dynamicHeight(0.05),
           color: AppColors.gray200,
         ),
         Expanded(
@@ -726,21 +726,21 @@ class _EventCardState extends State<_EventCard> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          width: 9.w,
-          height: 9.w,
+          width: context.dynamicWidth(0.024),
+          height: context.dynamicWidth(0.024),
           decoration: BoxDecoration(
             color: dotColor,
             shape: BoxShape.circle,
           ),
         ),
-        SizedBox(width: 8.w),
+        SizedBox(width: context.dynamicWidth(0.021)),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               value.toString(),
               style: TextStyle(
-                fontSize: 17.sp,
+                fontSize: context.dynamicWidth(0.045),
                 fontWeight: FontWeight.bold,
                 color: AppColors.gray900,
               ),
@@ -748,7 +748,7 @@ class _EventCardState extends State<_EventCard> {
             Text(
               label,
               style: TextStyle(
-                fontSize: 11.sp,
+                fontSize: context.dynamicWidth(0.029),
                 color: AppColors.gray500,
               ),
             ),
@@ -760,12 +760,12 @@ class _EventCardState extends State<_EventCard> {
 
   Widget _buildCardFooter(BuildContext context, AppLocalizations t) {
     return Container(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
         color: AppColors.gray100,
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(23.w),
-          bottomRight: Radius.circular(23.w),
+          bottomLeft: Radius.circular(context.dynamicWidth(0.061)),
+          bottomRight: Radius.circular(context.dynamicWidth(0.061)),
         ),
       ),
       child: widget.event.isInactive
@@ -780,10 +780,10 @@ class _EventCardState extends State<_EventCard> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 15.h),
+        padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.018)),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(11.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
           border: Border.all(
             color: AppColors.primaryColor,
             width: 2,
@@ -802,13 +802,13 @@ class _EventCardState extends State<_EventCard> {
             Icon(
               Icons.upload_file,
               color: AppColors.primaryColor,
-              size: 19.w,
+              size: context.dynamicWidth(0.051),
             ),
-            SizedBox(width: 8.w),
+            SizedBox(width: context.dynamicWidth(0.021)),
             Text(
               t.translate('events_upload_invoice'),
               style: TextStyle(
-                fontSize: 13.sp,
+                fontSize: context.dynamicWidth(0.035),
                 fontWeight: FontWeight.bold,
                 color: AppColors.primaryColor,
               ),
@@ -825,12 +825,12 @@ class _EventCardState extends State<_EventCard> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 15.h),
+        padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.018)),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [AppColors.primaryColor, AppColors.tertiaryColor],
           ),
-          borderRadius: BorderRadius.circular(11.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
           boxShadow: [
             BoxShadow(
               color: AppColors.primaryColor.withValues(alpha: 0.3),
@@ -845,13 +845,13 @@ class _EventCardState extends State<_EventCard> {
             Icon(
               Icons.visibility,
               color: Colors.white,
-              size: 19.w,
+              size: context.dynamicWidth(0.051),
             ),
-            SizedBox(width: 8.w),
+            SizedBox(width: context.dynamicWidth(0.021)),
             Text(
               t.translate('events_view_event'),
               style: TextStyle(
-                fontSize: 13.sp,
+                fontSize: context.dynamicWidth(0.035),
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),

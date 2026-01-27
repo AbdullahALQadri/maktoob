@@ -32,19 +32,19 @@ class SettingsScreen extends StatelessWidget {
               ),
               // Content
               SliverPadding(
-                padding: EdgeInsets.all(19.w),
+                padding: EdgeInsets.all(context.dynamicWidth(0.051)),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
                     // Language Section
                     _buildSectionTitle(context, t.translate('settings_language')),
-                    SizedBox(height: 12.h),
+                    SizedBox(height: context.dynamicHeight(0.015)),
                     _buildLanguageCard(context, state),
 
-                    SizedBox(height: 24.h),
+                    SizedBox(height: context.dynamicHeight(0.03)),
 
                     // Profile Section
                     _buildSectionTitle(context, t.translate('settings_account')),
-                    SizedBox(height: 12.h),
+                    SizedBox(height: context.dynamicHeight(0.015)),
                     _buildSettingsCard(
                       context: context,
                       icon: Icons.person_outline,
@@ -53,11 +53,11 @@ class SettingsScreen extends StatelessWidget {
                       onTap: () => _showProfileDialog(context),
                     ),
 
-                    SizedBox(height: 24.h),
+                    SizedBox(height: context.dynamicHeight(0.03)),
 
                     // Support Section
                     _buildSectionTitle(context, t.translate('settings_support')),
-                    SizedBox(height: 12.h),
+                    SizedBox(height: context.dynamicHeight(0.015)),
                     _buildSettingsCard(
                       context: context,
                       icon: Icons.email_outlined,
@@ -65,7 +65,7 @@ class SettingsScreen extends StatelessWidget {
                       subtitle: t.translate('settings_contact_desc'),
                       onTap: () => _showContactDialog(context),
                     ),
-                    SizedBox(height: 12.h),
+                    SizedBox(height: context.dynamicHeight(0.015)),
                     _buildSettingsCard(
                       context: context,
                       icon: Icons.help_outline,
@@ -74,11 +74,11 @@ class SettingsScreen extends StatelessWidget {
                       onTap: () => _showHelpDialog(context),
                     ),
 
-                    SizedBox(height: 24.h),
+                    SizedBox(height: context.dynamicHeight(0.03)),
 
                     // About Section
                     _buildSectionTitle(context, t.translate('settings_about')),
-                    SizedBox(height: 12.h),
+                    SizedBox(height: context.dynamicHeight(0.015)),
                     _buildSettingsCard(
                       context: context,
                       icon: Icons.info_outline,
@@ -87,7 +87,7 @@ class SettingsScreen extends StatelessWidget {
                       onTap: () => _showAboutDialog(context),
                     ),
 
-                    SizedBox(height: 97.h),
+                    SizedBox(height: context.dynamicHeight(0.119)),
                   ]),
                 ),
               ),
@@ -114,10 +114,10 @@ class SettingsScreen extends StatelessWidget {
         bottom: false,
         child: Padding(
           padding: EdgeInsets.fromLTRB(
-            23.w,
-            24.h,
-            23.w,
-            32.h,
+            context.dynamicWidth(0.061),
+            context.dynamicHeight(0.03),
+            context.dynamicWidth(0.061),
+            context.dynamicHeight(0.039),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,16 +125,16 @@ class SettingsScreen extends StatelessWidget {
               Text(
                 t.translate('settings_title'),
                 style: TextStyle(
-                  fontSize: 26.sp,
+                  fontSize: context.dynamicWidth(0.069),
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: 4.h),
+              SizedBox(height: context.dynamicHeight(0.005)),
               Text(
                 t.translate('settings_subtitle'),
                 style: TextStyle(
-                  fontSize: 13.sp,
+                  fontSize: context.dynamicWidth(0.035),
                   color: Colors.white.withValues(alpha: 0.8),
                 ),
               ),
@@ -149,7 +149,7 @@ class SettingsScreen extends StatelessWidget {
     return Text(
       title,
       style: TextStyle(
-        fontSize: 17.sp,
+        fontSize: context.dynamicWidth(0.045),
         fontWeight: FontWeight.bold,
         color: AppColors.gray900,
       ),
@@ -158,10 +158,10 @@ class SettingsScreen extends StatelessWidget {
 
   Widget _buildLanguageCard(BuildContext context, SettingsState state) {
     return Container(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15.w),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -179,7 +179,7 @@ class SettingsScreen extends StatelessWidget {
             isSelected: state.language == AppLanguage.ar,
             onTap: () => context.read<SettingsCubit>().setLanguage(AppLanguage.ar),
           ),
-          Divider(color: AppColors.gray100, height: 16.h),
+          Divider(color: AppColors.gray100, height: context.dynamicHeight(0.02)),
           _buildLanguageOption(
             context: context,
             title: 'English',
@@ -203,18 +203,18 @@ class SettingsScreen extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(
-          vertical: 12.h,
-          horizontal: 8.w,
+          vertical: context.dynamicHeight(0.015),
+          horizontal: context.dynamicWidth(0.021),
         ),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.purple50 : Colors.transparent,
-          borderRadius: BorderRadius.circular(11.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
         ),
         child: Row(
           children: [
             Container(
-              width: 45.w,
-              height: 45.w,
+              width: context.dynamicWidth(0.12),
+              height: context.dynamicWidth(0.12),
               decoration: BoxDecoration(
                 gradient: isSelected
                     ? LinearGradient(
@@ -222,15 +222,15 @@ class SettingsScreen extends StatelessWidget {
                       )
                     : null,
                 color: isSelected ? null : AppColors.gray100,
-                borderRadius: BorderRadius.circular(11.w),
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
               ),
               child: Icon(
                 Icons.language,
                 color: isSelected ? Colors.white : AppColors.gray400,
-                size: 23.w,
+                size: context.dynamicWidth(0.061),
               ),
             ),
-            SizedBox(width: 15.w),
+            SizedBox(width: context.dynamicWidth(0.04)),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,7 +238,7 @@ class SettingsScreen extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: 15.sp,
+                      fontSize: context.dynamicWidth(0.04),
                       fontWeight: FontWeight.bold,
                       color: isSelected ? AppColors.primaryColor : AppColors.gray900,
                     ),
@@ -246,7 +246,7 @@ class SettingsScreen extends StatelessWidget {
                   Text(
                     subtitle,
                     style: TextStyle(
-                      fontSize: 11.sp,
+                      fontSize: context.dynamicWidth(0.029),
                       color: AppColors.gray500,
                     ),
                   ),
@@ -255,8 +255,8 @@ class SettingsScreen extends StatelessWidget {
             ),
             if (isSelected)
               Container(
-                width: 23.w,
-                height: 23.w,
+                width: context.dynamicWidth(0.061),
+                height: context.dynamicWidth(0.061),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [AppColors.primaryColor, AppColors.tertiaryColor],
@@ -266,7 +266,7 @@ class SettingsScreen extends StatelessWidget {
                 child: Icon(
                   Icons.check,
                   color: Colors.white,
-                  size: 13.w,
+                  size: context.dynamicWidth(0.035),
                 ),
               ),
           ],
@@ -285,10 +285,10 @@ class SettingsScreen extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(15.w),
+        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(15.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -300,19 +300,19 @@ class SettingsScreen extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 45.w,
-              height: 45.w,
+              width: context.dynamicWidth(0.12),
+              height: context.dynamicWidth(0.12),
               decoration: BoxDecoration(
                 color: AppColors.purple50,
-                borderRadius: BorderRadius.circular(11.w),
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
               ),
               child: Icon(
                 icon,
                 color: AppColors.primaryColor,
-                size: 23.w,
+                size: context.dynamicWidth(0.061),
               ),
             ),
-            SizedBox(width: 15.w),
+            SizedBox(width: context.dynamicWidth(0.04)),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -320,7 +320,7 @@ class SettingsScreen extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: 15.sp,
+                      fontSize: context.dynamicWidth(0.04),
                       fontWeight: FontWeight.bold,
                       color: AppColors.gray900,
                     ),
@@ -328,7 +328,7 @@ class SettingsScreen extends StatelessWidget {
                   Text(
                     subtitle,
                     style: TextStyle(
-                      fontSize: 11.sp,
+                      fontSize: context.dynamicWidth(0.029),
                       color: AppColors.gray500,
                     ),
                   ),
@@ -338,7 +338,7 @@ class SettingsScreen extends StatelessWidget {
             Icon(
               Icons.arrow_forward_ios,
               color: AppColors.gray400,
-              size: 15.w,
+              size: context.dynamicWidth(0.04),
             ),
           ],
         ),
@@ -378,7 +378,7 @@ class SettingsScreen extends StatelessWidget {
             value: 'support@maktoob.app',
             onTap: () => _copyToClipboard(context, 'support@maktoob.app'),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: context.dynamicHeight(0.015)),
           _buildContactOption(
             context: context,
             icon: Icons.phone_rounded,
@@ -386,7 +386,7 @@ class SettingsScreen extends StatelessWidget {
             value: '+966 XX XXX XXXX',
             onTap: () => _copyToClipboard(context, '+966XXXXXXXX'),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: context.dynamicHeight(0.015)),
           _buildContactOption(
             context: context,
             icon: Icons.chat_rounded,
@@ -409,10 +409,10 @@ class SettingsScreen extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(15.w),
+        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
         decoration: BoxDecoration(
           color: AppColors.gray50,
-          borderRadius: BorderRadius.circular(13.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
           border: Border.all(
             color: AppColors.gray200,
             width: 1,
@@ -421,19 +421,19 @@ class SettingsScreen extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 41.w,
-              height: 41.w,
+              width: context.dynamicWidth(0.109),
+              height: context.dynamicWidth(0.109),
               decoration: BoxDecoration(
                 color: AppColors.purple50,
-                borderRadius: BorderRadius.circular(9.w),
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.024)),
               ),
               child: Icon(
                 icon,
                 color: AppColors.primaryColor,
-                size: 21.w,
+                size: context.dynamicWidth(0.056),
               ),
             ),
-            SizedBox(width: 13.w),
+            SizedBox(width: context.dynamicWidth(0.035)),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -441,16 +441,16 @@ class SettingsScreen extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: 14.sp,
+                      fontSize: context.dynamicWidth(0.037),
                       fontWeight: FontWeight.w600,
                       color: AppColors.gray900,
                     ),
                   ),
-                  SizedBox(height: 2.h),
+                  SizedBox(height: context.dynamicHeight(0.002)),
                   Text(
                     value,
                     style: TextStyle(
-                      fontSize: 12.sp,
+                      fontSize: context.dynamicWidth(0.032),
                       color: AppColors.gray500,
                     ),
                   ),
@@ -458,16 +458,16 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
             Container(
-              width: 34.w,
-              height: 34.w,
+              width: context.dynamicWidth(0.091),
+              height: context.dynamicWidth(0.091),
               decoration: BoxDecoration(
                 color: AppColors.gray100,
-                borderRadius: BorderRadius.circular(8.w),
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.021)),
               ),
               child: Icon(
                 Icons.copy_rounded,
                 color: AppColors.gray500,
-                size: 17.w,
+                size: context.dynamicWidth(0.045),
               ),
             ),
           ],
@@ -503,19 +503,19 @@ class SettingsScreen extends StatelessWidget {
       child: Dialog(
         backgroundColor: Colors.transparent,
         insetPadding: EdgeInsets.symmetric(
-          horizontal: 23.w,
-          vertical: 24.h,
+          horizontal: context.dynamicWidth(0.061),
+          vertical: context.dynamicHeight(0.03),
         ),
         child: Container(
-          padding: EdgeInsets.all(23.w),
+          padding: EdgeInsets.all(context.dynamicWidth(0.061)),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(23.w),
+            borderRadius: BorderRadius.circular(context.dynamicWidth(0.061)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.15),
-                blurRadius: 30.w,
-                offset: Offset(0, 16.h),
+                blurRadius: context.dynamicWidth(0.08),
+                offset: Offset(0, context.dynamicHeight(0.02)),
               ),
             ],
           ),
@@ -524,83 +524,83 @@ class SettingsScreen extends StatelessWidget {
             children: [
               // App Icon
               Container(
-                width: 75.w,
-                height: 75.w,
+                width: context.dynamicWidth(0.2),
+                height: context.dynamicWidth(0.2),
                 decoration: BoxDecoration(
                   color: AppColors.purple50,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
                       color: AppColors.primaryColor.withValues(alpha: 0.2),
-                      blurRadius: 19.w,
-                      offset: Offset(0, 8.h),
+                      blurRadius: context.dynamicWidth(0.051),
+                      offset: Offset(0, context.dynamicHeight(0.01)),
                     ),
                   ],
                 ),
                 child: Icon(
                   Icons.info_rounded,
-                  size: 38.w,
+                  size: context.dynamicWidth(0.101),
                   color: AppColors.primaryColor,
                 ),
               ),
-              SizedBox(height: 16.h),
+              SizedBox(height: context.dynamicHeight(0.02)),
               // Title
               Text(
                 t.translate('settings_about_maktoob'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 21.sp,
+                  fontSize: context.dynamicWidth(0.056),
                   fontWeight: FontWeight.bold,
                   color: AppColors.gray900,
                 ),
               ),
-              SizedBox(height: 12.h),
+              SizedBox(height: context.dynamicHeight(0.015)),
               // Description
               Text(
                 t.translate('settings_about_text'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: context.dynamicWidth(0.037),
                   color: AppColors.gray600,
                   height: 1.5,
                 ),
               ),
-              SizedBox(height: 8.h),
+              SizedBox(height: context.dynamicHeight(0.01)),
               // Version badge
               Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: 15.w,
-                  vertical: 6.h,
+                  horizontal: context.dynamicWidth(0.04),
+                  vertical: context.dynamicHeight(0.007),
                 ),
                 decoration: BoxDecoration(
                   color: AppColors.gray100,
-                  borderRadius: BorderRadius.circular(19.w),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.051)),
                 ),
                 child: Text(
                   t.translate('settings_version'),
                   style: TextStyle(
-                    fontSize: 12.sp,
+                    fontSize: context.dynamicWidth(0.032),
                     color: AppColors.gray500,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
-              SizedBox(height: 24.h),
+              SizedBox(height: context.dynamicHeight(0.03)),
               // OK Button
               SizedBox(
                 width: double.infinity,
-                height: 49.h,
+                height: context.dynamicHeight(0.06),
                 child: Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [AppColors.primaryColor, AppColors.tertiaryColor],
                     ),
-                    borderRadius: BorderRadius.circular(13.w),
+                    borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
                     boxShadow: [
                       BoxShadow(
                         color: AppColors.primaryColor.withValues(alpha: 0.3),
-                        blurRadius: 11.w,
-                        offset: Offset(0, 4.h),
+                        blurRadius: context.dynamicWidth(0.029),
+                        offset: Offset(0, context.dynamicHeight(0.005)),
                       ),
                     ],
                   ),
@@ -608,12 +608,12 @@ class SettingsScreen extends StatelessWidget {
                     color: Colors.transparent,
                     child: InkWell(
                       onTap: () => Navigator.pop(context),
-                      borderRadius: BorderRadius.circular(13.w),
+                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
                       child: Center(
                         child: Text(
                           t.translate('common_ok'),
                           style: TextStyle(
-                            fontSize: 15.sp,
+                            fontSize: context.dynamicWidth(0.04),
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
                           ),

@@ -23,7 +23,7 @@ class ScanButtonWidget extends StatelessWidget {
         return GestureDetector(
           onTap: isScanning ? null : onTap,
           child: Container(
-            height: 122.h,
+            height: context.dynamicHeight(0.15),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
@@ -38,12 +38,12 @@ class ScanButtonWidget extends StatelessWidget {
                         AppColors.tertiaryColor,
                       ],
               ),
-              borderRadius: BorderRadius.circular(19.w),
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.051)),
               boxShadow: [
                 BoxShadow(
                   color: AppColors.primaryColor.withValues(alpha: isScanning ? 0.2 : 0.4),
-                  blurRadius: 19.w,
-                  offset: Offset(0, 10.h),
+                  blurRadius: context.dynamicWidth(0.051),
+                  offset: Offset(0, context.dynamicHeight(0.012)),
                 ),
               ],
             ),
@@ -54,7 +54,7 @@ class ScanButtonWidget extends StatelessWidget {
                 if (isScanning)
                   Positioned.fill(
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(19.w),
+                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.051)),
                       child: CustomPaint(
                         painter: ScanLinePainter(scanAnimation.value),
                       ),
@@ -66,21 +66,21 @@ class ScanButtonWidget extends StatelessWidget {
                     Icon(
                       isScanning ? Icons.qr_code_scanner : Icons.camera_alt,
                       color: Colors.white,
-                      size: 38.w,
+                      size: context.dynamicWidth(0.101),
                     ),
-                    SizedBox(height: 12.h),
+                    SizedBox(height: context.dynamicHeight(0.015)),
                     Text(
                       isScanning ? 'Scanning...' : 'Scan QR Code',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 19.sp,
+                        fontSize: context.dynamicWidth(0.051),
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5,
                       ),
                     ),
                     if (isScanning)
                       Padding(
-                        padding: EdgeInsets.only(top: 8.h),
+                        padding: EdgeInsets.only(top: context.dynamicHeight(0.01)),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: List.generate(3, (index) {
@@ -90,9 +90,9 @@ class ScanButtonWidget extends StatelessWidget {
                               curve: Curves.easeInOut,
                               builder: (context, value, child) {
                                 return Container(
-                                  width: 8.w,
-                                  height: 8.w,
-                                  margin: EdgeInsets.symmetric(horizontal: 4.w),
+                                  width: context.dynamicWidth(0.021),
+                                  height: context.dynamicWidth(0.021),
+                                  margin: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.011)),
                                   decoration: BoxDecoration(
                                     color: Colors.white.withValues(alpha: value),
                                     shape: BoxShape.circle,

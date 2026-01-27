@@ -310,7 +310,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                   physics: const BouncingScrollPhysics(),
                   child: Padding(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 23.w,
+                      horizontal: context.dynamicWidth(0.061),
                     ),
                     child: FadeTransition(
                       opacity: _fadeAnimation,
@@ -318,13 +318,13 @@ class _RegisterScreenState extends State<RegisterScreen>
                         position: _slideAnimation,
                         child: Column(
                           children: [
-                            SizedBox(height: 16.h),
+                            SizedBox(height: context.dynamicHeight(0.02)),
                             _buildHeader(),
-                            SizedBox(height: 20.h),
+                            SizedBox(height: context.dynamicHeight(0.025)),
                             _buildFormCard(),
-                            SizedBox(height: 16.h),
+                            SizedBox(height: context.dynamicHeight(0.02)),
                             _buildLoginLink(),
-                            SizedBox(height: 24.h),
+                            SizedBox(height: context.dynamicHeight(0.03)),
                           ],
                         ),
                       ),
@@ -343,11 +343,11 @@ class _RegisterScreenState extends State<RegisterScreen>
     return Stack(
       children: [
         Positioned(
-          top: -113.w,
-          left: -75.w,
+          top: -context.dynamicWidth(0.301),
+          left: -context.dynamicWidth(0.2),
           child: Container(
-            width: 263.w,
-            height: 263.w,
+            width: context.dynamicWidth(0.701),
+            height: context.dynamicWidth(0.701),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
@@ -358,11 +358,11 @@ class _RegisterScreenState extends State<RegisterScreen>
           ),
         ),
         Positioned(
-          bottom: -56.w,
-          right: -94.w,
+          bottom: -context.dynamicWidth(0.149),
+          right: -context.dynamicWidth(0.251),
           child: Container(
-            width: 188.w,
-            height: 188.w,
+            width: context.dynamicWidth(0.501),
+            height: context.dynamicWidth(0.501),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white.withValues(alpha: 0.05),
@@ -397,7 +397,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             ),
           ),
         ),
-        SizedBox(width: 15.w),
+        SizedBox(width: context.dynamicWidth(0.04)),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -405,7 +405,7 @@ class _RegisterScreenState extends State<RegisterScreen>
               Text(
                 t.translate('auth_create_account'),
                 style: TextStyle(
-                  fontSize: 21.sp,
+                  fontSize: context.dynamicWidth(0.056),
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
@@ -414,7 +414,7 @@ class _RegisterScreenState extends State<RegisterScreen>
               Text(
                 t.translate('auth_join_maktoob'),
                 style: TextStyle(
-                  fontSize: 12.sp,
+                  fontSize: context.dynamicWidth(0.032),
                   color: Colors.white.withValues(alpha: 0.9),
                 ),
               ),
@@ -424,8 +424,8 @@ class _RegisterScreenState extends State<RegisterScreen>
         Hero(
           tag: 'app_logo',
           child: Container(
-            width: 53.w,
-            height: 53.w,
+            width: context.dynamicWidth(0.141),
+            height: context.dynamicWidth(0.141),
             decoration: BoxDecoration(
               color: Colors.white,
               shape: BoxShape.circle,
@@ -439,7 +439,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             ),
             child: ClipOval(
               child: Padding(
-                padding: EdgeInsets.all(8.w),
+                padding: EdgeInsets.all(context.dynamicWidth(0.021)),
                 child: Image.asset(
                   'assets/images/logo.png',
                   fit: BoxFit.contain,
@@ -458,7 +458,7 @@ class _RegisterScreenState extends State<RegisterScreen>
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
         child: Container(
-          padding: EdgeInsets.all(19.w),
+          padding: EdgeInsets.all(context.dynamicWidth(0.051)),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(28),
@@ -478,7 +478,7 @@ class _RegisterScreenState extends State<RegisterScreen>
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _buildUserTypeSelector(),
-                SizedBox(height: 18.h),
+                SizedBox(height: context.dynamicHeight(0.022)),
 
                 // Name Field
                 _buildModernTextField(
@@ -502,11 +502,11 @@ class _RegisterScreenState extends State<RegisterScreen>
                     return null;
                   },
                 ),
-                SizedBox(height: 13.h),
+                SizedBox(height: context.dynamicHeight(0.016)),
 
                 // Phone Field with Country Code
                 _buildPhoneField(),
-                SizedBox(height: 13.h),
+                SizedBox(height: context.dynamicHeight(0.016)),
 
                 // Email Field
                 _buildModernTextField(
@@ -525,7 +525,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                     return null;
                   },
                 ),
-                SizedBox(height: 13.h),
+                SizedBox(height: context.dynamicHeight(0.016)),
 
                 // Institution-only fields: Institution Field, Governorate, Address
                 if (_selectedUserType == UserType.institution) ...[
@@ -547,7 +547,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                       });
                     },
                   ),
-                  SizedBox(height: 13.h),
+                  SizedBox(height: context.dynamicHeight(0.016)),
 
                   // Governorate dropdown
                   _buildDropdownField(
@@ -574,7 +574,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                       });
                     },
                   ),
-                  SizedBox(height: 13.h),
+                  SizedBox(height: context.dynamicHeight(0.016)),
 
                   // Custom Governorate text field - Only when "Other" is selected
                   if (_showCustomGovernorate)
@@ -596,7 +596,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                       },
                     ),
                   if (_showCustomGovernorate)
-                    SizedBox(height: 13.h),
+                    SizedBox(height: context.dynamicHeight(0.016)),
 
                   // Address Field
                   _buildModernTextField(
@@ -611,7 +611,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                       return null;
                     },
                   ),
-                  SizedBox(height: 13.h),
+                  SizedBox(height: context.dynamicHeight(0.016)),
                 ],
 
                 // Password Field
@@ -645,7 +645,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                     return null;
                   },
                 ),
-                SizedBox(height: 13.h),
+                SizedBox(height: context.dynamicHeight(0.016)),
 
                 // Confirm Password Field
                 _buildModernTextField(
@@ -678,16 +678,16 @@ class _RegisterScreenState extends State<RegisterScreen>
                     return null;
                   },
                 ),
-                SizedBox(height: 20.h),
+                SizedBox(height: context.dynamicHeight(0.025)),
 
                 // Register Button
                 _buildRegisterButton(),
 
                 // Info text for institution
                 if (_selectedUserType == UserType.institution) ...[
-                  SizedBox(height: 12.h),
+                  SizedBox(height: context.dynamicHeight(0.015)),
                   Container(
-                    padding: EdgeInsets.all(11.w),
+                    padding: EdgeInsets.all(context.dynamicWidth(0.029)),
                     decoration: BoxDecoration(
                       color: AppColors.amber50,
                       borderRadius: BorderRadius.circular(12),
@@ -700,12 +700,12 @@ class _RegisterScreenState extends State<RegisterScreen>
                           color: AppColors.amber600,
                           size: 20,
                         ),
-                        SizedBox(width: 8.w),
+                        SizedBox(width: context.dynamicWidth(0.021)),
                         Expanded(
                           child: Text(
                             t.translate('auth_institution_review'),
                             style: TextStyle(
-                              fontSize: 11.sp,
+                              fontSize: context.dynamicWidth(0.029),
                               color: AppColors.amber700,
                             ),
                           ),
@@ -731,12 +731,12 @@ class _RegisterScreenState extends State<RegisterScreen>
         Text(
           t.translate('auth_account_type'),
           style: TextStyle(
-            fontSize: 13.sp,
+            fontSize: context.dynamicWidth(0.035),
             fontWeight: FontWeight.w600,
             color: AppColors.gray700,
           ),
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: context.dynamicHeight(0.01)),
         Container(
           decoration: BoxDecoration(
             color: AppColors.gray100,
@@ -787,7 +787,7 @@ class _RegisterScreenState extends State<RegisterScreen>
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeOutCubic,
         padding: EdgeInsets.symmetric(
-          vertical: 12.h,
+          vertical: context.dynamicHeight(0.015),
         ),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primaryColor : Colors.transparent,
@@ -808,13 +808,13 @@ class _RegisterScreenState extends State<RegisterScreen>
             Icon(
               icon,
               color: isSelected ? Colors.white : AppColors.gray500,
-              size: 19.w,
+              size: context.dynamicWidth(0.051),
             ),
-            SizedBox(width: 8.w),
+            SizedBox(width: context.dynamicWidth(0.021)),
             Text(
               label,
               style: TextStyle(
-                fontSize: 13.sp,
+                fontSize: context.dynamicWidth(0.035),
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 color: isSelected ? Colors.white : AppColors.gray600,
               ),
@@ -833,12 +833,12 @@ class _RegisterScreenState extends State<RegisterScreen>
         Text(
           t.translate('auth_phone_number'),
           style: TextStyle(
-            fontSize: 12.sp,
+            fontSize: context.dynamicWidth(0.032),
             fontWeight: FontWeight.w600,
             color: AppColors.gray700,
           ),
         ),
-        SizedBox(height: 5.h),
+        SizedBox(height: context.dynamicHeight(0.006)),
         Row(
           children: [
             // Country Code Selector
@@ -852,8 +852,8 @@ class _RegisterScreenState extends State<RegisterScreen>
                   // Fixed Palestine code for individual users
                   ? Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 11.w,
-                        vertical: 13.h,
+                        horizontal: context.dynamicWidth(0.029),
+                        vertical: context.dynamicHeight(0.016),
                       ),
                       child: Row(
                         children: [
@@ -862,7 +862,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                           Text(
                             '+970',
                             style: TextStyle(
-                              fontSize: 14.sp,
+                              fontSize: context.dynamicWidth(0.037),
                               fontWeight: FontWeight.w600,
                               color: AppColors.gray900,
                             ),
@@ -875,7 +875,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                       child: DropdownButton<String>(
                         value: _selectedCountryCode,
                         padding: EdgeInsets.symmetric(
-                          horizontal: 11.w,
+                          horizontal: context.dynamicWidth(0.029),
                         ),
                         icon: Icon(Icons.arrow_drop_down, color: AppColors.gray500),
                         items: _countryCodes.map((country) {
@@ -889,7 +889,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                                 Text(
                                   country['code']!,
                                   style: TextStyle(
-                                    fontSize: 13.sp,
+                                    fontSize: context.dynamicWidth(0.035),
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -913,7 +913,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                       ),
                     ),
             ),
-            SizedBox(width: 8.w),
+            SizedBox(width: context.dynamicWidth(0.021)),
             // Phone Number Input
             Expanded(
               child: TextFormField(
@@ -924,7 +924,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                   LengthLimitingTextInputFormatter(_getMaxPhoneLength()),
                 ],
                 style: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: context.dynamicWidth(0.037),
                   color: AppColors.gray900,
                   fontWeight: FontWeight.w500,
                 ),
@@ -932,7 +932,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                   hintText: t.translate('auth_phone_hint'),
                   hintStyle: TextStyle(
                     color: AppColors.gray400,
-                    fontSize: 12.sp,
+                    fontSize: context.dynamicWidth(0.032),
                     fontWeight: FontWeight.w400,
                   ),
                   prefixIcon: Container(
@@ -950,8 +950,8 @@ class _RegisterScreenState extends State<RegisterScreen>
                   filled: true,
                   fillColor: AppColors.gray50,
                   contentPadding: EdgeInsets.symmetric(
-                    horizontal: 15.w,
-                    vertical: 11.h,
+                    horizontal: context.dynamicWidth(0.04),
+                    vertical: context.dynamicHeight(0.014),
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -975,7 +975,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                   ),
                   errorStyle: TextStyle(
                     color: AppColors.red500,
-                    fontSize: 11.sp,
+                    fontSize: context.dynamicWidth(0.029),
                   ),
                 ),
                 validator: (value) {
@@ -1039,19 +1039,19 @@ class _RegisterScreenState extends State<RegisterScreen>
         Text(
           label,
           style: TextStyle(
-            fontSize: 12.sp,
+            fontSize: context.dynamicWidth(0.032),
             fontWeight: FontWeight.w600,
             color: AppColors.gray700,
           ),
         ),
-        SizedBox(height: 5.h),
+        SizedBox(height: context.dynamicHeight(0.006)),
         DropdownButtonFormField<String>(
           value: value,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(
               color: AppColors.gray400,
-              fontSize: 12.sp,
+              fontSize: context.dynamicWidth(0.032),
               fontWeight: FontWeight.w400,
             ),
             prefixIcon: Container(
@@ -1065,8 +1065,8 @@ class _RegisterScreenState extends State<RegisterScreen>
             filled: true,
             fillColor: AppColors.gray50,
             contentPadding: EdgeInsets.symmetric(
-              horizontal: 15.w,
-              vertical: 11.h,
+              horizontal: context.dynamicWidth(0.04),
+              vertical: context.dynamicHeight(0.014),
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -1090,7 +1090,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             ),
             errorStyle: TextStyle(
               color: AppColors.red500,
-              fontSize: 11.sp,
+              fontSize: context.dynamicWidth(0.029),
             ),
           ),
           items: items.map((item) {
@@ -1099,7 +1099,7 @@ class _RegisterScreenState extends State<RegisterScreen>
               child: Text(
                 item,
                 style: TextStyle(
-                  fontSize: 13.sp,
+                  fontSize: context.dynamicWidth(0.035),
                   color: AppColors.gray900,
                 ),
               ),
@@ -1133,19 +1133,19 @@ class _RegisterScreenState extends State<RegisterScreen>
         Text(
           label,
           style: TextStyle(
-            fontSize: 12.sp,
+            fontSize: context.dynamicWidth(0.032),
             fontWeight: FontWeight.w600,
             color: AppColors.gray700,
           ),
         ),
-        SizedBox(height: 5.h),
+        SizedBox(height: context.dynamicHeight(0.006)),
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
           obscureText: obscureText,
           validator: validator,
           style: TextStyle(
-            fontSize: 14.sp,
+            fontSize: context.dynamicWidth(0.037),
             color: AppColors.gray900,
             fontWeight: FontWeight.w500,
           ),
@@ -1153,7 +1153,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             hintText: hint,
             hintStyle: TextStyle(
               color: AppColors.gray400,
-              fontSize: 12.sp,
+              fontSize: context.dynamicWidth(0.032),
               fontWeight: FontWeight.w400,
             ),
             prefixIcon: Container(
@@ -1181,8 +1181,8 @@ class _RegisterScreenState extends State<RegisterScreen>
             filled: true,
             fillColor: AppColors.gray50,
             contentPadding: EdgeInsets.symmetric(
-              horizontal: 15.w,
-              vertical: 11.h,
+              horizontal: context.dynamicWidth(0.04),
+              vertical: context.dynamicHeight(0.014),
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -1206,7 +1206,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             ),
             errorStyle: TextStyle(
               color: AppColors.red500,
-              fontSize: 11.sp,
+              fontSize: context.dynamicWidth(0.029),
             ),
           ),
         ),
@@ -1219,7 +1219,7 @@ class _RegisterScreenState extends State<RegisterScreen>
       builder: (context, state) {
         final isLoading = state is AuthLoading;
         return Container(
-          height: 53.h,
+          height: context.dynamicHeight(0.065),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(
@@ -1260,7 +1260,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                 : Text(
                     AppLocalizations.of(context)!.translate('auth_create_account'),
                     style: TextStyle(
-                      fontSize: 16.sp,
+                      fontSize: context.dynamicWidth(0.043),
                       fontWeight: FontWeight.w700,
                       letterSpacing: _isArabic ? 0 : 0.5,
                     ),
@@ -1280,7 +1280,7 @@ class _RegisterScreenState extends State<RegisterScreen>
           t.translate('auth_has_account'),
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.95),
-            fontSize: 14.sp,
+            fontSize: context.dynamicWidth(0.037),
           ),
         ),
         GestureDetector(
@@ -1303,7 +1303,7 @@ class _RegisterScreenState extends State<RegisterScreen>
               style: TextStyle(
                 color: AppColors.primaryColor,
                 fontWeight: FontWeight.bold,
-                fontSize: 13.sp,
+                fontSize: context.dynamicWidth(0.035),
               ),
             ),
           ),
@@ -1337,14 +1337,14 @@ class AdminApprovalWaitingScreen extends StatelessWidget {
         ),
         child: SafeArea(
           child: Padding(
-            padding: EdgeInsets.all(30.w),
+            padding: EdgeInsets.all(context.dynamicWidth(0.08)),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Icon
                 Container(
-                  width: 113.w,
-                  height: 113.w,
+                  width: context.dynamicWidth(0.301),
+                  height: context.dynamicWidth(0.301),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
@@ -1358,22 +1358,22 @@ class AdminApprovalWaitingScreen extends StatelessWidget {
                   ),
                   child: Icon(
                     Icons.hourglass_top_rounded,
-                    size: 56.w,
+                    size: context.dynamicWidth(0.149),
                     color: AppColors.amber500,
                   ),
                 ),
-                SizedBox(height: 32.h),
+                SizedBox(height: context.dynamicHeight(0.039)),
 
                 // Title
                 Text(
                   t.translate('auth_pending_approval'),
                   style: TextStyle(
-                    fontSize: 24.sp,
+                    fontSize: context.dynamicWidth(0.064),
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
-                SizedBox(height: 16.h),
+                SizedBox(height: context.dynamicHeight(0.02)),
 
                 // Description
                 Text(
@@ -1382,16 +1382,16 @@ class AdminApprovalWaitingScreen extends StatelessWidget {
                       : 'Your phone number has been verified!\n\nYour account is now under review by the admin.\nYou will be notified once your account is approved.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 15.sp,
+                    fontSize: context.dynamicWidth(0.04),
                     color: Colors.white.withValues(alpha: 0.9),
                     height: 1.5,
                   ),
                 ),
-                SizedBox(height: 49.h),
+                SizedBox(height: context.dynamicHeight(0.06)),
 
                 // Info Card
                 Container(
-                  padding: EdgeInsets.all(19.w),
+                  padding: EdgeInsets.all(context.dynamicWidth(0.051)),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(20),
@@ -1406,12 +1406,12 @@ class AdminApprovalWaitingScreen extends StatelessWidget {
                         color: Colors.white,
                         size: 32,
                       ),
-                      SizedBox(height: 12.h),
+                      SizedBox(height: context.dynamicHeight(0.015)),
                       Text(
                         t.translate('auth_notification_approval'),
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 13.sp,
+                          fontSize: context.dynamicWidth(0.035),
                           color: Colors.white,
                         ),
                       ),
@@ -1424,7 +1424,7 @@ class AdminApprovalWaitingScreen extends StatelessWidget {
                 // Back to Login Button
                 SizedBox(
                   width: double.infinity,
-                  height: 53.h,
+                  height: context.dynamicHeight(0.065),
                   child: ElevatedButton(
                     onPressed: () {
                       // Navigate back to login
@@ -1441,7 +1441,7 @@ class AdminApprovalWaitingScreen extends StatelessWidget {
                     child: Text(
                       t.translate('auth_back_to_login'),
                       style: TextStyle(
-                        fontSize: 16.sp,
+                        fontSize: context.dynamicWidth(0.043),
                         fontWeight: FontWeight.w700,
                       ),
                     ),

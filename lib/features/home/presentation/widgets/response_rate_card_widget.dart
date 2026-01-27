@@ -61,10 +61,10 @@ class _ResponseRateCardWidgetState extends State<ResponseRateCardWidget>
       },
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.all(19.w),
+        padding: EdgeInsets.all(context.dynamicWidth(0.051)),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(15.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.08),
@@ -82,25 +82,25 @@ class _ResponseRateCardWidgetState extends State<ResponseRateCardWidget>
                 Row(
                   children: [
                     Container(
-                      width: 38.w,
-                      height: 38.w,
+                      width: context.dynamicWidth(0.101),
+                      height: context.dynamicWidth(0.101),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [AppColors.emerald500, AppColors.green600],
                         ),
-                        borderRadius: BorderRadius.circular(11.w),
+                        borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
                       ),
                       child: Icon(
                         Icons.trending_up,
                         color: Colors.white,
-                        size: 19.w,
+                        size: context.dynamicWidth(0.051),
                       ),
                     ),
-                    SizedBox(width: 11.w),
+                    SizedBox(width: context.dynamicWidth(0.029)),
                     Text(
                       'Response Rate',
                       style: TextStyle(
-                        fontSize: 15.sp,
+                        fontSize: context.dynamicWidth(0.04),
                         fontWeight: FontWeight.w600,
                         color: AppColors.gray900,
                       ),
@@ -109,8 +109,8 @@ class _ResponseRateCardWidgetState extends State<ResponseRateCardWidget>
                 ),
                 Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 9.w,
-                    vertical: 4.h,
+                    horizontal: context.dynamicWidth(0.024),
+                    vertical: context.dynamicHeight(0.005),
                   ),
                   decoration: BoxDecoration(
                     color: AppColors.green100,
@@ -119,7 +119,7 @@ class _ResponseRateCardWidgetState extends State<ResponseRateCardWidget>
                   child: Text(
                     '${(widget.responseRate * 100).toInt()}%',
                     style: TextStyle(
-                      fontSize: 13.sp,
+                      fontSize: context.dynamicWidth(0.035),
                       fontWeight: FontWeight.bold,
                       color: AppColors.green600,
                     ),
@@ -127,7 +127,7 @@ class _ResponseRateCardWidgetState extends State<ResponseRateCardWidget>
                 ),
               ],
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: context.dynamicHeight(0.02)),
             // Progress bar with animation
             AnimatedBuilder(
               animation: _progressController,
@@ -135,7 +135,7 @@ class _ResponseRateCardWidgetState extends State<ResponseRateCardWidget>
                 return ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: SizedBox(
-                    height: 12.h,
+                    height: context.dynamicHeight(0.015),
                     child: Stack(
                       children: [
                         // Background
@@ -167,15 +167,15 @@ class _ResponseRateCardWidgetState extends State<ResponseRateCardWidget>
                 );
               },
             ),
-            SizedBox(height: 12.h),
+            SizedBox(height: context.dynamicHeight(0.015)),
             Wrap(
               alignment: WrapAlignment.spaceBetween,
-              runSpacing: 8.h,
+              runSpacing: context.dynamicHeight(0.01),
               children: [
                 Text(
                   '${widget.totalResponded} of ${widget.totalGuests} guests responded',
                   style: TextStyle(
-                    fontSize: 12.sp,
+                    fontSize: context.dynamicWidth(0.032),
                     color: AppColors.gray500,
                   ),
                 ),
@@ -184,14 +184,14 @@ class _ResponseRateCardWidgetState extends State<ResponseRateCardWidget>
                   children: [
                     Icon(
                       Icons.access_time,
-                      size: 13.w,
+                      size: context.dynamicWidth(0.035),
                       color: AppColors.gray400,
                     ),
-                    SizedBox(width: 4.w),
+                    SizedBox(width: context.dynamicWidth(0.011)),
                     Text(
                       'Updated 2h ago',
                       style: TextStyle(
-                        fontSize: 11.sp,
+                        fontSize: context.dynamicWidth(0.029),
                         color: AppColors.gray400,
                       ),
                     ),

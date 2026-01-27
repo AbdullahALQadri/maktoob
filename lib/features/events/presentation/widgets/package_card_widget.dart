@@ -23,12 +23,12 @@ class PackageSelectionWidget extends StatelessWidget {
         Text(
           'Choose Your Package',
           style: TextStyle(
-            fontSize: 19.sp,
+            fontSize: context.dynamicWidth(0.051),
             fontWeight: FontWeight.bold,
             color: AppColors.gray900,
           ),
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: context.dynamicHeight(0.02)),
         ...packages.asMap().entries.map((entry) {
           final index = entry.key;
           final pkg = entry.value;
@@ -73,8 +73,8 @@ class _PackageCard extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        margin: EdgeInsets.only(bottom: 12.h),
-        padding: EdgeInsets.all(19.w),
+        margin: EdgeInsets.only(bottom: context.dynamicHeight(0.015)),
+        padding: EdgeInsets.all(context.dynamicWidth(0.051)),
         decoration: BoxDecoration(
           gradient: isSelected
               ? LinearGradient(
@@ -84,7 +84,7 @@ class _PackageCard extends StatelessWidget {
                 )
               : null,
           color: isSelected ? null : Colors.white,
-          borderRadius: BorderRadius.circular(23.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.061)),
           boxShadow: [
             BoxShadow(
               color: isSelected
@@ -100,18 +100,18 @@ class _PackageCard extends StatelessWidget {
           children: [
             if (package.recommended)
               Positioned(
-                top: -28.h,
-                right: 19.w,
+                top: -context.dynamicHeight(0.034),
+                right: context.dynamicWidth(0.051),
                 child: Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 11.w,
-                    vertical: 6.h,
+                    horizontal: context.dynamicWidth(0.029),
+                    vertical: context.dynamicHeight(0.007),
                   ),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [AppColors.primaryColor, AppColors.tertiaryColor],
                     ),
-                    borderRadius: BorderRadius.circular(19.w),
+                    borderRadius: BorderRadius.circular(context.dynamicWidth(0.051)),
                     boxShadow: [
                       BoxShadow(
                         color: AppColors.primaryColor.withValues(alpha: 0.3),
@@ -125,12 +125,12 @@ class _PackageCard extends StatelessWidget {
                     children: [
                       Text(
                         '⭐ ',
-                        style: TextStyle(fontSize: 9.sp),
+                        style: TextStyle(fontSize: context.dynamicWidth(0.024)),
                       ),
                       Text(
                         'Recommended',
                         style: TextStyle(
-                          fontSize: 11.sp,
+                          fontSize: context.dynamicWidth(0.029),
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
@@ -145,8 +145,8 @@ class _PackageCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      width: 45.w,
-                      height: 45.w,
+                      width: context.dynamicWidth(0.12),
+                      height: context.dynamicWidth(0.12),
                       decoration: BoxDecoration(
                         color: isSelected
                             ? Colors.white.withValues(alpha: 0.2)
@@ -158,15 +158,15 @@ class _PackageCard extends StatelessWidget {
                                 end: Alignment.bottomRight,
                                 colors: package.gradientColors,
                               ),
-                        borderRadius: BorderRadius.circular(15.w),
+                        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
                       ),
                       child: Icon(
                         package.icon,
                         color: Colors.white,
-                        size: 23.w,
+                        size: context.dynamicWidth(0.061),
                       ),
                     ),
-                    SizedBox(width: 11.w),
+                    SizedBox(width: context.dynamicWidth(0.029)),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,16 +174,16 @@ class _PackageCard extends StatelessWidget {
                           Text(
                             package.name,
                             style: TextStyle(
-                              fontSize: 17.sp,
+                              fontSize: context.dynamicWidth(0.045),
                               fontWeight: FontWeight.bold,
                               color: isSelected ? Colors.white : AppColors.gray900,
                             ),
                           ),
-                          SizedBox(height: 2.h),
+                          SizedBox(height: context.dynamicHeight(0.002)),
                           Text(
                             'Up to ${package.invitationsDisplay} invitations',
                             style: TextStyle(
-                              fontSize: 11.sp,
+                              fontSize: context.dynamicWidth(0.029),
                               color: isSelected
                                   ? Colors.white.withValues(alpha: 0.8)
                                   : AppColors.gray600,
@@ -195,21 +195,21 @@ class _PackageCard extends StatelessWidget {
                     Text(
                       '\$${package.price}',
                       style: TextStyle(
-                        fontSize: 26.sp,
+                        fontSize: context.dynamicWidth(0.069),
                         fontWeight: FontWeight.bold,
                         color: isSelected ? Colors.white : AppColors.gray900,
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 16.h),
+                SizedBox(height: context.dynamicHeight(0.02)),
                 ...package.features.map((feature) => Padding(
-                  padding: EdgeInsets.only(bottom: 8.h),
+                  padding: EdgeInsets.only(bottom: context.dynamicHeight(0.01)),
                   child: Row(
                     children: [
                       Container(
-                        width: 19.w,
-                        height: 19.w,
+                        width: context.dynamicWidth(0.051),
+                        height: context.dynamicWidth(0.051),
                         decoration: BoxDecoration(
                           color: isSelected
                               ? Colors.white.withValues(alpha: 0.2)
@@ -218,15 +218,15 @@ class _PackageCard extends StatelessWidget {
                         ),
                         child: Icon(
                           Icons.check,
-                          size: 11.w,
+                          size: context.dynamicWidth(0.029),
                           color: isSelected ? Colors.white : AppColors.green600,
                         ),
                       ),
-                      SizedBox(width: 9.w),
+                      SizedBox(width: context.dynamicWidth(0.024)),
                       Text(
                         feature,
                         style: TextStyle(
-                          fontSize: 13.sp,
+                          fontSize: context.dynamicWidth(0.035),
                           fontWeight: FontWeight.w500,
                           color: isSelected ? Colors.white : AppColors.gray700,
                         ),

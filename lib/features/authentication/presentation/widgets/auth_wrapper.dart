@@ -9,6 +9,7 @@ import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 import '../screens/login_screen.dart';
 import '../screens/register_screen.dart';
+import '../screens/splash_screen.dart';
 
 class AuthWrapper extends StatefulWidget {
   const AuthWrapper({super.key});
@@ -18,7 +19,13 @@ class AuthWrapper extends StatefulWidget {
 }
 
 class _AuthWrapperState extends State<AuthWrapper> {
+  bool _showSplash = true;
   bool _showRegister = false;
+
+  void _onSplashFinished() {
+    if (!mounted) return;
+    setState(() => _showSplash = false);
+  }
 
   void _goToRegister() {
     setState(() => _showRegister = true);
@@ -35,6 +42,10 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
   @override
   Widget build(BuildContext context) {
+    if (_showSplash) {
+      return SplashScreen(onFinished: _onSplashFinished);
+    }
+
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthRegistered) {

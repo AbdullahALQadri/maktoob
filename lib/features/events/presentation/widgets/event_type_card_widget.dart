@@ -31,19 +31,19 @@ class EventTypeSelectionWidget extends StatelessWidget {
         Text(
           'Event Type',
           style: TextStyle(
-            fontSize: 19.sp,
+            fontSize: context.dynamicWidth(0.051),
             fontWeight: FontWeight.bold,
             color: AppColors.gray900,
           ),
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: context.dynamicHeight(0.02)),
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
-            crossAxisSpacing: 11.w,
-            mainAxisSpacing: 11.w,
+            crossAxisSpacing: context.dynamicWidth(0.029),
+            mainAxisSpacing: context.dynamicWidth(0.029),
             childAspectRatio: 0.9,
           ),
           itemCount: eventTypes.length,
@@ -57,13 +57,13 @@ class EventTypeSelectionWidget extends StatelessWidget {
             );
           },
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: context.dynamicHeight(0.015)),
         _CustomEventTypeButton(
           isActive: showCustomEventType,
           onTap: onToggleCustomEventType,
         ),
         if (showCustomEventType) ...[
-          SizedBox(height: 12.h),
+          SizedBox(height: context.dynamicHeight(0.015)),
           _CustomEventTypeForm(
             value: customEventType,
             onChanged: onCustomEventTypeChanged,
@@ -91,7 +91,7 @@ class _EventTypeCard extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.all(11.w),
+        padding: EdgeInsets.all(context.dynamicWidth(0.029)),
         decoration: BoxDecoration(
           gradient: isSelected
               ? LinearGradient(
@@ -101,7 +101,7 @@ class _EventTypeCard extends StatelessWidget {
                 )
               : null,
           color: isSelected ? null : Colors.white,
-          borderRadius: BorderRadius.circular(15.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           boxShadow: [
             BoxShadow(
               color: isSelected
@@ -119,13 +119,13 @@ class _EventTypeCard extends StatelessWidget {
               children: [
                 Text(
                   eventType.icon,
-                  style: TextStyle(fontSize: 26.sp),
+                  style: TextStyle(fontSize: context.dynamicWidth(0.069)),
                 ),
-                SizedBox(height: 8.h),
+                SizedBox(height: context.dynamicHeight(0.01)),
                 Text(
                   eventType.name,
                   style: TextStyle(
-                    fontSize: 11.sp,
+                    fontSize: context.dynamicWidth(0.029),
                     fontWeight: FontWeight.bold,
                     color: isSelected ? Colors.white : AppColors.gray900,
                   ),
@@ -135,11 +135,11 @@ class _EventTypeCard extends StatelessWidget {
             ),
             if (isSelected)
               Positioned(
-                top: -4.w,
-                right: -4.w,
+                top: -context.dynamicWidth(0.011),
+                right: -context.dynamicWidth(0.011),
                 child: Container(
-                  width: 23.w,
-                  height: 23.w,
+                  width: context.dynamicWidth(0.061),
+                  height: context.dynamicWidth(0.061),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
@@ -153,7 +153,7 @@ class _EventTypeCard extends StatelessWidget {
                   ),
                   child: Icon(
                     Icons.check,
-                    size: 13.w,
+                    size: context.dynamicWidth(0.035),
                     color: AppColors.primaryColor,
                   ),
                 ),
@@ -180,10 +180,10 @@ class _CustomEventTypeButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.all(15.w),
+        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
         decoration: BoxDecoration(
           color: isActive ? AppColors.purple50 : Colors.white,
-          borderRadius: BorderRadius.circular(15.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           border: Border.all(
             color: isActive ? AppColors.primaryColor : AppColors.gray300,
             width: 2,
@@ -194,13 +194,13 @@ class _CustomEventTypeButton extends StatelessWidget {
             Icon(
               Icons.add,
               color: AppColors.primaryColor,
-              size: 23.w,
+              size: context.dynamicWidth(0.061),
             ),
-            SizedBox(height: 4.h),
+            SizedBox(height: context.dynamicHeight(0.005)),
             Text(
               'Add Custom Type',
               style: TextStyle(
-                fontSize: 13.sp,
+                fontSize: context.dynamicWidth(0.035),
                 fontWeight: FontWeight.bold,
                 color: AppColors.gray900,
               ),
@@ -224,10 +224,10 @@ class _CustomEventTypeForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15.w),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -239,27 +239,27 @@ class _CustomEventTypeForm extends StatelessWidget {
       child: TextFormField(
         initialValue: value,
         onChanged: onChanged,
-        style: TextStyle(fontSize: 15.sp),
+        style: TextStyle(fontSize: context.dynamicWidth(0.04)),
         decoration: InputDecoration(
           hintText: 'Custom Event Type',
-          hintStyle: TextStyle(fontSize: 15.sp),
+          hintStyle: TextStyle(fontSize: context.dynamicWidth(0.04)),
           filled: true,
           fillColor: AppColors.gray100,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(11.w),
+            borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
             borderSide: BorderSide(color: AppColors.gray100, width: 2),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(11.w),
+            borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
             borderSide: BorderSide(color: AppColors.gray100, width: 2),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(11.w),
+            borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
             borderSide: BorderSide(color: AppColors.primaryColor, width: 2),
           ),
           contentPadding: EdgeInsets.symmetric(
-            horizontal: 15.w,
-            vertical: 15.h,
+            horizontal: context.dynamicWidth(0.04),
+            vertical: context.dynamicHeight(0.018),
           ),
         ),
       ),

@@ -76,52 +76,52 @@ class _HomeScreenState extends State<HomeScreen>
   Widget _buildErrorState(String message, AppLocalizations t) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(15.w),
+        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.error_outline,
-              size: 60.w,
+              size: context.dynamicWidth(0.16),
               color: AppColors.red500,
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: context.dynamicHeight(0.02)),
             Text(
               t.translate('home_something_wrong'),
               style: TextStyle(
-                fontSize: 19.sp,
+                fontSize: context.dynamicWidth(0.051),
                 fontWeight: FontWeight.bold,
                 color: AppColors.gray900,
               ),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.dynamicHeight(0.01)),
             Text(
               message,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.gray500,
-                fontSize: 13.sp,
+                fontSize: context.dynamicWidth(0.035),
               ),
             ),
-            SizedBox(height: 24.h),
+            SizedBox(height: context.dynamicHeight(0.03)),
             ElevatedButton(
               onPressed: () => context.read<HomeCubit>().refresh(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryColor,
                 foregroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(
-                  horizontal: 30.w,
-                  vertical: 12.h,
+                  horizontal: context.dynamicWidth(0.08),
+                  vertical: context.dynamicHeight(0.015),
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(
-                    11.w,
+                    context.dynamicWidth(0.029),
                   ),
                 ),
               ),
               child: Text(
                 t.translate('home_try_again'),
-                style: TextStyle(fontSize: 13.sp),
+                style: TextStyle(fontSize: context.dynamicWidth(0.035)),
               ),
             ),
           ],
@@ -141,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen>
           // Response Rate Card
           Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: 15.w,
+              horizontal: context.dynamicWidth(0.04),
             ),
             child: ResponseRateCardWidget(
               responseRate: state.responseRate,
@@ -152,11 +152,11 @@ class _HomeScreenState extends State<HomeScreen>
           // Recent Events
           Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: 15.w,
+              horizontal: context.dynamicWidth(0.04),
             ),
             child: _buildRecentEventsSection(state, t),
           ),
-          SizedBox(height: 65.h),
+          SizedBox(height: context.dynamicHeight(0.08)),
           // Bottom padding for navigation
         ],
       ),
@@ -179,10 +179,10 @@ class _HomeScreenState extends State<HomeScreen>
           opacity: _fadeController,
           child: Padding(
             padding: EdgeInsets.only(
-              left: 15.w,
-              right: 15.w,
-              top: 16.h,
-              bottom: 32.h,
+              left: context.dynamicWidth(0.04),
+              right: context.dynamicWidth(0.04),
+              top: context.dynamicHeight(0.02),
+              bottom: context.dynamicHeight(0.039),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,8 +199,8 @@ class _HomeScreenState extends State<HomeScreen>
                           scale: value,
                           child: Container(
                             padding: EdgeInsets.symmetric(
-                              horizontal: 11.w,
-                              vertical: 6.h,
+                              horizontal: context.dynamicWidth(0.029),
+                              vertical: context.dynamicHeight(0.007),
                             ),
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.2),
@@ -212,14 +212,14 @@ class _HomeScreenState extends State<HomeScreen>
                                 Icon(
                                   Icons.auto_awesome,
                                   color: AppColors.yellow400,
-                                  size: 15.w,
+                                  size: context.dynamicWidth(0.04),
                                 ),
-                                SizedBox(width: 6.w),
+                                SizedBox(width: context.dynamicWidth(0.016)),
                                 Text(
                                   t.translate('home_welcome'),
                                   style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 11.sp,
+                                    fontSize: context.dynamicWidth(0.029),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -231,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ],
                 ),
-                SizedBox(height: 16.h),
+                SizedBox(height: context.dynamicHeight(0.02)),
                 TweenAnimationBuilder<Offset>(
                   tween: Tween(begin: const Offset(0, 20), end: Offset.zero),
                   duration: const Duration(milliseconds: 500),
@@ -243,7 +243,7 @@ class _HomeScreenState extends State<HomeScreen>
                     t.translate('home_dashboard'),
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 26.sp,
+                      fontSize: context.dynamicWidth(0.069),
                       fontWeight: FontWeight.bold,
                       letterSpacing: -0.5,
                     ),
@@ -259,14 +259,14 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _buildStatsGrid(HomeLoaded state) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 15.w),
+      padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.04)),
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          crossAxisSpacing: 11.w,
-          mainAxisSpacing: 11.w,
+          crossAxisSpacing: context.dynamicWidth(0.029),
+          mainAxisSpacing: context.dynamicWidth(0.029),
           childAspectRatio: 1.1,
         ),
         itemCount: state.stats.length,
@@ -285,14 +285,14 @@ class _HomeScreenState extends State<HomeScreen>
       children: [
         // Section header
         Padding(
-          padding: EdgeInsets.only(bottom: 16.h),
+          padding: EdgeInsets.only(bottom: context.dynamicHeight(0.02)),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 t.translate('home_recent_events'),
                 style: TextStyle(
-                  fontSize: 19.sp,
+                  fontSize: context.dynamicWidth(0.051),
                   fontWeight: FontWeight.bold,
                   color: AppColors.gray900,
                 ),
@@ -312,15 +312,15 @@ class _HomeScreenState extends State<HomeScreen>
                     Text(
                       t.translate('home_view_all'),
                       style: TextStyle(
-                        fontSize: 13.sp,
+                        fontSize: context.dynamicWidth(0.035),
                         fontWeight: FontWeight.w600,
                         color: AppColors.primaryColor,
                       ),
                     ),
-                    SizedBox(width: 4.w),
+                    SizedBox(width: context.dynamicWidth(0.011)),
                     Icon(
                       isArabic ? Icons.arrow_back : Icons.arrow_forward,
-                      size: 15.w,
+                      size: context.dynamicWidth(0.04),
                       color: AppColors.primaryColor,
                     ),
                   ],

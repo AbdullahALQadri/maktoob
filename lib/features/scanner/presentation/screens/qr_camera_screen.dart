@@ -106,8 +106,8 @@ class _QRCameraScreenState extends State<QRCameraScreen>
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: 15.w,
-          vertical: 16.h,
+          horizontal: context.dynamicWidth(0.04),
+          vertical: context.dynamicHeight(0.02),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -134,7 +134,7 @@ class _QRCameraScreenState extends State<QRCameraScreen>
               t.translate('scanner_scan_qr_short'),
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 17.sp,
+                fontSize: context.dynamicWidth(0.045),
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -164,7 +164,7 @@ class _QRCameraScreenState extends State<QRCameraScreen>
   }
 
   Widget _buildOverlay(BuildContext context) {
-    final scanAreaSize = 263.w;
+    final scanAreaSize = context.dynamicWidth(0.701);
 
     return Stack(
       children: [
@@ -291,17 +291,17 @@ class _QRCameraScreenState extends State<QRCameraScreen>
 
   Widget _buildBottomInstruction(BuildContext context, AppLocalizations t) {
     return Positioned(
-      bottom: 97.h,
+      bottom: context.dynamicHeight(0.119),
       left: 0,
       right: 0,
       child: Column(
         children: [
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: 23.w,
-              vertical: 12.h,
+              horizontal: context.dynamicWidth(0.061),
+              vertical: context.dynamicHeight(0.015),
             ),
-            margin: EdgeInsets.symmetric(horizontal: 38.w),
+            margin: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.101)),
             decoration: BoxDecoration(
               color: Colors.black.withValues(alpha: 0.6),
               borderRadius: BorderRadius.circular(12),
@@ -313,14 +313,14 @@ class _QRCameraScreenState extends State<QRCameraScreen>
                 Icon(
                   Icons.qr_code,
                   color: Colors.white.withValues(alpha: 0.9),
-                  size: 19.w,
+                  size: context.dynamicWidth(0.051),
                 ),
-                SizedBox(width: 8.w),
+                SizedBox(width: context.dynamicWidth(0.021)),
                 Text(
                   t.translate('scanner_place_qr'),
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.9),
-                    fontSize: 13.sp,
+                    fontSize: context.dynamicWidth(0.035),
                     fontWeight: FontWeight.w500,
                   ),
                 ),

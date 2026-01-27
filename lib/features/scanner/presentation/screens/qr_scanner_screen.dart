@@ -168,13 +168,13 @@ class _QRScannerScreenState extends State<QRScannerScreen>
                 child: BlocBuilder<ScannerCubit, ScannerState>(
                   builder: (context, state) {
                     return SingleChildScrollView(
-                      padding: EdgeInsets.all(15.w),
+                      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           // Stats Grid
                           _buildStatsGrid(state),
-                          SizedBox(height: 24.h),
+                          SizedBox(height: context.dynamicHeight(0.03)),
 
                           // Scan Button
                           ScanButtonWidget(
@@ -182,7 +182,7 @@ class _QRScannerScreenState extends State<QRScannerScreen>
                             scanAnimation: _scanAnimation,
                             onTap: _startScanning,
                           ),
-                          SizedBox(height: 24.h),
+                          SizedBox(height: context.dynamicHeight(0.03)),
 
                           // Guest List
                           _buildGuestListSection(state),
@@ -203,7 +203,7 @@ class _QRScannerScreenState extends State<QRScannerScreen>
     final t = AppLocalizations.of(context)!;
 
     return Container(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -216,8 +216,8 @@ class _QRScannerScreenState extends State<QRScannerScreen>
         boxShadow: [
           BoxShadow(
             color: AppColors.primaryColor.withValues(alpha: 0.4),
-            blurRadius: 19.w,
-            offset: Offset(0, 10.h),
+            blurRadius: context.dynamicWidth(0.051),
+            offset: Offset(0, context.dynamicHeight(0.012)),
           ),
         ],
       ),
@@ -230,8 +230,8 @@ class _QRScannerScreenState extends State<QRScannerScreen>
               GestureDetector(
                 onTap: widget.onBack,
                 child: Container(
-                  width: 38.w,
-                  height: 38.w,
+                  width: context.dynamicWidth(0.101),
+                  height: context.dynamicWidth(0.101),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
@@ -243,38 +243,38 @@ class _QRScannerScreenState extends State<QRScannerScreen>
                   child: Icon(
                     Icons.arrow_back_rounded,
                     color: Colors.white,
-                    size: 21.w,
+                    size: context.dynamicWidth(0.056),
                   ),
                 ),
               ),
-              SizedBox(width: 11.w),
+              SizedBox(width: context.dynamicWidth(0.029)),
               Text(
                 t.translate('scanner_guest_scanner'),
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 17.sp,
+                  fontSize: context.dynamicWidth(0.045),
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: context.dynamicHeight(0.02)),
           // Event info row
           Row(
             children: [
               Container(
-                padding: EdgeInsets.all(9.w),
+                padding: EdgeInsets.all(context.dynamicWidth(0.024)),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(15.w),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
                 ),
                 child: Icon(
                   Icons.event,
                   color: Colors.white,
-                  size: 26.w,
+                  size: context.dynamicWidth(0.069),
                 ),
               ),
-              SizedBox(width: 15.w),
+              SizedBox(width: context.dynamicWidth(0.04)),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -283,18 +283,18 @@ class _QRScannerScreenState extends State<QRScannerScreen>
                       widget.event.name,
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 19.sp,
+                        fontSize: context.dynamicWidth(0.051),
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5,
                       ),
                     ),
                     if (widget.event.description != null) ...[
-                      SizedBox(height: 4.h),
+                      SizedBox(height: context.dynamicHeight(0.005)),
                       Text(
                         widget.event.description!,
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.9),
-                          fontSize: 12.sp,
+                          fontSize: context.dynamicWidth(0.032),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -305,19 +305,19 @@ class _QRScannerScreenState extends State<QRScannerScreen>
               ),
             ],
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: context.dynamicHeight(0.015)),
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: 11.w,
-              vertical: 8.h,
+              horizontal: context.dynamicWidth(0.029),
+              vertical: context.dynamicHeight(0.01),
             ),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8.w),
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.021)),
             ),
             child: Wrap(
-              spacing: 15.w,
-              runSpacing: 8.h,
+              spacing: context.dynamicWidth(0.04),
+              runSpacing: context.dynamicHeight(0.01),
               children: [
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -325,14 +325,14 @@ class _QRScannerScreenState extends State<QRScannerScreen>
                     Icon(
                       Icons.location_on,
                       color: Colors.white.withValues(alpha: 0.9),
-                      size: 15.w,
+                      size: context.dynamicWidth(0.04),
                     ),
-                    SizedBox(width: 6.w),
+                    SizedBox(width: context.dynamicWidth(0.016)),
                     Text(
                       widget.event.venue,
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.9),
-                        fontSize: 12.sp,
+                        fontSize: context.dynamicWidth(0.032),
                       ),
                     ),
                   ],
@@ -343,14 +343,14 @@ class _QRScannerScreenState extends State<QRScannerScreen>
                     Icon(
                       Icons.calendar_today,
                       color: Colors.white.withValues(alpha: 0.9),
-                      size: 15.w,
+                      size: context.dynamicWidth(0.04),
                     ),
-                    SizedBox(width: 6.w),
+                    SizedBox(width: context.dynamicWidth(0.016)),
                     Text(
                       '${widget.event.date} | ${widget.event.time}',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.9),
-                        fontSize: 12.sp,
+                        fontSize: context.dynamicWidth(0.032),
                       ),
                     ),
                   ],
@@ -402,7 +402,7 @@ class _QRScannerScreenState extends State<QRScannerScreen>
             Colors.blue,
           ),
         ),
-        SizedBox(width: 11.w),
+        SizedBox(width: context.dynamicWidth(0.029)),
         Expanded(
           child: _buildStatCard(
             context,
@@ -412,7 +412,7 @@ class _QRScannerScreenState extends State<QRScannerScreen>
             Colors.green,
           ),
         ),
-        SizedBox(width: 11.w),
+        SizedBox(width: context.dynamicWidth(0.029)),
         Expanded(
           child: _buildStatCard(
             context,
@@ -434,42 +434,42 @@ class _QRScannerScreenState extends State<QRScannerScreen>
     Color color,
   ) {
     return Container(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15.w),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         boxShadow: [
           BoxShadow(
             color: color.withValues(alpha: 0.2),
-            blurRadius: 9.w,
-            offset: Offset(0, 4.h),
+            blurRadius: context.dynamicWidth(0.024),
+            offset: Offset(0, context.dynamicHeight(0.005)),
           ),
         ],
       ),
       child: Column(
         children: [
           Container(
-            padding: EdgeInsets.all(9.w),
+            padding: EdgeInsets.all(context.dynamicWidth(0.024)),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: color, size: 23.w),
+            child: Icon(icon, color: color, size: context.dynamicWidth(0.061)),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: context.dynamicHeight(0.015)),
           Text(
             value,
             style: TextStyle(
-              fontSize: 26.sp,
+              fontSize: context.dynamicWidth(0.069),
               fontWeight: FontWeight.bold,
               color: color,
             ),
           ),
-          SizedBox(height: 4.h),
+          SizedBox(height: context.dynamicHeight(0.005)),
           Text(
             label,
             style: TextStyle(
-              fontSize: 11.sp,
+              fontSize: context.dynamicWidth(0.029),
               color: Colors.grey.shade600,
               fontWeight: FontWeight.w500,
             ),

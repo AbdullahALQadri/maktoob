@@ -114,7 +114,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
             slivers: [
               // Collapsible Header
               SliverAppBar(
-                expandedHeight: 146.h,
+                expandedHeight: context.dynamicHeight(0.18),
                 collapsedHeight: kToolbarHeight,
                 pinned: true,
                 automaticallyImplyLeading: false,
@@ -123,7 +123,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 flexibleSpace: LayoutBuilder(
                   builder: (context, constraints) {
                     final expandRatio = ((constraints.maxHeight - kToolbarHeight) /
-                            (146.h - kToolbarHeight))
+                            (context.dynamicHeight(0.18) - kToolbarHeight))
                         .clamp(0.0, 1.0);
                     final isCollapsed = expandRatio < 0.3;
 
@@ -138,9 +138,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                             // Expanded content
                             if (!isCollapsed)
                               Positioned(
-                                left: 19.w,
-                                right: 19.w,
-                                bottom: 8.h,
+                                left: context.dynamicWidth(0.051),
+                                right: context.dynamicWidth(0.051),
+                                bottom: context.dynamicHeight(0.01),
                                 child: Opacity(
                                   opacity: expandRatio,
                                   child: Column(
@@ -150,8 +150,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                                       // Step badge
                                       Container(
                                         padding: EdgeInsets.symmetric(
-                                          horizontal: 9.w,
-                                          vertical: 3.h,
+                                          horizontal: context.dynamicWidth(0.024),
+                                          vertical: context.dynamicHeight(0.004),
                                         ),
                                         decoration: BoxDecoration(
                                           color: Colors.white.withValues(alpha: 0.2),
@@ -160,22 +160,22 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                                         child: Text(
                                           'Step ${state.currentStepNumber} of ${state.totalSteps}',
                                           style: TextStyle(
-                                            fontSize: 11.sp,
+                                            fontSize: context.dynamicWidth(0.029),
                                             fontWeight: FontWeight.w500,
                                             color: Colors.white,
                                           ),
                                         ),
                                       ),
-                                      SizedBox(height: 4.h),
+                                      SizedBox(height: context.dynamicHeight(0.005)),
                                       Text(
                                         'Create Event',
                                         style: TextStyle(
-                                          fontSize: 21.sp,
+                                          fontSize: context.dynamicWidth(0.056),
                                           fontWeight: FontWeight.bold,
                                           color: Colors.white,
                                         ),
                                       ),
-                                      SizedBox(height: 6.h),
+                                      SizedBox(height: context.dynamicHeight(0.007)),
                                       // Progress bar
                                       Row(
                                         children: [
@@ -190,11 +190,11 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                                               ),
                                             ),
                                           ),
-                                          SizedBox(width: 11.w),
+                                          SizedBox(width: context.dynamicWidth(0.029)),
                                           Text(
                                             '${(progress * 100).round()}%',
                                             style: TextStyle(
-                                              fontSize: 11.sp,
+                                              fontSize: context.dynamicWidth(0.029),
                                               fontWeight: FontWeight.w600,
                                               color: Colors.white,
                                             ),
@@ -208,12 +208,12 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                             // Collapsed title
                             if (isCollapsed)
                               Positioned(
-                                left: 19.w,
+                                left: context.dynamicWidth(0.051),
                                 bottom: 12,
                                 child: Text(
                                   'Create Event • Step ${state.currentStepNumber}/${state.totalSteps}',
                                   style: TextStyle(
-                                    fontSize: 15.sp,
+                                    fontSize: context.dynamicWidth(0.04),
                                     fontWeight: FontWeight.w600,
                                     color: Colors.white,
                                   ),
@@ -229,10 +229,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
               // Content
               SliverPadding(
                 padding: EdgeInsets.fromLTRB(
-                  15.w,
-                  16.h,
-                  15.w,
-                  122.h,
+                  context.dynamicWidth(0.04),
+                  context.dynamicHeight(0.02),
+                  context.dynamicWidth(0.04),
+                  context.dynamicHeight(0.15),
                 ),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
@@ -249,10 +249,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           bottomNavigationBar: showBottomBar
               ? Container(
                   padding: EdgeInsets.fromLTRB(
-                    15.w,
-                    12.h,
-                    15.w,
-                    24.h,
+                    context.dynamicWidth(0.04),
+                    context.dynamicHeight(0.015),
+                    context.dynamicWidth(0.04),
+                    context.dynamicHeight(0.03),
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -419,7 +419,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
               isPrimary: false,
             ),
           ),
-          SizedBox(width: 11.w),
+          SizedBox(width: context.dynamicWidth(0.029)),
           Expanded(
             child: _buildButton(
               'Submit & Pay',
@@ -438,19 +438,19 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       children: [
         if (!state.isFirstStep)
           Container(
-            width: 45.h,
-            height: 45.h,
-            margin: EdgeInsets.only(right: 11.w),
+            width: context.dynamicHeight(0.055),
+            height: context.dynamicHeight(0.055),
+            margin: EdgeInsets.only(right: context.dynamicWidth(0.029)),
             child: Material(
               color: AppColors.gray200,
-              borderRadius: BorderRadius.circular(11.w),
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
               child: InkWell(
-                borderRadius: BorderRadius.circular(11.w),
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
                 onTap: () => context.read<CreateEventCubit>().previousStep(),
                 child: Icon(
                   Icons.arrow_back,
                   color: AppColors.gray700,
-                  size: 19.w,
+                  size: context.dynamicWidth(0.051),
                 ),
               ),
             ),
@@ -482,15 +482,15 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       color: enabled
           ? (isPrimary ? null : AppColors.gray200)
           : AppColors.gray200,
-      borderRadius: BorderRadius.circular(11.w),
+      borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
       child: InkWell(
-        borderRadius: BorderRadius.circular(11.w),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
         onTap: onTap,
         child: Container(
-          height: 45.h,
+          height: context.dynamicHeight(0.055),
           decoration: enabled && isPrimary
               ? BoxDecoration(
-                  borderRadius: BorderRadius.circular(11.w),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
                   color: AppColors.primaryColor,
                   boxShadow: [
                     BoxShadow(
@@ -504,8 +504,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           child: isLoading
               ? Center(
                   child: SizedBox(
-                    width: 19.w,
-                    height: 19.w,
+                    width: context.dynamicWidth(0.051),
+                    height: context.dynamicWidth(0.051),
                     child: const CircularProgressIndicator(
                       strokeWidth: 2,
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
@@ -519,18 +519,18 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                       text,
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        fontSize: 14.sp,
+                        fontSize: context.dynamicWidth(0.037),
                         color: enabled
                             ? (isPrimary ? Colors.white : AppColors.gray700)
                             : AppColors.gray400,
                       ),
                     ),
                     if (trailing != null) ...[
-                      SizedBox(width: 8.w),
+                      SizedBox(width: context.dynamicWidth(0.021)),
                       Icon(
                         trailing,
                         color: enabled ? Colors.white : AppColors.gray400,
-                        size: 17.w,
+                        size: context.dynamicWidth(0.045),
                       ),
                     ],
                   ],

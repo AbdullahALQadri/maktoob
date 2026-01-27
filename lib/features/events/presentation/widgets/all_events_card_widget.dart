@@ -33,7 +33,7 @@ class AllEventsCardWidget extends StatelessWidget {
         );
       },
       child: Padding(
-        padding: EdgeInsets.only(bottom: 12.h),
+        padding: EdgeInsets.only(bottom: context.dynamicHeight(0.015)),
         child: GestureDetector(
           onTap: onTap,
           child: _buildEventCard(context),
@@ -46,7 +46,7 @@ class AllEventsCardWidget extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(19.w),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.051)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
@@ -59,7 +59,7 @@ class AllEventsCardWidget extends StatelessWidget {
         children: [
           // Header with gradient accent
           Container(
-            padding: EdgeInsets.all(15.w),
+            padding: EdgeInsets.all(context.dynamicWidth(0.04)),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
@@ -67,27 +67,27 @@ class AllEventsCardWidget extends StatelessWidget {
                 colors: _getStatusGradient(),
               ),
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(19.w),
-                topRight: Radius.circular(19.w),
+                topLeft: Radius.circular(context.dynamicWidth(0.051)),
+                topRight: Radius.circular(context.dynamicWidth(0.051)),
               ),
             ),
             child: Row(
               children: [
                 // Event icon
                 Container(
-                  width: 45.w,
-                  height: 45.w,
+                  width: context.dynamicWidth(0.12),
+                  height: context.dynamicWidth(0.12),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(11.w),
+                    borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
                   ),
                   child: Icon(
                     _getEventIcon(),
                     color: Colors.white,
-                    size: 23.w,
+                    size: context.dynamicWidth(0.061),
                   ),
                 ),
-                SizedBox(width: 11.w),
+                SizedBox(width: context.dynamicWidth(0.029)),
                 // Event name and type
                 Expanded(
                   child: Column(
@@ -96,18 +96,18 @@ class AllEventsCardWidget extends StatelessWidget {
                       Text(
                         event.name,
                         style: TextStyle(
-                          fontSize: 16.sp,
+                          fontSize: context.dynamicWidth(0.043),
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: 3.h),
+                      SizedBox(height: context.dynamicHeight(0.004)),
                       Text(
                         event.type,
                         style: TextStyle(
-                          fontSize: 12.sp,
+                          fontSize: context.dynamicWidth(0.032),
                           color: Colors.white.withValues(alpha: 0.85),
                         ),
                       ),
@@ -121,7 +121,7 @@ class AllEventsCardWidget extends StatelessWidget {
           ),
           // Body with details
           Padding(
-            padding: EdgeInsets.all(15.w),
+            padding: EdgeInsets.all(context.dynamicWidth(0.04)),
             child: Column(
               children: [
                 // Date and venue row
@@ -135,7 +135,7 @@ class AllEventsCardWidget extends StatelessWidget {
                         AppColors.blue500,
                       ),
                     ),
-                    SizedBox(width: 15.w),
+                    SizedBox(width: context.dynamicWidth(0.04)),
                     Expanded(
                       child: _buildInfoItem(
                         context,
@@ -146,17 +146,17 @@ class AllEventsCardWidget extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 10.h),
+                SizedBox(height: context.dynamicHeight(0.012)),
                 _buildInfoItem(
                   context,
                   Icons.location_on_outlined,
                   event.venue,
                   AppColors.orange500,
                 ),
-                SizedBox(height: 16.h),
+                SizedBox(height: context.dynamicHeight(0.02)),
                 // Stats row
                 _buildStatsRow(context),
-                SizedBox(height: 12.h),
+                SizedBox(height: context.dynamicHeight(0.015)),
                 // Response rate progress
                 _buildProgressBar(context),
               ],
@@ -192,12 +192,12 @@ class AllEventsCardWidget extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: 9.w,
-        vertical: 5.h,
+        horizontal: context.dynamicWidth(0.024),
+        vertical: context.dynamicHeight(0.006),
       ),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(15.w),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.3),
           width: 1,
@@ -206,7 +206,7 @@ class AllEventsCardWidget extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 11.sp,
+          fontSize: context.dynamicWidth(0.029),
           fontWeight: FontWeight.w600,
           color: textColor,
         ),
@@ -223,23 +223,23 @@ class AllEventsCardWidget extends StatelessWidget {
     return Row(
       children: [
         Container(
-          padding: EdgeInsets.all(7.w),
+          padding: EdgeInsets.all(context.dynamicWidth(0.019)),
           decoration: BoxDecoration(
             color: iconColor.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(8.w),
+            borderRadius: BorderRadius.circular(context.dynamicWidth(0.021)),
           ),
           child: Icon(
             icon,
-            size: 14.w,
+            size: context.dynamicWidth(0.037),
             color: iconColor,
           ),
         ),
-        SizedBox(width: 8.w),
+        SizedBox(width: context.dynamicWidth(0.021)),
         Expanded(
           child: Text(
             text,
             style: TextStyle(
-              fontSize: 12.sp,
+              fontSize: context.dynamicWidth(0.032),
               color: AppColors.gray700,
             ),
             maxLines: 1,
@@ -253,11 +253,11 @@ class AllEventsCardWidget extends StatelessWidget {
   Widget _buildStatsRow(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: 11.w,
-        vertical: 10.h),
+        horizontal: context.dynamicWidth(0.029),
+        vertical: context.dynamicHeight(0.012)),
       decoration: BoxDecoration(
         color: AppColors.gray50,
-        borderRadius: BorderRadius.circular(11.w),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -298,7 +298,7 @@ class AllEventsCardWidget extends StatelessWidget {
         Text(
           value,
           style: TextStyle(
-            fontSize: 17.sp,
+            fontSize: context.dynamicWidth(0.045),
             fontWeight: FontWeight.bold,
             color: color,
           ),
@@ -306,7 +306,7 @@ class AllEventsCardWidget extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            fontSize: 10.sp,
+            fontSize: context.dynamicWidth(0.027),
             color: AppColors.gray500,
           ),
         ),
@@ -317,7 +317,7 @@ class AllEventsCardWidget extends StatelessWidget {
   Widget _buildDivider(BuildContext context) {
     return Container(
       width: 1,
-      height: 32.h,
+      height: context.dynamicHeight(0.039),
       color: AppColors.gray200,
     );
   }
@@ -334,31 +334,31 @@ class AllEventsCardWidget extends StatelessWidget {
             Text(
               'Response Rate',
               style: TextStyle(
-                fontSize: 11.sp,
+                fontSize: context.dynamicWidth(0.029),
                 color: AppColors.gray500,
               ),
             ),
             Text(
               '${event.responseRate.toInt()}%',
               style: TextStyle(
-                fontSize: 11.sp,
+                fontSize: context.dynamicWidth(0.029),
                 fontWeight: FontWeight.w600,
                 color: _getStatusColor(),
               ),
             ),
           ],
         ),
-        SizedBox(height: 5.h),
+        SizedBox(height: context.dynamicHeight(0.006)),
         ClipRRect(
-          borderRadius: BorderRadius.circular(4.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.011)),
           child: SizedBox(
-            height: 6.h,
+            height: context.dynamicHeight(0.007),
             child: Stack(
               children: [
                 Container(
                   decoration: BoxDecoration(
                     color: AppColors.gray200,
-                    borderRadius: BorderRadius.circular(4.w),
+                    borderRadius: BorderRadius.circular(context.dynamicWidth(0.011)),
                   ),
                 ),
                 FractionallySizedBox(
@@ -368,7 +368,7 @@ class AllEventsCardWidget extends StatelessWidget {
                       gradient: LinearGradient(
                         colors: _getStatusGradient(),
                       ),
-                      borderRadius: BorderRadius.circular(4.w),
+                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.011)),
                     ),
                   ),
                 ),

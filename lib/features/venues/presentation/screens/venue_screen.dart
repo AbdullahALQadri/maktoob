@@ -158,8 +158,8 @@ class _VenueScreenState extends State<VenueScreen>
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: 15.w,
-        vertical: 16.h,
+        horizontal: context.dynamicWidth(0.04),
+        vertical: context.dynamicHeight(0.02),
       ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -186,17 +186,17 @@ class _VenueScreenState extends State<VenueScreen>
               Text(
                 'Venues',
                 style: TextStyle(
-                  fontSize: 26.sp,
+                  fontSize: context.dynamicWidth(0.069),
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                   letterSpacing: -0.5,
                 ),
               ),
-              SizedBox(width: 11.w),
+              SizedBox(width: context.dynamicWidth(0.029)),
               Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: 11.w,
-                  vertical: 6.h,
+                  horizontal: context.dynamicWidth(0.029),
+                  vertical: context.dynamicHeight(0.007),
                 ),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
@@ -207,7 +207,7 @@ class _VenueScreenState extends State<VenueScreen>
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
-                    fontSize: 13.sp,
+                    fontSize: context.dynamicWidth(0.035),
                   ),
                 ),
               ),
@@ -215,19 +215,19 @@ class _VenueScreenState extends State<VenueScreen>
           ),
           Material(
             color: Colors.white.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(15.w),
+            borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
             child: InkWell(
               onTap: state is VenuesLoaded ? _toggleAddVenue : null,
-              borderRadius: BorderRadius.circular(15.w),
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
               child: Container(
-                padding: EdgeInsets.all(11.w),
+                padding: EdgeInsets.all(context.dynamicWidth(0.029)),
                 child: AnimatedRotation(
                   turns: showAddForm ? 0.125 : 0,
                   duration: const Duration(milliseconds: 200),
                   child: Icon(
                     Icons.add,
                     color: Colors.white,
-                    size: 23.w,
+                    size: context.dynamicWidth(0.061),
                   ),
                 ),
               ),
@@ -245,11 +245,11 @@ class _VenueScreenState extends State<VenueScreen>
     }
 
     return Padding(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(15.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -263,24 +263,24 @@ class _VenueScreenState extends State<VenueScreen>
           onChanged: (value) {
             context.read<VenuesCubit>().searchVenues(value);
           },
-          style: TextStyle(fontSize: 15.sp),
+          style: TextStyle(fontSize: context.dynamicWidth(0.04)),
           decoration: InputDecoration(
             hintText: 'Search venues...',
             hintStyle: TextStyle(
               color: Colors.grey[400],
-              fontSize: 15.sp,
+              fontSize: context.dynamicWidth(0.04),
             ),
             prefixIcon: Icon(
               Icons.search,
               color: Colors.grey[400],
-              size: 21.w,
+              size: context.dynamicWidth(0.056),
             ),
             suffixIcon: searchQuery.isNotEmpty
                 ? IconButton(
                     icon: Icon(
                       Icons.clear,
                       color: Colors.grey[400],
-                      size: 19.w,
+                      size: context.dynamicWidth(0.051),
                     ),
                     onPressed: () {
                       _searchController.clear();
@@ -290,8 +290,8 @@ class _VenueScreenState extends State<VenueScreen>
                 : null,
             border: InputBorder.none,
             contentPadding: EdgeInsets.symmetric(
-              horizontal: 19.w,
-              vertical: 16.h,
+              horizontal: context.dynamicWidth(0.051),
+              vertical: context.dynamicHeight(0.02),
             ),
           ),
         ),
@@ -337,19 +337,19 @@ class _VenueScreenState extends State<VenueScreen>
           children: [
             Icon(
               Icons.error_outline,
-              size: 60.w,
+              size: context.dynamicWidth(0.16),
               color: Colors.grey[300],
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: context.dynamicHeight(0.02)),
             Text(
               'Failed to load venues',
               style: TextStyle(
-                fontSize: 17.sp,
+                fontSize: context.dynamicWidth(0.045),
                 color: Colors.grey[500],
                 fontWeight: FontWeight.w500,
               ),
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: context.dynamicHeight(0.02)),
             ElevatedButton(
               onPressed: () {
                 context.read<VenuesCubit>().loadVenues();
@@ -357,11 +357,11 @@ class _VenueScreenState extends State<VenueScreen>
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryColor,
                 padding: EdgeInsets.symmetric(
-                  horizontal: 23.w,
-                  vertical: 12.h,
+                  horizontal: context.dynamicWidth(0.061),
+                  vertical: context.dynamicHeight(0.015),
                 ),
               ),
-              child: Text('Retry', style: TextStyle(fontSize: 13.sp)),
+              child: Text('Retry', style: TextStyle(fontSize: context.dynamicWidth(0.035))),
             ),
           ],
         ),
@@ -384,23 +384,23 @@ class _VenueScreenState extends State<VenueScreen>
           children: [
             Icon(
               Icons.search_off,
-              size: 60.w,
+              size: context.dynamicWidth(0.16),
               color: Colors.grey[300],
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: context.dynamicHeight(0.02)),
             Text(
               'No venues found',
               style: TextStyle(
-                fontSize: 17.sp,
+                fontSize: context.dynamicWidth(0.045),
                 color: Colors.grey[500],
                 fontWeight: FontWeight.w500,
               ),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.dynamicHeight(0.01)),
             Text(
               'Try a different search term',
               style: TextStyle(
-                fontSize: 13.sp,
+                fontSize: context.dynamicWidth(0.035),
                 color: Colors.grey[400],
               ),
             ),
@@ -412,11 +412,11 @@ class _VenueScreenState extends State<VenueScreen>
     // Use grid layout for tablet and desktop
     if (isTabletOrDesktop) {
       return GridView.builder(
-        padding: EdgeInsets.symmetric(horizontal: 15.w),
+        padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.04)),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: isDesktop ? 3 : 2,
-          crossAxisSpacing: 15.w,
-          mainAxisSpacing: 16.h,
+          crossAxisSpacing: context.dynamicWidth(0.04),
+          mainAxisSpacing: context.dynamicHeight(0.02),
           childAspectRatio: isDesktop ? 2.0 : 2.2,
         ),
         itemCount: venues.length,
@@ -432,7 +432,7 @@ class _VenueScreenState extends State<VenueScreen>
     }
 
     return ListView.builder(
-      padding: EdgeInsets.symmetric(horizontal: 15.w),
+      padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.04)),
       itemCount: venues.length,
       itemBuilder: (context, index) {
         return VenueCardWidget(

@@ -40,8 +40,8 @@ class WizardStepHeader extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
-        horizontal: 19.w,
-        vertical: 20.h,
+        horizontal: context.dynamicWidth(0.051),
+        vertical: context.dynamicHeight(0.025),
       ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -74,8 +74,8 @@ class WizardStepHeader extends StatelessWidget {
                       }
                     },
                     child: Container(
-                      width: 34.w,
-                      height: 34.w,
+                      width: context.dynamicWidth(0.091),
+                      height: context.dynamicWidth(0.091),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.15),
                         shape: BoxShape.circle,
@@ -87,27 +87,27 @@ class WizardStepHeader extends StatelessWidget {
                       child: Icon(
                         Icons.arrow_back_rounded,
                         color: Colors.white,
-                        size: 19.w,
+                        size: context.dynamicWidth(0.051),
                       ),
                     ),
                   ),
-                  SizedBox(width: 15.w),
+                  SizedBox(width: context.dynamicWidth(0.04)),
                 ],
                 // Step indicator
                 Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 11.w,
-                    vertical: 6.h,
+                    horizontal: context.dynamicWidth(0.029),
+                    vertical: context.dynamicHeight(0.007),
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(19.w),
+                    borderRadius: BorderRadius.circular(context.dynamicWidth(0.051)),
                   ),
                   child: Text(
                     stepText,
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 11.sp,
+                      fontSize: context.dynamicWidth(0.029),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -117,44 +117,44 @@ class WizardStepHeader extends StatelessWidget {
                   '${(progress * 100).toInt()}%',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.8),
-                    fontSize: 11.sp,
+                    fontSize: context.dynamicWidth(0.029),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
             ),
 
-            SizedBox(height: 16.h),
+            SizedBox(height: context.dynamicHeight(0.02)),
 
             // Title
             Text(
               title,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 23.sp,
+                fontSize: context.dynamicWidth(0.061),
                 fontWeight: FontWeight.bold,
               ),
             ),
 
             if (subtitle != null) ...[
-              SizedBox(height: 4.h),
+              SizedBox(height: context.dynamicHeight(0.005)),
               Text(
                 subtitle!,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.8),
-                  fontSize: 13.sp,
+                  fontSize: context.dynamicWidth(0.035),
                 ),
               ),
             ],
 
-            SizedBox(height: 16.h),
+            SizedBox(height: context.dynamicHeight(0.02)),
 
             // Progress bar
             Container(
-              height: 6.h,
+              height: context.dynamicHeight(0.007),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(4.w),
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.011)),
               ),
               child: LayoutBuilder(
                 builder: (context, constraints) {
@@ -163,10 +163,10 @@ class WizardStepHeader extends StatelessWidget {
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
                         width: constraints.maxWidth * progress,
-                        height: 6.h,
+                        height: context.dynamicHeight(0.007),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(4.w),
+                          borderRadius: BorderRadius.circular(context.dynamicWidth(0.011)),
                         ),
                       ),
                     ],
@@ -201,14 +201,14 @@ class StepIndicator extends StatelessWidget {
         final isCurrent = index == currentStep - 1;
 
         return Container(
-          margin: EdgeInsets.symmetric(horizontal: 4.w),
-          width: isCurrent ? 23.w : 8.w,
-          height: 8.w,
+          margin: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.011)),
+          width: isCurrent ? context.dynamicWidth(0.061) : context.dynamicWidth(0.021),
+          height: context.dynamicWidth(0.021),
           decoration: BoxDecoration(
             color: isActive || isCurrent
                 ? AppColors.primaryColor
                 : AppColors.gray300,
-            borderRadius: BorderRadius.circular(4.w),
+            borderRadius: BorderRadius.circular(context.dynamicWidth(0.011)),
           ),
         );
       }),

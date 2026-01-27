@@ -371,11 +371,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
   Widget _buildQuickStats(EventDetailsState state, AppLocalizations t) {
     final event = state.event!;
     return Container(
-      margin: EdgeInsets.all(15.w),
-      padding: EdgeInsets.all(19.w),
+      margin: EdgeInsets.all(context.dynamicWidth(0.04)),
+      padding: EdgeInsets.all(context.dynamicWidth(0.051)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(23.w),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.061)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -394,7 +394,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
               Icons.mail_outline,
             ),
           ),
-          Container(width: 1, height: 45.w, color: AppColors.gray200),
+          Container(width: 1, height: context.dynamicWidth(0.12), color: AppColors.gray200),
           Expanded(
             child: _buildStatItem(
               t.translate('event_details_attending'),
@@ -403,7 +403,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
               Icons.check_circle_outline,
             ),
           ),
-          Container(width: 1, height: 45.w, color: AppColors.gray200),
+          Container(width: 1, height: context.dynamicWidth(0.12), color: AppColors.gray200),
           Expanded(
             child: _buildStatItem(
               t.translate('event_details_declined'),
@@ -421,27 +421,27 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     return Column(
       children: [
         Container(
-          width: 38.w,
-          height: 38.w,
+          width: context.dynamicWidth(0.101),
+          height: context.dynamicWidth(0.101),
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: color, size: 19.w),
+          child: Icon(icon, color: color, size: context.dynamicWidth(0.051)),
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: context.dynamicHeight(0.01)),
         Text(
           value,
           style: TextStyle(
-            fontSize: 23.sp,
+            fontSize: context.dynamicWidth(0.061),
             fontWeight: FontWeight.bold,
             color: AppColors.gray900,
           ),
         ),
-        SizedBox(height: 2.h),
+        SizedBox(height: context.dynamicHeight(0.002)),
         Text(
           label,
-          style: TextStyle(fontSize: 11.sp, color: AppColors.gray500),
+          style: TextStyle(fontSize: context.dynamicWidth(0.029), color: AppColors.gray500),
         ),
       ],
     );
@@ -449,10 +449,10 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
 
   Widget _buildTabBar(AppLocalizations t) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 15.w),
+      margin: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15.w),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -467,14 +467,14 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           gradient: LinearGradient(
             colors: [AppColors.primaryColor, AppColors.tertiaryColor],
           ),
-          borderRadius: BorderRadius.circular(15.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         ),
         indicatorSize: TabBarIndicatorSize.tab,
-        indicatorPadding: EdgeInsets.all(4.w),
+        indicatorPadding: EdgeInsets.all(context.dynamicWidth(0.011)),
         labelColor: Colors.white,
         unselectedLabelColor: AppColors.gray600,
-        labelStyle: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.sp),
-        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: 13.sp),
+        labelStyle: TextStyle(fontWeight: FontWeight.w600, fontSize: context.dynamicWidth(0.035)),
+        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: context.dynamicWidth(0.035)),
         dividerColor: Colors.transparent,
         tabs: [
           Tab(text: t.translate('event_details_overview')),

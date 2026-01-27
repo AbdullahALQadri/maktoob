@@ -30,15 +30,15 @@ class ShareScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: Padding(
-          padding: EdgeInsets.all(8.w),
+          padding: EdgeInsets.all(context.dynamicWidth(0.021)),
           child: GestureDetector(
             onTap: () {
               context.read<InvitationCubit>().previousStep();
               onBack?.call();
             },
             child: Container(
-              width: 38.w,
-              height: 38.w,
+              width: context.dynamicWidth(0.101),
+              height: context.dynamicWidth(0.101),
               decoration: BoxDecoration(
                 color: AppColors.gray100,
                 shape: BoxShape.circle,
@@ -50,7 +50,7 @@ class ShareScreen extends StatelessWidget {
               child: Icon(
                 Icons.arrow_back_rounded,
                 color: AppColors.gray800,
-                size: 21.w,
+                size: context.dynamicWidth(0.056),
               ),
             ),
           ),
@@ -62,23 +62,23 @@ class ShareScreen extends StatelessWidget {
             children: [
               // Header
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 23.w),
+                padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.061)),
                 child: Column(
                   children: [
                     Text(
                       'Your invitation is ready!',
                       style: TextStyle(
-                        fontSize: 24.sp,
+                        fontSize: context.dynamicWidth(0.064),
                         fontWeight: FontWeight.bold,
                         color: AppColors.gray900,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 8.h),
+                    SizedBox(height: context.dynamicHeight(0.01)),
                     Text(
                       'Preview how your guests will see it',
                       style: TextStyle(
-                        fontSize: 15.sp,
+                        fontSize: context.dynamicWidth(0.04),
                         color: AppColors.gray500,
                       ),
                     ),
@@ -86,12 +86,12 @@ class ShareScreen extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: 24.h),
+              SizedBox(height: context.dynamicHeight(0.03)),
 
               // Full invitation preview
               Expanded(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 30.w),
+                  padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.08)),
                   child: InvitationPreviewWidget(
                     eventType: state.eventType,
                     names: state.names,
@@ -104,16 +104,16 @@ class ShareScreen extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: 24.h),
+              SizedBox(height: context.dynamicHeight(0.03)),
 
               // Guest count summary
               if (state.totalGuests > 0)
                 Container(
-                  margin: EdgeInsets.symmetric(horizontal: 23.w),
-                  padding: EdgeInsets.all(15.w),
+                  margin: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.061)),
+                  padding: EdgeInsets.all(context.dynamicWidth(0.04)),
                   decoration: BoxDecoration(
                     color: AppColors.purple50,
-                    borderRadius: BorderRadius.circular(11.w),
+                    borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -121,14 +121,14 @@ class ShareScreen extends StatelessWidget {
                       Icon(
                         Icons.people_outline,
                         color: AppColors.primaryColor,
-                        size: 23.w,
+                        size: context.dynamicWidth(0.061),
                       ),
-                      SizedBox(width: 8.w),
+                      SizedBox(width: context.dynamicWidth(0.021)),
                       Text(
                         '${state.totalGuests} guests will receive this invitation',
                         style: TextStyle(
                           color: AppColors.primaryColor,
-                          fontSize: 14.sp,
+                          fontSize: context.dynamicWidth(0.037),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -136,14 +136,14 @@ class ShareScreen extends StatelessWidget {
                   ),
                 ),
 
-              SizedBox(height: 16.h),
+              SizedBox(height: context.dynamicHeight(0.02)),
 
               // Bottom button with BackdropFilter
               ClipRect(
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                   child: Container(
-                    padding: EdgeInsets.all(15.w),
+                    padding: EdgeInsets.all(context.dynamicWidth(0.04)),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.85),
                       border: Border(
@@ -185,7 +185,7 @@ class ShareScreen extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: 16.h),
+          SizedBox(height: context.dynamicHeight(0.02)),
 
           // Features preview
           Row(
@@ -209,7 +209,7 @@ class ShareScreen extends StatelessWidget {
             ],
           ),
 
-          SizedBox(height: 24.h),
+          SizedBox(height: context.dynamicHeight(0.03)),
 
           // CTA button
           SizedBox(
@@ -233,23 +233,23 @@ class ShareScreen extends StatelessWidget {
     return Column(
       children: [
         Container(
-          width: 53.w,
-          height: 53.w,
+          width: context.dynamicWidth(0.141),
+          height: context.dynamicWidth(0.141),
           decoration: BoxDecoration(
             color: AppColors.purple50,
-            borderRadius: BorderRadius.circular(13.w),
+            borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
           ),
           child: Icon(
             icon,
             color: AppColors.primaryColor,
-            size: 26.w,
+            size: context.dynamicWidth(0.069),
           ),
         ),
-        SizedBox(height: 8.w),
+        SizedBox(height: context.dynamicWidth(0.021)),
         Text(
           label,
           style: TextStyle(
-            fontSize: 12.sp,
+            fontSize: context.dynamicWidth(0.032),
             color: AppColors.gray600,
           ),
         ),

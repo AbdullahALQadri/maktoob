@@ -91,9 +91,9 @@ class SecondaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Use responsive values when defaults are used
-    final effectiveHeight = height == 56 ? 57.h : height;
-    final effectiveBorderRadius = borderRadius == 12 ? 11.w : borderRadius;
-    final effectiveIconSize = iconSize == 20 ? 19.w : iconSize;
+    final effectiveHeight = height == 56 ? context.dynamicHeight(0.07) : height;
+    final effectiveBorderRadius = borderRadius == 12 ? context.dynamicWidth(0.029) : borderRadius;
+    final effectiveIconSize = iconSize == 20 ? context.dynamicWidth(0.051) : iconSize;
 
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 200),
@@ -135,8 +135,8 @@ class SecondaryButton extends StatelessWidget {
               child: Center(
                 child: isLoading
                     ? SizedBox(
-                        width: 23.w,
-                        height: 23.w,
+                        width: context.dynamicWidth(0.061),
+                        height: context.dynamicWidth(0.061),
                         child: CircularProgressIndicator(
                           strokeWidth: 2.5,
                           valueColor: AlwaysStoppedAnimation<Color>(
@@ -157,7 +157,7 @@ class SecondaryButton extends StatelessWidget {
     final effectiveTextColor = textColor ?? AppColors.primaryColor;
     final defaultTextStyle = TextStyle(
       fontFamily: AppStrings.fontFamily,
-      fontSize: 15.sp,
+      fontSize: context.dynamicWidth(0.04),
       fontWeight: FontWeight.w600,
       color: effectiveTextColor,
     );
@@ -172,7 +172,7 @@ class SecondaryButton extends StatelessWidget {
             color: effectiveTextColor,
             size: effectiveIconSize,
           ),
-          SizedBox(width: 8.w),
+          SizedBox(width: context.dynamicWidth(0.021)),
           Text(
             text,
             style: textStyle ?? defaultTextStyle,

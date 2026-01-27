@@ -168,7 +168,7 @@ class AppBottomSheet extends StatelessWidget {
     Color? iconBackgroundColor,
   }) {
     final effectiveBorderRadius = borderRadius == 24
-        ? 23.w
+        ? context.dynamicWidth(0.061)
         : borderRadius;
     return showModalBottomSheet<T>(
       context: context,
@@ -409,13 +409,13 @@ class AppBottomSheet extends StatelessWidget {
     final effectiveMaxHeight = maxHeight ?? 0.9;
     final effectiveMinHeight = minHeight ?? 0.1;
     final effectiveBorderRadius = borderRadius == 24
-        ? 23.w
+        ? context.dynamicWidth(0.061)
         : borderRadius;
     final defaultPadding = EdgeInsets.fromLTRB(
-      23.w,
+      context.dynamicWidth(0.061),
       0,
-      23.w,
-      24.h,
+      context.dynamicWidth(0.061),
+      context.dynamicHeight(0.03),
     );
 
     Widget content = Container(
@@ -509,35 +509,35 @@ class _SheetHeader extends StatelessWidget {
         // Drag handle
         if (showDragHandle)
           Container(
-            margin: EdgeInsets.only(top: 12.h),
-            width: 38.w,
-            height: 4.h,
+            margin: EdgeInsets.only(top: context.dynamicHeight(0.015)),
+            width: context.dynamicWidth(0.101),
+            height: context.dynamicHeight(0.005),
             decoration: BoxDecoration(
               color: AppColors.gray300,
-              borderRadius: BorderRadius.circular(4.w),
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.011)),
             ),
           ),
 
         // Icon (if provided)
         if (icon != null) ...[
-          SizedBox(height: 20.h),
+          SizedBox(height: context.dynamicHeight(0.025)),
           Container(
-            width: 60.w,
-            height: 60.w,
+            width: context.dynamicWidth(0.16),
+            height: context.dynamicWidth(0.16),
             decoration: BoxDecoration(
               color: iconBackgroundColor ?? AppColors.purple50,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
                   color: (iconColor ?? AppColors.primaryColor).withValues(alpha: 0.2),
-                  blurRadius: 15.w,
-                  offset: Offset(0, 6.h),
+                  blurRadius: context.dynamicWidth(0.04),
+                  offset: Offset(0, context.dynamicHeight(0.007)),
                 ),
               ],
             ),
             child: Icon(
               icon,
-              size: 30.w,
+              size: context.dynamicWidth(0.08),
               color: iconColor ?? AppColors.primaryColor,
             ),
           ),
@@ -547,10 +547,10 @@ class _SheetHeader extends StatelessWidget {
         if (title != null || showCloseButton)
           Padding(
             padding: EdgeInsets.fromLTRB(
-              23.w,
-              icon != null ? 16.h : 16.h,
-              23.w,
-              8.h,
+              context.dynamicWidth(0.061),
+              icon != null ? context.dynamicHeight(0.02) : context.dynamicHeight(0.02),
+              context.dynamicWidth(0.061),
+              context.dynamicHeight(0.01),
             ),
             child: Row(
               children: [
@@ -565,19 +565,19 @@ class _SheetHeader extends StatelessWidget {
                           textAlign: icon != null ? TextAlign.center : TextAlign.start,
                           style: TextStyle(
                             fontFamily: AppStrings.fontFamily,
-                            fontSize: 19.sp,
+                            fontSize: context.dynamicWidth(0.051),
                             fontWeight: FontWeight.bold,
                             color: AppColors.gray900,
                           ),
                         ),
                         if (subtitle != null) ...[
-                          SizedBox(height: 4.h),
+                          SizedBox(height: context.dynamicHeight(0.005)),
                           Text(
                             subtitle!,
                             textAlign: icon != null ? TextAlign.center : TextAlign.start,
                             style: TextStyle(
                               fontFamily: AppStrings.fontFamily,
-                              fontSize: 13.sp,
+                              fontSize: context.dynamicWidth(0.035),
                               color: AppColors.gray500,
                             ),
                           ),
@@ -592,7 +592,7 @@ class _SheetHeader extends StatelessWidget {
                 // Action
                 if (action != null) ...[
                   action!,
-                  SizedBox(width: 11.w),
+                  SizedBox(width: context.dynamicWidth(0.029)),
                 ],
 
                 // Close button
@@ -600,15 +600,15 @@ class _SheetHeader extends StatelessWidget {
                   GestureDetector(
                     onTap: onClose ?? () => Navigator.of(context).pop(),
                     child: Container(
-                      width: 34.w,
-                      height: 34.w,
+                      width: context.dynamicWidth(0.091),
+                      height: context.dynamicWidth(0.091),
                       decoration: BoxDecoration(
                         color: AppColors.gray100,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.close_rounded,
-                        size: 19.w,
+                        size: context.dynamicWidth(0.051),
                         color: AppColors.gray500,
                       ),
                     ),
@@ -620,10 +620,10 @@ class _SheetHeader extends StatelessWidget {
         // Divider for sheets without icon
         if (title != null && icon == null)
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 23.w),
+            padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.061)),
             child: Divider(
               color: AppColors.gray100,
-              height: 16.h,
+              height: context.dynamicHeight(0.02),
             ),
           ),
       ],
@@ -656,32 +656,32 @@ class _ConfirmSheet extends StatelessWidget {
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: AppStrings.fontFamily,
-            fontSize: 14.sp,
+            fontSize: context.dynamicWidth(0.037),
             color: AppColors.gray600,
             height: 1.5,
           ),
         ),
-        SizedBox(height: 24.h),
+        SizedBox(height: context.dynamicHeight(0.03)),
         Row(
           children: [
             Expanded(
               child: SecondaryButton(
                 text: cancelText,
                 onPressed: () => Navigator.of(context).pop(false),
-                height: 49.h,
-                borderRadius: 13.w,
+                height: context.dynamicHeight(0.06),
+                borderRadius: context.dynamicWidth(0.035),
                 useGradientBorder: false,
                 borderColor: AppColors.gray300,
                 textColor: AppColors.gray700,
               ),
             ),
-            SizedBox(width: 11.w),
+            SizedBox(width: context.dynamicWidth(0.029)),
             Expanded(
               child: PrimaryButton(
                 text: confirmText,
                 onPressed: () => Navigator.of(context).pop(true),
-                height: 49.h,
-                borderRadius: 13.w,
+                height: context.dynamicHeight(0.06),
+                borderRadius: context.dynamicWidth(0.035),
                 gradientColors: confirmColor != null
                     ? [confirmColor!, confirmColor!.withValues(alpha: 0.8)]
                     : null,
@@ -719,20 +719,20 @@ class _InfoSheet extends StatelessWidget {
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: AppStrings.fontFamily,
-            fontSize: 14.sp,
+            fontSize: context.dynamicWidth(0.037),
             color: AppColors.gray600,
             height: 1.5,
           ),
         ),
-        SizedBox(height: 24.h),
+        SizedBox(height: context.dynamicHeight(0.03)),
         PrimaryButton(
           text: buttonText,
           onPressed: () {
             Navigator.of(context).pop();
             onPressed?.call();
           },
-          height: 49.h,
-          borderRadius: 13.w,
+          height: context.dynamicHeight(0.06),
+          borderRadius: context.dynamicWidth(0.035),
           gradientColors: buttonColor != null
               ? [buttonColor!, buttonColor!.withValues(alpha: 0.8)]
               : null,
@@ -761,14 +761,14 @@ class _OptionsSheet<T> extends StatelessWidget {
         return GestureDetector(
           onTap: () => Navigator.of(context).pop(option.value),
           child: Container(
-            margin: EdgeInsets.only(bottom: 8.h),
+            margin: EdgeInsets.only(bottom: context.dynamicHeight(0.01)),
             padding: EdgeInsets.symmetric(
-              horizontal: 15.w,
-              vertical: 15.h,
+              horizontal: context.dynamicWidth(0.04),
+              vertical: context.dynamicHeight(0.018),
             ),
             decoration: BoxDecoration(
               color: isSelected ? AppColors.purple50 : AppColors.gray50,
-              borderRadius: BorderRadius.circular(13.w),
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
               border: Border.all(
                 color: isSelected ? AppColors.primaryColor : AppColors.gray200,
                 width: isSelected ? 2 : 1,
@@ -778,21 +778,21 @@ class _OptionsSheet<T> extends StatelessWidget {
               children: [
                 if (option.icon != null) ...[
                   Container(
-                    width: 38.w,
-                    height: 38.w,
+                    width: context.dynamicWidth(0.101),
+                    height: context.dynamicWidth(0.101),
                     decoration: BoxDecoration(
                       color: isSelected
                           ? AppColors.primaryColor.withValues(alpha: 0.1)
                           : AppColors.gray100,
-                      borderRadius: BorderRadius.circular(9.w),
+                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.024)),
                     ),
                     child: Icon(
                       option.icon,
                       color: isSelected ? AppColors.primaryColor : AppColors.gray500,
-                      size: 19.w,
+                      size: context.dynamicWidth(0.051),
                     ),
                   ),
-                  SizedBox(width: 11.w),
+                  SizedBox(width: context.dynamicWidth(0.029)),
                 ],
                 Expanded(
                   child: Column(
@@ -802,18 +802,18 @@ class _OptionsSheet<T> extends StatelessWidget {
                         option.label,
                         style: TextStyle(
                           fontFamily: AppStrings.fontFamily,
-                          fontSize: 15.sp,
+                          fontSize: context.dynamicWidth(0.04),
                           fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                           color: isSelected ? AppColors.primaryColor : AppColors.gray900,
                         ),
                       ),
                       if (option.subtitle != null) ...[
-                        SizedBox(height: 2.h),
+                        SizedBox(height: context.dynamicHeight(0.002)),
                         Text(
                           option.subtitle!,
                           style: TextStyle(
                             fontFamily: AppStrings.fontFamily,
-                            fontSize: 12.sp,
+                            fontSize: context.dynamicWidth(0.032),
                             color: AppColors.gray500,
                           ),
                         ),
@@ -823,8 +823,8 @@ class _OptionsSheet<T> extends StatelessWidget {
                 ),
                 if (isSelected)
                   Container(
-                    width: 23.w,
-                    height: 23.w,
+                    width: context.dynamicWidth(0.061),
+                    height: context.dynamicWidth(0.061),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [AppColors.primaryColor, AppColors.tertiaryColor],
@@ -834,7 +834,7 @@ class _OptionsSheet<T> extends StatelessWidget {
                     child: Icon(
                       Icons.check_rounded,
                       color: Colors.white,
-                      size: 13.w,
+                      size: context.dynamicWidth(0.035),
                     ),
                   ),
               ],
@@ -865,43 +865,43 @@ class _ActionsSheet<T> extends StatelessWidget {
           return GestureDetector(
             onTap: () => Navigator.of(context).pop(action.value),
             child: Container(
-              margin: EdgeInsets.only(bottom: 8.h),
+              margin: EdgeInsets.only(bottom: context.dynamicHeight(0.01)),
               padding: EdgeInsets.symmetric(
-                horizontal: 15.w,
-                vertical: 15.h,
+                horizontal: context.dynamicWidth(0.04),
+                vertical: context.dynamicHeight(0.018),
               ),
               decoration: BoxDecoration(
                 color: action.isDestructive
                     ? AppColors.red500.withValues(alpha: 0.05)
                     : AppColors.gray50,
-                borderRadius: BorderRadius.circular(13.w),
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
               ),
               child: Row(
                 children: [
                   if (action.icon != null) ...[
                     Container(
-                      width: 38.w,
-                      height: 38.w,
+                      width: context.dynamicWidth(0.101),
+                      height: context.dynamicWidth(0.101),
                       decoration: BoxDecoration(
                         color: action.isDestructive
                             ? AppColors.red500.withValues(alpha: 0.1)
                             : AppColors.gray100,
-                        borderRadius: BorderRadius.circular(9.w),
+                        borderRadius: BorderRadius.circular(context.dynamicWidth(0.024)),
                       ),
                       child: Icon(
                         action.icon,
                         color: action.isDestructive ? AppColors.red500 : AppColors.gray600,
-                        size: 19.w,
+                        size: context.dynamicWidth(0.051),
                       ),
                     ),
-                    SizedBox(width: 11.w),
+                    SizedBox(width: context.dynamicWidth(0.029)),
                   ],
                   Expanded(
                     child: Text(
                       action.label,
                       style: TextStyle(
                         fontFamily: AppStrings.fontFamily,
-                        fontSize: 15.sp,
+                        fontSize: context.dynamicWidth(0.04),
                         fontWeight: FontWeight.w500,
                         color: action.isDestructive ? AppColors.red500 : AppColors.gray900,
                       ),
@@ -910,7 +910,7 @@ class _ActionsSheet<T> extends StatelessWidget {
                   Icon(
                     Icons.chevron_right_rounded,
                     color: action.isDestructive ? AppColors.red500 : AppColors.gray400,
-                    size: 19.w,
+                    size: context.dynamicWidth(0.051),
                   ),
                 ],
               ),
@@ -918,22 +918,22 @@ class _ActionsSheet<T> extends StatelessWidget {
           );
         }),
         if (cancelText != null) ...[
-          SizedBox(height: 8.h),
+          SizedBox(height: context.dynamicHeight(0.01)),
           GestureDetector(
             onTap: () => Navigator.of(context).pop(),
             child: Container(
               width: double.infinity,
-              padding: EdgeInsets.symmetric(vertical: 15.h),
+              padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.018)),
               decoration: BoxDecoration(
                 color: AppColors.gray100,
-                borderRadius: BorderRadius.circular(13.w),
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
               ),
               child: Text(
                 cancelText!,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: AppStrings.fontFamily,
-                  fontSize: 15.sp,
+                  fontSize: context.dynamicWidth(0.04),
                   fontWeight: FontWeight.w600,
                   color: AppColors.gray700,
                 ),

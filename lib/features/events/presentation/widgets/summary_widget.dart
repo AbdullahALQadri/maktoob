@@ -41,30 +41,30 @@ class SummaryWidget extends StatelessWidget {
         Text(
           'Summary',
           style: TextStyle(
-            fontSize: 19.sp,
+            fontSize: context.dynamicWidth(0.051),
             fontWeight: FontWeight.bold,
             color: AppColors.gray900,
           ),
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: context.dynamicHeight(0.02)),
         _buildSummaryCard(
           context: context,
           title: 'Package',
           content: '${selectedPackage.name} - \$${selectedPackage.price}',
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: context.dynamicHeight(0.015)),
         _buildSummaryCard(
           context: context,
           title: 'Venue',
           content: selectedVenue?.name ?? customVenue?.name ?? 'Not selected',
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: context.dynamicHeight(0.015)),
         _buildSummaryCard(
           context: context,
           title: 'Event Type',
           content: selectedEventType?.name ?? customEventType ?? 'Not selected',
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: context.dynamicHeight(0.015)),
         _buildSummaryCard(
           context: context,
           title: 'Template',
@@ -72,9 +72,9 @@ class SummaryWidget extends StatelessWidget {
               ? 'Custom Template (Requested)'
               : selectedTemplate?.name ?? 'Not selected',
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: context.dynamicHeight(0.015)),
         _buildEventDetailsCard(context),
-        SizedBox(height: 12.h),
+        SizedBox(height: context.dynamicHeight(0.015)),
         _buildGuestsCard(context),
       ],
     );
@@ -87,10 +87,10 @@ class SummaryWidget extends StatelessWidget {
   }) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(19.w),
+      padding: EdgeInsets.all(context.dynamicWidth(0.051)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15.w),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -105,16 +105,16 @@ class SummaryWidget extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 14.sp,
+              fontSize: context.dynamicWidth(0.037),
               fontWeight: FontWeight.bold,
               color: AppColors.gray900,
             ),
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: context.dynamicHeight(0.01)),
           Text(
             content,
             style: TextStyle(
-              fontSize: 13.sp,
+              fontSize: context.dynamicWidth(0.035),
               color: AppColors.gray600,
             ),
           ),
@@ -138,10 +138,10 @@ class SummaryWidget extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(19.w),
+      padding: EdgeInsets.all(context.dynamicWidth(0.051)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15.w),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -156,22 +156,22 @@ class SummaryWidget extends StatelessWidget {
           Text(
             'Event Details',
             style: TextStyle(
-              fontSize: 14.sp,
+              fontSize: context.dynamicWidth(0.037),
               fontWeight: FontWeight.bold,
               color: AppColors.gray900,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: context.dynamicHeight(0.015)),
           _buildDetailRow(context, 'Name', eventDetails.name.isEmpty ? 'Not set' : eventDetails.name),
-          SizedBox(height: 8.h),
+          SizedBox(height: context.dynamicHeight(0.01)),
           _buildDetailRow(
             context,
             'Date',
             '${formatDate(eventDetails.date)}${eventDetails.time != null ? ' at ${formatTime(eventDetails.time)}' : ''}',
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: context.dynamicHeight(0.01)),
           _buildDetailRow(context, 'RSVP Deadline', formatDate(eventDetails.responseDeadline)),
-          SizedBox(height: 8.h),
+          SizedBox(height: context.dynamicHeight(0.01)),
           _buildDetailRow(
             context,
             'Companions',
@@ -191,7 +191,7 @@ class SummaryWidget extends StatelessWidget {
         Text(
           '$label: ',
           style: TextStyle(
-            fontSize: 13.sp,
+            fontSize: context.dynamicWidth(0.035),
             fontWeight: FontWeight.w600,
             color: AppColors.gray700,
           ),
@@ -200,7 +200,7 @@ class SummaryWidget extends StatelessWidget {
           child: Text(
             value,
             style: TextStyle(
-              fontSize: 13.sp,
+              fontSize: context.dynamicWidth(0.035),
               color: AppColors.gray600,
             ),
           ),
@@ -212,10 +212,10 @@ class SummaryWidget extends StatelessWidget {
   Widget _buildGuestsCard(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(19.w),
+      padding: EdgeInsets.all(context.dynamicWidth(0.051)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15.w),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -230,17 +230,17 @@ class SummaryWidget extends StatelessWidget {
           Text(
             'Guests',
             style: TextStyle(
-              fontSize: 14.sp,
+              fontSize: context.dynamicWidth(0.037),
               fontWeight: FontWeight.bold,
               color: AppColors.gray900,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: context.dynamicHeight(0.015)),
           if (guestMethod == GuestMethod.invite)
             Text(
               'Guests will be reached via WhatsApp, Email & SMS',
               style: TextStyle(
-                fontSize: 13.sp,
+                fontSize: context.dynamicWidth(0.035),
                 color: AppColors.gray600,
               ),
             ),
@@ -248,7 +248,7 @@ class SummaryWidget extends StatelessWidget {
             Text(
               'Excel file uploaded: ${excelFile!.path.split('/').last}',
               style: TextStyle(
-                fontSize: 13.sp,
+                fontSize: context.dynamicWidth(0.035),
                 color: AppColors.gray600,
               ),
             ),
@@ -256,25 +256,25 @@ class SummaryWidget extends StatelessWidget {
             Text(
               '${manualGuests.length} guests added',
               style: TextStyle(
-                fontSize: 13.sp,
+                fontSize: context.dynamicWidth(0.035),
                 fontWeight: FontWeight.w600,
                 color: AppColors.gray600,
               ),
             ),
-            SizedBox(height: 12.h),
+            SizedBox(height: context.dynamicHeight(0.015)),
             ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: 162.h),
+              constraints: BoxConstraints(maxHeight: context.dynamicHeight(0.2)),
               child: ListView.builder(
                 shrinkWrap: true,
                 itemCount: manualGuests.length,
                 itemBuilder: (context, index) {
                   final guest = manualGuests[index];
                   return Container(
-                    margin: EdgeInsets.only(bottom: 8.h),
-                    padding: EdgeInsets.all(8.w),
+                    margin: EdgeInsets.only(bottom: context.dynamicHeight(0.01)),
+                    padding: EdgeInsets.all(context.dynamicWidth(0.021)),
                     decoration: BoxDecoration(
                       color: AppColors.gray100,
-                      borderRadius: BorderRadius.circular(8.w),
+                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.021)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -282,7 +282,7 @@ class SummaryWidget extends StatelessWidget {
                         Text(
                           guest.name,
                           style: TextStyle(
-                            fontSize: 12.sp,
+                            fontSize: context.dynamicWidth(0.032),
                             fontWeight: FontWeight.w600,
                             color: AppColors.gray900,
                           ),
@@ -290,7 +290,7 @@ class SummaryWidget extends StatelessWidget {
                         Text(
                           guest.email,
                           style: TextStyle(
-                            fontSize: 11.sp,
+                            fontSize: context.dynamicWidth(0.029),
                             color: AppColors.gray600,
                           ),
                         ),
@@ -305,7 +305,7 @@ class SummaryWidget extends StatelessWidget {
             Text(
               'No guest method selected',
               style: TextStyle(
-                fontSize: 13.sp,
+                fontSize: context.dynamicWidth(0.035),
                 color: AppColors.gray600,
               ),
             ),

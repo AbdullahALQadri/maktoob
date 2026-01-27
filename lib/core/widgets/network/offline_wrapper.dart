@@ -42,58 +42,58 @@ class OfflineScreen extends StatelessWidget {
       body: SafeArea(
         child: Center(
           child: Padding(
-            padding: EdgeInsets.all(30.w),
+            padding: EdgeInsets.all(context.dynamicWidth(0.08)),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  padding: EdgeInsets.all(30.w),
+                  padding: EdgeInsets.all(context.dynamicWidth(0.08)),
                   decoration: BoxDecoration(
                     color: AppColors.gray200,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.wifi_off_rounded,
-                    size: 75.w,
+                    size: context.dynamicWidth(0.2),
                     color: AppColors.gray400,
                   ),
                 ),
-                SizedBox(height: 32.h),
+                SizedBox(height: context.dynamicHeight(0.039)),
                 Text(
                   'No Internet Connection',
                   style: TextStyle(
-                    fontSize: 23.sp,
+                    fontSize: context.dynamicWidth(0.061),
                     fontWeight: FontWeight.bold,
                     color: AppColors.gray900,
                   ),
                 ),
-                SizedBox(height: 12.h),
+                SizedBox(height: context.dynamicHeight(0.015)),
                 Text(
                   message ?? 'Please check your internet connection and try again.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 15.sp,
+                    fontSize: context.dynamicWidth(0.04),
                     color: AppColors.gray500,
                     height: 1.5,
                   ),
                 ),
                 if (onRetry != null) ...[
-                  SizedBox(height: 32.h),
+                  SizedBox(height: context.dynamicHeight(0.039)),
                   Material(
                     color: Colors.transparent,
                     child: InkWell(
                       onTap: onRetry,
-                      borderRadius: BorderRadius.circular(15.w),
+                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
                       child: Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: 30.w,
-                          vertical: 15.h,
+                          horizontal: context.dynamicWidth(0.08),
+                          vertical: context.dynamicHeight(0.018),
                         ),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [AppColors.primaryColor, AppColors.tertiaryColor],
                           ),
-                          borderRadius: BorderRadius.circular(15.w),
+                          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
                           boxShadow: [
                             BoxShadow(
                               color: AppColors.primaryColor.withValues(alpha: 0.3),
@@ -108,14 +108,14 @@ class OfflineScreen extends StatelessWidget {
                             Icon(
                               Icons.refresh_rounded,
                               color: Colors.white,
-                              size: 19.w,
+                              size: context.dynamicWidth(0.051),
                             ),
-                            SizedBox(width: 8.w),
+                            SizedBox(width: context.dynamicWidth(0.021)),
                             Text(
                               'Try Again',
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 15.sp,
+                                fontSize: context.dynamicWidth(0.04),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),

@@ -40,7 +40,7 @@ void main() {
       // Run the app (use DevicePreview only in debug mode)
       runApp(
         kDebugMode
-            ? DevicePreview(enabled: false, builder: (context) => const Maktoob())
+            ? DevicePreview(enabled: true, builder: (context) => const Maktoob())
             : const Maktoob(),
       );
     },

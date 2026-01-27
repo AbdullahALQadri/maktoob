@@ -133,8 +133,8 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
             // Back button and title
             Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: 15.w,
-                vertical: 12.h,
+                horizontal: context.dynamicWidth(0.04),
+                vertical: context.dynamicHeight(0.015),
               ),
               child: Row(
                 children: [
@@ -158,12 +158,12 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
                       ),
                     ),
                   ),
-                  SizedBox(width: 15.w),
+                  SizedBox(width: context.dynamicWidth(0.04)),
                   Text(
                     t.translate('events_all_events'),
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 21.sp,
+                      fontSize: context.dynamicWidth(0.056),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -183,7 +183,7 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
       builder: (context, state) {
         return Container(
           margin: EdgeInsets.symmetric(
-            horizontal: 15.w,
+            horizontal: context.dynamicWidth(0.04),
           ),
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.15),
@@ -201,11 +201,11 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
             labelColor: AppColors.primaryColor,
             unselectedLabelColor: Colors.white.withValues(alpha: 0.9),
             labelStyle: TextStyle(
-              fontSize: 12.sp,
+              fontSize: context.dynamicWidth(0.032),
               fontWeight: FontWeight.w600,
             ),
             unselectedLabelStyle: TextStyle(
-              fontSize: 12.sp,
+              fontSize: context.dynamicWidth(0.032),
               fontWeight: FontWeight.w500,
             ),
             tabs: [
@@ -259,7 +259,7 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
               child: Text(
                 count.toString(),
                 style: TextStyle(
-                  fontSize: 9.sp,
+                  fontSize: context.dynamicWidth(0.024),
                   fontWeight: FontWeight.bold,
                   color: badgeColor,
                 ),
@@ -285,7 +285,7 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
       onRefresh: () => context.read<EventsListCubit>().refreshEvents(),
       color: AppColors.primaryColor,
       child: ListView.builder(
-        padding: EdgeInsets.all(15.w),
+        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
         itemCount: events.length,
         itemBuilder: (context, index) {
           final event = events[index];
@@ -331,38 +331,38 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
 
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(30.w),
+        padding: EdgeInsets.all(context.dynamicWidth(0.08)),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 75.w,
-              height: 75.w,
+              width: context.dynamicWidth(0.2),
+              height: context.dynamicWidth(0.2),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
-                size: 38.w,
+                size: context.dynamicWidth(0.101),
                 color: color,
               ),
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: context.dynamicHeight(0.025)),
             Text(
               title,
               style: TextStyle(
-                fontSize: 17.sp,
+                fontSize: context.dynamicWidth(0.045),
                 fontWeight: FontWeight.bold,
                 color: AppColors.gray900,
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.dynamicHeight(0.01)),
             Text(
               subtitle,
               style: TextStyle(
-                fontSize: 13.sp,
+                fontSize: context.dynamicWidth(0.035),
                 color: AppColors.gray500,
               ),
               textAlign: TextAlign.center,
@@ -376,50 +376,50 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
   Widget _buildErrorState(BuildContext context, String message, AppLocalizations t) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(30.w),
+        padding: EdgeInsets.all(context.dynamicWidth(0.08)),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.error_outline,
-              size: 60.w,
+              size: context.dynamicWidth(0.16),
               color: AppColors.red500,
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: context.dynamicHeight(0.02)),
             Text(
               t.translate('home_something_wrong'),
               style: TextStyle(
-                fontSize: 17.sp,
+                fontSize: context.dynamicWidth(0.045),
                 fontWeight: FontWeight.bold,
                 color: AppColors.gray900,
               ),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.dynamicHeight(0.01)),
             Text(
               message,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.gray500,
-                fontSize: 13.sp,
+                fontSize: context.dynamicWidth(0.035),
               ),
             ),
-            SizedBox(height: 24.h),
+            SizedBox(height: context.dynamicHeight(0.03)),
             ElevatedButton(
               onPressed: () => context.read<EventsListCubit>().refreshEvents(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryColor,
                 foregroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(
-                  horizontal: 30.w,
-                  vertical: 12.h,
+                  horizontal: context.dynamicWidth(0.08),
+                  vertical: context.dynamicHeight(0.015),
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(11.w),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
                 ),
               ),
               child: Text(
                 t.translate('home_try_again'),
-                style: TextStyle(fontSize: 13.sp),
+                style: TextStyle(fontSize: context.dynamicWidth(0.035)),
               ),
             ),
           ],
@@ -435,7 +435,7 @@ class _LoadingContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       itemCount: 5,
       itemBuilder: (context, index) {
         return const RecentEventCardSkeleton();

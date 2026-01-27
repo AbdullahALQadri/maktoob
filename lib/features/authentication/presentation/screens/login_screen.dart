@@ -115,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                     child: Padding(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 23.w,
+                        horizontal: context.dynamicWidth(0.061),
                       ),
                       child: FadeTransition(
                         opacity: _fadeAnimation,
@@ -124,15 +124,15 @@ class _LoginScreenState extends State<LoginScreen>
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SizedBox(height: 49.h),
+                              SizedBox(height: context.dynamicHeight(0.06)),
                               _buildLogo(),
-                              SizedBox(height: 24.h),
+                              SizedBox(height: context.dynamicHeight(0.03)),
                               _buildWelcomeText(),
-                              SizedBox(height: 32.h),
+                              SizedBox(height: context.dynamicHeight(0.039)),
                               _buildFormCard(),
-                              SizedBox(height: 20.h),
+                              SizedBox(height: context.dynamicHeight(0.025)),
                               _buildRegisterLink(),
-                              SizedBox(height: 32.h),
+                              SizedBox(height: context.dynamicHeight(0.039)),
                             ],
                           ),
                         ),
@@ -153,11 +153,11 @@ class _LoginScreenState extends State<LoginScreen>
       children: [
         // Top right decorative circle
         Positioned(
-          top: -131.w,
-          right: -94.w,
+          top: -context.dynamicWidth(0.349),
+          right: -context.dynamicWidth(0.251),
           child: Container(
-            width: 300.w,
-            height: 300.w,
+            width: context.dynamicWidth(0.8),
+            height: context.dynamicWidth(0.8),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
@@ -169,11 +169,11 @@ class _LoginScreenState extends State<LoginScreen>
         ),
         // Bottom left decorative circle
         Positioned(
-          bottom: -75.w,
-          left: -113.w,
+          bottom: -context.dynamicWidth(0.2),
+          left: -context.dynamicWidth(0.301),
           child: Container(
-            width: 225.w,
-            height: 225.w,
+            width: context.dynamicWidth(0.6),
+            height: context.dynamicWidth(0.6),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white.withValues(alpha: 0.05),
@@ -182,8 +182,8 @@ class _LoginScreenState extends State<LoginScreen>
         ),
         // Small accent circles
         Positioned(
-          top: 122.h,
-          left: 38.w,
+          top: context.dynamicHeight(0.15),
+          left: context.dynamicWidth(0.101),
           child: Container(
             width: 12,
             height: 12,
@@ -194,8 +194,8 @@ class _LoginScreenState extends State<LoginScreen>
           ),
         ),
         Positioned(
-          top: 203.h,
-          right: 56.w,
+          top: context.dynamicHeight(0.25),
+          right: context.dynamicWidth(0.149),
           child: Container(
             width: 8,
             height: 8,
@@ -213,8 +213,8 @@ class _LoginScreenState extends State<LoginScreen>
     return Hero(
       tag: 'app_logo',
       child: Container(
-        width: 98.w,
-        height: 98.w,
+        width: context.dynamicWidth(0.261),
+        height: context.dynamicWidth(0.261),
         decoration: BoxDecoration(
           color: Colors.white,
           shape: BoxShape.circle,
@@ -229,7 +229,7 @@ class _LoginScreenState extends State<LoginScreen>
         ),
         child: ClipOval(
           child: Padding(
-            padding: EdgeInsets.all(13.w),
+            padding: EdgeInsets.all(context.dynamicWidth(0.035)),
             child: Image.asset(
               'assets/images/logo.png',
               fit: BoxFit.contain,
@@ -247,17 +247,17 @@ class _LoginScreenState extends State<LoginScreen>
         Text(
           t.translate('auth_welcome_back'),
           style: TextStyle(
-            fontSize: 26.sp,
+            fontSize: context.dynamicWidth(0.069),
             fontWeight: FontWeight.bold,
             color: Colors.white,
             letterSpacing: _isArabic ? 0 : 0.5,
           ),
         ),
-        SizedBox(height: 6.h),
+        SizedBox(height: context.dynamicHeight(0.007)),
         Text(
           t.translate('auth_sign_in_subtitle'),
           style: TextStyle(
-            fontSize: 14.sp,
+            fontSize: context.dynamicWidth(0.037),
             color: Colors.white.withValues(alpha: 0.9),
             letterSpacing: _isArabic ? 0 : 0.3,
           ),
@@ -272,7 +272,7 @@ class _LoginScreenState extends State<LoginScreen>
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
         child: Container(
-          padding: EdgeInsets.all(23.w),
+          padding: EdgeInsets.all(context.dynamicWidth(0.061)),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(28),
@@ -306,7 +306,7 @@ class _LoginScreenState extends State<LoginScreen>
                     },
                   );
                 }),
-                SizedBox(height: 16.h),
+                SizedBox(height: context.dynamicHeight(0.02)),
                 // Password Field
                 Builder(builder: (context) {
                   final t = AppLocalizations.of(context)!;
@@ -341,7 +341,7 @@ class _LoginScreenState extends State<LoginScreen>
                     },
                   );
                 }),
-                SizedBox(height: 10.h),
+                SizedBox(height: context.dynamicHeight(0.012)),
                 // Forgot Password
                 Align(
                   alignment: AlignmentDirectional.centerEnd,
@@ -373,12 +373,12 @@ class _LoginScreenState extends State<LoginScreen>
                       style: TextStyle(
                         color: AppColors.primaryColor,
                         fontWeight: FontWeight.w600,
-                        fontSize: 12.sp,
+                        fontSize: context.dynamicWidth(0.032),
                       ),
                     ),
                   ),
                 ),
-                SizedBox(height: 20.h),
+                SizedBox(height: context.dynamicHeight(0.025)),
                 // Login Button
                 _buildLoginButton(),
               ],
@@ -405,19 +405,19 @@ class _LoginScreenState extends State<LoginScreen>
         Text(
           label,
           style: TextStyle(
-            fontSize: 13.sp,
+            fontSize: context.dynamicWidth(0.035),
             fontWeight: FontWeight.w600,
             color: AppColors.gray700,
           ),
         ),
-        SizedBox(height: 6.h),
+        SizedBox(height: context.dynamicHeight(0.007)),
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
           obscureText: obscureText,
           validator: validator,
           style: TextStyle(
-            fontSize: 15.sp,
+            fontSize: context.dynamicWidth(0.04),
             color: AppColors.gray900,
             fontWeight: FontWeight.w500,
           ),
@@ -425,7 +425,7 @@ class _LoginScreenState extends State<LoginScreen>
             hintText: hint,
             hintStyle: TextStyle(
               color: AppColors.gray400,
-              fontSize: 13.sp,
+              fontSize: context.dynamicWidth(0.035),
               fontWeight: FontWeight.w400,
             ),
             prefixIcon: Container(
@@ -453,8 +453,8 @@ class _LoginScreenState extends State<LoginScreen>
             filled: true,
             fillColor: AppColors.gray50,
             contentPadding: EdgeInsets.symmetric(
-              horizontal: 15.w,
-              vertical: 15.h,
+              horizontal: context.dynamicWidth(0.04),
+              vertical: context.dynamicHeight(0.018),
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
@@ -484,7 +484,7 @@ class _LoginScreenState extends State<LoginScreen>
             ),
             errorStyle: TextStyle(
               color: AppColors.red500,
-              fontSize: 11.sp,
+              fontSize: context.dynamicWidth(0.029),
             ),
           ),
         ),
@@ -497,7 +497,7 @@ class _LoginScreenState extends State<LoginScreen>
       builder: (context, state) {
         final isLoading = state is AuthLoading;
         return Container(
-          height: 53.h,
+          height: context.dynamicHeight(0.065),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(
@@ -538,7 +538,7 @@ class _LoginScreenState extends State<LoginScreen>
                 : Text(
                     AppLocalizations.of(context)!.translate('auth_sign_in'),
                     style: TextStyle(
-                      fontSize: 16.sp,
+                      fontSize: context.dynamicWidth(0.043),
                       fontWeight: FontWeight.w700,
                       letterSpacing: _isArabic ? 0 : 0.5,
                     ),
@@ -558,7 +558,7 @@ class _LoginScreenState extends State<LoginScreen>
           t.translate('auth_no_account'),
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.95),
-            fontSize: 14.sp,
+            fontSize: context.dynamicWidth(0.037),
           ),
         ),
         GestureDetector(
@@ -581,7 +581,7 @@ class _LoginScreenState extends State<LoginScreen>
               style: TextStyle(
                 color: AppColors.primaryColor,
                 fontWeight: FontWeight.bold,
-                fontSize: 13.sp,
+                fontSize: context.dynamicWidth(0.035),
               ),
             ),
           ),

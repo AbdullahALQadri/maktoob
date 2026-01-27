@@ -94,22 +94,22 @@ class AdaptiveBottomNavigationBar extends StatelessWidget {
       top: false,
       child: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: 15.w,
-          vertical: 12.h,
+          horizontal: context.dynamicWidth(0.04),
+          vertical: context.dynamicHeight(0.015),
         ),
         child: Row(
           children: [
             // Main navigation bar with blur effect
             Expanded(
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(30.w),
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.08)),
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                   child: Container(
-                    height: 65.h,
+                    height: context.dynamicHeight(0.08),
                     decoration: BoxDecoration(
                       color: bgColor.withValues(alpha: 0.85),
-                      borderRadius: BorderRadius.circular(30.w),
+                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.08)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -133,7 +133,7 @@ class AdaptiveBottomNavigationBar extends StatelessWidget {
               ),
             ),
             if (showAddButton && onAddTap != null) ...[
-              SizedBox(width: 11.w),
+              SizedBox(width: context.dynamicWidth(0.029)),
               _buildMaterialAddButton(context),
             ],
           ],
@@ -151,11 +151,11 @@ class AdaptiveBottomNavigationBar extends StatelessWidget {
     required Color selectedColor,
     required Color unselectedColor,
   }) {
-    final navBarHeight = 65.h;
+    final navBarHeight = context.dynamicHeight(0.08);
     final iconSize = navBarHeight * 0.35;
     final fontSize = navBarHeight * 0.18;
     final spacing = navBarHeight * 0.05;
-    final horizontalPadding = 13.w;
+    final horizontalPadding = context.dynamicWidth(0.035);
     final verticalPadding = navBarHeight * 0.1;
 
     return GestureDetector(
@@ -171,7 +171,7 @@ class AdaptiveBottomNavigationBar extends StatelessWidget {
           color: isSelected
               ? AppColors.primaryColor.withValues(alpha: 0.3)
               : Colors.transparent,
-          borderRadius: BorderRadius.circular(19.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.051)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -199,7 +199,7 @@ class AdaptiveBottomNavigationBar extends StatelessWidget {
 
   /// Builds the Material Add button with blur effect
   Widget _buildMaterialAddButton(BuildContext context) {
-    final buttonSize = 65.h;
+    final buttonSize = context.dynamicHeight(0.08);
     final iconSize = buttonSize * 0.45;
 
     return GestureDetector(
@@ -235,22 +235,22 @@ class AdaptiveBottomNavigationBar extends StatelessWidget {
       top: false,
       child: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: 15.w,
-          vertical: 12.h,
+          horizontal: context.dynamicWidth(0.04),
+          vertical: context.dynamicHeight(0.015),
         ),
         child: Row(
           children: [
             // Main navigation bar with blur effect
             Expanded(
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(30.w),
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.08)),
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                   child: Container(
-                    height: 65.h,
+                    height: context.dynamicHeight(0.08),
                     decoration: BoxDecoration(
                       color: bgColor.withValues(alpha: 0.85),
-                      borderRadius: BorderRadius.circular(30.w),
+                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.08)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -274,7 +274,7 @@ class AdaptiveBottomNavigationBar extends StatelessWidget {
               ),
             ),
             if (showAddButton && onAddTap != null) ...[
-              SizedBox(width: 11.w),
+              SizedBox(width: context.dynamicWidth(0.029)),
               _buildCupertinoAddButton(context),
             ],
           ],
@@ -292,11 +292,11 @@ class AdaptiveBottomNavigationBar extends StatelessWidget {
     required Color selectedColor,
     required Color unselectedColor,
   }) {
-    final navBarHeight = 65.h;
+    final navBarHeight = context.dynamicHeight(0.08);
     final iconSize = navBarHeight * 0.35;
     final fontSize = navBarHeight * 0.18;
     final spacing = navBarHeight * 0.05;
-    final horizontalPadding = 13.w;
+    final horizontalPadding = context.dynamicWidth(0.035);
     final verticalPadding = navBarHeight * 0.1;
 
     return GestureDetector(
@@ -312,7 +312,7 @@ class AdaptiveBottomNavigationBar extends StatelessWidget {
           color: isSelected
               ? AppColors.primaryColor.withValues(alpha: 0.3)
               : Colors.transparent,
-          borderRadius: BorderRadius.circular(19.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.051)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -340,7 +340,7 @@ class AdaptiveBottomNavigationBar extends StatelessWidget {
 
   /// Builds the Cupertino Add button with blur effect
   Widget _buildCupertinoAddButton(BuildContext context) {
-    final buttonSize = 65.h;
+    final buttonSize = context.dynamicHeight(0.08);
     final iconSize = buttonSize * 0.45;
 
     return GestureDetector(

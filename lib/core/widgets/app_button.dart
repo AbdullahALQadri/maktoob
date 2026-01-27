@@ -77,10 +77,10 @@ class AppButton extends StatelessWidget {
     final border = borderColor ?? bgColor;
 
     // Use responsive values when defaults are used
-    final effectiveHeight = height == 48 ? 49.h : height;
-    final effectiveBorderRadius = borderRadius == 12 ? 11.w : borderRadius;
-    final effectiveIconSize = iconSize == 20 ? 19.w : iconSize;
-    final effectiveFontSize = fontSize == 16 ? 15.w : fontSize;
+    final effectiveHeight = height == 48 ? context.dynamicHeight(0.06) : height;
+    final effectiveBorderRadius = borderRadius == 12 ? context.dynamicWidth(0.029) : borderRadius;
+    final effectiveIconSize = iconSize == 20 ? context.dynamicWidth(0.051) : iconSize;
+    final effectiveFontSize = fontSize == 16 ? context.dynamicWidth(0.04) : fontSize;
 
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 200),
@@ -96,8 +96,8 @@ class AppButton extends StatelessWidget {
               ? [
                   BoxShadow(
                     color: bgColor.withValues(alpha: 0.2),
-                    blurRadius: 8.w,
-                    offset: Offset(0, 2.h),
+                    blurRadius: context.dynamicWidth(0.021),
+                    offset: Offset(0, context.dynamicHeight(0.002)),
                   ),
                 ]
               : null,
@@ -113,8 +113,8 @@ class AppButton extends StatelessWidget {
             child: Center(
               child: isLoading
                   ? SizedBox(
-                      width: 21.w,
-                      height: 21.w,
+                      width: context.dynamicWidth(0.056),
+                      height: context.dynamicWidth(0.056),
                       child: CircularProgressIndicator(
                         strokeWidth: 2.5,
                         valueColor: AlwaysStoppedAnimation<Color>(txtColor),
@@ -146,7 +146,7 @@ class AppButton extends StatelessWidget {
             color: txtColor,
             size: effectiveIconSize,
           ),
-          SizedBox(width: 8.w),
+          SizedBox(width: context.dynamicWidth(0.021)),
           Text(
             text,
             style: defaultTextStyle,

@@ -27,19 +27,19 @@ class TemplateSelectionWidget extends StatelessWidget {
         Text(
           'Choose Template',
           style: TextStyle(
-            fontSize: 19.sp,
+            fontSize: context.dynamicWidth(0.051),
             fontWeight: FontWeight.bold,
             color: AppColors.gray900,
           ),
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: context.dynamicHeight(0.02)),
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            crossAxisSpacing: 11.w,
-            mainAxisSpacing: 11.w,
+            crossAxisSpacing: context.dynamicWidth(0.029),
+            mainAxisSpacing: context.dynamicWidth(0.029),
             childAspectRatio: 1.1,
           ),
           itemCount: templates.length,
@@ -53,7 +53,7 @@ class TemplateSelectionWidget extends StatelessWidget {
             );
           },
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: context.dynamicHeight(0.015)),
         _CustomTemplateButton(
           isActive: requestCustomTemplate,
           onTap: onToggleCustomTemplate,
@@ -80,7 +80,7 @@ class _TemplateCard extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.all(15.w),
+        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
         decoration: BoxDecoration(
           gradient: isSelected
               ? LinearGradient(
@@ -90,7 +90,7 @@ class _TemplateCard extends StatelessWidget {
                 )
               : null,
           color: isSelected ? null : Colors.white,
-          borderRadius: BorderRadius.circular(15.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           boxShadow: [
             BoxShadow(
               color: isSelected
@@ -108,13 +108,13 @@ class _TemplateCard extends StatelessWidget {
               children: [
                 Text(
                   template.preview,
-                  style: TextStyle(fontSize: 34.sp),
+                  style: TextStyle(fontSize: context.dynamicWidth(0.091)),
                 ),
-                SizedBox(height: 12.h),
+                SizedBox(height: context.dynamicHeight(0.015)),
                 Text(
                   template.name,
                   style: TextStyle(
-                    fontSize: 12.sp,
+                    fontSize: context.dynamicWidth(0.032),
                     fontWeight: FontWeight.bold,
                     color: isSelected ? Colors.white : AppColors.gray900,
                   ),
@@ -123,11 +123,11 @@ class _TemplateCard extends StatelessWidget {
             ),
             if (isSelected)
               Positioned(
-                top: -4.w,
-                right: -4.w,
+                top: -context.dynamicWidth(0.011),
+                right: -context.dynamicWidth(0.011),
                 child: Container(
-                  width: 23.w,
-                  height: 23.w,
+                  width: context.dynamicWidth(0.061),
+                  height: context.dynamicWidth(0.061),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
@@ -141,7 +141,7 @@ class _TemplateCard extends StatelessWidget {
                   ),
                   child: Icon(
                     Icons.check,
-                    size: 13.w,
+                    size: context.dynamicWidth(0.035),
                     color: AppColors.primaryColor,
                   ),
                 ),
@@ -169,7 +169,7 @@ class _CustomTemplateButton extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         width: double.infinity,
-        padding: EdgeInsets.all(19.w),
+        padding: EdgeInsets.all(context.dynamicWidth(0.051)),
         decoration: BoxDecoration(
           gradient: isActive
               ? LinearGradient(
@@ -179,7 +179,7 @@ class _CustomTemplateButton extends StatelessWidget {
                 )
               : null,
           color: isActive ? null : Colors.white,
-          borderRadius: BorderRadius.circular(15.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           border: isActive
               ? null
               : Border.all(color: AppColors.purple500.withValues(alpha: 0.5), width: 2),
@@ -198,22 +198,22 @@ class _CustomTemplateButton extends StatelessWidget {
             Icon(
               Icons.star,
               color: isActive ? Colors.white : AppColors.primaryColor,
-              size: 26.w,
+              size: context.dynamicWidth(0.069),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.dynamicHeight(0.01)),
             Text(
               'Request Custom Template',
               style: TextStyle(
-                fontSize: 14.sp,
+                fontSize: context.dynamicWidth(0.037),
                 fontWeight: FontWeight.bold,
                 color: isActive ? Colors.white : AppColors.gray900,
               ),
             ),
-            SizedBox(height: 4.h),
+            SizedBox(height: context.dynamicHeight(0.005)),
             Text(
               'Our team will create a unique design for you',
               style: TextStyle(
-                fontSize: 11.sp,
+                fontSize: context.dynamicWidth(0.029),
                 color: isActive
                     ? Colors.white.withValues(alpha: 0.8)
                     : AppColors.gray600,

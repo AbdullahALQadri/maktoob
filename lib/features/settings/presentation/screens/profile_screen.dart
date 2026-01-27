@@ -93,29 +93,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         // Content skeleton
         SliverPadding(
-          padding: EdgeInsets.all(19.w),
+          padding: EdgeInsets.all(context.dynamicWidth(0.051)),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               // User Type Section skeleton
               _buildSectionTitleSkeleton(context),
-              SizedBox(height: 12.h),
+              SizedBox(height: context.dynamicHeight(0.015)),
               _buildUserTypeCardSkeleton(context),
 
-              SizedBox(height: 24.h),
+              SizedBox(height: context.dynamicHeight(0.03)),
 
               // Personal Info Section skeleton
               _buildSectionTitleSkeleton(context),
-              SizedBox(height: 12.h),
+              SizedBox(height: context.dynamicHeight(0.015)),
               _buildInfoCardSkeleton(context),
 
-              SizedBox(height: 24.h),
+              SizedBox(height: context.dynamicHeight(0.03)),
 
               // Account Actions Section skeleton
               _buildSectionTitleSkeleton(context),
-              SizedBox(height: 12.h),
+              SizedBox(height: context.dynamicHeight(0.015)),
               _buildActionsCardSkeleton(context),
 
-              SizedBox(height: 97.h),
+              SizedBox(height: context.dynamicHeight(0.119)),
             ]),
           ),
         ),
@@ -142,8 +142,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // App bar skeleton
             Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: 19.w,
-                vertical: 12.h,
+                horizontal: context.dynamicWidth(0.051),
+                vertical: context.dynamicHeight(0.015),
               ),
               child: Row(
                 children: [
@@ -180,10 +180,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // Name and info skeleton
             Padding(
               padding: EdgeInsets.fromLTRB(
-                23.w,
-                16.h,
-                23.w,
-                32.h,
+                context.dynamicWidth(0.061),
+                context.dynamicHeight(0.02),
+                context.dynamicWidth(0.061),
+                context.dynamicHeight(0.039),
               ),
               child: Column(
                 children: [
@@ -192,7 +192,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     baseColor: Colors.white.withValues(alpha: 0.2),
                     highlightColor: Colors.white.withValues(alpha: 0.4),
                     child: Container(
-                      width: 150.w,
+                      width: context.dynamicWidth(0.4),
                       height: 28,
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.2),
@@ -200,13 +200,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: context.dynamicHeight(0.01)),
                   // Email skeleton
                   ShimmerLoading(
                     baseColor: Colors.white.withValues(alpha: 0.2),
                     highlightColor: Colors.white.withValues(alpha: 0.4),
                     child: Container(
-                      width: 188.w,
+                      width: context.dynamicWidth(0.501),
                       height: 16,
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.2),
@@ -214,7 +214,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 12.h),
+                  SizedBox(height: context.dynamicHeight(0.015)),
                   // User type badge skeleton
                   ShimmerLoading(
                     baseColor: Colors.white.withValues(alpha: 0.2),
@@ -240,7 +240,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildSectionTitleSkeleton(BuildContext context) {
     return ShimmerLoading(
       child: SkeletonBox(
-        width: 131.w,
+        width: context.dynamicWidth(0.349),
         height: 22,
         borderRadius: 6,
       ),
@@ -250,10 +250,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildUserTypeCardSkeleton(BuildContext context) {
     return ShimmerLoading(
       child: Container(
-        padding: EdgeInsets.all(15.w),
+        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(15.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -265,7 +265,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           children: [
             _buildUserTypeOptionSkeleton(context),
-            Divider(color: AppColors.gray100, height: 16.h),
+            Divider(color: AppColors.gray100, height: context.dynamicHeight(0.02)),
             _buildUserTypeOptionSkeleton(context),
           ],
         ),
@@ -276,29 +276,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildUserTypeOptionSkeleton(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(
-        vertical: 12.h,
-        horizontal: 8.w,
+        vertical: context.dynamicHeight(0.015),
+        horizontal: context.dynamicWidth(0.021),
       ),
       child: Row(
         children: [
           SkeletonBox(
-            width: 45.w,
-            height: 45.w,
-            borderRadius: 11.w,
+            width: context.dynamicWidth(0.12),
+            height: context.dynamicWidth(0.12),
+            borderRadius: context.dynamicWidth(0.029),
           ),
-          SizedBox(width: 15.w),
+          SizedBox(width: context.dynamicWidth(0.04)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SkeletonBox(
-                  width: 113.w,
+                  width: context.dynamicWidth(0.301),
                   height: 18,
                   borderRadius: 4,
                 ),
-                SizedBox(height: 4.h),
+                SizedBox(height: context.dynamicHeight(0.005)),
                 SkeletonBox(
-                  width: 188.w,
+                  width: context.dynamicWidth(0.501),
                   height: 14,
                   borderRadius: 4,
                 ),
@@ -313,10 +313,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildInfoCardSkeleton(BuildContext context) {
     return ShimmerLoading(
       child: Container(
-        padding: EdgeInsets.all(15.w),
+        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(15.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -328,11 +328,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           children: [
             _buildInfoRowSkeleton(context),
-            Divider(color: AppColors.gray100, height: 20.h),
+            Divider(color: AppColors.gray100, height: context.dynamicHeight(0.025)),
             _buildInfoRowSkeleton(context),
-            Divider(color: AppColors.gray100, height: 20.h),
+            Divider(color: AppColors.gray100, height: context.dynamicHeight(0.025)),
             _buildInfoRowSkeleton(context),
-            Divider(color: AppColors.gray100, height: 20.h),
+            Divider(color: AppColors.gray100, height: context.dynamicHeight(0.025)),
             _buildInfoRowSkeleton(context),
           ],
         ),
@@ -344,23 +344,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Row(
       children: [
         SkeletonBox(
-          width: 38.w,
-          height: 38.w,
-          borderRadius: 9.w,
+          width: context.dynamicWidth(0.101),
+          height: context.dynamicWidth(0.101),
+          borderRadius: context.dynamicWidth(0.024),
         ),
-        SizedBox(width: 15.w),
+        SizedBox(width: context.dynamicWidth(0.04)),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SkeletonBox(
-                width: 75.w,
+                width: context.dynamicWidth(0.2),
                 height: 14,
                 borderRadius: 4,
               ),
-              SizedBox(height: 4.h),
+              SizedBox(height: context.dynamicHeight(0.005)),
               SkeletonBox(
-                width: 169.w,
+                width: context.dynamicWidth(0.451),
                 height: 18,
                 borderRadius: 4,
               ),
@@ -376,7 +376,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(15.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -402,25 +402,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildActionItemSkeleton(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       child: Row(
         children: [
           SkeletonBox(
-            width: 21.w,
-            height: 21.w,
+            width: context.dynamicWidth(0.056),
+            height: context.dynamicWidth(0.056),
             borderRadius: 6,
           ),
-          SizedBox(width: 15.w),
+          SizedBox(width: context.dynamicWidth(0.04)),
           Expanded(
             child: SkeletonBox(
-              width: 131.w,
+              width: context.dynamicWidth(0.349),
               height: 18,
               borderRadius: 4,
             ),
           ),
           SkeletonBox(
-            width: 15.w,
-            height: 15.w,
+            width: context.dynamicWidth(0.04),
+            height: context.dynamicWidth(0.04),
             borderRadius: 4,
           ),
         ],
@@ -432,33 +432,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final t = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(30.w),
+        padding: EdgeInsets.all(context.dynamicWidth(0.08)),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.error_outline,
-              size: 75.w,
+              size: context.dynamicWidth(0.2),
               color: AppColors.red500,
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: context.dynamicHeight(0.02)),
             Text(
               message,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 15.sp,
+                fontSize: context.dynamicWidth(0.04),
                 color: AppColors.gray600,
               ),
             ),
-            SizedBox(height: 24.h),
+            SizedBox(height: context.dynamicHeight(0.03)),
             ElevatedButton(
               onPressed: () => context.read<ProfileCubit>().loadProfile(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryColor,
                 foregroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(
-                  horizontal: 30.w,
-                  vertical: 12.h,
+                  horizontal: context.dynamicWidth(0.08),
+                  vertical: context.dynamicHeight(0.015),
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -488,7 +488,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             // Profile Content
             SliverPadding(
-              padding: EdgeInsets.all(19.w),
+              padding: EdgeInsets.all(context.dynamicWidth(0.051)),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
                   // User Type Section
@@ -496,30 +496,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     context,
                     AppLocalizations.of(context)!.translate('profile_account_type'),
                   ),
-                  SizedBox(height: 12.h),
+                  SizedBox(height: context.dynamicHeight(0.015)),
                   _buildUserTypeCard(context, user, isArabic),
 
-                  SizedBox(height: 24.h),
+                  SizedBox(height: context.dynamicHeight(0.03)),
 
                   // Personal Info Section
                   _buildSectionTitle(
                     context,
                     AppLocalizations.of(context)!.translate('profile_personal_info'),
                   ),
-                  SizedBox(height: 12.h),
+                  SizedBox(height: context.dynamicHeight(0.015)),
                   _buildInfoCard(context, user),
 
-                  SizedBox(height: 24.h),
+                  SizedBox(height: context.dynamicHeight(0.03)),
 
                   // Account Actions Section
                   _buildSectionTitle(
                     context,
                     AppLocalizations.of(context)!.translate('profile_account_actions'),
                   ),
-                  SizedBox(height: 12.h),
+                  SizedBox(height: context.dynamicHeight(0.015)),
                   _buildActionsCard(context),
 
-                  SizedBox(height: 97.h),
+                  SizedBox(height: context.dynamicHeight(0.119)),
                 ]),
               ),
             ),
@@ -530,7 +530,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             color: Colors.black.withValues(alpha: 0.3),
             child: Center(
               child: Container(
-                padding: EdgeInsets.all(23.w),
+                padding: EdgeInsets.all(context.dynamicWidth(0.061)),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
@@ -565,8 +565,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // App bar
             Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: 19.w,
-                vertical: 12.h,
+                horizontal: context.dynamicWidth(0.051),
+                vertical: context.dynamicHeight(0.015),
               ),
               child: Row(
                 children: [
@@ -594,7 +594,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Text(
                     t.translate('profile_title'),
                     style: TextStyle(
-                      fontSize: 19.sp,
+                      fontSize: context.dynamicWidth(0.051),
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
@@ -608,10 +608,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // Name and info
             Padding(
               padding: EdgeInsets.fromLTRB(
-                23.w,
-                16.h,
-                23.w,
-                32.h,
+                context.dynamicWidth(0.061),
+                context.dynamicHeight(0.02),
+                context.dynamicWidth(0.061),
+                context.dynamicHeight(0.039),
               ),
               child: Column(
                 children: [
@@ -619,27 +619,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Text(
                     user.name,
                     style: TextStyle(
-                      fontSize: 23.sp,
+                      fontSize: context.dynamicWidth(0.061),
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 4.h),
+                  SizedBox(height: context.dynamicHeight(0.005)),
                   // Email
                   Text(
                     user.email,
                     style: TextStyle(
-                      fontSize: 13.sp,
+                      fontSize: context.dynamicWidth(0.035),
                       color: Colors.white.withValues(alpha: 0.8),
                     ),
                   ),
-                  SizedBox(height: 12.h),
+                  SizedBox(height: context.dynamicHeight(0.015)),
                   // User type badge
                   Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 15.w,
-                      vertical: 6.h,
+                      horizontal: context.dynamicWidth(0.04),
+                      vertical: context.dynamicHeight(0.007),
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.2),
@@ -656,15 +656,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ? Icons.business
                               : Icons.person,
                           color: Colors.white,
-                          size: 15.w,
+                          size: context.dynamicWidth(0.04),
                         ),
-                        SizedBox(width: 8.w),
+                        SizedBox(width: context.dynamicWidth(0.021)),
                         Text(
                           isArabic
                               ? user.userType.displayNameAr
                               : user.userType.displayName,
                           style: TextStyle(
-                            fontSize: 12.sp,
+                            fontSize: context.dynamicWidth(0.032),
                             color: Colors.white,
                             fontWeight: FontWeight.w500,
                           ),
@@ -673,20 +673,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   if (user.isVerified) ...[
-                    SizedBox(height: 8.h),
+                    SizedBox(height: context.dynamicHeight(0.01)),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
                           Icons.verified,
                           color: Colors.white,
-                          size: 15.w,
+                          size: context.dynamicWidth(0.04),
                         ),
-                        SizedBox(width: 4.w),
+                        SizedBox(width: context.dynamicWidth(0.011)),
                         Text(
                           t.translate('profile_verified'),
                           style: TextStyle(
-                            fontSize: 11.sp,
+                            fontSize: context.dynamicWidth(0.029),
                             color: Colors.white,
                           ),
                         ),
@@ -706,7 +706,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Text(
       title,
       style: TextStyle(
-        fontSize: 17.sp,
+        fontSize: context.dynamicWidth(0.045),
         fontWeight: FontWeight.bold,
         color: AppColors.gray900,
       ),
@@ -720,10 +720,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   ) {
     final t = AppLocalizations.of(context)!;
     return Container(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15.w),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -742,7 +742,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             isSelected: user.userType == UserType.user,
             onTap: () => _showChangeUserTypeDialog(context, UserType.user, isArabic),
           ),
-          Divider(color: AppColors.gray100, height: 16.h),
+          Divider(color: AppColors.gray100, height: context.dynamicHeight(0.02)),
           _buildUserTypeOption(
             context: context,
             title: t.translate('auth_institution'),
@@ -768,18 +768,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(
-          vertical: 12.h,
-          horizontal: 8.w,
+          vertical: context.dynamicHeight(0.015),
+          horizontal: context.dynamicWidth(0.021),
         ),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.purple50 : Colors.transparent,
-          borderRadius: BorderRadius.circular(11.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
         ),
         child: Row(
           children: [
             Container(
-              width: 45.w,
-              height: 45.w,
+              width: context.dynamicWidth(0.12),
+              height: context.dynamicWidth(0.12),
               decoration: BoxDecoration(
                 gradient: isSelected
                     ? LinearGradient(
@@ -787,15 +787,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       )
                     : null,
                 color: isSelected ? null : AppColors.gray100,
-                borderRadius: BorderRadius.circular(11.w),
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
               ),
               child: Icon(
                 icon,
                 color: isSelected ? Colors.white : AppColors.gray400,
-                size: 23.w,
+                size: context.dynamicWidth(0.061),
               ),
             ),
-            SizedBox(width: 15.w),
+            SizedBox(width: context.dynamicWidth(0.04)),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -803,7 +803,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: 15.sp,
+                      fontSize: context.dynamicWidth(0.04),
                       fontWeight: FontWeight.bold,
                       color: isSelected ? AppColors.primaryColor : AppColors.gray900,
                     ),
@@ -811,7 +811,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Text(
                     subtitle,
                     style: TextStyle(
-                      fontSize: 11.sp,
+                      fontSize: context.dynamicWidth(0.029),
                       color: AppColors.gray500,
                     ),
                   ),
@@ -820,8 +820,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             if (isSelected)
               Container(
-                width: 23.w,
-                height: 23.w,
+                width: context.dynamicWidth(0.061),
+                height: context.dynamicWidth(0.061),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [AppColors.primaryColor, AppColors.tertiaryColor],
@@ -831,7 +831,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Icon(
                   Icons.check,
                   color: Colors.white,
-                  size: 13.w,
+                  size: context.dynamicWidth(0.035),
                 ),
               ),
           ],
@@ -843,10 +843,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildInfoCard(BuildContext context, UserEntity user) {
     final t = AppLocalizations.of(context)!;
     return Container(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15.w),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -863,7 +863,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             label: t.translate('profile_name'),
             value: user.name,
           ),
-          Divider(color: AppColors.gray100, height: 20.h),
+          Divider(color: AppColors.gray100, height: context.dynamicHeight(0.025)),
           _buildInfoRow(
             context: context,
             icon: Icons.email_outlined,
@@ -871,7 +871,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             value: user.email,
           ),
           if (user.phone != null) ...[
-            Divider(color: AppColors.gray100, height: 20.h),
+            Divider(color: AppColors.gray100, height: context.dynamicHeight(0.025)),
             _buildInfoRow(
               context: context,
               icon: Icons.phone_outlined,
@@ -880,7 +880,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ],
           if (user.companyName != null) ...[
-            Divider(color: AppColors.gray100, height: 20.h),
+            Divider(color: AppColors.gray100, height: context.dynamicHeight(0.025)),
             _buildInfoRow(
               context: context,
               icon: Icons.business_outlined,
@@ -902,19 +902,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Row(
       children: [
         Container(
-          width: 38.w,
-          height: 38.w,
+          width: context.dynamicWidth(0.101),
+          height: context.dynamicWidth(0.101),
           decoration: BoxDecoration(
             color: AppColors.purple50,
-            borderRadius: BorderRadius.circular(9.w),
+            borderRadius: BorderRadius.circular(context.dynamicWidth(0.024)),
           ),
           child: Icon(
             icon,
             color: AppColors.primaryColor,
-            size: 19.w,
+            size: context.dynamicWidth(0.051),
           ),
         ),
-        SizedBox(width: 15.w),
+        SizedBox(width: context.dynamicWidth(0.04)),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -922,15 +922,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 11.sp,
+                  fontSize: context.dynamicWidth(0.029),
                   color: AppColors.gray500,
                 ),
               ),
-              SizedBox(height: 2.h),
+              SizedBox(height: context.dynamicHeight(0.002)),
               Text(
                 value,
                 style: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: context.dynamicWidth(0.037),
                   fontWeight: FontWeight.w500,
                   color: AppColors.gray900,
                 ),
@@ -947,7 +947,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15.w),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -1002,20 +1002,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: EdgeInsets.all(15.w),
+        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
         child: Row(
           children: [
             Icon(
               icon,
               color: isDestructive ? AppColors.red500 : AppColors.gray600,
-              size: 21.w,
+              size: context.dynamicWidth(0.056),
             ),
-            SizedBox(width: 15.w),
+            SizedBox(width: context.dynamicWidth(0.04)),
             Expanded(
               child: Text(
                 title,
                 style: TextStyle(
-                  fontSize: 15.sp,
+                  fontSize: context.dynamicWidth(0.04),
                   fontWeight: FontWeight.w500,
                   color: isDestructive ? AppColors.red500 : AppColors.gray900,
                 ),
@@ -1024,7 +1024,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Icon(
               Icons.arrow_forward_ios,
               color: AppColors.gray400,
-              size: 15.w,
+              size: context.dynamicWidth(0.04),
             ),
           ],
         ),
@@ -1064,22 +1064,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
             return Dialog(
               backgroundColor: Colors.transparent,
               insetPadding: EdgeInsets.symmetric(
-                horizontal: 23.w,
-                vertical: 24.h,
+                horizontal: context.dynamicWidth(0.061),
+                vertical: context.dynamicHeight(0.03),
               ),
               child: Container(
                 constraints: BoxConstraints(
-                  maxWidth: 338.w,
+                  maxWidth: context.dynamicWidth(0.901),
                 ),
-                padding: EdgeInsets.all(23.w),
+                padding: EdgeInsets.all(context.dynamicWidth(0.061)),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(23.w),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.061)),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.15),
-                      blurRadius: 30.w,
-                      offset: Offset(0, 16.h),
+                      blurRadius: context.dynamicWidth(0.08),
+                      offset: Offset(0, context.dynamicHeight(0.02)),
                     ),
                   ],
                 ),
@@ -1089,41 +1089,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       // Icon
                       Container(
-                        width: 75.w,
-                        height: 75.w,
+                        width: context.dynamicWidth(0.2),
+                        height: context.dynamicWidth(0.2),
                         decoration: BoxDecoration(
                           color: AppColors.purple50,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
                               color: AppColors.primaryColor.withValues(alpha: 0.2),
-                              blurRadius: 19.w,
-                              offset: Offset(0, 8.h),
+                              blurRadius: context.dynamicWidth(0.051),
+                              offset: Offset(0, context.dynamicHeight(0.01)),
                             ),
                           ],
                         ),
                         child: Icon(
                           isConvertingToOrg ? Icons.business_rounded : Icons.person_rounded,
-                          size: 38.w,
+                          size: context.dynamicWidth(0.101),
                           color: AppColors.primaryColor,
                         ),
                       ),
-                      SizedBox(height: 16.h),
+                      SizedBox(height: context.dynamicHeight(0.02)),
                       // Title
                       Text(
                         t.translate('profile_change_type'),
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 21.sp,
+                          fontSize: context.dynamicWidth(0.056),
                           fontWeight: FontWeight.bold,
                           color: AppColors.gray900,
                         ),
                       ),
-                      SizedBox(height: 10.h),
+                      SizedBox(height: context.dynamicHeight(0.012)),
                       // Message
                       Padding(
                         padding: EdgeInsets.symmetric(
-                          horizontal: 8.w,
+                          horizontal: context.dynamicWidth(0.021),
                         ),
                         child: Text(
                           isArabic
@@ -1131,13 +1131,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               : '${t.translate('profile_change_type_confirm')} "${newType.displayName}"?',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 14.sp,
+                            fontSize: context.dynamicWidth(0.037),
                             color: AppColors.gray600,
                             height: 1.5,
                           ),
                         ),
                       ),
-                      SizedBox(height: 20.h),
+                      SizedBox(height: context.dynamicHeight(0.025)),
                       // Reason TextField
                       AppTextField(
                         controller: reasonController,
@@ -1147,7 +1147,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         maxLines: 3,
                         onChanged: (_) => setState(() {}),
                       ),
-                      SizedBox(height: 24.h),
+                      SizedBox(height: context.dynamicHeight(0.03)),
                       // Buttons
                       Row(
                         children: [
@@ -1155,16 +1155,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: GestureDetector(
                               onTap: () => Navigator.pop(dialogContext),
                               child: Container(
-                                height: 49.h,
+                                height: context.dynamicHeight(0.06),
                                 decoration: BoxDecoration(
                                   color: AppColors.gray100,
-                                  borderRadius: BorderRadius.circular(13.w),
+                                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
                                 ),
                                 child: Center(
                                   child: Text(
                                     t.translate('common_cancel'),
                                     style: TextStyle(
-                                      fontSize: 15.sp,
+                                      fontSize: context.dynamicWidth(0.04),
                                       fontWeight: FontWeight.w600,
                                       color: AppColors.gray700,
                                     ),
@@ -1173,7 +1173,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
                           ),
-                          SizedBox(width: 11.w),
+                          SizedBox(width: context.dynamicWidth(0.029)),
                           Expanded(
                             child: GestureDetector(
                               onTap: canConfirm
@@ -1187,7 +1187,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   : null,
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 200),
-                                height: 49.h,
+                                height: context.dynamicHeight(0.06),
                                 decoration: BoxDecoration(
                                   gradient: canConfirm
                                       ? LinearGradient(
@@ -1198,13 +1198,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         )
                                       : null,
                                   color: canConfirm ? null : AppColors.gray300,
-                                  borderRadius: BorderRadius.circular(13.w),
+                                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
                                   boxShadow: canConfirm
                                       ? [
                                           BoxShadow(
                                             color: AppColors.primaryColor.withValues(alpha: 0.3),
-                                            blurRadius: 11.w,
-                                            offset: Offset(0, 4.h),
+                                            blurRadius: context.dynamicWidth(0.029),
+                                            offset: Offset(0, context.dynamicHeight(0.005)),
                                           ),
                                         ]
                                       : null,
@@ -1213,7 +1213,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   child: Text(
                                     t.translate('common_confirm'),
                                     style: TextStyle(
-                                      fontSize: 15.sp,
+                                      fontSize: context.dynamicWidth(0.04),
                                       fontWeight: FontWeight.w600,
                                       color: canConfirm ? Colors.white : AppColors.gray500,
                                     ),

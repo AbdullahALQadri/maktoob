@@ -12,6 +12,7 @@ import 'core/utils/storage/shared_preferences.dart';
 
 // Authentication Feature
 import 'features/authentication/data/datasources/auth_remote_data_source.dart';
+import 'features/authentication/data/datasources/mock_auth_remote_data_source.dart';
 import 'features/authentication/data/repositories/auth_repository_impl.dart';
 import 'features/authentication/domain/repositories/auth_repository.dart';
 import 'features/authentication/presentation/cubit/auth_cubit.dart';
@@ -111,8 +112,9 @@ Future<void> init() async {
 
   //! ========== AUTHENTICATION FEATURE ==========
   // Data Sources
+  // TODO: Swap back to AuthRemoteDataSourceImpl(apiConsumer: sl()) for real API
   sl.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(apiConsumer: sl()),
+    () => MockAuthRemoteDataSource(),
   );
 
   // Repository

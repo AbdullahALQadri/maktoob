@@ -32,7 +32,7 @@ class RecentEventCardWidget extends StatelessWidget {
         );
       },
       child: Padding(
-        padding: EdgeInsets.only(bottom: 12.h),
+        padding: EdgeInsets.only(bottom: context.dynamicHeight(0.015)),
         child: GestureDetector(
           onTap: onTap,
           child: _buildEventCard(context),
@@ -43,10 +43,10 @@ class RecentEventCardWidget extends StatelessWidget {
 
   Widget _buildEventCard(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(19.w),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.051)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
@@ -64,21 +64,21 @@ class RecentEventCardWidget extends StatelessWidget {
             children: [
               // Gradient icon container
               Container(
-                width: 45.w,
-                height: 45.w,
+                width: context.dynamicWidth(0.12),
+                height: context.dynamicWidth(0.12),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: event.gradientColors,
                   ),
-                  borderRadius: BorderRadius.circular(13.w),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
                 ),
                 child: Icon(
                   Icons.celebration,
                   color: Colors.white,
-                  size: 23.w,
+                  size: context.dynamicWidth(0.061),
                 ),
               ),
-              SizedBox(width: 11.w),
+              SizedBox(width: context.dynamicWidth(0.029)),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,27 +86,27 @@ class RecentEventCardWidget extends StatelessWidget {
                     Text(
                       event.name,
                       style: TextStyle(
-                        fontSize: 15.sp,
+                        fontSize: context.dynamicWidth(0.04),
                         fontWeight: FontWeight.bold,
                         color: AppColors.gray900,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: 2.h),
+                    SizedBox(height: context.dynamicHeight(0.002)),
                     Row(
                       children: [
                         Icon(
                           Icons.location_on_outlined,
-                          size: 13.w,
+                          size: context.dynamicWidth(0.035),
                           color: AppColors.gray400,
                         ),
-                        SizedBox(width: 4.w),
+                        SizedBox(width: context.dynamicWidth(0.011)),
                         Expanded(
                           child: Text(
                             event.venue,
                             style: TextStyle(
-                              fontSize: 12.sp,
+                              fontSize: context.dynamicWidth(0.032),
                               color: AppColors.gray500,
                             ),
                             maxLines: 1,
@@ -121,26 +121,26 @@ class RecentEventCardWidget extends StatelessWidget {
               // Date badge
               Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: 9.w,
-                  vertical: 6.h,
+                  horizontal: context.dynamicWidth(0.024),
+                  vertical: context.dynamicHeight(0.007),
                 ),
                 decoration: BoxDecoration(
                   color: AppColors.gray100,
-                  borderRadius: BorderRadius.circular(9.w),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.024)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
                       Icons.calendar_today,
-                      size: 11.w,
+                      size: context.dynamicWidth(0.029),
                       color: AppColors.gray600,
                     ),
-                    SizedBox(width: 4.w),
+                    SizedBox(width: context.dynamicWidth(0.011)),
                     Text(
                       _formatDate(event.date),
                       style: TextStyle(
-                        fontSize: 11.sp,
+                        fontSize: context.dynamicWidth(0.029),
                         fontWeight: FontWeight.w600,
                         color: AppColors.gray600,
                       ),
@@ -150,18 +150,18 @@ class RecentEventCardWidget extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: context.dynamicHeight(0.02)),
           // Stats row
           Row(
             children: [
               _buildEventStat(context, 'Invitations', event.invitations.toString(), AppColors.blue500),
-              SizedBox(width: 15.w),
+              SizedBox(width: context.dynamicWidth(0.04)),
               _buildEventStat(context, 'Responses', event.responses.toString(), AppColors.purple500),
-              SizedBox(width: 15.w),
+              SizedBox(width: context.dynamicWidth(0.04)),
               _buildEventStat(context, 'Attending', event.attending.toString(), AppColors.green600),
             ],
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: context.dynamicHeight(0.02)),
           // Progress bars
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,7 +172,7 @@ class RecentEventCardWidget extends StatelessWidget {
                 value: event.responseRate,
                 color: AppColors.purple500,
               ),
-              SizedBox(height: 8.h),
+              SizedBox(height: context.dynamicHeight(0.01)),
               _buildProgressBar(
                 context: context,
                 label: 'Attending Rate',
@@ -194,7 +194,7 @@ class RecentEventCardWidget extends StatelessWidget {
           Text(
             value,
             style: TextStyle(
-              fontSize: 17.sp,
+              fontSize: context.dynamicWidth(0.045),
               fontWeight: FontWeight.bold,
               color: color,
             ),
@@ -202,7 +202,7 @@ class RecentEventCardWidget extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontSize: 11.sp,
+              fontSize: context.dynamicWidth(0.029),
               color: AppColors.gray500,
             ),
             maxLines: 1,
@@ -228,36 +228,36 @@ class RecentEventCardWidget extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                fontSize: 11.sp,
+                fontSize: context.dynamicWidth(0.029),
                 color: AppColors.gray500,
               ),
             ),
             Text(
               '${(value * 100).toInt()}%',
               style: TextStyle(
-                fontSize: 11.sp,
+                fontSize: context.dynamicWidth(0.029),
                 fontWeight: FontWeight.w600,
                 color: color,
               ),
             ),
           ],
         ),
-        SizedBox(height: 4.h),
+        SizedBox(height: context.dynamicHeight(0.005)),
         TweenAnimationBuilder<double>(
           tween: Tween(begin: 0.0, end: value),
           duration: const Duration(milliseconds: 1000),
           curve: Curves.easeOut,
           builder: (context, animatedValue, child) {
             return ClipRRect(
-              borderRadius: BorderRadius.circular(4.w),
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.011)),
               child: SizedBox(
-                height: 6.h,
+                height: context.dynamicHeight(0.007),
                 child: Stack(
                   children: [
                     Container(
                       decoration: BoxDecoration(
                         color: AppColors.gray200,
-                        borderRadius: BorderRadius.circular(4.w),
+                        borderRadius: BorderRadius.circular(context.dynamicWidth(0.011)),
                       ),
                     ),
                     FractionallySizedBox(
@@ -265,7 +265,7 @@ class RecentEventCardWidget extends StatelessWidget {
                       child: Container(
                         decoration: BoxDecoration(
                           color: color,
-                          borderRadius: BorderRadius.circular(4.w),
+                          borderRadius: BorderRadius.circular(context.dynamicWidth(0.011)),
                         ),
                       ),
                     ),

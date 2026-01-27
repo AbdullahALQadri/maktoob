@@ -32,19 +32,19 @@ class VenueSelectionWidget extends StatelessWidget {
         Text(
           'Select Venue',
           style: TextStyle(
-            fontSize: 19.sp,
+            fontSize: context.dynamicWidth(0.051),
             fontWeight: FontWeight.bold,
             color: AppColors.gray900,
           ),
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: context.dynamicHeight(0.02)),
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            crossAxisSpacing: 11.w,
-            mainAxisSpacing: 11.w,
+            crossAxisSpacing: context.dynamicWidth(0.029),
+            mainAxisSpacing: context.dynamicWidth(0.029),
             childAspectRatio: 1.1,
           ),
           itemCount: venues.length,
@@ -58,13 +58,13 @@ class VenueSelectionWidget extends StatelessWidget {
             );
           },
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: context.dynamicHeight(0.015)),
         _CustomVenueButton(
           isActive: showCustomVenue,
           onTap: onToggleCustomVenue,
         ),
         if (showCustomVenue) ...[
-          SizedBox(height: 12.h),
+          SizedBox(height: context.dynamicHeight(0.015)),
           _CustomVenueForm(
             customVenue: customVenue,
             onChanged: onCustomVenueChanged,
@@ -92,7 +92,7 @@ class _VenueCard extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.all(15.w),
+        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
         decoration: BoxDecoration(
           gradient: isSelected
               ? LinearGradient(
@@ -102,7 +102,7 @@ class _VenueCard extends StatelessWidget {
                 )
               : null,
           color: isSelected ? null : Colors.white,
-          borderRadius: BorderRadius.circular(15.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           boxShadow: [
             BoxShadow(
               color: isSelected
@@ -118,24 +118,24 @@ class _VenueCard extends StatelessWidget {
           children: [
             Text(
               venue.icon,
-              style: TextStyle(fontSize: 26.sp),
+              style: TextStyle(fontSize: context.dynamicWidth(0.069)),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.dynamicHeight(0.01)),
             Text(
               venue.name,
               style: TextStyle(
-                fontSize: 12.sp,
+                fontSize: context.dynamicWidth(0.032),
                 fontWeight: FontWeight.bold,
                 color: isSelected ? Colors.white : AppColors.gray900,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-            SizedBox(height: 4.h),
+            SizedBox(height: context.dynamicHeight(0.005)),
             Text(
               'Capacity: ${venue.capacity}',
               style: TextStyle(
-                fontSize: 11.sp,
+                fontSize: context.dynamicWidth(0.029),
                 color: isSelected
                     ? Colors.white.withValues(alpha: 0.8)
                     : AppColors.gray600,
@@ -163,10 +163,10 @@ class _CustomVenueButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.all(15.w),
+        padding: EdgeInsets.all(context.dynamicWidth(0.04)),
         decoration: BoxDecoration(
           color: isActive ? AppColors.purple50 : Colors.white,
-          borderRadius: BorderRadius.circular(15.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           border: Border.all(
             color: isActive ? AppColors.primaryColor : AppColors.gray300,
             width: 2,
@@ -178,13 +178,13 @@ class _CustomVenueButton extends StatelessWidget {
             Icon(
               Icons.add,
               color: AppColors.primaryColor,
-              size: 23.w,
+              size: context.dynamicWidth(0.061),
             ),
-            SizedBox(height: 4.h),
+            SizedBox(height: context.dynamicHeight(0.005)),
             Text(
               'Add Custom Venue',
               style: TextStyle(
-                fontSize: 13.sp,
+                fontSize: context.dynamicWidth(0.035),
                 fontWeight: FontWeight.bold,
                 color: AppColors.gray900,
               ),
@@ -208,10 +208,10 @@ class _CustomVenueForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15.w),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -232,7 +232,7 @@ class _CustomVenueForm extends StatelessWidget {
               capacity: customVenue.capacity,
             )),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: context.dynamicHeight(0.015)),
           _buildTextField(
             context: context,
             hint: 'Address',
@@ -243,7 +243,7 @@ class _CustomVenueForm extends StatelessWidget {
               capacity: customVenue.capacity,
             )),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: context.dynamicHeight(0.015)),
           _buildTextField(
             context: context,
             hint: 'Capacity',
@@ -271,27 +271,27 @@ class _CustomVenueForm extends StatelessWidget {
       initialValue: value,
       keyboardType: keyboardType,
       onChanged: onChanged,
-      style: TextStyle(fontSize: 13.sp),
+      style: TextStyle(fontSize: context.dynamicWidth(0.035)),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyle(fontSize: 13.sp),
+        hintStyle: TextStyle(fontSize: context.dynamicWidth(0.035)),
         filled: true,
         fillColor: AppColors.gray100,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(11.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
           borderSide: BorderSide(color: AppColors.gray100, width: 2),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(11.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
           borderSide: BorderSide(color: AppColors.gray100, width: 2),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(11.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
           borderSide: BorderSide(color: AppColors.primaryColor, width: 2),
         ),
         contentPadding: EdgeInsets.symmetric(
-          horizontal: 15.w,
-          vertical: 15.h,
+          horizontal: context.dynamicWidth(0.04),
+          vertical: context.dynamicHeight(0.018),
         ),
       ),
     );

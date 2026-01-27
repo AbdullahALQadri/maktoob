@@ -6,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'config/locale/app_localizations_setup.dart';
 import 'config/themes/app_theme.dart';
 import 'core/utils/app_strings.dart';
-import 'core/utils/responsive.dart';
 import 'core/widgets/network/offline_wrapper.dart';
 import 'features/authentication/presentation/cubit/auth_cubit.dart';
 import 'features/authentication/presentation/widgets/auth_wrapper.dart';
@@ -88,8 +87,6 @@ class Maktoob extends StatelessWidget {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             builder: (context, child) {
-              Responsive.init(context);
-
               Widget result = child ?? const SizedBox.shrink();
 
               if (kDebugMode) {

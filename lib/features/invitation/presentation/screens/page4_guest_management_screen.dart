@@ -63,14 +63,14 @@ class _Page4GuestManagementScreenState
                 // Content
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: EdgeInsets.all(15.w),
+                    padding: EdgeInsets.all(context.dynamicWidth(0.04)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         // Import Options
                         _buildImportOptions(context, state, l),
 
-                        SizedBox(height: 20.h),
+                        SizedBox(height: context.dynamicHeight(0.025)),
 
                         // Manual Form (Expandable)
                         if (_showManualForm) ...[
@@ -81,7 +81,7 @@ class _Page4GuestManagementScreenState
                                   .addManualGuest(guest);
                             },
                           ),
-                          SizedBox(height: 20.h),
+                          SizedBox(height: context.dynamicHeight(0.025)),
                         ],
 
                         // Guest List
@@ -117,8 +117,8 @@ class _Page4GuestManagementScreenState
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: 15.w,
-        vertical: 12.h,
+        horizontal: context.dynamicWidth(0.04),
+        vertical: context.dynamicHeight(0.015),
       ),
       color: AppColors.primary,
       child: Row(
@@ -126,9 +126,9 @@ class _Page4GuestManagementScreenState
           Icon(
             Icons.people,
             color: Colors.white,
-            size: 26.w,
+            size: context.dynamicWidth(0.069),
           ),
-          SizedBox(width: 11.w),
+          SizedBox(width: context.dynamicWidth(0.029)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,7 +137,7 @@ class _Page4GuestManagementScreenState
                   '${l?.translate('invitation_total_guests') ?? 'Total Guests'}: $totalGuests',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 17.sp,
+                    fontSize: context.dynamicWidth(0.045),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -146,7 +146,7 @@ class _Page4GuestManagementScreenState
                     '$contactsLabel: $contactsCount | $excelLabel: $excelCount | $manualLabel: $manualCount',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.8),
-                      fontSize: 11.sp,
+                      fontSize: context.dynamicWidth(0.029),
                     ),
                   ),
               ],
@@ -159,15 +159,15 @@ class _Page4GuestManagementScreenState
 
   Widget _buildImportOptions(BuildContext context, InvitationState state, AppLocalizations? l) {
     return Container(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(11.w),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 9.w,
-            offset: Offset(0, 4.h),
+            blurRadius: context.dynamicWidth(0.024),
+            offset: Offset(0, context.dynamicHeight(0.005)),
           ),
         ],
       ),
@@ -177,11 +177,11 @@ class _Page4GuestManagementScreenState
           Text(
             l?.translate('invitation_add_guests_methods') ?? 'Guest Import Methods',
             style: TextStyle(
-              fontSize: 15.sp,
+              fontSize: context.dynamicWidth(0.04),
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: context.dynamicHeight(0.02)),
 
           // Import option buttons
           Row(
@@ -198,7 +198,7 @@ class _Page4GuestManagementScreenState
                   onPressed: () => _openContactPicker(context, state),
                 ),
               ),
-              SizedBox(width: 11.w),
+              SizedBox(width: context.dynamicWidth(0.029)),
 
               // Excel Button - count from deduplicated list
               Expanded(
@@ -215,7 +215,7 @@ class _Page4GuestManagementScreenState
                   isLoading: state.isLoadingExcel,
                 ),
               ),
-              SizedBox(width: 11.w),
+              SizedBox(width: context.dynamicWidth(0.029)),
 
               // Manual Button - count from deduplicated list
               Expanded(
@@ -238,27 +238,27 @@ class _Page4GuestManagementScreenState
           ),
 
           // Excel format notice
-          SizedBox(height: 12.h),
+          SizedBox(height: context.dynamicHeight(0.015)),
           Container(
-            padding: EdgeInsets.all(11.w),
+            padding: EdgeInsets.all(context.dynamicWidth(0.029)),
             decoration: BoxDecoration(
               color: Colors.amber.shade50,
-              borderRadius: BorderRadius.circular(8.w),
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.021)),
               border: Border.all(color: Colors.amber.shade200),
             ),
             child: Row(
               children: [
                 Icon(
                   Icons.info_outline,
-                  size: 17.w,
+                  size: context.dynamicWidth(0.045),
                   color: Colors.amber.shade800,
                 ),
-                SizedBox(width: 8.w),
+                SizedBox(width: context.dynamicWidth(0.021)),
                 Expanded(
                   child: Text(
                     l?.translate('invitation_excel_format_notice') ?? 'Excel format: Guest name, Phone number (+972 or +970)',
                     style: TextStyle(
-                      fontSize: 11.sp,
+                      fontSize: context.dynamicWidth(0.029),
                       color: Colors.amber.shade900,
                     ),
                   ),
@@ -282,17 +282,17 @@ class _Page4GuestManagementScreenState
   }) {
     return InkWell(
       onTap: onPressed,
-      borderRadius: BorderRadius.circular(11.w),
+      borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
       child: Container(
         padding: EdgeInsets.symmetric(
-          vertical: 16.h,
-          horizontal: 8.w,
+          vertical: context.dynamicHeight(0.02),
+          horizontal: context.dynamicWidth(0.021),
         ),
         decoration: BoxDecoration(
           color: isActive
               ? AppColors.primary.withValues(alpha: 0.1)
               : Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(11.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
           border: Border.all(
             color: isActive ? AppColors.primary : Colors.grey.shade300,
           ),
@@ -301,8 +301,8 @@ class _Page4GuestManagementScreenState
           children: [
             if (isLoading)
               SizedBox(
-                width: 26.w,
-                height: 26.w,
+                width: context.dynamicWidth(0.069),
+                height: context.dynamicWidth(0.069),
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
                   color: AppColors.primary,
@@ -311,34 +311,34 @@ class _Page4GuestManagementScreenState
             else
               Icon(
                 icon,
-                size: 26.w,
+                size: context.dynamicWidth(0.069),
                 color: isActive ? AppColors.primary : Colors.grey.shade600,
               ),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.dynamicHeight(0.01)),
             Text(
               label,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 11.sp,
+                fontSize: context.dynamicWidth(0.029),
                 fontWeight: FontWeight.w500,
                 color: isActive ? AppColors.primary : Colors.grey.shade700,
               ),
             ),
             if (count > 0) ...[
-              SizedBox(height: 4.h),
+              SizedBox(height: context.dynamicHeight(0.005)),
               Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: 8.w,
-                  vertical: 2.h,
+                  horizontal: context.dynamicWidth(0.021),
+                  vertical: context.dynamicHeight(0.002),
                 ),
                 decoration: BoxDecoration(
                   color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(9.w),
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.024)),
                 ),
                 child: Text(
                   count.toString(),
                   style: TextStyle(
-                    fontSize: 11.sp,
+                    fontSize: context.dynamicWidth(0.029),
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
@@ -356,32 +356,32 @@ class _Page4GuestManagementScreenState
 
     if (allGuests.isEmpty) {
       return Container(
-        padding: EdgeInsets.all(38.w),
+        padding: EdgeInsets.all(context.dynamicWidth(0.101)),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(11.w),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
           border: Border.all(color: Colors.grey.shade200),
         ),
         child: Column(
           children: [
             Icon(
               Icons.person_add_disabled,
-              size: 60.w,
+              size: context.dynamicWidth(0.16),
               color: Colors.grey.shade400,
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: context.dynamicHeight(0.02)),
             Text(
               l?.translate('invitation_no_guests_yet') ?? 'No guests added yet',
               style: TextStyle(
-                fontSize: 15.sp,
+                fontSize: context.dynamicWidth(0.04),
                 color: Colors.grey.shade600,
               ),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.dynamicHeight(0.01)),
             Text(
               l?.translate('invitation_use_options_above') ?? 'Use the options above to add guests',
               style: TextStyle(
-                fontSize: 12.sp,
+                fontSize: context.dynamicWidth(0.032),
                 color: Colors.grey.shade500,
               ),
             ),
@@ -393,12 +393,12 @@ class _Page4GuestManagementScreenState
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(11.w),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 9.w,
-            offset: Offset(0, 4.h),
+            blurRadius: context.dynamicWidth(0.024),
+            offset: Offset(0, context.dynamicHeight(0.005)),
           ),
         ],
       ),
@@ -407,14 +407,14 @@ class _Page4GuestManagementScreenState
         children: [
           // Header
           Padding(
-            padding: EdgeInsets.all(15.w),
+            padding: EdgeInsets.all(context.dynamicWidth(0.04)),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   '${l?.translate('invitation_guest_list') ?? 'Guest List'} (${allGuests.length})',
                   style: TextStyle(
-                    fontSize: 15.sp,
+                    fontSize: context.dynamicWidth(0.04),
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                   ),
@@ -425,7 +425,7 @@ class _Page4GuestManagementScreenState
                       final cubit = context.read<InvitationCubit>();
                       _showClearAllDialog(context, cubit, l);
                     },
-                    icon: Icon(Icons.delete_sweep, size: 17.w),
+                    icon: Icon(Icons.delete_sweep, size: context.dynamicWidth(0.045)),
                     label: Text(l?.translate('invitation_clear_all') ?? 'Clear All'),
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.red,
@@ -479,19 +479,19 @@ class _Page4GuestManagementScreenState
 
     return ListTile(
       leading: CircleAvatar(
-        radius: 19.w,
+        radius: context.dynamicWidth(0.051),
         backgroundColor: sourceColor.withValues(alpha: 0.1),
         child: Icon(
           sourceIcon,
           color: sourceColor,
-          size: 19.w,
+          size: context.dynamicWidth(0.051),
         ),
       ),
       title: Text(
         guest.name,
         style: TextStyle(
           fontWeight: FontWeight.w500,
-          fontSize: 14.sp,
+          fontSize: context.dynamicWidth(0.037),
           color: Colors.black,
         ),
       ),
@@ -501,26 +501,26 @@ class _Page4GuestManagementScreenState
             child: Text(
               guest.phone,
               style: TextStyle(
-                fontSize: 12.sp,
+                fontSize: context.dynamicWidth(0.032),
                 color: Colors.grey.shade600,
               ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          SizedBox(width: 8.w),
+          SizedBox(width: context.dynamicWidth(0.021)),
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: 6.w,
-              vertical: 2.h,
+              horizontal: context.dynamicWidth(0.016),
+              vertical: context.dynamicHeight(0.002),
             ),
             decoration: BoxDecoration(
               color: sourceColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(4.w),
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.011)),
             ),
             child: Text(
               sourceLabel,
               style: TextStyle(
-                fontSize: 9.sp,
+                fontSize: context.dynamicWidth(0.024),
                 color: sourceColor,
               ),
             ),
@@ -530,7 +530,7 @@ class _Page4GuestManagementScreenState
       trailing: IconButton(
         icon: Icon(
           Icons.remove_circle_outline,
-          size: 23.w,
+          size: context.dynamicWidth(0.061),
         ),
         color: Colors.red.shade400,
         onPressed: () {
@@ -685,14 +685,14 @@ class _Page4GuestManagementScreenState
 
   Widget _buildNavigationButtons(BuildContext context, InvitationState state, AppLocalizations? l) {
     return Container(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 9.w,
-            offset: Offset(0, -4.h),
+            blurRadius: context.dynamicWidth(0.024),
+            offset: Offset(0, -context.dynamicHeight(0.005)),
           ),
         ],
       ),
@@ -710,7 +710,7 @@ class _Page4GuestManagementScreenState
             ),
           ),
 
-          SizedBox(width: 11.w),
+          SizedBox(width: context.dynamicWidth(0.029)),
 
           // Next Button
           Expanded(
