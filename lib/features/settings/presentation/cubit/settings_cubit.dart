@@ -12,6 +12,28 @@ class SettingsCubit extends Cubit<SettingsState> {
     _loadSettings();
   }
 
+  static AppLanguage _languageFromCode(String code) {
+    switch (code) {
+      case 'en':
+        return AppLanguage.en;
+      case 'tr':
+        return AppLanguage.tr;
+      default:
+        return AppLanguage.ar;
+    }
+  }
+
+  static String _codeFromLanguage(AppLanguage language) {
+    switch (language) {
+      case AppLanguage.en:
+        return 'en';
+      case AppLanguage.tr:
+        return 'tr';
+      case AppLanguage.ar:
+        return 'ar';
+    }
+  }
+
   Future<void> _loadSettings() async {
     emit(state.copyWith(isLoading: true));
     try {
@@ -23,21 +45,17 @@ class SettingsCubit extends Cubit<SettingsState> {
         final deviceLocale = ui.PlatformDispatcher.instance.locale;
         final deviceLanguageCode = deviceLocale.languageCode;
 
-        // Default to Arabic if device language is not English
-        final language =
-            deviceLanguageCode == 'en' ? AppLanguage.en : AppLanguage.ar;
+        final language = _languageFromCode(deviceLanguageCode);
 
         // Save the preference
-        await prefs.setString(
-            _languageKey, language == AppLanguage.ar ? 'ar' : 'en');
+        await prefs.setString(_languageKey, _codeFromLanguage(language));
         await prefs.setBool(_firstLaunchKey, true);
 
         emit(state.copyWith(language: language, isLoading: false));
       } else {
         // Not first launch - use saved preference
         final languageCode = prefs.getString(_languageKey) ?? 'ar';
-        final language =
-            languageCode == 'en' ? AppLanguage.en : AppLanguage.ar;
+        final language = _languageFromCode(languageCode);
         emit(state.copyWith(language: language, isLoading: false));
       }
     } catch (e) {
@@ -49,8 +67,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     emit(state.copyWith(isLoading: true));
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(
-          _languageKey, language == AppLanguage.ar ? 'ar' : 'en');
+      await prefs.setString(_languageKey, _codeFromLanguage(language));
       emit(state.copyWith(language: language, isLoading: false));
     } catch (e) {
       emit(state.copyWith(isLoading: false));
@@ -59,6 +76,6 @@ class SettingsCubit extends Cubit<SettingsState> {
 
   /// Get the current locale
   ui.Locale get currentLocale {
-    return ui.Locale(state.language == AppLanguage.ar ? 'ar' : 'en');
+    return ui.Locale(_codeFromLanguage(state.language));
   }
 }

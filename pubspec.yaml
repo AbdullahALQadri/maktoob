@@ -133,7 +133,7 @@ flutter:
     - assets/fonts/
     - lang/ar.json
     - lang/en.json
-    - lang/uk.json
+    - lang/tr.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -10,29 +10,23 @@ import '../../domain/entities/event_entity.dart';
 import '../cubit/events_list/events_list_cubit.dart';
 import '../cubit/events_list/events_list_state.dart';
 import '../widgets/all_events_card_widget.dart';
+import 'event_details_screen.dart';
 
 /// Screen to view all events with tabs for different statuses
 class ViewAllEventsScreen extends StatelessWidget {
-  final Function(String)? onViewEvent;
-
-  const ViewAllEventsScreen({
-    super.key,
-    this.onViewEvent,
-  });
+  const ViewAllEventsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => di.sl<EventsListCubit>()..loadEvents(),
-      child: _ViewAllEventsContent(onViewEvent: onViewEvent),
+      child: const _ViewAllEventsContent(),
     );
   }
 }
 
 class _ViewAllEventsContent extends StatefulWidget {
-  final Function(String)? onViewEvent;
-
-  const _ViewAllEventsContent({this.onViewEvent});
+  const _ViewAllEventsContent();
 
   @override
   State<_ViewAllEventsContent> createState() => _ViewAllEventsContentState();
@@ -292,9 +286,16 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
           return AllEventsCardWidget(
             event: event,
             index: index,
-            onTap: widget.onViewEvent != null
-                ? () => widget.onViewEvent!(event.id)
-                : null,
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => EventDetailsScreen(
+                    eventId: event.id,
+                    onBack: () => Navigator.of(context).pop(),
+                  ),
+                ),
+              );
+            },
           );
         },
       ),

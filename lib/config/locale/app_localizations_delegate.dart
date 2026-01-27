@@ -4,7 +4,7 @@ import 'app_localizations.dart';
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const AppLocalizationsDelegate();
 
-  static const supportedLanguages = ['en', 'ar', 'uk'];
+  static const supportedLanguages = ['en', 'ar', 'tr', 'uk'];
 
   @override
   bool isSupported(Locale locale) {

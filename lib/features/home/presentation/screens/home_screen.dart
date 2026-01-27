@@ -301,9 +301,7 @@ class _HomeScreenState extends State<HomeScreen>
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => ViewAllEventsScreen(
-                        onViewEvent: widget.onViewEvent,
-                      ),
+                      builder: (_) => const ViewAllEventsScreen(),
                     ),
                   );
                 },

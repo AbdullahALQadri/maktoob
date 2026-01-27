@@ -7,6 +7,6 @@ class Assets {
   static const String fontsSatoshiRegular = 'assets/fonts/Satoshi-Regular.otf';
   static const String langAr = 'lang/ar.json';
   static const String langEn = 'lang/en.json';
-  static const String langUk = 'lang/uk.json';
+  static const String langUk = 'lang/tr.json';
 
 }

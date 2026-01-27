@@ -82,7 +82,13 @@ class Maktoob extends StatelessWidget {
       child: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, settingsState) {
           final isArabic = settingsState.language == AppLanguage.ar;
-          final locale = Locale(isArabic ? 'ar' : 'en');
+          final locale = Locale(
+            settingsState.language == AppLanguage.ar
+                ? 'ar'
+                : settingsState.language == AppLanguage.tr
+                    ? 'tr'
+                    : 'en',
+          );
 
           return MaterialApp(
             debugShowCheckedModeBanner: false,

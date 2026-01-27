@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum AppLanguage { ar, en }
+enum AppLanguage { ar, en, tr }
 
 class SettingsState extends Equatable {
   final AppLanguage language;

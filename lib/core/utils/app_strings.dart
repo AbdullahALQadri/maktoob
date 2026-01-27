@@ -17,6 +17,7 @@ class AppStrings {
 
   static const String englishCode = "en";
   static const String arabicCode = "ar";
+  static const String turkishCode = 'tr';
   static const String ukrainianCode = 'uk';
   static const String locale = "locale";
   static const String cacheFailure = "Cache Failure";
@@ -24,6 +25,7 @@ class AppStrings {
   static const supportedLanguageCodes = [
     englishCode,
     arabicCode,
+    turkishCode,
     ukrainianCode,
   ];
 }

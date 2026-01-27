@@ -7,6 +7,7 @@ class AppLocalizationsSetup {
   static const List<Locale> supportedLocales = [
     Locale('ar'), // Arabic
     Locale('en'), // English
+    Locale('tr'), // Turkish
   ];
 
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = [
