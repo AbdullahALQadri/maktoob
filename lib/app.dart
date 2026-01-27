@@ -122,7 +122,8 @@ class Maktoob extends StatelessWidget {
               );
             },
             // home: const SplashScreen(),
-            home: const AuthWrapper(),
+            // home: const AuthWrapper(),
+            home: const MainShell(),
           );
         },
       ),

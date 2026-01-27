@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/media_query_values.dart';
 import '../../../../core/widgets/buttons/primary_button.dart';
+import '../../../../core/widgets/sheets/app_bottom_sheet.dart';
 import '../cubit/invitation_cubit.dart';
 import '../cubit/invitation_state.dart';
 import '../widgets/invitation_preview_widget.dart';
@@ -173,112 +174,57 @@ class ShareScreen extends StatelessWidget {
   }
 
   void _showPackageModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (modalContext) {
-        return Container(
-          height: modalContext.dynamicHeight(0.45),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(modalContext.dynamicWidth(0.06)),
-              topRight: Radius.circular(modalContext.dynamicWidth(0.06)),
-            ),
-          ),
-          child: Column(
+    AppBottomSheet.show(
+      context,
+      title: 'Choose How You Want to\nManage Your Event',
+      subtitle: 'Select the level of organization that fits your event',
+      icon: Icons.celebration_rounded,
+      iconColor: AppColors.primaryColor,
+      iconBackgroundColor: AppColors.purple50,
+      showCloseButton: false,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(height: context.dynamicHeight(0.02)),
+
+          // Features preview
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              // Handle bar
-              Container(
-                margin: EdgeInsets.only(top: modalContext.dynamicWidth(0.03)),
-                width: modalContext.dynamicWidth(0.1),
-                height: modalContext.dynamicHeight(0.005),
-                decoration: BoxDecoration(
-                  color: AppColors.gray300,
-                  borderRadius: BorderRadius.circular(modalContext.dynamicWidth(0.005)),
-                ),
+              _buildFeatureIcon(
+                context,
+                icon: Icons.qr_code,
+                label: 'QR Entry',
               ),
-
-              SizedBox(height: modalContext.dynamicHeight(0.03)),
-
-              // Title
-              Text(
-                'Choose How You Want to\nManage Your Event',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: modalContext.dynamicWidth(0.055),
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.gray900,
-                  height: 1.3,
-                ),
+              _buildFeatureIcon(
+                context,
+                icon: Icons.analytics_outlined,
+                label: 'Reports',
               ),
-
-              SizedBox(height: modalContext.dynamicHeight(0.015)),
-
-              // Subtitle - NO pricing mention
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: modalContext.dynamicWidth(0.1)),
-                child: Text(
-                  'Select the level of organization that fits your event',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: modalContext.dynamicWidth(0.038),
-                    color: AppColors.gray500,
-                  ),
-                ),
+              _buildFeatureIcon(
+                context,
+                icon: Icons.support_agent,
+                label: 'Support',
               ),
-
-              const Spacer(),
-
-              // Features preview
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: modalContext.dynamicWidth(0.06)),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildFeatureIcon(
-                      modalContext,
-                      icon: Icons.qr_code,
-                      label: 'QR Entry',
-                    ),
-                    _buildFeatureIcon(
-                      modalContext,
-                      icon: Icons.analytics_outlined,
-                      label: 'Reports',
-                    ),
-                    _buildFeatureIcon(
-                      modalContext,
-                      icon: Icons.support_agent,
-                      label: 'Support',
-                    ),
-                  ],
-                ),
-              ),
-
-              const Spacer(),
-
-              // CTA button
-              Padding(
-                padding: EdgeInsets.all(modalContext.dynamicWidth(0.06)),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: PrimaryButton(
-                    text: 'See Options',
-                    onPressed: () {
-                      Navigator.pop(modalContext);
-                      context.read<InvitationCubit>().nextStep();
-                      onContinue?.call();
-                    },
-                  ),
-                ),
-              ),
-
-              SizedBox(height: modalContext.dynamicHeight(0.02)),
             ],
           ),
-        );
-      },
+
+          SizedBox(height: context.dynamicHeight(0.03)),
+
+          // CTA button
+          SizedBox(
+            width: double.infinity,
+            child: PrimaryButton(
+              text: 'See Options',
+              onPressed: () {
+                Navigator.pop(context);
+                context.read<InvitationCubit>().nextStep();
+                onContinue?.call();
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 

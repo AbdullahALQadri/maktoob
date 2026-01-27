@@ -7,6 +7,8 @@ import 'package:pinput/pinput.dart';
 
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/widgets/dialogs/app_dialog.dart';
+import '../../../../core/widgets/snackbar/app_snackbar.dart';
 
 /// Main Forgot Password Screen - Enter phone number
 class ForgotPasswordScreen extends StatefulWidget {
@@ -698,16 +700,9 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen>
     if (_canResend) {
       _startResendTimer();
       _pinController.clear();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_isArabic ? 'تم إرسال رمز جديد' : 'New code sent'),
-          backgroundColor: AppColors.green600,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          margin: const EdgeInsets.all(16),
-        ),
+      AppSnackBar.showSuccess(
+        context,
+        message: _isArabic ? 'تم إرسال رمز جديد' : 'New code sent',
       );
     }
   }
@@ -1206,79 +1201,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
   }
 
   void _showSuccessDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(height: 16),
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: AppColors.green100,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.check_circle_rounded,
-                size: 50,
-                color: AppColors.green600,
-              ),
-            ),
-            SizedBox(height: 24),
-            Text(
-              _isArabic ? 'تم بنجاح!' : 'Success!',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppColors.gray900,
-              ),
-            ),
-            SizedBox(height: 12),
-            Text(
-              _isArabic
-                  ? 'تم تغيير كلمة المرور بنجاح.\nيمكنك الآن تسجيل الدخول.'
-                  : 'Your password has been changed successfully.\nYou can now login.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                color: AppColors.gray600,
-                height: 1.4,
-              ),
-            ),
-            SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  widget.onSuccess();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  _isArabic ? 'تسجيل الدخول' : 'Login',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+    AppDialog.showSuccess(
+      context,
+      title: _isArabic ? 'تم بنجاح!' : 'Success!',
+      message: _isArabic
+          ? 'تم تغيير كلمة المرور بنجاح.\nيمكنك الآن تسجيل الدخول.'
+          : 'Your password has been changed successfully.\nYou can now login.',
+      buttonText: _isArabic ? 'تسجيل الدخول' : 'Login',
+      onPressed: widget.onSuccess,
     );
   }
 

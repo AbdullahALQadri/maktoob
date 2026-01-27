@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/media_query_values.dart';
+import '../buttons/primary_button.dart';
+import '../buttons/secondary_button.dart';
 
-/// A customizable bottom sheet widget with consistent styling.
+/// A modern, customizable bottom sheet widget with consistent styling.
 ///
 /// This widget provides a reusable bottom sheet design with support
-/// for drag handle, title, and close button.
+/// for drag handle, title, icons, and various sheet types.
 ///
 /// Example usage:
 /// ```dart
@@ -22,6 +24,9 @@ import '../../utils/media_query_values.dart';
 class AppBottomSheet extends StatelessWidget {
   /// The title of the bottom sheet.
   final String? title;
+
+  /// Subtitle text below the title.
+  final String? subtitle;
 
   /// The content of the bottom sheet.
   final Widget child;
@@ -59,10 +64,20 @@ class AppBottomSheet extends StatelessWidget {
   /// Action widget to display in the header.
   final Widget? action;
 
+  /// Icon to display in the header.
+  final IconData? icon;
+
+  /// Icon color.
+  final Color? iconColor;
+
+  /// Icon background color.
+  final Color? iconBackgroundColor;
+
   const AppBottomSheet({
     super.key,
     required this.child,
     this.title,
+    this.subtitle,
     this.showDragHandle = true,
     this.showCloseButton = true,
     this.isScrollable = true,
@@ -74,13 +89,17 @@ class AppBottomSheet extends StatelessWidget {
     this.borderRadius = 24,
     this.onClose,
     this.action,
+    this.icon,
+    this.iconColor,
+    this.iconBackgroundColor,
   });
 
-  /// Shows a modal bottom sheet.
+  /// Shows a modal bottom sheet with modern animation.
   static Future<T?> show<T>(
     BuildContext context, {
     required Widget child,
     String? title,
+    String? subtitle,
     bool showDragHandle = true,
     bool showCloseButton = true,
     bool isScrollable = true,
@@ -93,6 +112,9 @@ class AppBottomSheet extends StatelessWidget {
     Color? backgroundColor,
     double borderRadius = 24,
     Widget? action,
+    IconData? icon,
+    Color? iconColor,
+    Color? iconBackgroundColor,
   }) {
     return showModalBottomSheet<T>(
       context: context,
@@ -100,8 +122,13 @@ class AppBottomSheet extends StatelessWidget {
       isDismissible: isDismissible,
       enableDrag: enableDrag,
       backgroundColor: AppColors.transparent,
+      transitionAnimationController: AnimationController(
+        vsync: Navigator.of(context),
+        duration: const Duration(milliseconds: 350),
+      ),
       builder: (context) => AppBottomSheet(
         title: title,
+        subtitle: subtitle,
         showDragHandle: showDragHandle,
         showCloseButton: showCloseButton,
         isScrollable: isScrollable,
@@ -112,6 +139,9 @@ class AppBottomSheet extends StatelessWidget {
         backgroundColor: backgroundColor,
         borderRadius: borderRadius,
         action: action,
+        icon: icon,
+        iconColor: iconColor,
+        iconBackgroundColor: iconBackgroundColor,
         child: child,
       ),
     );
@@ -122,6 +152,7 @@ class AppBottomSheet extends StatelessWidget {
     BuildContext context, {
     required Widget Function(BuildContext, ScrollController) builder,
     String? title,
+    String? subtitle,
     bool showDragHandle = true,
     bool showCloseButton = true,
     bool isDismissible = true,
@@ -132,6 +163,9 @@ class AppBottomSheet extends StatelessWidget {
     Color? backgroundColor,
     double borderRadius = 24,
     Widget? action,
+    IconData? icon,
+    Color? iconColor,
+    Color? iconBackgroundColor,
   }) {
     final effectiveBorderRadius = borderRadius == 24
         ? context.dynamicWidth(0.06)
@@ -154,15 +188,26 @@ class AppBottomSheet extends StatelessWidget {
               borderRadius: BorderRadius.vertical(
                 top: Radius.circular(effectiveBorderRadius),
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, -5),
+                ),
+              ],
             ),
             child: Column(
               children: [
                 // Drag handle and header
                 _SheetHeader(
                   title: title,
+                  subtitle: subtitle,
                   showDragHandle: showDragHandle,
                   showCloseButton: showCloseButton,
                   action: action,
+                  icon: icon,
+                  iconColor: iconColor,
+                  iconBackgroundColor: iconBackgroundColor,
                 ),
                 // Content
                 Expanded(
@@ -176,7 +221,7 @@ class AppBottomSheet extends StatelessWidget {
     );
   }
 
-  /// Shows a confirm/cancel bottom sheet.
+  /// Shows a confirm/cancel bottom sheet with modern styling.
   static Future<bool> showConfirm(
     BuildContext context, {
     required String title,
@@ -184,25 +229,185 @@ class AppBottomSheet extends StatelessWidget {
     String confirmText = 'Confirm',
     String cancelText = 'Cancel',
     Color? confirmColor,
+    IconData? icon,
+    SheetType type = SheetType.warning,
   }) async {
+    final colors = _getTypeColors(type);
     final result = await show<bool>(
       context,
       title: title,
+      icon: icon ?? _getTypeIcon(type),
+      iconColor: colors.iconColor,
+      iconBackgroundColor: colors.iconBackground,
+      showCloseButton: false,
       child: _ConfirmSheet(
         message: message,
         confirmText: confirmText,
         cancelText: cancelText,
-        confirmColor: confirmColor,
+        confirmColor: confirmColor ?? colors.buttonColor,
       ),
     );
     return result ?? false;
+  }
+
+  /// Shows an options picker bottom sheet.
+  static Future<T?> showOptions<T>(
+    BuildContext context, {
+    required String title,
+    String? subtitle,
+    required List<SheetOption<T>> options,
+    T? selectedValue,
+    IconData? icon,
+  }) {
+    return show<T>(
+      context,
+      title: title,
+      subtitle: subtitle,
+      icon: icon,
+      iconColor: AppColors.primaryColor,
+      iconBackgroundColor: AppColors.purple50,
+      child: _OptionsSheet<T>(
+        options: options,
+        selectedValue: selectedValue,
+      ),
+    );
+  }
+
+  /// Shows an action sheet with a list of actions.
+  static Future<T?> showActions<T>(
+    BuildContext context, {
+    String? title,
+    String? subtitle,
+    required List<SheetAction<T>> actions,
+    String? cancelText,
+  }) {
+    return show<T>(
+      context,
+      title: title,
+      subtitle: subtitle,
+      showCloseButton: title != null,
+      child: _ActionsSheet<T>(
+        actions: actions,
+        cancelText: cancelText,
+      ),
+    );
+  }
+
+  /// Shows an info bottom sheet.
+  static Future<void> showInfo(
+    BuildContext context, {
+    required String title,
+    required String message,
+    String buttonText = 'OK',
+    IconData? icon,
+  }) async {
+    await show(
+      context,
+      title: title,
+      icon: icon ?? Icons.info_rounded,
+      iconColor: AppColors.blue600,
+      iconBackgroundColor: AppColors.blue50,
+      showCloseButton: false,
+      child: _InfoSheet(
+        message: message,
+        buttonText: buttonText,
+      ),
+    );
+  }
+
+  /// Shows a success bottom sheet.
+  static Future<void> showSuccess(
+    BuildContext context, {
+    required String title,
+    required String message,
+    String buttonText = 'OK',
+    VoidCallback? onPressed,
+  }) async {
+    await show(
+      context,
+      title: title,
+      icon: Icons.check_circle_rounded,
+      iconColor: AppColors.green600,
+      iconBackgroundColor: AppColors.green100,
+      showCloseButton: false,
+      child: _InfoSheet(
+        message: message,
+        buttonText: buttonText,
+        buttonColor: AppColors.green600,
+        onPressed: onPressed,
+      ),
+    );
+  }
+
+  /// Shows an error bottom sheet.
+  static Future<void> showError(
+    BuildContext context, {
+    required String title,
+    required String message,
+    String buttonText = 'OK',
+  }) async {
+    await show(
+      context,
+      title: title,
+      icon: Icons.error_rounded,
+      iconColor: AppColors.red500,
+      iconBackgroundColor: AppColors.red500.withValues(alpha: 0.1),
+      showCloseButton: false,
+      child: _InfoSheet(
+        message: message,
+        buttonText: buttonText,
+        buttonColor: AppColors.red500,
+      ),
+    );
+  }
+
+  static _TypeColors _getTypeColors(SheetType type) {
+    switch (type) {
+      case SheetType.success:
+        return _TypeColors(
+          iconColor: AppColors.green600,
+          iconBackground: AppColors.green100,
+          buttonColor: AppColors.green600,
+        );
+      case SheetType.error:
+        return _TypeColors(
+          iconColor: AppColors.red500,
+          iconBackground: AppColors.red500.withValues(alpha: 0.1),
+          buttonColor: AppColors.red500,
+        );
+      case SheetType.warning:
+        return _TypeColors(
+          iconColor: AppColors.amber600,
+          iconBackground: AppColors.amber500.withValues(alpha: 0.1),
+          buttonColor: AppColors.amber600,
+        );
+      case SheetType.info:
+        return _TypeColors(
+          iconColor: AppColors.blue600,
+          iconBackground: AppColors.blue50,
+          buttonColor: AppColors.blue600,
+        );
+    }
+  }
+
+  static IconData _getTypeIcon(SheetType type) {
+    switch (type) {
+      case SheetType.success:
+        return Icons.check_circle_rounded;
+      case SheetType.error:
+        return Icons.error_rounded;
+      case SheetType.warning:
+        return Icons.warning_rounded;
+      case SheetType.info:
+        return Icons.info_rounded;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final effectiveMaxHeight = maxHeight ?? 0.9;
-    final effectiveMinHeight = minHeight ?? 0.2;
+    final effectiveMinHeight = minHeight ?? 0.1;
     final effectiveBorderRadius = borderRadius == 24
         ? context.dynamicWidth(0.06)
         : borderRadius;
@@ -223,6 +428,13 @@ class AppBottomSheet extends StatelessWidget {
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(effectiveBorderRadius),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
+          ),
+        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -230,10 +442,14 @@ class AppBottomSheet extends StatelessWidget {
           // Header
           _SheetHeader(
             title: title,
+            subtitle: subtitle,
             showDragHandle: showDragHandle,
             showCloseButton: showCloseButton,
             onClose: onClose,
             action: action,
+            icon: icon,
+            iconColor: iconColor,
+            iconBackgroundColor: iconBackgroundColor,
           ),
           // Content
           if (isScrollable)
@@ -264,17 +480,25 @@ class AppBottomSheet extends StatelessWidget {
 /// Header widget for the bottom sheet.
 class _SheetHeader extends StatelessWidget {
   final String? title;
+  final String? subtitle;
   final bool showDragHandle;
   final bool showCloseButton;
   final VoidCallback? onClose;
   final Widget? action;
+  final IconData? icon;
+  final Color? iconColor;
+  final Color? iconBackgroundColor;
 
   const _SheetHeader({
     this.title,
+    this.subtitle,
     this.showDragHandle = true,
     this.showCloseButton = true,
     this.onClose,
     this.action,
+    this.icon,
+    this.iconColor,
+    this.iconBackgroundColor,
   });
 
   @override
@@ -290,32 +514,75 @@ class _SheetHeader extends StatelessWidget {
             height: context.dynamicHeight(0.005),
             decoration: BoxDecoration(
               color: AppColors.gray300,
-              borderRadius: BorderRadius.circular(context.dynamicWidth(0.005)),
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.01)),
             ),
           ),
+
+        // Icon (if provided)
+        if (icon != null) ...[
+          SizedBox(height: context.dynamicHeight(0.025)),
+          Container(
+            width: context.dynamicWidth(0.16),
+            height: context.dynamicWidth(0.16),
+            decoration: BoxDecoration(
+              color: iconBackgroundColor ?? AppColors.purple50,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: (iconColor ?? AppColors.primaryColor).withValues(alpha: 0.2),
+                  blurRadius: context.dynamicWidth(0.04),
+                  offset: Offset(0, context.dynamicHeight(0.008)),
+                ),
+              ],
+            ),
+            child: Icon(
+              icon,
+              size: context.dynamicWidth(0.08),
+              color: iconColor ?? AppColors.primaryColor,
+            ),
+          ),
+        ],
 
         // Title and close button
         if (title != null || showCloseButton)
           Padding(
             padding: EdgeInsets.fromLTRB(
               context.dynamicWidth(0.06),
-              context.dynamicHeight(0.02),
+              icon != null ? context.dynamicHeight(0.02) : context.dynamicHeight(0.02),
               context.dynamicWidth(0.06),
-              context.dynamicHeight(0.02),
+              context.dynamicHeight(0.01),
             ),
             child: Row(
               children: [
-                // Title
+                // Title and subtitle
                 if (title != null)
                   Expanded(
-                    child: Text(
-                      title!,
-                      style: TextStyle(
-                        fontFamily: AppStrings.fontFamily,
-                        fontSize: context.dynamicWidth(0.045),
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.gray900,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: icon != null ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title!,
+                          textAlign: icon != null ? TextAlign.center : TextAlign.start,
+                          style: TextStyle(
+                            fontFamily: AppStrings.fontFamily,
+                            fontSize: context.dynamicWidth(0.05),
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.gray900,
+                          ),
+                        ),
+                        if (subtitle != null) ...[
+                          SizedBox(height: context.dynamicHeight(0.005)),
+                          Text(
+                            subtitle!,
+                            textAlign: icon != null ? TextAlign.center : TextAlign.start,
+                            style: TextStyle(
+                              fontFamily: AppStrings.fontFamily,
+                              fontSize: context.dynamicWidth(0.035),
+                              color: AppColors.gray500,
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
 
@@ -329,24 +596,34 @@ class _SheetHeader extends StatelessWidget {
                 ],
 
                 // Close button
-                if (showCloseButton)
+                if (showCloseButton && icon == null)
                   GestureDetector(
                     onTap: onClose ?? () => Navigator.of(context).pop(),
                     child: Container(
-                      width: context.dynamicWidth(0.08),
-                      height: context.dynamicWidth(0.08),
+                      width: context.dynamicWidth(0.09),
+                      height: context.dynamicWidth(0.09),
                       decoration: BoxDecoration(
                         color: AppColors.gray100,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        Icons.close,
-                        size: context.dynamicWidth(0.045),
+                        Icons.close_rounded,
+                        size: context.dynamicWidth(0.05),
                         color: AppColors.gray500,
                       ),
                     ),
                   ),
               ],
+            ),
+          ),
+
+        // Divider for sheets without icon
+        if (title != null && icon == null)
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.06)),
+            child: Divider(
+              color: AppColors.gray100,
+              height: context.dynamicHeight(0.02),
             ),
           ),
       ],
@@ -376,9 +653,10 @@ class _ConfirmSheet extends StatelessWidget {
       children: [
         Text(
           message,
+          textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: AppStrings.fontFamily,
-            fontSize: context.dynamicWidth(0.035),
+            fontSize: context.dynamicWidth(0.038),
             color: AppColors.gray600,
             height: 1.5,
           ),
@@ -387,46 +665,26 @@ class _ConfirmSheet extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: OutlinedButton(
+              child: SecondaryButton(
+                text: cancelText,
                 onPressed: () => Navigator.of(context).pop(false),
-                style: OutlinedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.018)),
-                  side: BorderSide(color: AppColors.gray300),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
-                  ),
-                ),
-                child: Text(
-                  cancelText,
-                  style: TextStyle(
-                    fontFamily: AppStrings.fontFamily,
-                    fontSize: context.dynamicWidth(0.04),
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.gray700,
-                  ),
-                ),
+                height: context.dynamicHeight(0.06),
+                borderRadius: context.dynamicWidth(0.035),
+                useGradientBorder: false,
+                borderColor: AppColors.gray300,
+                textColor: AppColors.gray700,
               ),
             ),
             SizedBox(width: context.dynamicWidth(0.03)),
             Expanded(
-              child: ElevatedButton(
+              child: PrimaryButton(
+                text: confirmText,
                 onPressed: () => Navigator.of(context).pop(true),
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.018)),
-                  backgroundColor: confirmColor ?? AppColors.primaryColor,
-                  foregroundColor: AppColors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
-                  ),
-                ),
-                child: Text(
-                  confirmText,
-                  style: TextStyle(
-                    fontFamily: AppStrings.fontFamily,
-                    fontSize: context.dynamicWidth(0.04),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                height: context.dynamicHeight(0.06),
+                borderRadius: context.dynamicWidth(0.035),
+                gradientColors: confirmColor != null
+                    ? [confirmColor!, confirmColor!.withValues(alpha: 0.8)]
+                    : null,
               ),
             ),
           ],
@@ -434,4 +692,307 @@ class _ConfirmSheet extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Info sheet content widget.
+class _InfoSheet extends StatelessWidget {
+  final String message;
+  final String buttonText;
+  final Color? buttonColor;
+  final VoidCallback? onPressed;
+
+  const _InfoSheet({
+    required this.message,
+    required this.buttonText,
+    this.buttonColor,
+    this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          message,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: AppStrings.fontFamily,
+            fontSize: context.dynamicWidth(0.038),
+            color: AppColors.gray600,
+            height: 1.5,
+          ),
+        ),
+        SizedBox(height: context.dynamicHeight(0.03)),
+        PrimaryButton(
+          text: buttonText,
+          onPressed: () {
+            Navigator.of(context).pop();
+            onPressed?.call();
+          },
+          height: context.dynamicHeight(0.06),
+          borderRadius: context.dynamicWidth(0.035),
+          gradientColors: buttonColor != null
+              ? [buttonColor!, buttonColor!.withValues(alpha: 0.8)]
+              : null,
+        ),
+      ],
+    );
+  }
+}
+
+/// Options sheet content widget.
+class _OptionsSheet<T> extends StatelessWidget {
+  final List<SheetOption<T>> options;
+  final T? selectedValue;
+
+  const _OptionsSheet({
+    required this.options,
+    this.selectedValue,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: options.map((option) {
+        final isSelected = option.value == selectedValue;
+        return GestureDetector(
+          onTap: () => Navigator.of(context).pop(option.value),
+          child: Container(
+            margin: EdgeInsets.only(bottom: context.dynamicHeight(0.01)),
+            padding: EdgeInsets.symmetric(
+              horizontal: context.dynamicWidth(0.04),
+              vertical: context.dynamicHeight(0.018),
+            ),
+            decoration: BoxDecoration(
+              color: isSelected ? AppColors.purple50 : AppColors.gray50,
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
+              border: Border.all(
+                color: isSelected ? AppColors.primaryColor : AppColors.gray200,
+                width: isSelected ? 2 : 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                if (option.icon != null) ...[
+                  Container(
+                    width: context.dynamicWidth(0.1),
+                    height: context.dynamicWidth(0.1),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? AppColors.primaryColor.withValues(alpha: 0.1)
+                          : AppColors.gray100,
+                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.025)),
+                    ),
+                    child: Icon(
+                      option.icon,
+                      color: isSelected ? AppColors.primaryColor : AppColors.gray500,
+                      size: context.dynamicWidth(0.05),
+                    ),
+                  ),
+                  SizedBox(width: context.dynamicWidth(0.03)),
+                ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        option.label,
+                        style: TextStyle(
+                          fontFamily: AppStrings.fontFamily,
+                          fontSize: context.dynamicWidth(0.04),
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                          color: isSelected ? AppColors.primaryColor : AppColors.gray900,
+                        ),
+                      ),
+                      if (option.subtitle != null) ...[
+                        SizedBox(height: context.dynamicHeight(0.003)),
+                        Text(
+                          option.subtitle!,
+                          style: TextStyle(
+                            fontFamily: AppStrings.fontFamily,
+                            fontSize: context.dynamicWidth(0.032),
+                            color: AppColors.gray500,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                if (isSelected)
+                  Container(
+                    width: context.dynamicWidth(0.06),
+                    height: context.dynamicWidth(0.06),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppColors.primaryColor, AppColors.tertiaryColor],
+                      ),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.check_rounded,
+                      color: Colors.white,
+                      size: context.dynamicWidth(0.035),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+/// Actions sheet content widget.
+class _ActionsSheet<T> extends StatelessWidget {
+  final List<SheetAction<T>> actions;
+  final String? cancelText;
+
+  const _ActionsSheet({
+    required this.actions,
+    this.cancelText,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ...actions.map((action) {
+          return GestureDetector(
+            onTap: () => Navigator.of(context).pop(action.value),
+            child: Container(
+              margin: EdgeInsets.only(bottom: context.dynamicHeight(0.01)),
+              padding: EdgeInsets.symmetric(
+                horizontal: context.dynamicWidth(0.04),
+                vertical: context.dynamicHeight(0.018),
+              ),
+              decoration: BoxDecoration(
+                color: action.isDestructive
+                    ? AppColors.red500.withValues(alpha: 0.05)
+                    : AppColors.gray50,
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
+              ),
+              child: Row(
+                children: [
+                  if (action.icon != null) ...[
+                    Container(
+                      width: context.dynamicWidth(0.1),
+                      height: context.dynamicWidth(0.1),
+                      decoration: BoxDecoration(
+                        color: action.isDestructive
+                            ? AppColors.red500.withValues(alpha: 0.1)
+                            : AppColors.gray100,
+                        borderRadius: BorderRadius.circular(context.dynamicWidth(0.025)),
+                      ),
+                      child: Icon(
+                        action.icon,
+                        color: action.isDestructive ? AppColors.red500 : AppColors.gray600,
+                        size: context.dynamicWidth(0.05),
+                      ),
+                    ),
+                    SizedBox(width: context.dynamicWidth(0.03)),
+                  ],
+                  Expanded(
+                    child: Text(
+                      action.label,
+                      style: TextStyle(
+                        fontFamily: AppStrings.fontFamily,
+                        fontSize: context.dynamicWidth(0.04),
+                        fontWeight: FontWeight.w500,
+                        color: action.isDestructive ? AppColors.red500 : AppColors.gray900,
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: action.isDestructive ? AppColors.red500 : AppColors.gray400,
+                    size: context.dynamicWidth(0.05),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
+        if (cancelText != null) ...[
+          SizedBox(height: context.dynamicHeight(0.01)),
+          GestureDetector(
+            onTap: () => Navigator.of(context).pop(),
+            child: Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.018)),
+              decoration: BoxDecoration(
+                color: AppColors.gray100,
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
+              ),
+              child: Text(
+                cancelText!,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: AppStrings.fontFamily,
+                  fontSize: context.dynamicWidth(0.04),
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.gray700,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// Type colors helper class.
+class _TypeColors {
+  final Color iconColor;
+  final Color iconBackground;
+  final Color buttonColor;
+
+  _TypeColors({
+    required this.iconColor,
+    required this.iconBackground,
+    required this.buttonColor,
+  });
+}
+
+/// Sheet types.
+enum SheetType {
+  success,
+  error,
+  warning,
+  info,
+}
+
+/// Option for options sheet.
+class SheetOption<T> {
+  final String label;
+  final String? subtitle;
+  final T value;
+  final IconData? icon;
+
+  const SheetOption({
+    required this.label,
+    required this.value,
+    this.subtitle,
+    this.icon,
+  });
+}
+
+/// Action for action sheet.
+class SheetAction<T> {
+  final String label;
+  final T value;
+  final IconData? icon;
+  final bool isDestructive;
+
+  const SheetAction({
+    required this.label,
+    required this.value,
+    this.icon,
+    this.isDestructive = false,
+  });
 }

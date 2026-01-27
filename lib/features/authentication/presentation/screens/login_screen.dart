@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/widgets/snackbar/app_snackbar.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 import 'forgot_password_screen.dart';
@@ -80,17 +81,7 @@ class _LoginScreenState extends State<LoginScreen>
         if (state is AuthAuthenticated) {
           widget.onLoginSuccess?.call();
         } else if (state is AuthError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: AppColors.red500,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              margin: const EdgeInsets.all(16),
-            ),
-          );
+          AppSnackBar.showError(context, message: state.message);
         }
       },
       child: Scaffold(
@@ -364,18 +355,11 @@ class _LoginScreenState extends State<LoginScreen>
                           builder: (_) => ForgotPasswordScreen(
                             onBack: () => Navigator.pop(context),
                             onSuccess: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(_isArabic
-                                      ? 'تم تغيير كلمة المرور بنجاح'
-                                      : 'Password changed successfully'),
-                                  backgroundColor: AppColors.green600,
-                                  behavior: SnackBarBehavior.floating,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  margin: const EdgeInsets.all(16),
-                                ),
+                              AppSnackBar.showSuccess(
+                                context,
+                                message: _isArabic
+                                    ? 'تم تغيير كلمة المرور بنجاح'
+                                    : 'Password changed successfully',
                               );
                             },
                           ),

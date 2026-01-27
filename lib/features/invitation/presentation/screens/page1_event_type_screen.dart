@@ -10,6 +10,7 @@ import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/media_query_values.dart';
 import '../../../../core/widgets/buttons/primary_button.dart';
 import '../../../../core/widgets/inputs/app_text_field.dart';
+import '../../../../core/widgets/sheets/app_bottom_sheet.dart';
 import '../../../../core/services/permissions/permission_service.dart';
 import '../cubit/invitation_cubit.dart';
 import '../cubit/invitation_state.dart';
@@ -306,21 +307,17 @@ class _Page1EventTypeScreenState extends State<Page1EventTypeScreen> {
   }
 
   void _showCustomTemplateBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(context.dynamicWidth(0.05))),
-      ),
-      builder: (sheetContext) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
-        ),
-        child: BlocProvider.value(
-          value: context.read<InvitationCubit>(),
-          child: const _CustomTemplateBottomSheetContent(),
-        ),
+    final l = AppLocalizations.of(context);
+    AppBottomSheet.show(
+      context,
+      title: l?.translate('invitation_custom_template') ?? 'Custom Template',
+      subtitle: l?.translate('invitation_upload_or_describe') ?? 'Upload an image or describe your design',
+      icon: Icons.design_services_rounded,
+      iconColor: AppColors.primaryColor,
+      iconBackgroundColor: AppColors.purple50,
+      child: BlocProvider.value(
+        value: context.read<InvitationCubit>(),
+        child: const _CustomTemplateBottomSheetContent(),
       ),
     );
   }
@@ -705,21 +702,17 @@ class _CustomTemplateUploadCard extends StatelessWidget {
   }
 
   void _showCustomTemplateBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(context.dynamicWidth(0.05))),
-      ),
-      builder: (sheetContext) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
-        ),
-        child: BlocProvider.value(
-          value: context.read<InvitationCubit>(),
-          child: const _CustomTemplateBottomSheetContent(),
-        ),
+    final l = AppLocalizations.of(context);
+    AppBottomSheet.show(
+      context,
+      title: l?.translate('invitation_custom_template') ?? 'Custom Template',
+      subtitle: l?.translate('invitation_upload_or_describe') ?? 'Upload an image or describe your design',
+      icon: Icons.design_services_rounded,
+      iconColor: AppColors.primaryColor,
+      iconBackgroundColor: AppColors.purple50,
+      child: BlocProvider.value(
+        value: context.read<InvitationCubit>(),
+        child: const _CustomTemplateBottomSheetContent(),
       ),
     );
   }
@@ -891,208 +884,180 @@ class _CustomTemplateBottomSheetContentState
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return SingleChildScrollView(
-      child: Padding(
-        padding: EdgeInsets.all(context.dynamicWidth(0.05)),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Handle bar
-            Center(
-              child: Container(
-                width: context.dynamicWidth(0.1),
-                height: context.dynamicHeight(0.005),
-                decoration: BoxDecoration(
-                  color: AppColors.gray300,
-                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.005)),
-                ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Upload Area
+        GestureDetector(
+          onTap: _isPickingImage ? null : _pickImage,
+          child: Container(
+            height: context.dynamicHeight(0.22),
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: AppColors.gray50,
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+              border: Border.all(
+                color: _selectedFile != null
+                    ? AppColors.primaryColor
+                    : AppColors.gray300,
+                width: _selectedFile != null ? 2 : 1,
               ),
             ),
-            SizedBox(height: context.dynamicHeight(0.025)),
-
-            // Title
-            Text(
-              l?.translate('invitation_custom_template') ?? 'Custom Template',
-              style: TextStyle(
-                fontSize: context.dynamicWidth(0.05),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: context.dynamicHeight(0.025)),
-
-            // Upload Area
-            GestureDetector(
-              onTap: _isPickingImage ? null : _pickImage,
-              child: Container(
-                height: context.dynamicHeight(0.22),
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: AppColors.gray50,
-                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
-                  border: Border.all(
-                    color: _selectedFile != null
-                        ? AppColors.primaryColor
-                        : AppColors.gray300,
-                    width: _selectedFile != null ? 2 : 1,
-                  ),
-                ),
-                child: _isPickingImage
-                    ? const Center(child: CircularProgressIndicator())
-                    : _selectedFile != null
-                        ? Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(context.dynamicWidth(0.028)),
-                                child: Image.file(
-                                  _selectedFile!,
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              Positioned(
-                                top: context.dynamicWidth(0.02),
-                                right: context.dynamicWidth(0.02),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _selectedFile = null;
-                                    });
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.all(context.dynamicWidth(0.01)),
-                                    decoration: const BoxDecoration(
-                                      color: Colors.red,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Icon(
-                                      Icons.close,
-                                      color: Colors.white,
-                                      size: context.dynamicWidth(0.04),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                        : Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.cloud_upload,
-                                  size: context.dynamicWidth(0.12), color: AppColors.gray400),
-                              SizedBox(height: context.dynamicHeight(0.015)),
-                              Text(
-                                l?.translate('invitation_tap_to_upload') ?? 'Tap to upload image',
-                                style: TextStyle(
-                                  color: AppColors.gray600,
-                                  fontSize: context.dynamicWidth(0.04),
-                                ),
-                              ),
-                              SizedBox(height: context.dynamicHeight(0.005)),
-                              Text(
-                                l?.translate('invitation_image_format') ?? 'PNG, JPG (max 1920x1920)',
-                                style: TextStyle(
-                                  color: AppColors.gray400,
-                                  fontSize: context.dynamicWidth(0.03),
-                                ),
-                              ),
-                            ],
+            child: _isPickingImage
+                ? const Center(child: CircularProgressIndicator())
+                : _selectedFile != null
+                    ? Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(context.dynamicWidth(0.028)),
+                            child: Image.file(
+                              _selectedFile!,
+                              width: double.infinity,
+                              height: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
                           ),
-              ),
-            ),
-
-            SizedBox(height: context.dynamicHeight(0.025)),
-
-            // Description
-            Text(
-              l?.translate('invitation_description_optional') ?? 'Description (optional)',
-              style: TextStyle(
-                fontSize: context.dynamicWidth(0.035),
-                fontWeight: FontWeight.w500,
-                color: AppColors.gray700,
-              ),
-            ),
-            SizedBox(height: context.dynamicHeight(0.01)),
-            TextField(
-              controller: _descriptionController,
-              maxLines: 3,
-              style: TextStyle(fontSize: context.dynamicWidth(0.04)),
-              decoration: InputDecoration(
-                hintText: l?.translate('invitation_describe_design') ?? 'Describe what you want in the design...',
-                hintStyle: TextStyle(color: AppColors.gray400, fontSize: context.dynamicWidth(0.035)),
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
-                  borderSide: BorderSide(color: AppColors.gray300),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
-                  borderSide: BorderSide(color: AppColors.gray300),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
-                  borderSide: BorderSide(color: AppColors.primaryColor),
-                ),
-              ),
-              onChanged: (_) => setState(() {}),
-            ),
-
-            // Fee notice
-            SizedBox(height: context.dynamicHeight(0.02)),
-            Container(
-              padding: EdgeInsets.all(context.dynamicWidth(0.03)),
-              decoration: BoxDecoration(
-                color: AppColors.amber50,
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.02)),
-                border: Border.all(color: AppColors.amber200),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.info_outline, color: AppColors.amber600, size: context.dynamicWidth(0.05)),
-                  SizedBox(width: context.dynamicWidth(0.02)),
-                  Expanded(
-                    child: Text(
-                      l?.translate('invitation_design_fee_notice') ?? 'Design description may incur additional fees.',
-                      style: TextStyle(
-                        fontSize: context.dynamicWidth(0.03),
-                        color: AppColors.amber700,
+                          Positioned(
+                            top: context.dynamicWidth(0.02),
+                            right: context.dynamicWidth(0.02),
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _selectedFile = null;
+                                });
+                              },
+                              child: Container(
+                                padding: EdgeInsets.all(context.dynamicWidth(0.01)),
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: context.dynamicWidth(0.04),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.cloud_upload,
+                              size: context.dynamicWidth(0.12), color: AppColors.gray400),
+                          SizedBox(height: context.dynamicHeight(0.015)),
+                          Text(
+                            l?.translate('invitation_tap_to_upload') ?? 'Tap to upload image',
+                            style: TextStyle(
+                              color: AppColors.gray600,
+                              fontSize: context.dynamicWidth(0.04),
+                            ),
+                          ),
+                          SizedBox(height: context.dynamicHeight(0.005)),
+                          Text(
+                            l?.translate('invitation_image_format') ?? 'PNG, JPG (max 1920x1920)',
+                            style: TextStyle(
+                              color: AppColors.gray400,
+                              fontSize: context.dynamicWidth(0.03),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ),
-                ],
-              ),
+          ),
+        ),
+
+        SizedBox(height: context.dynamicHeight(0.025)),
+
+        // Description
+        Text(
+          l?.translate('invitation_description_optional') ?? 'Description (optional)',
+          style: TextStyle(
+            fontSize: context.dynamicWidth(0.035),
+            fontWeight: FontWeight.w500,
+            color: AppColors.gray700,
+          ),
+        ),
+        SizedBox(height: context.dynamicHeight(0.01)),
+        TextField(
+          controller: _descriptionController,
+          maxLines: 3,
+          style: TextStyle(fontSize: context.dynamicWidth(0.04)),
+          decoration: InputDecoration(
+            hintText: l?.translate('invitation_describe_design') ?? 'Describe what you want in the design...',
+            hintStyle: TextStyle(color: AppColors.gray400, fontSize: context.dynamicWidth(0.035)),
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+              borderSide: BorderSide(color: AppColors.gray300),
             ),
-
-            SizedBox(height: context.dynamicHeight(0.03)),
-
-            // Confirm Button - text changes based on what user is doing
-            SizedBox(
-              width: double.infinity,
-              child: PrimaryButton(
-                text: _getButtonText(l),
-                onPressed: _canConfirm ? _onConfirm : null,
-              ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+              borderSide: BorderSide(color: AppColors.gray300),
             ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+              borderSide: BorderSide(color: AppColors.primaryColor),
+            ),
+          ),
+          onChanged: (_) => setState(() {}),
+        ),
 
-            if (!_canConfirm) ...[
-              SizedBox(height: context.dynamicHeight(0.01)),
-              Center(
+        // Fee notice
+        SizedBox(height: context.dynamicHeight(0.02)),
+        Container(
+          padding: EdgeInsets.all(context.dynamicWidth(0.03)),
+          decoration: BoxDecoration(
+            color: AppColors.amber50,
+            borderRadius: BorderRadius.circular(context.dynamicWidth(0.02)),
+            border: Border.all(color: AppColors.amber200),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.info_outline, color: AppColors.amber600, size: context.dynamicWidth(0.05)),
+              SizedBox(width: context.dynamicWidth(0.02)),
+              Expanded(
                 child: Text(
-                  l?.translate('invitation_please_upload_or_describe') ?? 'Please upload an image or enter a description',
+                  l?.translate('invitation_design_fee_notice') ?? 'Design description may incur additional fees.',
                   style: TextStyle(
                     fontSize: context.dynamicWidth(0.03),
-                    color: AppColors.gray500,
+                    color: AppColors.amber700,
                   ),
                 ),
               ),
             ],
-
-            SizedBox(height: context.dynamicHeight(0.02)),
-          ],
+          ),
         ),
-      ),
+
+        SizedBox(height: context.dynamicHeight(0.03)),
+
+        // Confirm Button - text changes based on what user is doing
+        SizedBox(
+          width: double.infinity,
+          child: PrimaryButton(
+            text: _getButtonText(l),
+            onPressed: _canConfirm ? _onConfirm : null,
+          ),
+        ),
+
+        if (!_canConfirm) ...[
+          SizedBox(height: context.dynamicHeight(0.01)),
+          Center(
+            child: Text(
+              l?.translate('invitation_please_upload_or_describe') ?? 'Please upload an image or enter a description',
+              style: TextStyle(
+                fontSize: context.dynamicWidth(0.03),
+                color: AppColors.gray500,
+              ),
+            ),
+          ),
+        ],
+
+        SizedBox(height: context.dynamicHeight(0.02)),
+      ],
     );
   }
 }

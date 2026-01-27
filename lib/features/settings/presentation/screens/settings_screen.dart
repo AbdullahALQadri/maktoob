@@ -3,6 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/widgets/dialogs/app_dialog.dart';
+import '../../../../core/widgets/sheets/app_bottom_sheet.dart';
+import '../../../../core/widgets/snackbar/app_snackbar.dart';
 import '../../../../injection_container.dart' as di;
 import '../cubit/profile_cubit.dart';
 import '../cubit/settings_cubit.dart';
@@ -356,62 +359,40 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showContactDialog(BuildContext context, bool isArabic) {
-    showModalBottomSheet(
-      context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(context.dynamicWidth(0.06)),
-        ),
-      ),
-      builder: (context) => Container(
-        padding: EdgeInsets.all(context.dynamicWidth(0.06)),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: context.dynamicWidth(0.1),
-              height: context.dynamicHeight(0.005),
-              decoration: BoxDecoration(
-                color: AppColors.gray300,
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.01)),
-              ),
-            ),
-            SizedBox(height: context.dynamicHeight(0.03)),
-            Text(
-              isArabic ? 'تواصل معنا' : 'Contact Us',
-              style: TextStyle(
-                fontSize: context.dynamicWidth(0.05),
-                fontWeight: FontWeight.bold,
-                color: AppColors.gray900,
-              ),
-            ),
-            SizedBox(height: context.dynamicHeight(0.03)),
-            _buildContactOption(
-              context: context,
-              icon: Icons.email,
-              title: isArabic ? 'البريد الإلكتروني' : 'Email',
-              value: 'support@maktoob.app',
-              onTap: () => _copyToClipboard(context, 'support@maktoob.app', isArabic),
-            ),
-            SizedBox(height: context.dynamicHeight(0.02)),
-            _buildContactOption(
-              context: context,
-              icon: Icons.phone,
-              title: isArabic ? 'الهاتف' : 'Phone',
-              value: '+966 XX XXX XXXX',
-              onTap: () => _copyToClipboard(context, '+966XXXXXXXX', isArabic),
-            ),
-            SizedBox(height: context.dynamicHeight(0.02)),
-            _buildContactOption(
-              context: context,
-              icon: Icons.chat,
-              title: isArabic ? 'واتساب' : 'WhatsApp',
-              value: '+966 XX XXX XXXX',
-              onTap: () => _copyToClipboard(context, '+966XXXXXXXX', isArabic),
-            ),
-            SizedBox(height: context.dynamicHeight(0.03)),
-          ],
-        ),
+    AppBottomSheet.show(
+      context,
+      title: isArabic ? 'تواصل معنا' : 'Contact Us',
+      subtitle: isArabic ? 'نحن هنا لمساعدتك' : 'We are here to help you',
+      icon: Icons.contact_support_rounded,
+      iconColor: AppColors.primaryColor,
+      iconBackgroundColor: AppColors.purple50,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildContactOption(
+            context: context,
+            icon: Icons.email_rounded,
+            title: isArabic ? 'البريد الإلكتروني' : 'Email',
+            value: 'support@maktoob.app',
+            onTap: () => _copyToClipboard(context, 'support@maktoob.app', isArabic),
+          ),
+          SizedBox(height: context.dynamicHeight(0.015)),
+          _buildContactOption(
+            context: context,
+            icon: Icons.phone_rounded,
+            title: isArabic ? 'الهاتف' : 'Phone',
+            value: '+966 XX XXX XXXX',
+            onTap: () => _copyToClipboard(context, '+966XXXXXXXX', isArabic),
+          ),
+          SizedBox(height: context.dynamicHeight(0.015)),
+          _buildContactOption(
+            context: context,
+            icon: Icons.chat_rounded,
+            title: isArabic ? 'واتساب' : 'WhatsApp',
+            value: '+966 XX XXX XXXX',
+            onTap: () => _copyToClipboard(context, '+966XXXXXXXX', isArabic),
+          ),
+        ],
       ),
     );
   }
@@ -428,13 +409,29 @@ class SettingsScreen extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(context.dynamicWidth(0.04)),
         decoration: BoxDecoration(
-          color: AppColors.gray100,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
+          color: AppColors.gray50,
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
+          border: Border.all(
+            color: AppColors.gray200,
+            width: 1,
+          ),
         ),
         child: Row(
           children: [
-            Icon(icon, color: AppColors.primaryColor, size: context.dynamicWidth(0.06)),
-            SizedBox(width: context.dynamicWidth(0.04)),
+            Container(
+              width: context.dynamicWidth(0.11),
+              height: context.dynamicWidth(0.11),
+              decoration: BoxDecoration(
+                color: AppColors.purple50,
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.025)),
+              ),
+              child: Icon(
+                icon,
+                color: AppColors.primaryColor,
+                size: context.dynamicWidth(0.055),
+              ),
+            ),
+            SizedBox(width: context.dynamicWidth(0.035)),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -442,25 +439,34 @@ class SettingsScreen extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.035),
-                      fontWeight: FontWeight.bold,
+                      fontSize: context.dynamicWidth(0.038),
+                      fontWeight: FontWeight.w600,
                       color: AppColors.gray900,
                     ),
                   ),
+                  SizedBox(height: context.dynamicHeight(0.003)),
                   Text(
                     value,
                     style: TextStyle(
-                      fontSize: context.dynamicWidth(0.03),
+                      fontSize: context.dynamicWidth(0.032),
                       color: AppColors.gray500,
                     ),
                   ),
                 ],
               ),
             ),
-            Icon(
-              Icons.copy,
-              color: AppColors.gray400,
-              size: context.dynamicWidth(0.04),
+            Container(
+              width: context.dynamicWidth(0.09),
+              height: context.dynamicWidth(0.09),
+              decoration: BoxDecoration(
+                color: AppColors.gray100,
+                borderRadius: BorderRadius.circular(context.dynamicWidth(0.02)),
+              ),
+              child: Icon(
+                Icons.copy_rounded,
+                color: AppColors.gray500,
+                size: context.dynamicWidth(0.045),
+              ),
             ),
           ],
         ),
@@ -470,66 +476,155 @@ class SettingsScreen extends StatelessWidget {
 
   void _copyToClipboard(BuildContext context, String text, bool isArabic) {
     Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(isArabic ? 'تم النسخ إلى الحافظة' : 'Copied to clipboard'),
-        duration: const Duration(seconds: 2),
-      ),
+    AppSnackBar.showSuccess(
+      context,
+      message: isArabic ? 'تم النسخ إلى الحافظة' : 'Copied to clipboard',
+      duration: const Duration(seconds: 2),
     );
   }
 
   void _showHelpDialog(BuildContext context, bool isArabic) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(isArabic ? 'المساعدة' : 'Help'),
-        content: Text(isArabic
-            ? 'للمساعدة، يرجى التواصل معنا عبر البريد الإلكتروني أو الهاتف'
-            : 'For help, please contact us via email or phone'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(isArabic ? 'حسناً' : 'OK'),
-          ),
-        ],
-      ),
+    AppDialog.showInfo(
+      context,
+      title: isArabic ? 'المساعدة' : 'Help',
+      message: isArabic
+          ? 'للمساعدة، يرجى التواصل معنا عبر البريد الإلكتروني أو الهاتف'
+          : 'For help, please contact us via email or phone',
+      buttonText: isArabic ? 'حسناً' : 'OK',
     );
   }
 
   void _showAboutDialog(BuildContext context, bool isArabic) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(isArabic ? 'عن مكتوب' : 'About Maktoob'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              isArabic
-                  ? 'مكتوب - تطبيق إدارة الفعاليات والدعوات'
-                  : 'Maktoob - Event & Invitation Management App',
-              style: TextStyle(
-                fontSize: context.dynamicWidth(0.035),
-                color: AppColors.gray700,
-              ),
-            ),
-            SizedBox(height: context.dynamicHeight(0.015)),
-            Text(
-              isArabic ? 'الإصدار: 1.0.0' : 'Version: 1.0.0',
-              style: TextStyle(
-                fontSize: context.dynamicWidth(0.03),
-                color: AppColors.gray500,
-              ),
-            ),
-          ],
+    AppDialog.show(
+      context,
+      child: Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.symmetric(
+          horizontal: context.dynamicWidth(0.06),
+          vertical: context.dynamicHeight(0.03),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(isArabic ? 'حسناً' : 'OK'),
+        child: Container(
+          padding: EdgeInsets.all(context.dynamicWidth(0.06)),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(context.dynamicWidth(0.06)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.15),
+                blurRadius: context.dynamicWidth(0.08),
+                offset: Offset(0, context.dynamicHeight(0.02)),
+              ),
+            ],
           ),
-        ],
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // App Icon
+              Container(
+                width: context.dynamicWidth(0.2),
+                height: context.dynamicWidth(0.2),
+                decoration: BoxDecoration(
+                  color: AppColors.purple50,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primaryColor.withValues(alpha: 0.2),
+                      blurRadius: context.dynamicWidth(0.05),
+                      offset: Offset(0, context.dynamicHeight(0.01)),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.info_rounded,
+                  size: context.dynamicWidth(0.1),
+                  color: AppColors.primaryColor,
+                ),
+              ),
+              SizedBox(height: context.dynamicHeight(0.02)),
+              // Title
+              Text(
+                isArabic ? 'عن مكتوب' : 'About Maktoob',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: context.dynamicWidth(0.055),
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.gray900,
+                ),
+              ),
+              SizedBox(height: context.dynamicHeight(0.015)),
+              // Description
+              Text(
+                isArabic
+                    ? 'مكتوب - تطبيق إدارة الفعاليات والدعوات'
+                    : 'Maktoob - Event & Invitation Management App',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: context.dynamicWidth(0.038),
+                  color: AppColors.gray600,
+                  height: 1.5,
+                ),
+              ),
+              SizedBox(height: context.dynamicHeight(0.01)),
+              // Version badge
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.dynamicWidth(0.04),
+                  vertical: context.dynamicHeight(0.008),
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.gray100,
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.05)),
+                ),
+                child: Text(
+                  isArabic ? 'الإصدار 1.0.0' : 'Version 1.0.0',
+                  style: TextStyle(
+                    fontSize: context.dynamicWidth(0.032),
+                    color: AppColors.gray500,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              SizedBox(height: context.dynamicHeight(0.03)),
+              // OK Button
+              SizedBox(
+                width: double.infinity,
+                height: context.dynamicHeight(0.06),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [AppColors.primaryColor, AppColors.tertiaryColor],
+                    ),
+                    borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primaryColor.withValues(alpha: 0.3),
+                        blurRadius: context.dynamicWidth(0.03),
+                        offset: Offset(0, context.dynamicHeight(0.005)),
+                      ),
+                    ],
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => Navigator.pop(context),
+                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
+                      child: Center(
+                        child: Text(
+                          isArabic ? 'حسناً' : 'OK',
+                          style: TextStyle(
+                            fontSize: context.dynamicWidth(0.04),
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:pinput/pinput.dart';
 
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/media_query_values.dart';
+import '../../../../core/widgets/snackbar/app_snackbar.dart';
 import '../../domain/entities/user_entity.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
@@ -100,16 +101,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
       _startResendTimer();
       _pinController.clear();
       // Show snackbar
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_isArabic ? 'تم إرسال رمز جديد' : 'New code sent'),
-          backgroundColor: AppColors.green600,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          margin: const EdgeInsets.all(16),
-        ),
+      AppSnackBar.showSuccess(
+        context,
+        message: _isArabic ? 'تم إرسال رمز جديد' : 'New code sent',
       );
     }
   }

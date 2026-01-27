@@ -5,8 +5,10 @@ import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/media_query_values.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/dialogs/app_dialog.dart';
 import '../../../../core/widgets/loading/shimmer_loading.dart';
 import '../../../../core/widgets/loading/skeleton_widgets.dart';
+import '../../../../core/widgets/snackbar/app_snackbar.dart';
 import '../../../authentication/domain/entities/user_entity.dart';
 import '../cubit/profile_cubit.dart';
 import '../cubit/profile_state.dart';
@@ -40,28 +42,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             final message = state is ProfileUpdated
                 ? state.message
                 : (state as UserTypeChanged).message;
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(message),
-                backgroundColor: AppColors.green600,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            );
+            AppSnackBar.showSuccess(context, message: message);
             context.read<ProfileCubit>().resetToLoaded();
           } else if (state is ProfileError && state.user != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.red500,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            );
+            AppSnackBar.showError(context, message: state.message);
             context.read<ProfileCubit>().resetToLoaded();
           }
         },
@@ -1064,221 +1048,258 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final bool isConvertingToOrg = newType == UserType.institution;
     final reasonController = TextEditingController();
 
-    showDialog(
+    showGeneralDialog(
       context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (stateContext, setState) {
-          final bool canConfirm = reasonController.text.trim().isNotEmpty;
+      barrierDismissible: true,
+      barrierLabel: 'Dismiss',
+      barrierColor: Colors.black.withValues(alpha: 0.5),
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (dialogContext, animation, secondaryAnimation) {
+        return StatefulBuilder(
+          builder: (stateContext, setState) {
+            final bool canConfirm = reasonController.text.trim().isNotEmpty;
 
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            title: Row(
-              children: [
-                Icon(
-                  isConvertingToOrg ? Icons.business : Icons.person,
-                  color: AppColors.primaryColor,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    isArabic ? 'تغيير نوع الحساب' : 'Change Account Type',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    isArabic
-                        ? 'هل أنت متأكد من تغيير نوع حسابك إلى "${newType.displayNameAr}"؟'
-                        : 'Are you sure you want to change your account type to "${newType.displayName}"?',
-                  ),
-                  const SizedBox(height: 16),
-                  AppTextField(
-                    controller: reasonController,
-                    labelText: isArabic ? 'سبب التحويل' : 'Reason for conversion',
-                    hintText: isArabic ? 'أدخل سبب التحويل...' : 'Enter reason...',
-                    prefixIcon: Icons.description_outlined,
-                    maxLines: 3,
-                    onChanged: (_) => setState(() {}),
-                  ),
-                ],
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: EdgeInsets.symmetric(
+                horizontal: context.dynamicWidth(0.06),
+                vertical: context.dynamicHeight(0.03),
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext),
-                child: Text(
-                  isArabic ? 'إلغاء' : 'Cancel',
-                  style: TextStyle(color: AppColors.gray600),
+              child: Container(
+                constraints: BoxConstraints(
+                  maxWidth: context.dynamicWidth(0.9),
                 ),
-              ),
-              ElevatedButton(
-                onPressed: canConfirm
-                    ? () {
-                        Navigator.pop(dialogContext);
-                        profileCubit.changeUserType(
-                          newType,
-                          reason: reasonController.text.trim(),
-                        );
-                      }
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: AppColors.gray300,
-                  disabledForegroundColor: AppColors.gray500,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                padding: EdgeInsets.all(context.dynamicWidth(0.06)),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.06)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      blurRadius: context.dynamicWidth(0.08),
+                      offset: Offset(0, context.dynamicHeight(0.02)),
+                    ),
+                  ],
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Icon
+                      Container(
+                        width: context.dynamicWidth(0.2),
+                        height: context.dynamicWidth(0.2),
+                        decoration: BoxDecoration(
+                          color: AppColors.purple50,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primaryColor.withValues(alpha: 0.2),
+                              blurRadius: context.dynamicWidth(0.05),
+                              offset: Offset(0, context.dynamicHeight(0.01)),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          isConvertingToOrg ? Icons.business_rounded : Icons.person_rounded,
+                          size: context.dynamicWidth(0.1),
+                          color: AppColors.primaryColor,
+                        ),
+                      ),
+                      SizedBox(height: context.dynamicHeight(0.02)),
+                      // Title
+                      Text(
+                        isArabic ? 'تغيير نوع الحساب' : 'Change Account Type',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: context.dynamicWidth(0.055),
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.gray900,
+                        ),
+                      ),
+                      SizedBox(height: context.dynamicHeight(0.012)),
+                      // Message
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: context.dynamicWidth(0.02),
+                        ),
+                        child: Text(
+                          isArabic
+                              ? 'هل أنت متأكد من تغيير نوع حسابك إلى "${newType.displayNameAr}"؟'
+                              : 'Are you sure you want to change your account type to "${newType.displayName}"?',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: context.dynamicWidth(0.038),
+                            color: AppColors.gray600,
+                            height: 1.5,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: context.dynamicHeight(0.025)),
+                      // Reason TextField
+                      AppTextField(
+                        controller: reasonController,
+                        labelText: isArabic ? 'سبب التحويل' : 'Reason for conversion',
+                        hintText: isArabic ? 'أدخل سبب التحويل...' : 'Enter reason...',
+                        prefixIcon: Icons.description_outlined,
+                        maxLines: 3,
+                        onChanged: (_) => setState(() {}),
+                      ),
+                      SizedBox(height: context.dynamicHeight(0.03)),
+                      // Buttons
+                      Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => Navigator.pop(dialogContext),
+                              child: Container(
+                                height: context.dynamicHeight(0.06),
+                                decoration: BoxDecoration(
+                                  color: AppColors.gray100,
+                                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    isArabic ? 'إلغاء' : 'Cancel',
+                                    style: TextStyle(
+                                      fontSize: context.dynamicWidth(0.04),
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.gray700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: context.dynamicWidth(0.03)),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: canConfirm
+                                  ? () {
+                                      Navigator.pop(dialogContext);
+                                      profileCubit.changeUserType(
+                                        newType,
+                                        reason: reasonController.text.trim(),
+                                      );
+                                    }
+                                  : null,
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                height: context.dynamicHeight(0.06),
+                                decoration: BoxDecoration(
+                                  gradient: canConfirm
+                                      ? LinearGradient(
+                                          colors: [
+                                            AppColors.primaryColor,
+                                            AppColors.tertiaryColor,
+                                          ],
+                                        )
+                                      : null,
+                                  color: canConfirm ? null : AppColors.gray300,
+                                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
+                                  boxShadow: canConfirm
+                                      ? [
+                                          BoxShadow(
+                                            color: AppColors.primaryColor.withValues(alpha: 0.3),
+                                            blurRadius: context.dynamicWidth(0.03),
+                                            offset: Offset(0, context.dynamicHeight(0.005)),
+                                          ),
+                                        ]
+                                      : null,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    isArabic ? 'تأكيد' : 'Confirm',
+                                    style: TextStyle(
+                                      fontSize: context.dynamicWidth(0.04),
+                                      fontWeight: FontWeight.w600,
+                                      color: canConfirm ? Colors.white : AppColors.gray500,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                child: Text(isArabic ? 'تأكيد' : 'Confirm'),
               ),
-            ],
-          );
-        },
-      ),
+            );
+          },
+        );
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return ScaleTransition(
+          scale: CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutBack,
+          ),
+          child: FadeTransition(
+            opacity: animation,
+            child: child,
+          ),
+        );
+      },
     );
   }
 
   void _showEditProfileDialog(BuildContext context, bool isArabic) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(isArabic ? 'تعديل الملف الشخصي' : 'Edit Profile'),
-        content: Text(
-          isArabic
-              ? 'ميزة تعديل الملف الشخصي قيد التطوير'
-              : 'Edit profile feature coming soon',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(isArabic ? 'حسناً' : 'OK'),
-          ),
-        ],
-      ),
+    AppDialog.showInfo(
+      context,
+      title: isArabic ? 'تعديل الملف الشخصي' : 'Edit Profile',
+      message: isArabic
+          ? 'ميزة تعديل الملف الشخصي قيد التطوير'
+          : 'Edit profile feature coming soon',
+      buttonText: isArabic ? 'حسناً' : 'OK',
     );
   }
 
   void _showChangePasswordDialog(BuildContext context, bool isArabic) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(isArabic ? 'تغيير كلمة المرور' : 'Change Password'),
-        content: Text(
-          isArabic
-              ? 'ميزة تغيير كلمة المرور قيد التطوير'
-              : 'Change password feature coming soon',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(isArabic ? 'حسناً' : 'OK'),
-          ),
-        ],
-      ),
+    AppDialog.showInfo(
+      context,
+      title: isArabic ? 'تغيير كلمة المرور' : 'Change Password',
+      message: isArabic
+          ? 'ميزة تغيير كلمة المرور قيد التطوير'
+          : 'Change password feature coming soon',
+      buttonText: isArabic ? 'حسناً' : 'OK',
     );
   }
 
-  void _showLogoutDialog(BuildContext context, bool isArabic) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: Text(
-          isArabic ? 'تسجيل الخروج' : 'Logout',
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: Text(
-          isArabic
-              ? 'هل أنت متأكد من تسجيل الخروج؟'
-              : 'Are you sure you want to logout?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              isArabic ? 'إلغاء' : 'Cancel',
-              style: TextStyle(color: AppColors.gray600),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              // TODO: Implement logout
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryColor,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: Text(isArabic ? 'تسجيل الخروج' : 'Logout'),
-          ),
-        ],
-      ),
+  void _showLogoutDialog(BuildContext context, bool isArabic) async {
+    final confirmed = await AppDialog.showConfirmation(
+      context,
+      title: isArabic ? 'تسجيل الخروج' : 'Logout',
+      message: isArabic
+          ? 'هل أنت متأكد من تسجيل الخروج؟'
+          : 'Are you sure you want to logout?',
+      confirmText: isArabic ? 'تسجيل الخروج' : 'Logout',
+      cancelText: isArabic ? 'إلغاء' : 'Cancel',
+      type: DialogType.warning,
+      icon: Icons.logout_rounded,
     );
+
+    if (confirmed) {
+      // TODO: Implement logout
+    }
   }
 
-  void _showDeleteAccountDialog(BuildContext context, bool isArabic) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: Row(
-          children: [
-            Icon(Icons.warning_amber_rounded, color: AppColors.red500),
-            const SizedBox(width: 8),
-            Text(
-              isArabic ? 'حذف الحساب' : 'Delete Account',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: AppColors.red500,
-              ),
-            ),
-          ],
-        ),
-        content: Text(
-          isArabic
-              ? 'هل أنت متأكد من حذف حسابك؟ هذا الإجراء لا يمكن التراجع عنه.'
-              : 'Are you sure you want to delete your account? This action cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              isArabic ? 'إلغاء' : 'Cancel',
-              style: TextStyle(color: AppColors.gray600),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              // TODO: Implement delete account
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.red500,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: Text(isArabic ? 'حذف' : 'Delete'),
-          ),
-        ],
-      ),
+  void _showDeleteAccountDialog(BuildContext context, bool isArabic) async {
+    final confirmed = await AppDialog.showConfirmation(
+      context,
+      title: isArabic ? 'حذف الحساب' : 'Delete Account',
+      message: isArabic
+          ? 'هل أنت متأكد من حذف حسابك؟ هذا الإجراء لا يمكن التراجع عنه.'
+          : 'Are you sure you want to delete your account? This action cannot be undone.',
+      confirmText: isArabic ? 'حذف' : 'Delete',
+      cancelText: isArabic ? 'إلغاء' : 'Cancel',
+      type: DialogType.error,
+      icon: Icons.delete_forever_rounded,
     );
+
+    if (confirmed) {
+      // TODO: Implement delete account
+    }
   }
 }

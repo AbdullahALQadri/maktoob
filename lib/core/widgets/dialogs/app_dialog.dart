@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 
 import '../../utils/app_colors.dart';
 import '../../utils/app_strings.dart';
+import '../../utils/media_query_values.dart';
 import '../buttons/primary_button.dart';
 import '../buttons/secondary_button.dart';
 
-/// A customizable dialog widget for confirmations and alerts.
+/// A customizable modern dialog widget for confirmations and alerts.
 ///
 /// This widget provides a consistent dialog design throughout the app
 /// with support for various types (info, success, warning, error, confirmation).
+/// Fully responsive and supports RTL languages.
 ///
 /// Example usage:
 /// ```dart
@@ -68,6 +70,12 @@ class AppDialog extends StatelessWidget {
   /// Custom icon background color.
   final Color? iconBackgroundColor;
 
+  /// Whether primary button is enabled.
+  final bool isPrimaryEnabled;
+
+  /// Whether primary button is loading.
+  final bool isPrimaryLoading;
+
   const AppDialog({
     super.key,
     this.title,
@@ -78,11 +86,13 @@ class AppDialog extends StatelessWidget {
     this.secondaryButtonText,
     this.onPrimaryPressed,
     this.onSecondaryPressed,
-    this.showCloseButton = true,
+    this.showCloseButton = false,
     this.isDismissible = true,
     this.icon,
     this.iconColor,
     this.iconBackgroundColor,
+    this.isPrimaryEnabled = true,
+    this.isPrimaryLoading = false,
   });
 
   /// Shows a confirmation dialog and returns true if confirmed.
@@ -90,24 +100,43 @@ class AppDialog extends StatelessWidget {
     BuildContext context, {
     String? title,
     String? message,
+    Widget? content,
     String confirmText = 'Confirm',
     String cancelText = 'Cancel',
     DialogType type = DialogType.warning,
     bool isDismissible = true,
+    IconData? icon,
   }) async {
-    final result = await showDialog<bool>(
+    final result = await showGeneralDialog<bool>(
       context: context,
       barrierDismissible: isDismissible,
-      builder: (context) => AppDialog(
+      barrierLabel: 'Dismiss',
+      barrierColor: Colors.black.withValues(alpha: 0.5),
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, animation, secondaryAnimation) => AppDialog(
         title: title,
         message: message,
+        content: content,
         type: type,
+        icon: icon,
         primaryButtonText: confirmText,
         secondaryButtonText: cancelText,
         isDismissible: isDismissible,
         onPrimaryPressed: () => Navigator.of(context).pop(true),
         onSecondaryPressed: () => Navigator.of(context).pop(false),
       ),
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return ScaleTransition(
+          scale: CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutBack,
+          ),
+          child: FadeTransition(
+            opacity: animation,
+            child: child,
+          ),
+        );
+      },
     );
     return result ?? false;
   }
@@ -118,15 +147,19 @@ class AppDialog extends StatelessWidget {
     String? title,
     String? message,
     String buttonText = 'OK',
+    VoidCallback? onPressed,
   }) async {
-    await showDialog(
+    await _showAnimatedDialog(
       context: context,
-      builder: (context) => AppDialog(
+      child: AppDialog(
         title: title ?? 'Success',
         message: message,
         type: DialogType.success,
         primaryButtonText: buttonText,
-        onPrimaryPressed: () => Navigator.of(context).pop(),
+        onPrimaryPressed: () {
+          Navigator.of(context).pop();
+          onPressed?.call();
+        },
       ),
     );
   }
@@ -138,9 +171,9 @@ class AppDialog extends StatelessWidget {
     String? message,
     String buttonText = 'OK',
   }) async {
-    await showDialog(
+    await _showAnimatedDialog(
       context: context,
-      builder: (context) => AppDialog(
+      child: AppDialog(
         title: title ?? 'Error',
         message: message,
         type: DialogType.error,
@@ -157,9 +190,9 @@ class AppDialog extends StatelessWidget {
     String? message,
     String buttonText = 'OK',
   }) async {
-    await showDialog(
+    await _showAnimatedDialog(
       context: context,
-      builder: (context) => AppDialog(
+      child: AppDialog(
         title: title ?? 'Info',
         message: message,
         type: DialogType.info,
@@ -169,19 +202,99 @@ class AppDialog extends StatelessWidget {
     );
   }
 
-  /// Shows a custom dialog.
+  /// Shows a warning dialog.
+  static Future<void> showWarning(
+    BuildContext context, {
+    String? title,
+    String? message,
+    String buttonText = 'OK',
+  }) async {
+    await _showAnimatedDialog(
+      context: context,
+      child: AppDialog(
+        title: title ?? 'Warning',
+        message: message,
+        type: DialogType.warning,
+        primaryButtonText: buttonText,
+        onPrimaryPressed: () => Navigator.of(context).pop(),
+      ),
+    );
+  }
+
+  /// Shows a custom dialog with full control.
   static Future<T?> show<T>(
     BuildContext context, {
     required Widget child,
     bool isDismissible = true,
   }) async {
-    return showDialog<T>(
+    return _showAnimatedDialog<T>(
+      context: context,
+      isDismissible: isDismissible,
+      child: child,
+    );
+  }
+
+  /// Shows a dialog with custom content (e.g., with text fields).
+  static Future<T?> showCustom<T>(
+    BuildContext context, {
+    String? title,
+    String? message,
+    required Widget content,
+    DialogType type = DialogType.info,
+    String? primaryButtonText,
+    String? secondaryButtonText,
+    VoidCallback? onPrimaryPressed,
+    VoidCallback? onSecondaryPressed,
+    bool isDismissible = true,
+    bool isPrimaryEnabled = true,
+    bool isPrimaryLoading = false,
+    IconData? icon,
+  }) async {
+    return _showAnimatedDialog<T>(
+      context: context,
+      isDismissible: isDismissible,
+      child: AppDialog(
+        title: title,
+        message: message,
+        content: content,
+        type: type,
+        icon: icon,
+        primaryButtonText: primaryButtonText,
+        secondaryButtonText: secondaryButtonText,
+        onPrimaryPressed: onPrimaryPressed,
+        onSecondaryPressed: onSecondaryPressed,
+        isDismissible: isDismissible,
+        isPrimaryEnabled: isPrimaryEnabled,
+        isPrimaryLoading: isPrimaryLoading,
+      ),
+    );
+  }
+
+  /// Internal method to show animated dialog.
+  static Future<T?> _showAnimatedDialog<T>({
+    required BuildContext context,
+    required Widget child,
+    bool isDismissible = true,
+  }) {
+    return showGeneralDialog<T>(
       context: context,
       barrierDismissible: isDismissible,
-      builder: (context) => Dialog(
-        backgroundColor: AppColors.transparent,
-        child: child,
-      ),
+      barrierLabel: 'Dismiss',
+      barrierColor: Colors.black.withValues(alpha: 0.5),
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, animation, secondaryAnimation) => child,
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return ScaleTransition(
+          scale: CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutBack,
+          ),
+          child: FadeTransition(
+            opacity: animation,
+            child: child,
+          ),
+        );
+      },
     );
   }
 
@@ -189,112 +302,143 @@ class AppDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: AppColors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: context.dynamicWidth(0.06),
+        vertical: context.dynamicHeight(0.03),
+      ),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 400),
-        padding: const EdgeInsets.all(24),
+        constraints: BoxConstraints(
+          maxWidth: context.dynamicWidth(0.9),
+          maxHeight: context.dynamicHeight(0.85),
+        ),
+        padding: EdgeInsets.all(context.dynamicWidth(0.06)),
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(context.dynamicWidth(0.06)),
           boxShadow: [
             BoxShadow(
               color: AppColors.black.withValues(alpha: 0.15),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+              blurRadius: context.dynamicWidth(0.08),
+              offset: Offset(0, context.dynamicHeight(0.02)),
             ),
           ],
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Close button
-            if (showCloseButton)
-              Align(
-                alignment: Alignment.topRight,
-                child: GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
-                  child: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: AppColors.gray100,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.close,
-                      size: 18,
-                      color: AppColors.gray500,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Close button
+              if (showCloseButton)
+                Align(
+                  alignment: AlignmentDirectional.topEnd,
+                  child: GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Container(
+                      width: context.dynamicWidth(0.09),
+                      height: context.dynamicWidth(0.09),
+                      decoration: BoxDecoration(
+                        color: AppColors.gray100,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.close,
+                        size: context.dynamicWidth(0.05),
+                        color: AppColors.gray500,
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-            // Icon
-            _buildIcon(),
+              // Icon
+              _buildIcon(context),
 
-            // Title
-            if (title != null) ...[
-              const SizedBox(height: 16),
-              Text(
-                title!,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: AppStrings.fontFamily,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.gray900,
+              // Title
+              if (title != null) ...[
+                SizedBox(height: context.dynamicHeight(0.02)),
+                Text(
+                  title!,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: AppStrings.fontFamily,
+                    fontSize: context.dynamicWidth(0.055),
+                    fontWeight: FontWeight.bold,
+                    color: _getTitleColor(),
+                  ),
                 ),
-              ),
-            ],
+              ],
 
-            // Message
-            if (message != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                message!,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: AppStrings.fontFamily,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  color: AppColors.gray600,
-                  height: 1.5,
+              // Message
+              if (message != null) ...[
+                SizedBox(height: context.dynamicHeight(0.012)),
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: context.dynamicWidth(0.02),
+                  ),
+                  child: Text(
+                    message!,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: AppStrings.fontFamily,
+                      fontSize: context.dynamicWidth(0.038),
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.gray600,
+                      height: 1.5,
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
 
-            // Custom content
-            if (content != null) ...[
-              const SizedBox(height: 16),
-              content!,
-            ],
+              // Custom content
+              if (content != null) ...[
+                SizedBox(height: context.dynamicHeight(0.025)),
+                content!,
+              ],
 
-            // Buttons
-            if (primaryButtonText != null || secondaryButtonText != null) ...[
-              const SizedBox(height: 24),
-              _buildButtons(context),
+              // Buttons
+              if (primaryButtonText != null || secondaryButtonText != null) ...[
+                SizedBox(height: context.dynamicHeight(0.03)),
+                _buildButtons(context),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildIcon() {
+  Color _getTitleColor() {
+    switch (type) {
+      case DialogType.error:
+        return AppColors.red500;
+      case DialogType.warning:
+        return AppColors.amber700;
+      default:
+        return AppColors.gray900;
+    }
+  }
+
+  Widget _buildIcon(BuildContext context) {
     final dialogIcon = icon ?? _getDefaultIcon();
     final dialogIconColor = iconColor ?? _getIconColor();
     final dialogIconBackground = iconBackgroundColor ?? _getIconBackground();
 
     return Container(
-      width: 64,
-      height: 64,
+      width: context.dynamicWidth(0.2),
+      height: context.dynamicWidth(0.2),
       decoration: BoxDecoration(
         color: dialogIconBackground,
         shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: dialogIconColor.withValues(alpha: 0.2),
+            blurRadius: context.dynamicWidth(0.05),
+            offset: Offset(0, context.dynamicHeight(0.01)),
+          ),
+        ],
       ),
       child: Icon(
         dialogIcon,
-        size: 32,
+        size: context.dynamicWidth(0.1),
         color: dialogIconColor,
       ),
     );
@@ -303,15 +447,15 @@ class AppDialog extends StatelessWidget {
   IconData _getDefaultIcon() {
     switch (type) {
       case DialogType.success:
-        return Icons.check_circle_outline;
+        return Icons.check_circle_rounded;
       case DialogType.error:
-        return Icons.error_outline;
+        return Icons.error_rounded;
       case DialogType.warning:
         return Icons.warning_amber_rounded;
       case DialogType.info:
-        return Icons.info_outline;
+        return Icons.info_rounded;
       case DialogType.confirmation:
-        return Icons.help_outline;
+        return Icons.help_rounded;
     }
   }
 
@@ -335,9 +479,9 @@ class AppDialog extends StatelessWidget {
       case DialogType.success:
         return AppColors.green100;
       case DialogType.error:
-        return AppColors.red500.withValues(alpha: 0.1);
+        return AppColors.red500.withValues(alpha: 0.12);
       case DialogType.warning:
-        return AppColors.amber500.withValues(alpha: 0.1);
+        return AppColors.amber500.withValues(alpha: 0.12);
       case DialogType.info:
         return AppColors.blue50;
       case DialogType.confirmation:
@@ -346,6 +490,9 @@ class AppDialog extends StatelessWidget {
   }
 
   Widget _buildButtons(BuildContext context) {
+    final buttonHeight = context.dynamicHeight(0.06);
+    final borderRadius = context.dynamicWidth(0.035);
+
     if (secondaryButtonText != null && primaryButtonText != null) {
       return Row(
         children: [
@@ -353,15 +500,22 @@ class AppDialog extends StatelessWidget {
             child: SecondaryButton(
               text: secondaryButtonText!,
               onPressed: onSecondaryPressed ?? () => Navigator.of(context).pop(),
-              height: 48,
+              height: buttonHeight,
+              borderRadius: borderRadius,
+              useGradientBorder: false,
+              borderColor: AppColors.gray300,
+              textColor: AppColors.gray700,
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: context.dynamicWidth(0.03)),
           Expanded(
             child: PrimaryButton(
               text: primaryButtonText!,
-              onPressed: onPrimaryPressed,
-              height: 48,
+              onPressed: isPrimaryEnabled ? onPrimaryPressed : null,
+              isLoading: isPrimaryLoading,
+              isDisabled: !isPrimaryEnabled,
+              height: buttonHeight,
+              borderRadius: borderRadius,
               gradientColors: _getPrimaryButtonColors(),
             ),
           ),
@@ -372,8 +526,11 @@ class AppDialog extends StatelessWidget {
     if (primaryButtonText != null) {
       return PrimaryButton(
         text: primaryButtonText!,
-        onPressed: onPrimaryPressed,
-        height: 48,
+        onPressed: isPrimaryEnabled ? onPrimaryPressed : null,
+        isLoading: isPrimaryLoading,
+        isDisabled: !isPrimaryEnabled,
+        height: buttonHeight,
+        borderRadius: borderRadius,
         gradientColors: _getPrimaryButtonColors(),
       );
     }
@@ -382,7 +539,8 @@ class AppDialog extends StatelessWidget {
       return SecondaryButton(
         text: secondaryButtonText!,
         onPressed: onSecondaryPressed ?? () => Navigator.of(context).pop(),
-        height: 48,
+        height: buttonHeight,
+        borderRadius: borderRadius,
       );
     }
 
