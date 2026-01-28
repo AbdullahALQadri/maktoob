@@ -1,6 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
-import '../../../../core/utils/app_colors.dart';
+import '../../../../core/core.dart';
 
 /// Smart stats dashboard card for guest tracking
 class GuestStatsCard extends StatelessWidget {
@@ -19,7 +19,7 @@ class GuestStatsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = context.width;
 
     return Container(
       padding: EdgeInsets.all(screenWidth * 0.04),

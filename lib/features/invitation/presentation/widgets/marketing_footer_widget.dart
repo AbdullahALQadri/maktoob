@@ -1,7 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../../core/utils/app_colors.dart';
+import '../../../../core/core.dart';
 
 /// Marketing footer widget for invitations
 /// "Created with Maktoob - Create your invitation now"
@@ -15,7 +15,7 @@ class MarketingFooterWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = context.width;
 
     if (compact) {
       return _buildCompactFooter(screenWidth);

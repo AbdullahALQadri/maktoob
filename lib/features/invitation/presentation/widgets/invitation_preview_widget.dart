@@ -1,6 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
-import '../../../../core/utils/app_colors.dart';
+import '../../../../core/core.dart';
 import '../../data/models/invitation_draft_model.dart';
 
 /// Live preview widget for invitation
@@ -26,7 +26,7 @@ class InvitationPreviewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = context.width;
     final template = _getTemplateColors();
 
     return Container(

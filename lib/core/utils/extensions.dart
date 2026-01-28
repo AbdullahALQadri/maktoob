@@ -26,15 +26,6 @@ extension ContextExtensions on BuildContext {
   /// Returns the current [MediaQueryData].
   MediaQueryData get mediaQuery => MediaQuery.of(this);
 
-  /// Returns the screen size.
-  Size get screenSize => MediaQuery.of(this).size;
-
-  /// Returns the screen width.
-  double get screenWidth => MediaQuery.of(this).size.width;
-
-  /// Returns the screen height.
-  double get screenHeight => MediaQuery.of(this).size.height;
-
   /// Returns the device pixel ratio.
   double get devicePixelRatio => MediaQuery.of(this).devicePixelRatio;
 

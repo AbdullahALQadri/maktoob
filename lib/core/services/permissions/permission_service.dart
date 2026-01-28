@@ -46,7 +46,7 @@ class PermissionService {
       case AppPermission.contacts:
         return ph.Permission.contacts;
       case AppPermission.calendar:
-        return ph.Permission.calendar;
+        return ph.Permission.calendarFullAccess;
       case AppPermission.notification:
         return ph.Permission.notification;
       case AppPermission.bluetooth:

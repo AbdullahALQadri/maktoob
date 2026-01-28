@@ -1,6 +1,5 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
@@ -25,7 +24,7 @@ class ContactPickerWidget extends StatefulWidget {
 class _ContactPickerWidgetState extends State<ContactPickerWidget> {
   List<Contact> _contacts = [];
   List<Contact> _filteredContacts = [];
-  Set<String> _selectedPhones = {};
+  final Set<String> _selectedPhones = {};
   bool _isLoading = true;
   String? _errorMessage;
   final TextEditingController _searchController = TextEditingController();
@@ -39,7 +38,10 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
         _selectedPhones.add(_normalizePhone(guest.phone));
       }
     }
-    _loadContacts();
+    // Defer loading contacts until after the first frame when context is ready
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadContacts();
+    });
   }
 
   @override
@@ -80,45 +82,46 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
     });
 
     try {
-      // Request permission
-      final status = await Permission.contacts.request();
+      // Request permission using flutter_contacts built-in method
+      final hasPermission = await FlutterContacts.requestPermission();
 
-      if (status.isGranted) {
-        // Get contacts with phones
-        final contacts = await FlutterContacts.getContacts(
-          withProperties: true,
-          withPhoto: false,
-        );
-
-        // Filter contacts with valid Palestinian phone numbers
-        final validContacts = contacts.where((contact) {
-          return contact.phones.any((phone) =>
-            _isValidPalestinianNumber(phone.number));
-        }).toList();
-
-        // Sort by name
-        validContacts.sort((a, b) =>
-          (a.displayName).compareTo(b.displayName));
-
-        setState(() {
-          _contacts = validContacts;
-          _filteredContacts = validContacts;
-          _isLoading = false;
-        });
-      } else if (status.isPermanentlyDenied) {
-        setState(() {
-          _errorMessage = t.translate('contacts_permission_denied');
-          _isLoading = false;
-        });
-      } else {
+      if (!hasPermission) {
+        if (!mounted) return;
         setState(() {
           _errorMessage = t.translate('contacts_permission_required');
           _isLoading = false;
         });
+        return;
       }
-    } catch (e) {
+
+      // Permission granted - fetch contacts with full access
+      final contacts = await FlutterContacts.getContacts(
+        withProperties: true,
+        withPhoto: false,
+      );
+
+      // Filter contacts with valid Palestinian phone numbers
+      final validContacts = contacts.where((contact) {
+        return contact.phones.any((phone) =>
+          _isValidPalestinianNumber(phone.number));
+      }).toList();
+
+      // Sort by name
+      validContacts.sort((a, b) =>
+        (a.displayName).compareTo(b.displayName));
+
+      if (!mounted) return;
       setState(() {
-        _errorMessage = t.translate('contacts_error_loading');
+        _contacts = validContacts;
+        _filteredContacts = validContacts;
+        _isLoading = false;
+      });
+    } catch (e, stackTrace) {
+      debugPrint('Error loading contacts: $e');
+      debugPrint('Stack trace: $stackTrace');
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = '${t.translate('contacts_error_loading')}\n$e';
         _isLoading = false;
       });
     }
@@ -322,18 +325,11 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
                 ),
               ),
               const SizedBox(height: 24),
-              if (_errorMessage == t.translate('contacts_permission_denied'))
-                AppButton(
-                  text: t.translate('contacts_open_settings'),
-                  onPressed: () => openAppSettings(),
-                  width: 200,
-                )
-              else
-                AppButton(
-                  text: t.translate('contacts_retry'),
-                  onPressed: _loadContacts,
-                  width: 200,
-                ),
+              AppButton(
+                text: t.translate('contacts_retry'),
+                onPressed: _loadContacts,
+                width: 200,
+              ),
             ],
           ),
         ),

@@ -21,9 +21,9 @@ class ManualGuestForm extends StatefulWidget {
 }
 
 class _ManualGuestFormState extends State<ManualGuestForm> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _phoneController = TextEditingController();
+  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _phoneController = TextEditingController();
   final _nameFocusNode = FocusNode();
   final _phoneFocusNode = FocusNode();
 
@@ -60,28 +60,43 @@ class _ManualGuestFormState extends State<ManualGuestForm> {
     return pattern.hasMatch(normalized);
   }
 
+  void _resetForm() {
+    // Dispose old controllers
+    _nameController.dispose();
+    _phoneController.dispose();
+
+    // Create new controllers and form key
+    _nameController = TextEditingController();
+    _phoneController = TextEditingController();
+    _formKey = GlobalKey<FormState>();
+  }
+
   void _addGuest() {
     final t = AppLocalizations.of(context)!;
     if (_formKey.currentState!.validate()) {
       final normalizedPhone = _normalizePhone(_phoneController.text.trim());
+      final guestName = _nameController.text.trim();
 
       final guest = GuestInfoModel(
-        name: _nameController.text.trim(),
+        name: guestName,
         phone: normalizedPhone,
         source: GuestSource.manual,
       );
 
       widget.onGuestAdded(guest);
 
-      // Clear form
-      _nameController.clear();
-      _phoneController.clear();
-      _nameFocusNode.requestFocus();
+      // Close keyboard
+      FocusScope.of(context).unfocus();
+
+      // Reset form with new controllers
+      setState(() {
+        _resetForm();
+      });
 
       // Show success feedback
       AppSnackBar.showSuccess(
         context,
-        message: '${t.translate('guest_added_success')} ${guest.name}',
+        message: '${t.translate('guest_added_success')} $guestName',
         duration: const Duration(seconds: 2),
       );
     }

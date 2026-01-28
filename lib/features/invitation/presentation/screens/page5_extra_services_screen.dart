@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/locale/app_localizations.dart';
-import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/responsive.dart';
-import '../../../../core/widgets/app_button.dart';
-import '../../data/models/extra_service_model.dart';
+import '../../../../core/core.dart';
 import '../cubit/invitation_cubit.dart';
 import '../cubit/invitation_state.dart';
-import '../widgets/wizard_step_header.dart';
+import '../widgets/widgets.dart';
 
+/// Page 5: Extra Services Selection Screen
 class Page5ExtraServicesScreen extends StatefulWidget {
   const Page5ExtraServicesScreen({super.key});
 
@@ -22,7 +20,6 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
   @override
   void initState() {
     super.initState();
-    // Load services when screen opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<InvitationCubit>().loadExtraServices();
     });
@@ -40,53 +37,25 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
           body: SafeArea(
             child: Column(
               children: [
-                // Step Header
                 WizardStepHeader(
                   currentStep: 5,
                   totalSteps: 7,
-                  title: l?.translate('invitation_step5_title') ?? 'Extra Services',
+                  title:
+                      l?.translate('invitation_step5_title') ?? 'Extra Services',
                 ),
-
-                // Paid Services Badge
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: context.dynamicWidth(0.04),
-                    vertical: context.dynamicHeight(0.012),
-                  ),
-                  color: Colors.amber.shade100,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.monetization_on,
-                        color: Colors.amber.shade800,
-                        size: context.dynamicWidth(0.051),
-                      ),
-                      SizedBox(width: context.dynamicWidth(0.021)),
-                      Expanded(
-                        child: Text(
-                          l?.translate('invitation_paid_services_notice') ?? 'These are paid services that will be added to the final invoice',
-                          style: TextStyle(
-                            fontSize: context.dynamicWidth(0.032),
-                            color: Colors.amber.shade900,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Content
+                _PaidServicesNotice(l: l),
                 Expanded(
-                  child: _buildContent(context, state, l, isEnglish),
+                  child: _ExtraServicesContent(
+                      state: state, l: l, isEnglish: isEnglish),
                 ),
-
-                // Selected Services Summary
                 if (state.selectedServices.isNotEmpty)
-                  _buildSelectedSummary(context, state, l, isEnglish),
-
-                // Navigation Buttons
-                _buildNavigationButtons(context, state, l),
+                  ServicesSummaryBar(
+                    selectedServices: state.selectedServices,
+                    isEnglish: isEnglish,
+                  ),
+                WizardBottomBar(
+                  canProceed: !state.isLoadingServices,
+                ),
               ],
             ),
           ),
@@ -94,104 +63,69 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
       },
     );
   }
+}
 
-  Widget _buildContent(BuildContext context, InvitationState state, AppLocalizations? l, bool isEnglish) {
-    if (state.isLoadingServices) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const CircularProgressIndicator(),
-            SizedBox(height: context.dynamicHeight(0.02)),
-            Text(
-              l?.translate('invitation_loading_services') ?? 'Loading services...',
+class _PaidServicesNotice extends StatelessWidget {
+  final AppLocalizations? l;
+
+  const _PaidServicesNotice({this.l});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: context.dynamicWidth(0.04),
+        vertical: context.dynamicHeight(0.012),
+      ),
+      color: Colors.amber.shade100,
+      child: Row(
+        children: [
+          Icon(
+            Icons.monetization_on,
+            color: Colors.amber.shade800,
+            size: context.dynamicWidth(0.051),
+          ),
+          SizedBox(width: context.dynamicWidth(0.021)),
+          Expanded(
+            child: Text(
+              l?.translate('invitation_paid_services_notice') ??
+                  'These are paid services that will be added to the final invoice',
               style: TextStyle(
-                fontSize: context.dynamicWidth(0.04),
-                color: Colors.grey,
+                fontSize: context.dynamicWidth(0.032),
+                color: Colors.amber.shade900,
+                fontWeight: FontWeight.w500,
               ),
             ),
-          ],
-        ),
-      );
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ExtraServicesContent extends StatelessWidget {
+  final InvitationState state;
+  final AppLocalizations? l;
+  final bool isEnglish;
+
+  const _ExtraServicesContent({
+    required this.state,
+    this.l,
+    required this.isEnglish,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (state.isLoadingServices) {
+      return _LoadingState(l: l);
     }
 
     if (state.servicesError != null) {
-      return Center(
-        child: Padding(
-          padding: EdgeInsets.all(context.dynamicWidth(0.061)),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.error_outline,
-                size: context.dynamicWidth(0.16),
-                color: Colors.red.shade300,
-              ),
-              SizedBox(height: context.dynamicHeight(0.02)),
-              Text(
-                l?.translate('invitation_services_error') ?? 'Error loading services',
-                style: TextStyle(
-                  fontSize: context.dynamicWidth(0.045),
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey.shade800,
-                ),
-              ),
-              SizedBox(height: context.dynamicHeight(0.01)),
-              Text(
-                state.servicesError!,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: context.dynamicWidth(0.035),
-                  color: Colors.grey.shade600,
-                ),
-              ),
-              SizedBox(height: context.dynamicHeight(0.03)),
-              AppButton(
-                text: l?.translate('common_retry') ?? 'Retry',
-                onPressed: () {
-                  context.read<InvitationCubit>().loadExtraServices();
-                },
-                width: context.dynamicWidth(0.501),
-              ),
-            ],
-          ),
-        ),
-      );
+      return _ErrorState(error: state.servicesError!, l: l);
     }
 
     if (state.availableServices.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: EdgeInsets.all(context.dynamicWidth(0.061)),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.room_service_outlined,
-                size: context.dynamicWidth(0.2),
-                color: Colors.grey.shade400,
-              ),
-              SizedBox(height: context.dynamicHeight(0.02)),
-              Text(
-                l?.translate('invitation_no_services') ?? 'No extra services available',
-                style: TextStyle(
-                  fontSize: context.dynamicWidth(0.045),
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey.shade700,
-                ),
-              ),
-              SizedBox(height: context.dynamicHeight(0.01)),
-              Text(
-                l?.translate('invitation_continue_next_step') ?? 'You can continue to the next step',
-                style: TextStyle(
-                  fontSize: context.dynamicWidth(0.035),
-                  color: Colors.grey.shade500,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+      return _EmptyState(l: l);
     }
 
     return SingleChildScrollView(
@@ -199,17 +133,15 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Info text
           Text(
-            l?.translate('invitation_select_services') ?? 'Select the extra services you want for your event',
+            l?.translate('invitation_select_services') ??
+                'Select the extra services you want for your event',
             style: TextStyle(
               fontSize: context.dynamicWidth(0.037),
               color: Colors.grey.shade700,
             ),
           ),
           SizedBox(height: context.dynamicHeight(0.02)),
-
-          // Services Grid
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -222,275 +154,139 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
             itemCount: state.availableServices.length,
             itemBuilder: (context, index) {
               final service = state.availableServices[index];
-              final isSelected = state.selectedServices.contains(service);
-              return _buildServiceCard(context, service, isSelected, isEnglish);
+              return ExtraServiceCard(
+                service: service,
+                isSelected: state.selectedServices.contains(service),
+                isEnglish: isEnglish,
+              );
             },
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildServiceCard(
-      BuildContext context, ExtraServiceModel service, bool isSelected, bool isEnglish) {
-    return GestureDetector(
-      onTap: () {
-        context.read<InvitationCubit>().toggleService(service);
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : Colors.white,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
-          border: Border.all(
-            color: isSelected ? AppColors.primary : Colors.grey.shade300,
-            width: isSelected ? 2 : 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: context.dynamicWidth(0.024),
-              offset: Offset(0, context.dynamicHeight(0.005)),
+class _LoadingState extends StatelessWidget {
+  final AppLocalizations? l;
+
+  const _LoadingState({this.l});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(),
+          SizedBox(height: context.dynamicHeight(0.02)),
+          Text(
+            l?.translate('invitation_loading_services') ?? 'Loading services...',
+            style: TextStyle(
+              fontSize: context.dynamicWidth(0.04),
+              color: Colors.grey,
             ),
-          ],
-        ),
-        child: Stack(
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ErrorState extends StatelessWidget {
+  final String error;
+  final AppLocalizations? l;
+
+  const _ErrorState({required this.error, this.l});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(context.dynamicWidth(0.061)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Content
-            Padding(
-              padding: EdgeInsets.all(context.dynamicWidth(0.04)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Icon
-                  Container(
-                    width: context.dynamicWidth(0.141),
-                    height: context.dynamicWidth(0.141),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? AppColors.primary.withValues(alpha: 0.2)
-                          : Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
-                    ),
-                    child: service.iconUrl != null
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
-                            child: Image.network(
-                              service.iconUrl!,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Icon(
-                                Icons.room_service,
-                                size: context.dynamicWidth(0.069),
-                                color: isSelected
-                                    ? AppColors.primary
-                                    : Colors.grey.shade600,
-                              ),
-                            ),
-                          )
-                        : Icon(
-                            Icons.room_service,
-                            size: context.dynamicWidth(0.069),
-                            color: isSelected
-                                ? AppColors.primary
-                                : Colors.grey.shade600,
-                          ),
-                  ),
-                  SizedBox(height: context.dynamicHeight(0.015)),
-
-                  // Primary Name (based on language)
-                  Text(
-                    isEnglish ? service.name : service.nameAr,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: context.dynamicWidth(0.035),
-                      fontWeight: FontWeight.bold,
-                      color: isSelected
-                          ? AppColors.primary
-                          : Colors.grey.shade800,
-                    ),
-                  ),
-
-                  // Secondary Name if different
-                  if (service.name != service.nameAr) ...[
-                    SizedBox(height: context.dynamicHeight(0.005)),
-                    Text(
-                      isEnglish ? service.nameAr : service.name,
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: context.dynamicWidth(0.029),
-                        color: Colors.grey.shade500,
-                      ),
-                    ),
-                  ],
-
-                  const Spacer(),
-
-                  // Price
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: context.dynamicWidth(0.029),
-                      vertical: context.dynamicHeight(0.007),
-                    ),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? AppColors.primary
-                          : Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(context.dynamicWidth(0.051)),
-                    ),
-                    child: Text(
-                      '${service.price.toStringAsFixed(0)} ₪',
-                      style: TextStyle(
-                        fontSize: context.dynamicWidth(0.035),
-                        fontWeight: FontWeight.bold,
-                        color: isSelected ? Colors.white : Colors.grey.shade700,
-                      ),
-                    ),
-                  ),
-                ],
+            Icon(
+              Icons.error_outline,
+              size: context.dynamicWidth(0.16),
+              color: Colors.red.shade300,
+            ),
+            SizedBox(height: context.dynamicHeight(0.02)),
+            Text(
+              l?.translate('invitation_services_error') ??
+                  'Error loading services',
+              style: TextStyle(
+                fontSize: context.dynamicWidth(0.045),
+                fontWeight: FontWeight.bold,
+                color: Colors.grey.shade800,
               ),
             ),
-
-            // Selection indicator
-            if (isSelected)
-              Positioned(
-                top: context.dynamicWidth(0.021),
-                right: context.dynamicWidth(0.021),
-                child: Container(
-                  width: context.dynamicWidth(0.061),
-                  height: context.dynamicWidth(0.061),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.check,
-                    color: Colors.white,
-                    size: context.dynamicWidth(0.04),
-                  ),
-                ),
+            SizedBox(height: context.dynamicHeight(0.01)),
+            Text(
+              error,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: context.dynamicWidth(0.035),
+                color: Colors.grey.shade600,
               ),
+            ),
+            SizedBox(height: context.dynamicHeight(0.03)),
+            SizedBox(
+              width: context.dynamicWidth(0.501),
+              child: PrimaryButton(
+                text: l?.translate('common_retry') ?? 'Retry',
+                onPressed: () {
+                  context.read<InvitationCubit>().loadExtraServices();
+                },
+              ),
+            ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildSelectedSummary(BuildContext context, InvitationState state, AppLocalizations? l, bool isEnglish) {
-    final totalPrice = state.selectedServices.fold<double>(
-      0,
-      (sum, service) => sum + service.price,
-    );
+class _EmptyState extends StatelessWidget {
+  final AppLocalizations? l;
 
-    return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
-      decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.1),
-        border: Border(
-          top: BorderSide(
-            color: AppColors.primary.withValues(alpha: 0.3),
-          ),
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.shopping_cart,
-            color: AppColors.primary,
-            size: context.dynamicWidth(0.061),
-          ),
-          SizedBox(width: context.dynamicWidth(0.029)),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${l?.translate('invitation_selected_services') ?? 'Selected services'}: ${state.selectedServices.length}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: context.dynamicWidth(0.035),
-                  ),
-                ),
-                Text(
-                  state.selectedServices.map((s) => isEnglish ? s.name : s.nameAr).join(isEnglish ? ', ' : ' ، '),
-                  style: TextStyle(
-                    fontSize: context.dynamicWidth(0.029),
-                    color: Colors.grey.shade700,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+  const _EmptyState({this.l});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(context.dynamicWidth(0.061)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.room_service_outlined,
+              size: context.dynamicWidth(0.2),
+              color: Colors.grey.shade400,
             ),
-          ),
-          Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: context.dynamicWidth(0.029),
-              vertical: context.dynamicHeight(0.01),
-            ),
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(context.dynamicWidth(0.021)),
-            ),
-            child: Text(
-              '${totalPrice.toStringAsFixed(0)} ₪',
+            SizedBox(height: context.dynamicHeight(0.02)),
+            Text(
+              l?.translate('invitation_no_services') ??
+                  'No extra services available',
               style: TextStyle(
-                color: Colors.white,
+                fontSize: context.dynamicWidth(0.045),
                 fontWeight: FontWeight.bold,
-                fontSize: context.dynamicWidth(0.035),
+                color: Colors.grey.shade700,
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNavigationButtons(BuildContext context, InvitationState state, AppLocalizations? l) {
-    return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // Back Button
-          Expanded(
-            child: AppButton(
-              text: l?.translate('common_back') ?? 'Back',
-              onPressed: () {
-                context.read<InvitationCubit>().previousStep();
-              },
-              backgroundColor: Colors.grey.shade200,
-              textColor: Colors.black87,
+            SizedBox(height: context.dynamicHeight(0.01)),
+            Text(
+              l?.translate('invitation_continue_next_step') ??
+                  'You can continue to the next step',
+              style: TextStyle(
+                fontSize: context.dynamicWidth(0.035),
+                color: Colors.grey.shade500,
+              ),
             ),
-          ),
-
-          SizedBox(width: context.dynamicWidth(0.029)),
-
-          // Next Button (can proceed without selecting any services)
-          Expanded(
-            flex: 2,
-            child: AppButton(
-              text: l?.translate('common_next') ?? 'Next',
-              onPressed: state.isLoadingServices
-                  ? null
-                  : () {
-                      context.read<InvitationCubit>().nextStep();
-                    },
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

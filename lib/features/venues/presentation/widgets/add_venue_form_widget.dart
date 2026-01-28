@@ -24,11 +24,11 @@ class AddVenueFormWidget extends StatefulWidget {
 }
 
 class _AddVenueFormWidgetState extends State<AddVenueFormWidget> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _capacityController = TextEditingController();
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _addressController = TextEditingController();
+  TextEditingController _phoneController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _capacityController = TextEditingController();
 
   @override
   void dispose() {
@@ -38,6 +38,20 @@ class _AddVenueFormWidgetState extends State<AddVenueFormWidget> {
     _emailController.dispose();
     _capacityController.dispose();
     super.dispose();
+  }
+
+  void _resetForm() {
+    _nameController.dispose();
+    _addressController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+    _capacityController.dispose();
+
+    _nameController = TextEditingController();
+    _addressController = TextEditingController();
+    _phoneController = TextEditingController();
+    _emailController = TextEditingController();
+    _capacityController = TextEditingController();
   }
 
   @override
@@ -197,12 +211,10 @@ class _AddVenueFormWidgetState extends State<AddVenueFormWidget> {
                     ? null
                     : () {
                         widget.onSubmit();
-                        // Clear the text controllers after submit
-                        _nameController.clear();
-                        _addressController.clear();
-                        _phoneController.clear();
-                        _emailController.clear();
-                        _capacityController.clear();
+                        // Reset form with new controllers
+                        setState(() {
+                          _resetForm();
+                        });
                       },
                 borderRadius: BorderRadius.circular(12),
                 child: Padding(

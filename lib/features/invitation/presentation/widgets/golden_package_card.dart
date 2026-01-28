@@ -1,6 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
-import '../../../../core/utils/app_colors.dart';
+import '../../../../core/core.dart';
 import '../../data/models/golden_package_model.dart';
 
 /// Package card widget for Golden Scenario
@@ -18,7 +18,7 @@ class GoldenPackageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = context.width;
 
     return GestureDetector(
       onTap: onTap,

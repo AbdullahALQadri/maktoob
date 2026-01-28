@@ -1,6 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
-import '../../../../core/utils/app_colors.dart';
+import '../../../../core/core.dart';
 import '../../data/models/invitation_draft_model.dart';
 
 /// Card widget for event type selection
@@ -18,7 +18,7 @@ class EventTypeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = context.width;
 
     return GestureDetector(
       onTap: onTap,

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/utils/app_colors.dart';
-import '../../../../core/widgets/buttons/primary_button.dart';
+import '../../../../core/core.dart';
 import '../../data/models/invitation_draft_model.dart';
 import '../cubit/invitation_cubit.dart';
 import '../cubit/invitation_state.dart';
@@ -22,8 +21,8 @@ class EventTypeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = context.height;
+    final screenWidth = context.width;
 
     return Scaffold(
       backgroundColor: Colors.white,

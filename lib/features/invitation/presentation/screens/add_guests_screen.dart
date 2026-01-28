@@ -28,9 +28,9 @@ class AddGuestsScreen extends StatefulWidget {
 }
 
 class _AddGuestsScreenState extends State<AddGuestsScreen> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _phoneController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
 
   @override
   void dispose() {
@@ -38,6 +38,16 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
     _phoneController.dispose();
     _emailController.dispose();
     super.dispose();
+  }
+
+  void _resetForm() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+
+    _nameController = TextEditingController();
+    _phoneController = TextEditingController();
+    _emailController = TextEditingController();
   }
 
   @override
@@ -414,9 +424,10 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
 
     context.read<InvitationCubit>().addGuestDirect(guest);
 
-    // Clear fields
-    _nameController.clear();
-    _phoneController.clear();
-    _emailController.clear();
+    // Close keyboard and reset form with new controllers
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _resetForm();
+    });
   }
 }

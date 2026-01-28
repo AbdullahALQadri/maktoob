@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/app_strings.dart';
-import '../../../../core/utils/responsive.dart';
+import '../../../../core/core.dart';
+import '../widgets/widgets.dart';
 
+/// Splash screen with animated logo.
 class SplashScreen extends StatefulWidget {
   final VoidCallback onFinished;
 
@@ -25,7 +25,11 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
+    _initAnimations();
+    Timer(const Duration(milliseconds: 2500), widget.onFinished);
+  }
 
+  void _initAnimations() {
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1800),
@@ -53,8 +57,6 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     _controller.forward();
-
-    Timer(const Duration(milliseconds: 2500), widget.onFinished);
   }
 
   @override
@@ -66,54 +68,18 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.primaryColor,
-              AppColors.primaryColor.withValues(alpha: 0.85),
-              AppColors.tertiaryColor.withValues(alpha: 0.9),
-            ],
-            stops: const [0.0, 0.4, 1.0],
-          ),
-        ),
+      body: _SplashBackground(
         child: Stack(
           children: [
-            _buildDecorativePattern(),
+            const AuthDecorativePattern(),
             Center(
               child: AnimatedBuilder(
                 animation: _controller,
-                builder: (context, child) {
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Logo
-                      FadeTransition(
-                        opacity: _logoFade,
-                        child: ScaleTransition(
-                          scale: _logoScale,
-                          child: _buildLogo(),
-                        ),
-                      ),
-                      SizedBox(height: context.dynamicHeight(0.03)),
-                      // App Name
-                      FadeTransition(
-                        opacity: _textFade,
-                        child: Text(
-                          AppStrings.appName,
-                          style: TextStyle(
-                            fontSize: context.dynamicWidth(0.085),
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            letterSpacing: 3,
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                },
+                builder: (context, child) => _AnimatedContent(
+                  logoFade: _logoFade,
+                  logoScale: _logoScale,
+                  textFade: _textFade,
+                ),
               ),
             ),
           ],
@@ -121,8 +87,77 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
   }
+}
 
-  Widget _buildLogo() {
+class _SplashBackground extends StatelessWidget {
+  final Widget child;
+
+  const _SplashBackground({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            AppColors.primaryColor,
+            AppColors.primaryColor.withValues(alpha: 0.85),
+            AppColors.tertiaryColor.withValues(alpha: 0.9),
+          ],
+          stops: const [0.0, 0.4, 1.0],
+        ),
+      ),
+      child: child,
+    );
+  }
+}
+
+class _AnimatedContent extends StatelessWidget {
+  final Animation<double> logoFade;
+  final Animation<double> logoScale;
+  final Animation<double> textFade;
+
+  const _AnimatedContent({
+    required this.logoFade,
+    required this.logoScale,
+    required this.textFade,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FadeTransition(
+          opacity: logoFade,
+          child: ScaleTransition(
+            scale: logoScale,
+            child: _SplashLogo(),
+          ),
+        ),
+        SizedBox(height: context.dynamicHeight(0.03)),
+        FadeTransition(
+          opacity: textFade,
+          child: Text(
+            AppStrings.appName,
+            style: TextStyle(
+              fontSize: context.dynamicWidth(0.085),
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              letterSpacing: 3,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SplashLogo extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
     return Hero(
       tag: 'app_logo',
       child: Container(
@@ -143,71 +178,10 @@ class _SplashScreenState extends State<SplashScreen>
         child: ClipOval(
           child: Padding(
             padding: EdgeInsets.all(context.dynamicWidth(0.043)),
-            child: Image.asset(
-              'assets/images/logo.png',
-              fit: BoxFit.contain,
-            ),
+            child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildDecorativePattern() {
-    return Stack(
-      children: [
-        Positioned(
-          top: -context.dynamicWidth(0.349),
-          right: -context.dynamicWidth(0.251),
-          child: Container(
-            width: context.dynamicWidth(0.8),
-            height: context.dynamicWidth(0.8),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.1),
-                width: 1.5,
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: -context.dynamicWidth(0.2),
-          left: -context.dynamicWidth(0.301),
-          child: Container(
-            width: context.dynamicWidth(0.6),
-            height: context.dynamicWidth(0.6),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withValues(alpha: 0.05),
-            ),
-          ),
-        ),
-        Positioned(
-          top: context.dynamicHeight(0.15),
-          left: context.dynamicWidth(0.101),
-          child: Container(
-            width: 12,
-            height: 12,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withValues(alpha: 0.3),
-            ),
-          ),
-        ),
-        Positioned(
-          top: context.dynamicHeight(0.25),
-          right: context.dynamicWidth(0.149),
-          child: Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withValues(alpha: 0.2),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

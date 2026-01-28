@@ -1,6 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
-import '../../../../core/utils/app_colors.dart';
+import '../../../../core/core.dart';
 import '../../data/models/invitation_draft_model.dart';
 
 /// Horizontal scrollable template selector
@@ -16,7 +16,7 @@ class TemplateSelectorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = context.width;
     final templates = InvitationTemplateModel.templates;
 
     return SizedBox(
