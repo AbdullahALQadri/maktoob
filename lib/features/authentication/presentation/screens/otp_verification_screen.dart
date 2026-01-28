@@ -202,7 +202,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
     return Row(
       children: [
         GestureDetector(
-          onTap: widget.onBack,
+          onTap: () {
+            widget.onBack();
+            if (context.mounted) {
+              Navigator.of(context).pop();
+            }
+          },
           child: Container(
             width: 46,
             height: 46,

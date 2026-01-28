@@ -9,7 +9,6 @@ import 'core/utils/app_strings.dart';
 import 'core/widgets/network/offline_wrapper.dart';
 import 'features/authentication/presentation/cubit/auth_cubit.dart';
 import 'features/authentication/presentation/widgets/auth_wrapper.dart';
-import 'features/events/presentation/cubit/create_event/create_event_cubit.dart';
 import 'features/events/presentation/cubit/event_details/event_details_cubit.dart';
 import 'features/events/presentation/cubit/events_list/events_list_cubit.dart';
 import 'features/home/presentation/cubit/home_cubit.dart';
@@ -52,11 +51,6 @@ class Maktoob extends StatelessWidget {
         BlocProvider<EventDetailsCubit>(
           lazy: true,
           create: (_) => di.sl<EventDetailsCubit>(),
-        ),
-        // Lazy load - only create when create event screen is accessed
-        BlocProvider<CreateEventCubit>(
-          lazy: true,
-          create: (_) => di.sl<CreateEventCubit>(),
         ),
         // Lazy load - only create when venues screen is accessed
         BlocProvider<VenuesCubit>(

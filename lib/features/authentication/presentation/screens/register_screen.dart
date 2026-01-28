@@ -277,7 +277,9 @@ class _RegisterScreenState extends State<RegisterScreen>
                       widget.onRegisterSuccess?.call();
                     }
                   },
-                  onBack: () => Navigator.pop(context),
+                  onBack: () {
+                    // Pop is handled by OTP screen itself
+                  },
                 ),
               ),
             ),

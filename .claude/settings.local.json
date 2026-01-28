@@ -36,7 +36,12 @@
       "Bash(do sed -i 's/\\\\.withOpacity\\(\\\\\\(.*\\\\\\)\\)/\\\\.withValues\\(alpha: \\\\1\\)/g' \"$f\")",
       "Bash(python:*)",
       "Bash(python3:*)",
-      "Bash(dart --version:*)"
+      "Bash(dart --version:*)",
+      "Bash(del \"c:\\\\Users\\\\MSI\\\\StudioProjects\\\\maktoob\\\\lib\\\\features\\\\events\\\\presentation\\\\screens\\\\create_event_screen.dart\")",
+      "Bash(del \"c:\\\\Users\\\\MSI\\\\StudioProjects\\\\maktoob\\\\lib\\\\features\\\\events\\\\presentation\\\\cubit\\\\create_event\\\\create_event_cubit.dart\")",
+      "Bash(del \"c:\\\\Users\\\\MSI\\\\StudioProjects\\\\maktoob\\\\lib\\\\features\\\\events\\\\presentation\\\\cubit\\\\create_event\\\\create_event_state.dart\")",
+      "Bash(del \"c:\\\\Users\\\\MSI\\\\StudioProjects\\\\maktoob\\\\lib\\\\features\\\\events\\\\domain\\\\usecases\\\\create_event_usecase.dart\")",
+      "Bash(del \"c:\\\\Users\\\\MSI\\\\StudioProjects\\\\maktoob\\\\lib\\\\features\\\\events\\\\presentation\\\\screens\\\\events_screen.dart\")"
     ]
   }
 }

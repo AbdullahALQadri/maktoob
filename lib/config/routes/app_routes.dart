@@ -4,8 +4,6 @@ import '../../core/utils/app_strings.dart';
 import '../../features/authentication/presentation/screens/login_screen.dart';
 import '../../features/authentication/presentation/screens/register_screen.dart';
 import '../../features/authentication/presentation/screens/splash_screen.dart';
-import '../../features/events/presentation/screens/create_event_screen.dart';
-import '../../features/events/presentation/screens/events_screen.dart';
 import '../../features/events/presentation/screens/event_details_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/venues/presentation/screens/venue_screen.dart';
@@ -21,9 +19,7 @@ class Routes {
   static const String register = '/register';
   static const String main = '/main';
   static const String home = '/home';
-  static const String events = '/events';
   static const String eventDetails = '/event-details';
-  static const String createEvent = '/create-event';
   static const String venue = '/venue';
   static const String scanner = '/scanner';
   static const String payment = '/payment';
@@ -75,16 +71,6 @@ class AppRoutes {
       case Routes.home:
         return _buildRoute(const HomeScreen(), settings);
 
-      // Events Screen
-      case Routes.events:
-        return _buildRoute(
-          EventsScreen(
-            onUploadPayment: (id) {},
-            onViewEvent: (id) {},
-          ),
-          settings,
-        );
-
       // Event Details Screen
       case Routes.eventDetails:
         final args = settings.arguments as Map<String, dynamic>?;
@@ -95,10 +81,6 @@ class AppRoutes {
           ),
           settings,
         );
-
-      // Create Event Screen
-      case Routes.createEvent:
-        return _buildRoute(const CreateEventScreen(), settings);
 
       // Venue Screen
       case Routes.venue:

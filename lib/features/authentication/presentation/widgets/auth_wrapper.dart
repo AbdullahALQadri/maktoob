@@ -48,9 +48,8 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
-        if (state is AuthRegistered) {
-          _goToLogin();
-        }
+        // AuthRegistered is handled by RegisterScreen (navigates to OTP first)
+        // After OTP verification, onRegisterSuccess triggers _goToLogin
       },
       builder: (context, state) {
         if (state is AuthInitial) {
