@@ -103,6 +103,7 @@ class Maktoob extends StatelessWidget {
             title: AppStrings.appName,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
+            themeMode: ThemeMode.light,
             locale: locale,
             supportedLocales: AppLocalizationsSetup.supportedLocales,
             localizationsDelegates:
