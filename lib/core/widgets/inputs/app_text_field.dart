@@ -202,7 +202,7 @@ class _AppTextFieldState extends State<AppTextField> {
               fontFamily: AppStrings.fontFamily,
               fontSize: context.dynamicWidth(0.035),
               fontWeight: FontWeight.w500,
-              color: AppColors.gray700,
+              color: context.textTertiary,
             ),
           ),
           SizedBox(height: context.dynamicHeight(0.01)),
@@ -232,7 +232,7 @@ class _AppTextFieldState extends State<AppTextField> {
             fontFamily: AppStrings.fontFamily,
             fontSize: context.dynamicWidth(0.04),
             fontWeight: FontWeight.w400,
-            color: AppColors.gray900,
+            color: context.textPrimary,
           ),
           decoration: InputDecoration(
             hintText: widget.hintText,
@@ -240,18 +240,18 @@ class _AppTextFieldState extends State<AppTextField> {
               fontFamily: AppStrings.fontFamily,
               fontSize: context.dynamicWidth(0.04),
               fontWeight: FontWeight.w400,
-              color: AppColors.gray400,
+              color: context.hintColor,
             ),
             errorText: widget.errorText,
             helperText: widget.helperText,
             helperStyle: TextStyle(
               fontFamily: AppStrings.fontFamily,
               fontSize: context.dynamicWidth(0.029),
-              color: AppColors.gray500,
+              color: context.iconSecondary,
             ),
             counterText: widget.showCounter ? null : '',
             filled: true,
-            fillColor: widget.fillColor ?? AppColors.gray100,
+            fillColor: widget.fillColor ?? context.inputFill,
             contentPadding: widget.contentPadding ??
                 EdgeInsets.symmetric(
                   horizontal: context.dynamicWidth(0.04),
@@ -259,8 +259,8 @@ class _AppTextFieldState extends State<AppTextField> {
                 ),
             prefixIcon: _buildPrefixIcon(context),
             suffixIcon: _buildSuffixIcon(context),
-            border: _buildBorder(context, AppColors.gray200),
-            enabledBorder: _buildBorder(context, widget.borderColor ?? AppColors.gray200),
+            border: _buildBorder(context, context.borderColor),
+            enabledBorder: _buildBorder(context, widget.borderColor ?? context.borderColor),
             focusedBorder: _buildBorder(
               context,
               widget.focusedBorderColor ?? AppColors.primaryColor,
@@ -268,7 +268,7 @@ class _AppTextFieldState extends State<AppTextField> {
             ),
             errorBorder: _buildBorder(context, AppColors.red500),
             focusedErrorBorder: _buildBorder(context, AppColors.red500, width: 1.5),
-            disabledBorder: _buildBorder(context, AppColors.gray200),
+            disabledBorder: _buildBorder(context, context.borderColor),
           ),
         ),
       ],
@@ -294,7 +294,7 @@ class _AppTextFieldState extends State<AppTextField> {
         child: Icon(
           widget.prefixIcon,
           size: context.dynamicWidth(0.056),
-          color: _isFocused ? AppColors.primaryColor : AppColors.gray400,
+          color: _isFocused ? AppColors.primaryColor : context.iconDefault,
         ),
       );
     }
@@ -314,7 +314,7 @@ class _AppTextFieldState extends State<AppTextField> {
           child: Icon(
             _obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
             size: context.dynamicWidth(0.056),
-            color: AppColors.gray400,
+            color: context.iconDefault,
           ),
         ),
       );
@@ -336,7 +336,7 @@ class _AppTextFieldState extends State<AppTextField> {
           child: Icon(
             widget.suffixIcon,
             size: context.dynamicWidth(0.056),
-            color: AppColors.gray400,
+            color: context.iconDefault,
           ),
         ),
       );

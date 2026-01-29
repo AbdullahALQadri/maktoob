@@ -120,7 +120,7 @@ class SecondaryButton extends StatelessWidget {
         child: Container(
           margin: useGradientBorder ? EdgeInsets.all(borderWidth) : null,
           decoration: BoxDecoration(
-            color: AppColors.white,
+            color: context.cardBg,
             borderRadius:
                 BorderRadius.circular(effectiveBorderRadius - (useGradientBorder ? borderWidth : 0)),
           ),

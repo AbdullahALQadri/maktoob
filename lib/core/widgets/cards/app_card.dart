@@ -252,23 +252,23 @@ class AppCard extends StatelessWidget {
     switch (variant) {
       case CardVariant.flat:
         return BoxDecoration(
-          color: backgroundColor ?? AppColors.white,
+          color: backgroundColor ?? context.cardBg,
           borderRadius: BorderRadius.circular(radius),
         );
 
       case CardVariant.outlined:
         return BoxDecoration(
-          color: backgroundColor ?? AppColors.white,
+          color: backgroundColor ?? context.cardBg,
           borderRadius: BorderRadius.circular(radius),
           border: Border.all(
-            color: borderColor ?? AppColors.gray200,
+            color: borderColor ?? context.borderColor,
             width: borderWidth,
           ),
         );
 
       case CardVariant.elevated:
         return BoxDecoration(
-          color: backgroundColor ?? AppColors.white,
+          color: backgroundColor ?? context.cardBg,
           borderRadius: BorderRadius.circular(radius),
           boxShadow: [
             BoxShadow(
@@ -288,7 +288,7 @@ class AppCard extends StatelessWidget {
 
       case CardVariant.filled:
         return BoxDecoration(
-          color: backgroundColor ?? AppColors.gray50,
+          color: backgroundColor ?? context.surfaceColor,
           borderRadius: BorderRadius.circular(radius),
         );
     }

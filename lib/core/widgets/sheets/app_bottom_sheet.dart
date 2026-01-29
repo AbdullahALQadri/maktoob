@@ -184,7 +184,7 @@ class AppBottomSheet extends StatelessWidget {
         builder: (context, scrollController) {
           return Container(
             decoration: BoxDecoration(
-              color: backgroundColor ?? AppColors.white,
+              color: backgroundColor ?? context.cardBg,
               borderRadius: BorderRadius.vertical(
                 top: Radius.circular(effectiveBorderRadius),
               ),
@@ -424,7 +424,7 @@ class AppBottomSheet extends StatelessWidget {
         minHeight: screenHeight * effectiveMinHeight,
       ),
       decoration: BoxDecoration(
-        color: backgroundColor ?? AppColors.white,
+        color: backgroundColor ?? context.cardBg,
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(effectiveBorderRadius),
         ),
@@ -513,7 +513,7 @@ class _SheetHeader extends StatelessWidget {
             width: context.dynamicWidth(0.101),
             height: context.dynamicHeight(0.005),
             decoration: BoxDecoration(
-              color: AppColors.gray300,
+              color: context.borderColor,
               borderRadius: BorderRadius.circular(context.dynamicWidth(0.011)),
             ),
           ),
@@ -567,7 +567,7 @@ class _SheetHeader extends StatelessWidget {
                             fontFamily: AppStrings.fontFamily,
                             fontSize: context.dynamicWidth(0.051),
                             fontWeight: FontWeight.bold,
-                            color: AppColors.gray900,
+                            color: context.textPrimary,
                           ),
                         ),
                         if (subtitle != null) ...[
@@ -578,7 +578,7 @@ class _SheetHeader extends StatelessWidget {
                             style: TextStyle(
                               fontFamily: AppStrings.fontFamily,
                               fontSize: context.dynamicWidth(0.035),
-                              color: AppColors.gray500,
+                              color: context.iconSecondary,
                             ),
                           ),
                         ],
@@ -603,13 +603,13 @@ class _SheetHeader extends StatelessWidget {
                       width: context.dynamicWidth(0.091),
                       height: context.dynamicWidth(0.091),
                       decoration: BoxDecoration(
-                        color: AppColors.gray100,
+                        color: context.overlayBg,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.close_rounded,
                         size: context.dynamicWidth(0.051),
-                        color: AppColors.gray500,
+                        color: context.iconSecondary,
                       ),
                     ),
                   ),
@@ -622,7 +622,7 @@ class _SheetHeader extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.061)),
             child: Divider(
-              color: AppColors.gray100,
+              color: context.overlayBg,
               height: context.dynamicHeight(0.02),
             ),
           ),
@@ -657,7 +657,7 @@ class _ConfirmSheet extends StatelessWidget {
           style: TextStyle(
             fontFamily: AppStrings.fontFamily,
             fontSize: context.dynamicWidth(0.037),
-            color: AppColors.gray600,
+            color: context.textSecondary,
             height: 1.5,
           ),
         ),
@@ -671,8 +671,8 @@ class _ConfirmSheet extends StatelessWidget {
                 height: context.dynamicHeight(0.06),
                 borderRadius: context.dynamicWidth(0.035),
                 useGradientBorder: false,
-                borderColor: AppColors.gray300,
-                textColor: AppColors.gray700,
+                borderColor: context.borderColor,
+                textColor: context.textTertiary,
               ),
             ),
             SizedBox(width: context.dynamicWidth(0.029)),
@@ -720,7 +720,7 @@ class _InfoSheet extends StatelessWidget {
           style: TextStyle(
             fontFamily: AppStrings.fontFamily,
             fontSize: context.dynamicWidth(0.037),
-            color: AppColors.gray600,
+            color: context.textSecondary,
             height: 1.5,
           ),
         ),
@@ -767,10 +767,10 @@ class _OptionsSheet<T> extends StatelessWidget {
               vertical: context.dynamicHeight(0.018),
             ),
             decoration: BoxDecoration(
-              color: isSelected ? AppColors.purple50 : AppColors.gray50,
+              color: isSelected ? AppColors.purple50 : context.surfaceColor,
               borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
               border: Border.all(
-                color: isSelected ? AppColors.primaryColor : AppColors.gray200,
+                color: isSelected ? AppColors.primaryColor : context.borderColor,
                 width: isSelected ? 2 : 1,
               ),
             ),
@@ -783,12 +783,12 @@ class _OptionsSheet<T> extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: isSelected
                           ? AppColors.primaryColor.withValues(alpha: 0.1)
-                          : AppColors.gray100,
+                          : context.overlayBg,
                       borderRadius: BorderRadius.circular(context.dynamicWidth(0.024)),
                     ),
                     child: Icon(
                       option.icon,
-                      color: isSelected ? AppColors.primaryColor : AppColors.gray500,
+                      color: isSelected ? AppColors.primaryColor : context.iconSecondary,
                       size: context.dynamicWidth(0.051),
                     ),
                   ),
@@ -804,7 +804,7 @@ class _OptionsSheet<T> extends StatelessWidget {
                           fontFamily: AppStrings.fontFamily,
                           fontSize: context.dynamicWidth(0.04),
                           fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                          color: isSelected ? AppColors.primaryColor : AppColors.gray900,
+                          color: isSelected ? AppColors.primaryColor : context.textPrimary,
                         ),
                       ),
                       if (option.subtitle != null) ...[
@@ -814,7 +814,7 @@ class _OptionsSheet<T> extends StatelessWidget {
                           style: TextStyle(
                             fontFamily: AppStrings.fontFamily,
                             fontSize: context.dynamicWidth(0.032),
-                            color: AppColors.gray500,
+                            color: context.iconSecondary,
                           ),
                         ),
                       ],
@@ -873,7 +873,7 @@ class _ActionsSheet<T> extends StatelessWidget {
               decoration: BoxDecoration(
                 color: action.isDestructive
                     ? AppColors.red500.withValues(alpha: 0.05)
-                    : AppColors.gray50,
+                    : context.surfaceColor,
                 borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
               ),
               child: Row(
@@ -885,12 +885,12 @@ class _ActionsSheet<T> extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: action.isDestructive
                             ? AppColors.red500.withValues(alpha: 0.1)
-                            : AppColors.gray100,
+                            : context.overlayBg,
                         borderRadius: BorderRadius.circular(context.dynamicWidth(0.024)),
                       ),
                       child: Icon(
                         action.icon,
-                        color: action.isDestructive ? AppColors.red500 : AppColors.gray600,
+                        color: action.isDestructive ? AppColors.red500 : context.textSecondary,
                         size: context.dynamicWidth(0.051),
                       ),
                     ),
@@ -903,13 +903,13 @@ class _ActionsSheet<T> extends StatelessWidget {
                         fontFamily: AppStrings.fontFamily,
                         fontSize: context.dynamicWidth(0.04),
                         fontWeight: FontWeight.w500,
-                        color: action.isDestructive ? AppColors.red500 : AppColors.gray900,
+                        color: action.isDestructive ? AppColors.red500 : context.textPrimary,
                       ),
                     ),
                   ),
                   Icon(
                     Icons.chevron_right_rounded,
-                    color: action.isDestructive ? AppColors.red500 : AppColors.gray400,
+                    color: action.isDestructive ? AppColors.red500 : context.iconDefault,
                     size: context.dynamicWidth(0.051),
                   ),
                 ],
@@ -925,7 +925,7 @@ class _ActionsSheet<T> extends StatelessWidget {
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.018)),
               decoration: BoxDecoration(
-                color: AppColors.gray100,
+                color: context.overlayBg,
                 borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
               ),
               child: Text(
@@ -935,7 +935,7 @@ class _ActionsSheet<T> extends StatelessWidget {
                   fontFamily: AppStrings.fontFamily,
                   fontSize: context.dynamicWidth(0.04),
                   fontWeight: FontWeight.w600,
-                  color: AppColors.gray700,
+                  color: context.textTertiary,
                 ),
               ),
             ),

@@ -124,7 +124,7 @@ class ExtraServiceCard extends StatelessWidget {
       overflow: TextOverflow.ellipsis,
       style: TextStyle(
         fontSize: context.dynamicWidth(0.029),
-        color: Colors.grey.shade500,
+        color: context.iconSecondary,
       ),
     );
   }

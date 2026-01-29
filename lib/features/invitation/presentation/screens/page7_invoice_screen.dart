@@ -44,7 +44,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
       listener: (context, state) => _handleStateChange(context, state, l),
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: Colors.grey.shade50,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: SafeArea(
             child: Column(
               children: [

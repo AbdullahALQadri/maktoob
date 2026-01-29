@@ -34,7 +34,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
     return BlocBuilder<InvitationCubit, InvitationState>(
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: Colors.grey.shade50,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: SafeArea(
             child: Column(
               children: [
@@ -237,7 +237,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
             l?.translate('invitation_continue_next_step') ?? 'You can continue to the next step',
             style: TextStyle(
               fontSize: context.dynamicWidth(0.035),
-              color: Colors.grey.shade500,
+              color: context.iconSecondary,
             ),
           ),
         ],
@@ -336,7 +336,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: context.dynamicWidth(0.051), color: Colors.grey.shade500),
+          Icon(icon, size: context.dynamicWidth(0.051), color: context.iconSecondary),
           SizedBox(width: context.dynamicWidth(0.029)),
           Expanded(
             child: Column(

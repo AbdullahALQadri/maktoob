@@ -61,7 +61,7 @@ class _EmptyGuestList extends StatelessWidget {
                 'Use the options above to add guests',
             style: TextStyle(
               fontSize: context.dynamicWidth(0.032),
-              color: Colors.grey.shade500,
+              color: context.iconSecondary,
             ),
           ),
         ],

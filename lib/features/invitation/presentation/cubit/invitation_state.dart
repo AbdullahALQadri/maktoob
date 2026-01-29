@@ -535,7 +535,11 @@ class InvitationState extends Equatable {
       (selectedTemplate?.isCustom ?? false) || uploadedTemplateFile != null;
 
   /// Should skip preview page
-  bool get shouldSkipPreview => isCustomEventType || isCustomTemplate;
+  /// Skip only if custom event type or custom template without uploaded image
+  /// (e.g., only description sent to admin). Show preview if an image was uploaded.
+  bool get shouldSkipPreview =>
+      isCustomEventType ||
+      (isCustomTemplate && uploadedTemplateFile == null);
 
   /// Total guest count from all sources
   int get totalGuestCount => guests.length;

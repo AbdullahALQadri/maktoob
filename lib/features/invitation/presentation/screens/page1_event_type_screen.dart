@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart' as ph;
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
@@ -18,7 +22,7 @@ class Page1EventTypeScreen extends StatelessWidget {
     return BlocBuilder<InvitationCubit, InvitationState>(
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: Colors.grey.shade50,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: Column(
             children: [
               WizardStepHeader(
@@ -184,9 +188,9 @@ class _TemplatesGrid extends StatelessWidget {
     }
   }
 
-  void _showCustomTemplateBottomSheet(BuildContext context) {
+  Future<void> _showCustomTemplateBottomSheet(BuildContext context) async {
     final l = AppLocalizations.of(context);
-    AppBottomSheet.show(
+    final result = await AppBottomSheet.show<String>(
       context,
       title: l?.translate('invitation_custom_template') ?? 'Custom Template',
       subtitle: l?.translate('invitation_upload_or_describe') ??
@@ -199,6 +203,59 @@ class _TemplatesGrid extends StatelessWidget {
         child: const CustomTemplateBottomSheetContent(),
       ),
     );
+
+    if (result == 'pick_image' && context.mounted) {
+      await _pickImageFromGallery(context);
+    }
+  }
+
+  Future<void> _pickImageFromGallery(BuildContext context) async {
+    try {
+      // Request storage permission for Android < 13
+      // On Android 13+, image_picker uses the system photo picker (no permission needed)
+      final storageStatus = await ph.Permission.storage.request();
+      debugPrint('Storage permission status: $storageStatus');
+
+      // Also try photos permission for Android 13+
+      if (!storageStatus.isGranted) {
+        final photosStatus = await ph.Permission.photos.request();
+        debugPrint('Photos permission status: $photosStatus');
+      }
+
+      // Always try the picker regardless of permission result
+      // The system photo picker and ACTION_PICK intent can work without explicit permission
+      final picker = ImagePicker();
+      final image = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1920,
+        maxHeight: 1920,
+        imageQuality: 85,
+        requestFullMetadata: false,
+      );
+
+      if (image != null && context.mounted) {
+        final cubit = context.read<InvitationCubit>();
+        cubit.clearSelectedTemplate();
+        cubit.uploadCustomTemplate(File(image.path));
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+      if (context.mounted) {
+        final l = AppLocalizations.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              l?.translate('error_picking_image') ??
+                  'Failed to open gallery. Please check app permissions.',
+            ),
+            action: SnackBarAction(
+              label: l?.translate('open_settings') ?? 'Settings',
+              onPressed: () => ph.openAppSettings(),
+            ),
+          ),
+        );
+      }
+    }
   }
 }
 

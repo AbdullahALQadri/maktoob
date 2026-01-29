@@ -83,3 +83,47 @@ class AppColors {
   static const Color red100 = Color(0xFFFEE2E2);
   static const Color red500 = Color(0xFFEF4444);
 }
+
+/// Theme-aware color getters for dark/light mode support.
+///
+/// Usage: `context.textPrimary`, `context.cardBg`, `context.inputFill`, etc.
+extension AppThemeColors on BuildContext {
+  bool get isDarkMode => Theme.of(this).brightness == Brightness.dark;
+
+  // Backgrounds
+  Color get scaffoldBg => Theme.of(this).scaffoldBackgroundColor;
+  Color get cardBg =>
+      isDarkMode ? const Color(0xFF1E1E1E) : AppColors.white;
+  Color get surfaceColor =>
+      isDarkMode ? AppColors.gray800 : AppColors.gray50;
+  Color get inputFill =>
+      isDarkMode ? AppColors.gray800 : AppColors.gray100;
+
+  // Text
+  Color get textPrimary =>
+      isDarkMode ? AppColors.white : AppColors.gray900;
+  Color get textSecondary =>
+      isDarkMode ? AppColors.gray400 : AppColors.gray600;
+  Color get textTertiary =>
+      isDarkMode ? AppColors.gray500 : AppColors.gray700;
+  Color get hintColor =>
+      isDarkMode ? AppColors.gray500 : AppColors.gray400;
+
+  // Borders & Dividers
+  Color get borderColor =>
+      isDarkMode ? AppColors.gray700 : AppColors.gray200;
+  Color get dividerColor =>
+      isDarkMode ? AppColors.gray700 : AppColors.gray200;
+
+  // Icons
+  Color get iconDefault =>
+      isDarkMode ? AppColors.gray300 : AppColors.gray400;
+  Color get iconSecondary =>
+      isDarkMode ? AppColors.gray400 : AppColors.gray500;
+
+  // Misc
+  Color get chipBg =>
+      isDarkMode ? AppColors.gray800 : AppColors.gray100;
+  Color get overlayBg =>
+      isDarkMode ? AppColors.gray800 : AppColors.gray100;
+}

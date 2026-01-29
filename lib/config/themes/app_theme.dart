@@ -228,7 +228,7 @@ class AppTheme {
       ),
       dragHandleColor: AppColors.gray300,
       dragHandleSize: Size(40, 4),
-      showDragHandle: true,
+      showDragHandle: false,
     ),
 
     // Snackbar Theme
@@ -599,7 +599,7 @@ class AppTheme {
       ),
       dragHandleColor: AppColors.gray600,
       dragHandleSize: Size(40, 4),
-      showDragHandle: true,
+      showDragHandle: false,
     ),
 
     // Snackbar Theme
@@ -616,6 +616,109 @@ class AppTheme {
       ),
       behavior: SnackBarBehavior.floating,
       elevation: 4,
+    ),
+
+    // Chip Theme
+    chipTheme: ChipThemeData(
+      backgroundColor: AppColors.gray800,
+      selectedColor: AppColors.primaryColor.withValues(alpha: 0.2),
+      disabledColor: AppColors.gray800,
+      labelStyle: const TextStyle(
+        fontFamily: AppStrings.fontFamily,
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+        color: AppColors.gray300,
+      ),
+      secondaryLabelStyle: const TextStyle(
+        fontFamily: AppStrings.fontFamily,
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+        color: AppColors.primaryColor,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+      ),
+      side: BorderSide.none,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    ),
+
+    // Checkbox Theme
+    checkboxTheme: CheckboxThemeData(
+      fillColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return AppColors.primaryColor;
+        }
+        return AppColors.transparent;
+      }),
+      checkColor: WidgetStateProperty.all(AppColors.white),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(4),
+      ),
+      side: const BorderSide(color: AppColors.gray500, width: 1.5),
+    ),
+
+    // Radio Theme
+    radioTheme: RadioThemeData(
+      fillColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return AppColors.primaryColor;
+        }
+        return AppColors.gray500;
+      }),
+    ),
+
+    // Switch Theme
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return AppColors.white;
+        }
+        return AppColors.gray300;
+      }),
+      trackColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return AppColors.primaryColor;
+        }
+        return AppColors.gray700;
+      }),
+      trackOutlineColor: WidgetStateProperty.all(AppColors.transparent),
+    ),
+
+    // Tab Bar Theme
+    tabBarTheme: const TabBarThemeData(
+      labelColor: AppColors.primaryColor,
+      unselectedLabelColor: AppColors.gray500,
+      indicatorColor: AppColors.primaryColor,
+      labelStyle: TextStyle(
+        fontFamily: AppStrings.fontFamily,
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+      ),
+      unselectedLabelStyle: TextStyle(
+        fontFamily: AppStrings.fontFamily,
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+      ),
+      indicatorSize: TabBarIndicatorSize.label,
+    ),
+
+    // List Tile Theme
+    listTileTheme: const ListTileThemeData(
+      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      iconColor: AppColors.gray400,
+      textColor: AppColors.white,
+      titleTextStyle: TextStyle(
+        fontFamily: AppStrings.fontFamily,
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        color: AppColors.white,
+      ),
+      subtitleTextStyle: TextStyle(
+        fontFamily: AppStrings.fontFamily,
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        color: AppColors.gray500,
+      ),
     ),
 
     // Divider Theme

@@ -2,11 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
-import '../../../../core/services/permissions/permission_service.dart';
+
 import '../cubit/invitation_cubit.dart';
 
 /// Bottom sheet content for custom template upload and description.
@@ -22,7 +21,6 @@ class _CustomTemplateBottomSheetContentState
     extends State<CustomTemplateBottomSheetContent> {
   File? _selectedFile;
   final _descriptionController = TextEditingController();
-  bool _isPickingImage = false;
 
   @override
   void initState() {
@@ -63,7 +61,7 @@ class _CustomTemplateBottomSheetContentState
 
   Widget _buildUploadArea(BuildContext context, AppLocalizations? l) {
     return GestureDetector(
-      onTap: _isPickingImage ? null : _pickImage,
+      onTap: _pickImage,
       child: Container(
         height: context.dynamicHeight(0.22),
         width: double.infinity,
@@ -76,11 +74,9 @@ class _CustomTemplateBottomSheetContentState
             width: _selectedFile != null ? 2 : 1,
           ),
         ),
-        child: _isPickingImage
-            ? const Center(child: CircularProgressIndicator())
-            : _selectedFile != null
-                ? _buildImagePreview(context)
-                : _buildUploadPlaceholder(context, l),
+        child: _selectedFile != null
+            ? _buildImagePreview(context)
+            : _buildUploadPlaceholder(context, l),
       ),
     );
   }
@@ -251,104 +247,34 @@ class _CustomTemplateBottomSheetContentState
   }
 
   String _getButtonText(AppLocalizations? l) {
-    if (_selectedFile != null) {
-      return l?.translate('invitation_upload') ?? 'Upload';
-    } else if (_descriptionController.text.trim().isNotEmpty) {
-      return l?.translate('invitation_add_description') ?? 'Add Description';
+    final hasImage = _selectedFile != null;
+    final hasDescription = _descriptionController.text.trim().isNotEmpty;
+
+    if (hasImage && hasDescription) {
+      return l?.translate('invitation_attach_and_send') ??
+          'Attach Image & Send Description';
+    } else if (hasImage) {
+      return l?.translate('invitation_attach_image') ?? 'Attach Image';
+    } else if (hasDescription) {
+      return l?.translate('invitation_send_description_to_admin') ??
+          'Send Description to Admin';
     }
     return l?.translate('invitation_confirm') ?? 'Confirm';
   }
 
-  Future<void> _pickImage() async {
-    if (_isPickingImage) return;
+  void _pickImage() {
+    final cubit = context.read<InvitationCubit>();
 
-    setState(() => _isPickingImage = true);
-
-    try {
-      final hasPermission = await PermissionService.instance.hasPermission(
-        AppPermission.photos,
-      );
-
-      if (!hasPermission) {
-        final granted = await PermissionService.instance.requestPermission(
-          AppPermission.photos,
-        );
-
-        if (!granted) {
-          final isPermanentlyDenied = await PermissionService.instance
-              .isPermanentlyDenied(AppPermission.photos);
-
-          if (mounted) {
-            final l = AppLocalizations.of(context);
-            if (isPermanentlyDenied) {
-              _showPermissionDeniedDialog();
-            } else {
-              AppSnackBar.showWarning(
-                context,
-                message: l?.translate('invitation_allow_photos_access') ??
-                    'Please allow access to photos',
-              );
-            }
-          }
-          return;
-        }
-      }
-
-      final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 1920,
-        maxHeight: 1920,
-        imageQuality: 85,
-      );
-
-      if (image != null && mounted) {
-        setState(() => _selectedFile = File(image.path));
-      }
-    } catch (e) {
-      debugPrint('Error picking image: $e');
-      if (mounted) {
-        final l = AppLocalizations.of(context);
-        AppSnackBar.showError(
-          context,
-          message:
-              '${l?.translate('invitation_failed_pick_image') ?? 'Failed to pick image'}: $e',
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isPickingImage = false);
-      }
+    // Save current description before closing so it's not lost
+    final description = _descriptionController.text.trim();
+    if (description.isNotEmpty) {
+      cubit.setCustomTemplateDescription(description);
     }
-  }
 
-  void _showPermissionDeniedDialog() {
-    final l = AppLocalizations.of(context);
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l?.translate('invitation_photos_permission_required') ??
-            'Photos Permission Required'),
-        content: Text(
-          l?.translate('invitation_photos_permission_message') ??
-              'The app needs access to photos to upload custom template. Please grant permission from app settings.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(l?.translate('common_cancel') ?? 'Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(dialogContext);
-              await PermissionService.instance.openAppSettings();
-            },
-            child:
-                Text(l?.translate('invitation_open_settings') ?? 'Open Settings'),
-          ),
-        ],
-      ),
-    );
+    // Pop with 'pick_image' result — the caller will launch the native
+    // gallery from its own context (outside the bottom sheet), which
+    // avoids Android lifecycle issues with modal routes.
+    Navigator.of(context).pop('pick_image');
   }
 
   void _onConfirm() {

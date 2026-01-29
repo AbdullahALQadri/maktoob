@@ -33,7 +33,7 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
     return BlocBuilder<InvitationCubit, InvitationState>(
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: Colors.grey.shade50,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: SafeArea(
             child: Column(
               children: [
@@ -282,7 +282,7 @@ class _EmptyState extends StatelessWidget {
                   'You can continue to the next step',
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.035),
-                color: Colors.grey.shade500,
+                color: context.iconSecondary,
               ),
             ),
           ],

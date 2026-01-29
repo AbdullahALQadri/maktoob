@@ -113,7 +113,7 @@ class _DetailItem extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.007)),
       child: Row(
         children: [
-          Icon(icon, size: context.dynamicWidth(0.045), color: Colors.grey.shade500),
+          Icon(icon, size: context.dynamicWidth(0.045), color: context.iconSecondary),
           SizedBox(width: context.dynamicWidth(0.024)),
           Text(
             '$label: ',

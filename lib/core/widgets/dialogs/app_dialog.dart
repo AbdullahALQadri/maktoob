@@ -313,7 +313,7 @@ class AppDialog extends StatelessWidget {
         ),
         padding: EdgeInsets.all(context.dynamicWidth(0.061)),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.cardBg,
           borderRadius: BorderRadius.circular(context.dynamicWidth(0.061)),
           boxShadow: [
             BoxShadow(
@@ -337,13 +337,13 @@ class AppDialog extends StatelessWidget {
                       width: context.dynamicWidth(0.091),
                       height: context.dynamicWidth(0.091),
                       decoration: BoxDecoration(
-                        color: AppColors.gray100,
+                        color: context.overlayBg,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.close,
                         size: context.dynamicWidth(0.051),
-                        color: AppColors.gray500,
+                        color: context.iconSecondary,
                       ),
                     ),
                   ),
@@ -362,7 +362,7 @@ class AppDialog extends StatelessWidget {
                     fontFamily: AppStrings.fontFamily,
                     fontSize: context.dynamicWidth(0.056),
                     fontWeight: FontWeight.bold,
-                    color: _getTitleColor(),
+                    color: _getTitleColor(context),
                   ),
                 ),
               ],
@@ -381,7 +381,7 @@ class AppDialog extends StatelessWidget {
                       fontFamily: AppStrings.fontFamily,
                       fontSize: context.dynamicWidth(0.037),
                       fontWeight: FontWeight.w400,
-                      color: AppColors.gray600,
+                      color: context.textSecondary,
                       height: 1.5,
                     ),
                   ),
@@ -406,14 +406,14 @@ class AppDialog extends StatelessWidget {
     );
   }
 
-  Color _getTitleColor() {
+  Color _getTitleColor(BuildContext context) {
     switch (type) {
       case DialogType.error:
         return AppColors.red500;
       case DialogType.warning:
         return AppColors.amber700;
       default:
-        return AppColors.gray900;
+        return context.textPrimary;
     }
   }
 
@@ -503,8 +503,8 @@ class AppDialog extends StatelessWidget {
               height: buttonHeight,
               borderRadius: borderRadius,
               useGradientBorder: false,
-              borderColor: AppColors.gray300,
-              textColor: AppColors.gray700,
+              borderColor: context.borderColor,
+              textColor: context.textTertiary,
             ),
           ),
           SizedBox(width: context.dynamicWidth(0.029)),

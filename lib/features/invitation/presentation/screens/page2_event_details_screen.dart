@@ -43,7 +43,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
     return BlocBuilder<InvitationCubit, InvitationState>(
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: Colors.grey.shade50,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: Column(
             children: [
               WizardStepHeader(
