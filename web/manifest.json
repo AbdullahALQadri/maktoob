@@ -1,6 +1,6 @@
 {
-    "name": "maktoob",
-    "short_name": "maktoob",
+    "name": "Maktoob",
+    "short_name": "Maktoob",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#3AA4DB",

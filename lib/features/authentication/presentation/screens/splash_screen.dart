@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-
 import '../../../../core/core.dart';
 import '../widgets/widgets.dart';
 
