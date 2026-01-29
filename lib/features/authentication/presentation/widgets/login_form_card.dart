@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/locale/app_localizations.dart';
@@ -23,12 +24,24 @@ class _LoginFormCardState extends State<LoginFormCard> {
   final _formKey = GlobalKey<FormState>();
   final _loginController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isPhoneMode = false;
 
   @override
   void dispose() {
     _loginController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  void _onLoginFieldChanged(String value) {
+    if (value.isEmpty) {
+      if (_isPhoneMode) setState(() => _isPhoneMode = false);
+      return;
+    }
+    final startsWithDigit = RegExp(r'^[0-9]').hasMatch(value);
+    if (startsWithDigit != _isPhoneMode) {
+      setState(() => _isPhoneMode = startsWithDigit);
+    }
   }
 
   void _handleLogin() {
@@ -70,11 +83,29 @@ class _LoginFormCardState extends State<LoginFormCard> {
                   controller: _loginController,
                   labelText: t.translate('auth_phone_or_email'),
                   hintText: t.translate('auth_phone_or_email_hint'),
-                  prefixIcon: Icons.person_outline_rounded,
-                  keyboardType: TextInputType.emailAddress,
+                  prefixIcon: _isPhoneMode
+                      ? Icons.phone_outlined
+                      : Icons.person_outline_rounded,
+                  keyboardType: _isPhoneMode
+                      ? TextInputType.number
+                      : TextInputType.emailAddress,
+                  maxLength: _isPhoneMode ? 10 : null,
+                  inputFormatters: _isPhoneMode
+                      ? [FilteringTextInputFormatter.digitsOnly]
+                      : null,
+                  onChanged: _onLoginFieldChanged,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return t.translate('auth_phone_or_email_required');
+                    }
+                    if (_isPhoneMode) {
+                      if (value.length != 10) {
+                        return t.translate('auth_phone_must_be_10_digits');
+                      }
+                    } else {
+                      if (!RegExp(r'^[\w\.-]+@[\w\.-]+\.\w{2,}$').hasMatch(value)) {
+                        return t.translate('auth_email_invalid');
+                      }
                     }
                     return null;
                   },

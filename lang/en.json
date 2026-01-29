@@ -499,6 +499,7 @@
   "auth_account_type": "Account Type",
   "auth_phone_required": "Please enter phone number",
   "auth_phone_start_5": "Phone number must start with 5",
+  "auth_phone_must_be_10_digits": "Phone number must be exactly 10 digits",
   "auth_has_account": "Already have an account? ",
   "auth_login": "Login",
   "auth_pending_approval": "Pending Approval",

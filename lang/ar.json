@@ -499,6 +499,7 @@
   "auth_account_type": "نوع الحساب",
   "auth_phone_required": "الرجاء إدخال رقم الهاتف",
   "auth_phone_start_5": "رقم الهاتف يجب أن يبدأ بـ 5",
+  "auth_phone_must_be_10_digits": "رقم الهاتف يجب أن يكون 10 أرقام",
   "auth_has_account": "لديك حساب بالفعل؟ ",
   "auth_login": "تسجيل الدخول",
   "auth_pending_approval": "في انتظار الموافقة",
