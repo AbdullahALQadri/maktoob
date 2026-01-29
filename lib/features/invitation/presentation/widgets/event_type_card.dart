@@ -32,11 +32,11 @@ class EventTypeCard extends StatelessWidget {
                   colors: eventType.gradientColors,
                 )
               : null,
-          color: isSelected ? null : AppColors.gray100,
+          color: isSelected ? null : context.overlayBg,
           borderRadius: BorderRadius.circular(screenWidth * 0.04),
           border: isSelected
               ? null
-              : Border.all(color: AppColors.gray200, width: 1),
+              : Border.all(color: context.borderColor, width: 1),
           boxShadow: isSelected
               ? [
                   BoxShadow(
@@ -66,7 +66,7 @@ class EventTypeCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: screenWidth * 0.038,
                       fontWeight: FontWeight.w600,
-                      color: isSelected ? Colors.white : AppColors.gray800,
+                      color: isSelected ? Colors.white : context.textPrimary,
                     ),
                   ),
                   // Arabic name
@@ -76,7 +76,7 @@ class EventTypeCard extends StatelessWidget {
                       fontSize: screenWidth * 0.032,
                       color: isSelected
                           ? Colors.white.withValues(alpha: 0.85)
-                          : AppColors.gray500,
+                          : context.iconSecondary,
                     ),
                   ),
                 ],

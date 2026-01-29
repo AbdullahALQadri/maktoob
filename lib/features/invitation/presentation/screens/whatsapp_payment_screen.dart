@@ -54,7 +54,7 @@ class WhatsAppPaymentScreen extends StatelessWidget {
               ),
               child: Icon(
                 Icons.arrow_back_rounded,
-                color: AppColors.gray800,
+                color: AppColors.gray900,
                 size: 22,
               ),
             ),
@@ -311,7 +311,7 @@ class WhatsAppPaymentScreen extends StatelessWidget {
           Text(
             value,
             style: TextStyle(
-              color: AppColors.gray800,
+              color: AppColors.gray900,
               fontWeight: FontWeight.w500,
               fontSize: screenWidth * 0.035,
             ),

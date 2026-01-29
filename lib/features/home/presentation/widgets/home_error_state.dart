@@ -38,7 +38,7 @@ class HomeErrorState extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.gray500),
+              style: AppTextStyles.bodyMedium.copyWith(color: context.iconSecondary),
             ),
             SizedBox(height: context.dynamicHeight(0.03)),
             PrimaryButton(

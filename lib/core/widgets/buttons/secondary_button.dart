@@ -112,7 +112,7 @@ class SecondaryButton extends StatelessWidget {
               : null,
           border: !useGradientBorder
               ? Border.all(
-                  color: borderColor ?? AppColors.gray300,
+                  color: borderColor ?? context.borderColor,
                   width: borderWidth,
                 )
               : null,

@@ -35,7 +35,7 @@ class SettingsTile extends StatelessWidget {
                 Text(title, style: AppTextStyles.titleSmall),
                 Text(
                   subtitle,
-                  style: AppTextStyles.caption.copyWith(color: AppColors.gray500),
+                  style: AppTextStyles.caption.copyWith(color: context.iconSecondary),
                 ),
               ],
             ),
@@ -43,7 +43,7 @@ class SettingsTile extends StatelessWidget {
           trailing ??
               Icon(
                 Icons.arrow_forward_ios,
-                color: AppColors.gray400,
+                color: context.iconDefault,
                 size: context.dynamicWidth(0.04),
               ),
         ],

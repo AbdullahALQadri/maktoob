@@ -24,7 +24,7 @@ class InvitationTemplateSection extends StatelessWidget {
           style: TextStyle(
             fontSize: context.dynamicWidth(0.04),
             fontWeight: FontWeight.w600,
-            color: AppColors.gray800,
+            color: context.textPrimary,
           ),
         ),
         SizedBox(height: context.dynamicHeight(0.015)),

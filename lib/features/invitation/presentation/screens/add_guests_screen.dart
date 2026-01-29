@@ -68,16 +68,16 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
               width: context.dynamicWidth(0.101),
               height: context.dynamicWidth(0.101),
               decoration: BoxDecoration(
-                color: AppColors.gray100,
+                color: context.overlayBg,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: AppColors.gray200,
+                  color: context.borderColor,
                   width: 1,
                 ),
               ),
               child: Icon(
                 Icons.arrow_back_rounded,
-                color: AppColors.gray800,
+                color: context.textPrimary,
                 size: context.dynamicWidth(0.056),
               ),
             ),
@@ -86,7 +86,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
         title: Text(
           'Add Guests',
           style: TextStyle(
-            color: AppColors.gray900,
+            color: context.textPrimary,
             fontWeight: FontWeight.w600,
             fontSize: context.dynamicWidth(0.045),
           ),
@@ -126,7 +126,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
                         style: TextStyle(
                           fontSize: context.dynamicWidth(0.045),
                           fontWeight: FontWeight.w600,
-                          color: AppColors.gray800,
+                          color: context.textPrimary,
                         ),
                       ),
                       SizedBox(height: context.dynamicHeight(0.015)),
@@ -207,7 +207,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
                               style: TextStyle(
                                 fontSize: context.dynamicWidth(0.045),
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.gray800,
+                                color: context.textPrimary,
                               ),
                             ),
                             TextButton(
@@ -262,7 +262,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
                               child: Text(
                                 'You can add guests later',
                                 style: TextStyle(
-                                  color: AppColors.gray500,
+                                  color: context.iconSecondary,
                                   fontSize: context.dynamicWidth(0.035),
                                 ),
                               ),
@@ -297,9 +297,9 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
       margin: EdgeInsets.only(bottom: context.dynamicWidth(0.024)),
       padding: EdgeInsets.all(context.dynamicWidth(0.035)),
       decoration: BoxDecoration(
-        color: AppColors.gray50,
+        color: context.themeSurface,
         borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
-        border: Border.all(color: AppColors.gray200),
+        border: Border.all(color: context.borderColor),
       ),
       child: Row(
         children: [
@@ -336,7 +336,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: context.dynamicWidth(0.037),
-                    color: AppColors.gray800,
+                    color: context.textPrimary,
                   ),
                 ),
                 if (guest.phone.isNotEmpty)
@@ -344,7 +344,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
                     guest.phone,
                     style: TextStyle(
                       fontSize: context.dynamicWidth(0.032),
-                      color: AppColors.gray500,
+                      color: context.iconSecondary,
                     ),
                   ),
               ],
@@ -358,7 +358,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
           IconButton(
             icon: Icon(
               Icons.close,
-              color: AppColors.gray400,
+              color: context.iconDefault,
               size: context.dynamicWidth(0.051),
             ),
             onPressed: () {

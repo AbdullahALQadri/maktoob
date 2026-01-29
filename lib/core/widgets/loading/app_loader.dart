@@ -136,7 +136,7 @@ class _AppLoaderState extends State<AppLoader>
         child: Container(
           padding: const EdgeInsets.all(32),
           decoration: BoxDecoration(
-            color: AppColors.white,
+            color: context.cardBg,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
@@ -157,7 +157,7 @@ class _AppLoaderState extends State<AppLoader>
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.gray600,
+                    color: context.textSecondary,
                   ),
                 ),
               ],
@@ -256,7 +256,7 @@ class _AppLoaderState extends State<AppLoader>
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: AppColors.gray600,
+              color: context.textSecondary,
             ),
           ),
         ],

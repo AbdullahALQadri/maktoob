@@ -72,7 +72,7 @@ class StatCardWidget extends StatelessWidget {
                     style: TextStyle(
                       fontSize: context.dynamicWidth(0.056),
                       fontWeight: FontWeight.bold,
-                      color: AppColors.gray900,
+                      color: context.textPrimary,
                     ),
                     maxLines: 1,
                   ),
@@ -83,7 +83,7 @@ class StatCardWidget extends StatelessWidget {
                 stat.label,
                 style: TextStyle(
                   fontSize: context.dynamicWidth(0.029),
-                  color: AppColors.gray500,
+                  color: context.iconSecondary,
                   fontWeight: FontWeight.w500,
                 ),
                 maxLines: 1,

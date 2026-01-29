@@ -94,7 +94,7 @@ extension AppThemeColors on BuildContext {
   Color get scaffoldBg => Theme.of(this).scaffoldBackgroundColor;
   Color get cardBg =>
       isDarkMode ? const Color(0xFF1E1E1E) : AppColors.white;
-  Color get surfaceColor =>
+  Color get themeSurface =>
       isDarkMode ? AppColors.gray800 : AppColors.gray50;
   Color get inputFill =>
       isDarkMode ? AppColors.gray800 : AppColors.gray100;

@@ -22,7 +22,7 @@ class InvoiceEventDetails extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(context.dynamicWidth(0.051)),
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+        border: Border(bottom: BorderSide(color: context.borderColor)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,7 +119,7 @@ class _DetailItem extends StatelessWidget {
             '$label: ',
             style: TextStyle(
               fontSize: context.dynamicWidth(0.032),
-              color: Colors.grey.shade600,
+              color: context.textSecondary,
             ),
           ),
           Expanded(

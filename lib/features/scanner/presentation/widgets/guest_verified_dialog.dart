@@ -98,7 +98,7 @@ class GuestVerifiedDialog extends StatelessWidget {
               t.translate('scanner_guest_registered'),
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.032),
-                color: AppColors.gray500,
+                color: context.iconSecondary,
               ),
             ),
             SizedBox(height: context.dynamicHeight(0.025)),
@@ -157,7 +157,7 @@ class GuestVerifiedDialog extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: context.dynamicWidth(0.045),
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.gray900,
+                                color: context.textPrimary,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -191,7 +191,7 @@ class GuestVerifiedDialog extends StatelessWidget {
                   SizedBox(height: context.dynamicHeight(0.02)),
                   Container(
                     height: 1,
-                    color: AppColors.gray200,
+                    color: context.borderColor,
                   ),
                   SizedBox(height: context.dynamicHeight(0.015)),
                   // Details Grid
@@ -208,7 +208,7 @@ class GuestVerifiedDialog extends StatelessWidget {
                       Container(
                         width: 1,
                         height: context.dynamicHeight(0.05),
-                        color: AppColors.gray200,
+                        color: context.borderColor,
                       ),
                       Expanded(
                         child: _buildDetailItem(
@@ -237,7 +237,7 @@ class GuestVerifiedDialog extends StatelessWidget {
                       padding: EdgeInsets.symmetric(
                         vertical: context.dynamicHeight(0.018),
                       ),
-                      side: BorderSide(color: AppColors.gray400),
+                      side: BorderSide(color: context.iconDefault),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -246,7 +246,7 @@ class GuestVerifiedDialog extends StatelessWidget {
                       t.translate('common_close'),
                       style: TextStyle(
                         fontSize: context.dynamicWidth(0.037),
-                        color: AppColors.gray600,
+                        color: context.textSecondary,
                       ),
                     ),
                   ),
@@ -305,14 +305,14 @@ class GuestVerifiedDialog extends StatelessWidget {
         Icon(
           icon,
           size: context.dynamicWidth(0.051),
-          color: AppColors.gray500,
+          color: context.iconSecondary,
         ),
         SizedBox(height: context.dynamicHeight(0.005)),
         Text(
           label,
           style: TextStyle(
             fontSize: context.dynamicWidth(0.029),
-            color: AppColors.gray500,
+            color: context.iconSecondary,
           ),
         ),
         SizedBox(height: context.dynamicHeight(0.002)),
@@ -321,7 +321,7 @@ class GuestVerifiedDialog extends StatelessWidget {
           style: TextStyle(
             fontSize: context.dynamicWidth(0.035),
             fontWeight: FontWeight.bold,
-            color: AppColors.gray900,
+            color: context.textPrimary,
           ),
         ),
       ],

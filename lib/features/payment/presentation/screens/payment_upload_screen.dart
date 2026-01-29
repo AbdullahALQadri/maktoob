@@ -72,7 +72,7 @@ class _PaymentUploadScreenState extends State<PaymentUploadScreen>
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.gray100,
+        backgroundColor: context.overlayBg,
         body: FadeTransition(
           opacity: _fadeAnimation,
           child: ScaleTransition(
@@ -154,7 +154,7 @@ class _PaymentContent extends StatelessWidget {
             style: TextStyle(
               fontSize: context.dynamicWidth(0.035),
               fontWeight: FontWeight.w500,
-              color: AppColors.gray500,
+              color: context.iconSecondary,
               decoration: TextDecoration.underline,
             ),
           ),

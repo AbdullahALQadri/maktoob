@@ -37,7 +37,7 @@ class EventTabBar extends StatelessWidget {
         indicatorSize: TabBarIndicatorSize.tab,
         indicatorPadding: EdgeInsets.all(context.dynamicWidth(0.011)),
         labelColor: Colors.white,
-        unselectedLabelColor: AppColors.gray600,
+        unselectedLabelColor: context.textSecondary,
         labelStyle: TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: context.dynamicWidth(0.035),

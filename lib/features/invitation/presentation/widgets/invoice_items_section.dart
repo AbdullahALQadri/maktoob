@@ -78,7 +78,7 @@ class _TableHeader extends StatelessWidget {
         horizontal: context.dynamicWidth(0.04),
       ),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: context.overlayBg,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(context.dynamicWidth(0.021)),
           topRight: Radius.circular(context.dynamicWidth(0.021)),
@@ -126,7 +126,7 @@ class _ServicesHeader extends StatelessWidget {
         horizontal: context.dynamicWidth(0.04),
       ),
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+        border: Border(bottom: BorderSide(color: context.borderColor)),
       ),
       child: Row(
         children: [
@@ -134,7 +134,7 @@ class _ServicesHeader extends StatelessWidget {
             '${l?.translate('invitation_extra_services') ?? 'Extra Services'}:',
             style: TextStyle(
               fontSize: context.dynamicWidth(0.032),
-              color: Colors.grey.shade600,
+              color: context.textSecondary,
               fontStyle: FontStyle.italic,
             ),
           ),
@@ -163,7 +163,7 @@ class _InvoiceRow extends StatelessWidget {
         horizontal: context.dynamicWidth(0.04),
       ),
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+        border: Border(bottom: BorderSide(color: context.borderColor)),
       ),
       child: Row(
         children: [
@@ -173,7 +173,7 @@ class _InvoiceRow extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.032),
-                color: indent ? Colors.grey.shade600 : Colors.grey.shade800,
+                color: indent ? context.textSecondary : context.textPrimary,
               ),
             ),
           ),

@@ -40,7 +40,7 @@ class EventsEmptyState extends StatelessWidget {
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.045),
                 fontWeight: FontWeight.bold,
-                color: AppColors.gray900,
+                color: context.textPrimary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -49,7 +49,7 @@ class EventsEmptyState extends StatelessWidget {
               config.subtitle,
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.035),
-                color: AppColors.gray500,
+                color: context.iconSecondary,
               ),
               textAlign: TextAlign.center,
             ),

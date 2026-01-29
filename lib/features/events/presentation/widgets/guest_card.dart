@@ -150,7 +150,7 @@ class _CheckInBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: isCheckedIn ? AppColors.green100 : AppColors.gray100,
+        color: isCheckedIn ? AppColors.green100 : context.overlayBg,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -159,7 +159,7 @@ class _CheckInBadge extends StatelessWidget {
           Icon(
             isCheckedIn ? Icons.check_circle : Icons.radio_button_unchecked,
             size: 14,
-            color: isCheckedIn ? AppColors.green600 : AppColors.gray400,
+            color: isCheckedIn ? AppColors.green600 : context.iconDefault,
           ),
           const SizedBox(width: 4),
           Text(
@@ -168,7 +168,7 @@ class _CheckInBadge extends StatelessWidget {
                 : t.translate('event_details_not_checked_in'),
             style: AppTextStyles.caption.copyWith(
               fontWeight: FontWeight.w500,
-              color: isCheckedIn ? AppColors.green600 : AppColors.gray500,
+              color: isCheckedIn ? AppColors.green600 : context.iconSecondary,
             ),
           ),
         ],
@@ -188,7 +188,7 @@ class _GuestInfoSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.gray100,
+        color: context.overlayBg,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -219,7 +219,7 @@ class _InfoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: AppColors.gray500),
+        Icon(icon, size: 16, color: context.iconSecondary),
         const SizedBox(width: 8),
         Expanded(child: Text(text, style: AppTextStyles.bodySmall)),
       ],

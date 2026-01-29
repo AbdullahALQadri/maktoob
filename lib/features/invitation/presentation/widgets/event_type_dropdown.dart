@@ -42,7 +42,7 @@ class EventTypeDropdown extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
-        border: Border.all(color: AppColors.gray300),
+        border: Border.all(color: context.borderColor),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<EventTypeModel>(
@@ -50,13 +50,13 @@ class EventTypeDropdown extends StatelessWidget {
           hint: Text(
             l?.translate('invitation_select_event_type') ?? 'Select event type',
             style: TextStyle(
-              color: AppColors.gray500,
+              color: context.iconSecondary,
               fontSize: context.dynamicWidth(0.04),
             ),
           ),
           isExpanded: true,
           icon: Icon(Icons.keyboard_arrow_down,
-              color: AppColors.gray500, size: context.dynamicWidth(0.061)),
+              color: context.iconSecondary, size: context.dynamicWidth(0.061)),
           iconSize: context.dynamicWidth(0.061),
           itemHeight: math.max(56.0, context.dynamicHeight(0.08)),
           menuMaxHeight: math.max(300.0, context.dynamicHeight(0.5)),
@@ -64,7 +64,7 @@ class EventTypeDropdown extends StatelessWidget {
           dropdownColor: Colors.white,
           style: TextStyle(
             fontSize: context.dynamicWidth(0.04),
-            color: AppColors.gray700,
+            color: context.textTertiary,
           ),
           items: items,
           onChanged: (eventType) => _onEventTypeChanged(context, eventType),
@@ -123,7 +123,7 @@ class EventTypeDropdown extends StatelessWidget {
               displayName,
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.045),
-                color: AppColors.gray700,
+                color: context.textTertiary,
                 fontWeight: FontWeight.w500,
               ),
               overflow: TextOverflow.ellipsis,

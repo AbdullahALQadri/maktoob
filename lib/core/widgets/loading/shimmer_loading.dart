@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../../utils/app_colors.dart';
 
@@ -90,8 +90,8 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
     super.dispose();
   }
 
-  Color get _baseColor => widget.baseColor ?? AppColors.gray200;
-  Color get _highlightColor => widget.highlightColor ?? AppColors.gray100;
+  Color get _baseColor => widget.baseColor ?? context.borderColor;
+  Color get _highlightColor => widget.highlightColor ?? context.overlayBg;
 
   @override
   Widget build(BuildContext context) {

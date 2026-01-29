@@ -15,14 +15,14 @@ class VenueEmptyState extends StatelessWidget {
           Icon(
             Icons.search_off,
             size: context.dynamicWidth(0.16),
-            color: Colors.grey[300],
+            color: context.borderColor,
           ),
           SizedBox(height: context.dynamicHeight(0.02)),
           Text(
             'No venues found',
             style: TextStyle(
               fontSize: context.dynamicWidth(0.045),
-              color: Colors.grey[500],
+              color: context.iconSecondary,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -31,7 +31,7 @@ class VenueEmptyState extends StatelessWidget {
             'Try a different search term',
             style: TextStyle(
               fontSize: context.dynamicWidth(0.035),
-              color: Colors.grey[400],
+              color: context.iconDefault,
             ),
           ),
         ],
@@ -55,14 +55,14 @@ class VenueErrorState extends StatelessWidget {
           Icon(
             Icons.error_outline,
             size: context.dynamicWidth(0.16),
-            color: Colors.grey[300],
+            color: context.borderColor,
           ),
           SizedBox(height: context.dynamicHeight(0.02)),
           Text(
             'Failed to load venues',
             style: TextStyle(
               fontSize: context.dynamicWidth(0.045),
-              color: Colors.grey[500],
+              color: context.iconSecondary,
               fontWeight: FontWeight.w500,
             ),
           ),

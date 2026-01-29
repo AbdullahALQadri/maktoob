@@ -19,7 +19,7 @@ import '../../utils/responsive.dart';
 /// AppTextButton(
 ///   text: 'Cancel',
 ///   onPressed: () => Navigator.pop(context),
-///   color: AppColors.gray500,
+///   color: context.iconSecondary,
 /// )
 /// ```
 class AppTextButton extends StatelessWidget {

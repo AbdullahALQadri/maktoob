@@ -30,7 +30,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final isArabic = !t.isEnLocale;
 
     return Scaffold(
-      backgroundColor: AppColors.gray100,
+      backgroundColor: context.overlayBg,
       body: BlocConsumer<ProfileCubit, ProfileState>(
         listener: _handleStateChange,
         builder: (context, state) => _buildBody(context, state, isArabic),
@@ -109,7 +109,7 @@ class _ErrorView extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.04),
-                color: AppColors.gray600,
+                color: context.textSecondary,
               ),
             ),
             SizedBox(height: context.dynamicHeight(0.03)),
@@ -237,7 +237,7 @@ class _SectionTitle extends StatelessWidget {
       style: TextStyle(
         fontSize: context.dynamicWidth(0.045),
         fontWeight: FontWeight.bold,
-        color: AppColors.gray900,
+        color: context.textPrimary,
       ),
     );
   }

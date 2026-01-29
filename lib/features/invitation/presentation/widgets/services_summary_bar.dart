@@ -58,7 +58,7 @@ class ServicesSummaryBar extends StatelessWidget {
                       .join(isEnglish ? ', ' : ' ، '),
                   style: TextStyle(
                     fontSize: context.dynamicWidth(0.029),
-                    color: Colors.grey.shade700,
+                    color: context.textTertiary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

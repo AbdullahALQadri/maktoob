@@ -123,7 +123,7 @@ class TemplateSelectorWidget extends StatelessWidget {
   Color _getTextColor(String templateId) {
     switch (templateId) {
       case 'classic_white':
-        return AppColors.gray800;
+        return AppColors.gray900;
       default:
         return Colors.white;
     }

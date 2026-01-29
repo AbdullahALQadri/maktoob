@@ -135,7 +135,7 @@ class _PhoneField extends StatelessWidget {
       children: [
         Text(
           t.translate('auth_phone_number'),
-          style: AppTextStyles.labelMedium.copyWith(color: AppColors.gray700),
+          style: AppTextStyles.labelMedium.copyWith(color: context.textTertiary),
         ),
         SizedBox(height: context.dynamicHeight(0.007)),
         Row(
@@ -143,15 +143,15 @@ class _PhoneField extends StatelessWidget {
             // Country Code Dropdown
             Container(
               decoration: BoxDecoration(
-                color: AppColors.gray50,
+                color: context.themeSurface,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.gray200),
+                border: Border.all(color: context.borderColor),
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
                   value: selectedCountryCode,
                   padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.029)),
-                  icon: Icon(Icons.arrow_drop_down, color: AppColors.gray500),
+                  icon: Icon(Icons.arrow_drop_down, color: context.iconSecondary),
                   items: CountryCode.all.map((c) {
                     return DropdownMenuItem(
                       value: c.code,
@@ -183,19 +183,19 @@ class _PhoneField extends StatelessWidget {
                   LengthLimitingTextInputFormatter(maxLength),
                 ],
                 style: AppTextStyles.bodyLarge.copyWith(
-                  color: AppColors.gray900,
+                  color: context.textPrimary,
                   fontWeight: FontWeight.w500,
                 ),
                 decoration: InputDecoration(
                   hintText: t.translate('auth_phone_hint'),
-                  hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.gray400),
+                  hintStyle: AppTextStyles.bodyMedium.copyWith(color: context.iconDefault),
                   prefixIcon: Container(
                     margin: const EdgeInsetsDirectional.only(start: 14, end: 10),
                     child: Icon(Icons.phone_outlined, color: AppColors.primaryColor, size: 22),
                   ),
                   prefixIconConstraints: const BoxConstraints(minWidth: 48, minHeight: 48),
                   filled: true,
-                  fillColor: AppColors.gray50,
+                  fillColor: context.themeSurface,
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: context.dynamicWidth(0.04),
                     vertical: context.dynamicHeight(0.018),
@@ -206,7 +206,7 @@ class _PhoneField extends StatelessWidget {
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: AppColors.gray200),
+                    borderSide: BorderSide(color: context.borderColor),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),

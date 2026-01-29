@@ -30,16 +30,16 @@ class CreateInvitationAppBar extends StatelessWidget
             width: context.dynamicWidth(0.101),
             height: context.dynamicWidth(0.101),
             decoration: BoxDecoration(
-              color: AppColors.gray100,
+              color: context.overlayBg,
               shape: BoxShape.circle,
               border: Border.all(
-                color: AppColors.gray200,
+                color: context.borderColor,
                 width: 1,
               ),
             ),
             child: Icon(
               Icons.arrow_back_rounded,
-              color: AppColors.gray800,
+              color: context.textPrimary,
               size: context.dynamicWidth(0.056),
             ),
           ),
@@ -48,7 +48,7 @@ class CreateInvitationAppBar extends StatelessWidget
       title: Text(
         title,
         style: TextStyle(
-          color: AppColors.gray900,
+          color: context.textPrimary,
           fontWeight: FontWeight.w600,
           fontSize: context.dynamicWidth(0.045),
         ),

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../config/locale/app_localizations.dart';
@@ -195,7 +195,7 @@ class _ManualGuestFormState extends State<ManualGuestForm> {
               t.translate('guest_phone_format'),
               style: TextStyle(
                 fontSize: 11,
-                color: Colors.grey.shade600,
+                color: context.textSecondary,
               ),
             ),
             const SizedBox(height: 16),

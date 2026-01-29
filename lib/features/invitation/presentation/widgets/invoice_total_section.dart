@@ -103,7 +103,7 @@ class InvoiceFooter extends StatelessWidget {
                 'Thank you for using Maktoob app',
             style: TextStyle(
               fontSize: context.dynamicWidth(0.035),
-              color: Colors.grey.shade600,
+              color: context.textSecondary,
             ),
           ),
           SizedBox(height: context.dynamicHeight(0.01)),

@@ -66,7 +66,7 @@ class _Divider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Divider(
-      color: AppColors.gray100,
+      color: context.overlayBg,
       height: context.dynamicHeight(0.025),
     );
   }
@@ -109,7 +109,7 @@ class _InfoRow extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontSize: context.dynamicWidth(0.029),
-                  color: AppColors.gray500,
+                  color: context.iconSecondary,
                 ),
               ),
               SizedBox(height: context.dynamicHeight(0.002)),
@@ -118,7 +118,7 @@ class _InfoRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: context.dynamicWidth(0.037),
                   fontWeight: FontWeight.w500,
-                  color: AppColors.gray900,
+                  color: context.textPrimary,
                 ),
               ),
             ],

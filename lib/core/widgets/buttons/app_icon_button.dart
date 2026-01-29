@@ -188,8 +188,8 @@ class AppIconButton extends StatelessWidget {
     final effectiveSize = size ?? context.dynamicWidth(0.11);
     final effectiveIconSize = iconSize ?? context.dynamicWidth(0.056);
     final effectiveBorderRadius = borderRadius ?? context.dynamicWidth(0.029);
-    final effectiveIconColor = _getIconColor();
-    final effectiveBackgroundColor = _getBackgroundColor();
+    final effectiveIconColor = _getIconColor(context);
+    final effectiveBackgroundColor = _getBackgroundColor(context);
 
     Widget button = AnimatedOpacity(
       duration: const Duration(milliseconds: 200),
@@ -202,14 +202,14 @@ class AppIconButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(effectiveBorderRadius),
           border: variant == IconButtonVariant.outlined
               ? Border.all(
-                  color: borderColor ?? AppColors.gray300,
+                  color: borderColor ?? context.borderColor,
                   width: borderWidth,
                 )
               : null,
           boxShadow: elevation > 0 && _isEnabled
               ? [
                   BoxShadow(
-                    color: (effectiveBackgroundColor ?? AppColors.gray500)
+                    color: (effectiveBackgroundColor ?? context.iconSecondary)
                         .withValues(alpha: 0.3),
                     blurRadius: elevation * 2,
                     offset: Offset(0, elevation),
@@ -252,7 +252,7 @@ class AppIconButton extends StatelessWidget {
     return button;
   }
 
-  Color _getIconColor() {
+  Color _getIconColor(BuildContext context) {
     if (iconColor != null) return iconColor!;
     switch (variant) {
       case IconButtonVariant.filled:
@@ -260,17 +260,17 @@ class AppIconButton extends StatelessWidget {
       case IconButtonVariant.outlined:
       case IconButtonVariant.soft:
       case IconButtonVariant.ghost:
-        return AppColors.gray700;
+        return context.textTertiary;
     }
   }
 
-  Color? _getBackgroundColor() {
+  Color? _getBackgroundColor(BuildContext context) {
     if (backgroundColor != null) return backgroundColor;
     switch (variant) {
       case IconButtonVariant.filled:
         return AppColors.primaryColor;
       case IconButtonVariant.soft:
-        return AppColors.gray100;
+        return context.overlayBg;
       case IconButtonVariant.outlined:
       case IconButtonVariant.ghost:
         return AppColors.transparent;

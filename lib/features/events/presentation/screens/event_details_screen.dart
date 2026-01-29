@@ -62,7 +62,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
       builder: (context, state) {
         if (state.isLoading) {
           return Scaffold(
-            backgroundColor: AppColors.gray100,
+            backgroundColor: context.overlayBg,
             body: const EventDetailsSkeleton(),
           );
         }
@@ -72,7 +72,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         }
 
         return Scaffold(
-          backgroundColor: AppColors.gray100,
+          backgroundColor: context.overlayBg,
           body: NestedScrollView(
             headerSliverBuilder: (context, _) => [
               SliverToBoxAdapter(
@@ -121,12 +121,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         ),
         content: Text(
           '${t.translate('event_details_delete_confirm')} "${state.event?.name}"? ${t.translate('event_details_delete_warning')}',
-          style: TextStyle(color: AppColors.gray700),
+          style: TextStyle(color: context.textTertiary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: Text(t.translate('common_cancel'), style: TextStyle(color: AppColors.gray600)),
+            child: Text(t.translate('common_cancel'), style: TextStyle(color: context.textSecondary)),
           ),
           BlocBuilder<EventDetailsCubit, EventDetailsState>(
             builder: (context, deleteState) {
@@ -268,7 +268,7 @@ class _ErrorView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.gray100,
+      backgroundColor: context.overlayBg,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -277,7 +277,7 @@ class _ErrorView extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               t.translate('event_details_error'),
-              style: AppTextStyles.titleMedium.copyWith(color: AppColors.gray700),
+              style: AppTextStyles.titleMedium.copyWith(color: context.textTertiary),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
@@ -321,11 +321,11 @@ class _SearchBar extends StatelessWidget {
         onChanged: (value) => context.read<EventDetailsCubit>().searchGuests(value),
         decoration: InputDecoration(
           hintText: t.translate('event_details_search_guests'),
-          hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.gray400),
-          prefixIcon: Icon(Icons.search, color: AppColors.gray400),
+          hintStyle: AppTextStyles.bodyMedium.copyWith(color: context.iconDefault),
+          prefixIcon: Icon(Icons.search, color: context.iconDefault),
           suffixIcon: query.isNotEmpty
               ? IconButton(
-                  icon: Icon(Icons.clear, color: AppColors.gray400),
+                  icon: Icon(Icons.clear, color: context.iconDefault),
                   onPressed: () {
                     controller.clear();
                     context.read<EventDetailsCubit>().clearGuestSearch();

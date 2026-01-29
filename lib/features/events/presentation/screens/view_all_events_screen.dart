@@ -51,7 +51,7 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
     final t = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.gray100,
+      backgroundColor: context.overlayBg,
       body: Column(
         children: [
           BlocBuilder<EventsListCubit, EventsListState>(

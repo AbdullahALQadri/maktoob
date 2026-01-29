@@ -96,18 +96,18 @@ class _OtpPinput extends StatelessWidget {
       textStyle: TextStyle(
         fontSize: fontSize,
         fontWeight: FontWeight.bold,
-        color: AppColors.gray900,
+        color: context.textPrimary,
       ),
       decoration: BoxDecoration(
-        color: AppColors.gray50,
+        color: context.themeSurface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.gray200, width: 1.5),
+        border: Border.all(color: context.borderColor, width: 1.5),
       ),
     );
 
     final focusedPinTheme = defaultPinTheme.copyWith(
       decoration: BoxDecoration(
-        color: AppColors.gray50,
+        color: context.themeSurface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.primaryColor, width: 2),
         boxShadow: [
@@ -215,7 +215,7 @@ class _ResendSection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.timer_outlined, size: 18, color: AppColors.gray400),
+              Icon(Icons.timer_outlined, size: 18, color: context.iconDefault),
               const SizedBox(width: 6),
               Text(
                 isArabic

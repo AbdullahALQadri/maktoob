@@ -262,7 +262,7 @@ class _RegisterScreenState extends State<RegisterScreen>
       children: [
         Text(
           t.translate('auth_phone_number'),
-          style: AppTextStyles.labelSmall.copyWith(fontWeight: FontWeight.w600, color: AppColors.gray700),
+          style: AppTextStyles.labelSmall.copyWith(fontWeight: FontWeight.w600, color: context.textTertiary),
         ),
         SizedBox(height: context.dynamicHeight(0.006)),
         Row(
@@ -281,7 +281,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(maxLength),
                 ],
-                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.gray900, fontWeight: FontWeight.w500),
+                style: AppTextStyles.bodyMedium.copyWith(color: context.textPrimary, fontWeight: FontWeight.w500),
                 decoration: _inputDecoration(t.translate('auth_phone_hint'), Icons.phone_outlined),
                 validator: (value) => _validatePhone(value, t, country),
               ),
@@ -404,7 +404,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             onTap: () => setState(() => _obscurePassword = !_obscurePassword),
             child: Icon(
               _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-              color: AppColors.gray400,
+              color: context.iconDefault,
               size: 22,
             ),
           ),
@@ -425,7 +425,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             onTap: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
             child: Icon(
               _obscureConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-              color: AppColors.gray400,
+              color: context.iconDefault,
               size: 22,
             ),
           ),
@@ -442,14 +442,14 @@ class _RegisterScreenState extends State<RegisterScreen>
   InputDecoration _inputDecoration(String hint, IconData icon) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: AppTextStyles.bodySmall.copyWith(color: AppColors.gray400),
+      hintStyle: AppTextStyles.bodySmall.copyWith(color: context.iconDefault),
       prefixIcon: Container(
         margin: const EdgeInsetsDirectional.only(start: 14, end: 10),
         child: Icon(icon, color: AppColors.primaryColor, size: 20),
       ),
       prefixIconConstraints: const BoxConstraints(minWidth: 44, minHeight: 44),
       filled: true,
-      fillColor: AppColors.gray50,
+      fillColor: context.themeSurface,
       contentPadding: EdgeInsets.symmetric(
         horizontal: context.dynamicWidth(0.04),
         vertical: context.dynamicHeight(0.014),
@@ -457,7 +457,7 @@ class _RegisterScreenState extends State<RegisterScreen>
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: AppColors.gray200, width: 1),
+        borderSide: BorderSide(color: context.borderColor, width: 1),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -534,9 +534,9 @@ class _CountryCodeSelector extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.gray50,
+        color: context.themeSurface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.gray200),
+        border: Border.all(color: context.borderColor),
       ),
       child: isFixed
           ? Padding(
@@ -559,7 +559,7 @@ class _CountryCodeSelector extends StatelessWidget {
               child: DropdownButton<String>(
                 value: selectedCode,
                 padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.029)),
-                icon: Icon(Icons.arrow_drop_down, color: AppColors.gray500),
+                icon: Icon(Icons.arrow_drop_down, color: context.iconSecondary),
                 items: CountryCode.all.map((c) {
                   return DropdownMenuItem(
                     value: c.code,

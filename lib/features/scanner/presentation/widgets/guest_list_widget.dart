@@ -48,7 +48,7 @@ class GuestListWidget extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.people_alt,
-                      color: Colors.grey.shade700,
+                      color: context.textTertiary,
                     ),
                     const SizedBox(width: 12),
                     Text(
@@ -56,7 +56,7 @@ class GuestListWidget extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade800,
+                        color: context.textPrimary,
                       ),
                     ),
                   ],
@@ -66,7 +66,7 @@ class GuestListWidget extends StatelessWidget {
                   duration: const Duration(milliseconds: 300),
                   child: Icon(
                     Icons.keyboard_arrow_down,
-                    color: Colors.grey.shade600,
+                    color: context.textSecondary,
                   ),
                 ),
               ],
@@ -110,9 +110,9 @@ class GuestListWidget extends StatelessWidget {
               onChanged: onSearchChanged,
               decoration: InputDecoration(
                 hintText: 'Search guests...',
-                prefixIcon: Icon(Icons.search, color: Colors.grey.shade400),
+                prefixIcon: Icon(Icons.search, color: context.iconDefault),
                 filled: true,
-                fillColor: Colors.grey.shade100,
+                fillColor: context.overlayBg,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -132,7 +132,7 @@ class GuestListWidget extends StatelessWidget {
             itemCount: guests.length,
             separatorBuilder: (context, index) => Divider(
               height: 1,
-              color: Colors.grey.shade200,
+              color: context.borderColor,
             ),
             itemBuilder: (context, index) {
               final guest = guests[index];
@@ -249,13 +249,13 @@ class _GuestItemWidget extends StatelessWidget {
                     Icon(
                       Icons.group,
                       size: 14,
-                      color: Colors.grey.shade500,
+                      color: context.iconSecondary,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       '+${guest.companions}',
                       style: TextStyle(
-                        color: Colors.grey.shade500,
+                        color: context.iconSecondary,
                         fontSize: 12,
                       ),
                     ),
@@ -263,14 +263,14 @@ class _GuestItemWidget extends StatelessWidget {
                     Icon(
                       Icons.qr_code,
                       size: 14,
-                      color: Colors.grey.shade500,
+                      color: context.iconSecondary,
                     ),
                     const SizedBox(width: 4),
                     Flexible(
                       child: Text(
                         guest.qrCode,
                         style: TextStyle(
-                          color: Colors.grey.shade500,
+                          color: context.iconSecondary,
                           fontSize: 12,
                         ),
                         overflow: TextOverflow.ellipsis,

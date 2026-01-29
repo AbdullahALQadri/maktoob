@@ -37,7 +37,7 @@ class RegisterFormField extends StatelessWidget {
           label,
           style: AppTextStyles.labelSmall.copyWith(
             fontWeight: FontWeight.w600,
-            color: AppColors.gray700,
+            color: context.textTertiary,
           ),
         ),
         SizedBox(height: context.dynamicHeight(0.006)),
@@ -48,13 +48,13 @@ class RegisterFormField extends StatelessWidget {
           validator: validator,
           inputFormatters: inputFormatters,
           style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.gray900,
+            color: context.textPrimary,
             fontWeight: FontWeight.w500,
           ),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.gray400,
+              color: context.iconDefault,
               fontWeight: FontWeight.w400,
             ),
             prefixIcon: Container(
@@ -70,7 +70,7 @@ class RegisterFormField extends StatelessWidget {
                 : null,
             suffixIconConstraints: const BoxConstraints(minWidth: 44, minHeight: 44),
             filled: true,
-            fillColor: AppColors.gray50,
+            fillColor: context.themeSurface,
             contentPadding: EdgeInsets.symmetric(
               horizontal: context.dynamicWidth(0.04),
               vertical: context.dynamicHeight(0.014),
@@ -81,7 +81,7 @@ class RegisterFormField extends StatelessWidget {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppColors.gray200, width: 1),
+              borderSide: BorderSide(color: context.borderColor, width: 1),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -133,7 +133,7 @@ class RegisterDropdownField extends StatelessWidget {
           label,
           style: AppTextStyles.labelSmall.copyWith(
             fontWeight: FontWeight.w600,
-            color: AppColors.gray700,
+            color: context.textTertiary,
           ),
         ),
         SizedBox(height: context.dynamicHeight(0.006)),
@@ -142,7 +142,7 @@ class RegisterDropdownField extends StatelessWidget {
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.gray400,
+              color: context.iconDefault,
               fontWeight: FontWeight.w400,
             ),
             prefixIcon: Container(
@@ -151,7 +151,7 @@ class RegisterDropdownField extends StatelessWidget {
             ),
             prefixIconConstraints: const BoxConstraints(minWidth: 44, minHeight: 44),
             filled: true,
-            fillColor: AppColors.gray50,
+            fillColor: context.themeSurface,
             contentPadding: EdgeInsets.symmetric(
               horizontal: context.dynamicWidth(0.04),
               vertical: context.dynamicHeight(0.014),
@@ -162,7 +162,7 @@ class RegisterDropdownField extends StatelessWidget {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppColors.gray200, width: 1),
+              borderSide: BorderSide(color: context.borderColor, width: 1),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -183,7 +183,7 @@ class RegisterDropdownField extends StatelessWidget {
               value: item,
               child: Text(
                 item,
-                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.gray900),
+                style: AppTextStyles.bodyMedium.copyWith(color: context.textPrimary),
               ),
             );
           }).toList(),

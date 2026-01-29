@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -174,7 +174,7 @@ class InvoiceWidget extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         Text(
-          'فاتورة / Invoice',
+          '?????? / Invoice',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -198,12 +198,12 @@ class InvoiceWidget extends StatelessWidget {
   Widget _buildInvoiceDetails() {
     return Column(
       children: [
-        _buildDetailRow('المناسبة / Event', eventName),
-        if (eventType != null) _buildDetailRow('النوع / Type', eventType!),
-        _buildDetailRow('الباقة / Package', packageName),
-        _buildDetailRow('عدد الضيوف / Guests', guestCount.toString()),
+        _buildDetailRow('???????? / Event', eventName),
+        if (eventType != null) _buildDetailRow('????? / Type', eventType!),
+        _buildDetailRow('?????? / Package', packageName),
+        _buildDetailRow('??? ?????? / Guests', guestCount.toString()),
         _buildDetailRow(
-          'التاريخ / Date',
+          '??????? / Date',
           _formatDate(invoice.createdAt ?? DateTime.now()),
         ),
       ],
@@ -240,7 +240,7 @@ class InvoiceWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'التفاصيل / Details',
+          '???????? / Details',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -280,12 +280,12 @@ class InvoiceWidget extends StatelessWidget {
       children: [
         if (invoice.servicesTotal > 0)
           _buildSummaryRow(
-              'خدمات إضافية / Services', invoice.servicesTotal, false),
+              '????? ?????? / Services', invoice.servicesTotal, false),
         if (invoice.templateFee > 0)
           _buildSummaryRow(
-              'رسوم القالب / Template Fee', invoice.templateFee, false),
+              '???? ?????? / Template Fee', invoice.templateFee, false),
         if (invoice.discount > 0)
-          _buildSummaryRow('خصم / Discount', -invoice.discount, false),
+          _buildSummaryRow('??? / Discount', -invoice.discount, false),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.all(12),
@@ -297,7 +297,7 @@ class InvoiceWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'المجموع / Total',
+                '??????? / Total',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -350,7 +350,7 @@ class InvoiceWidget extends StatelessWidget {
         const Divider(),
         const SizedBox(height: 8),
         Text(
-          'شكراً لاختياركم مكتوب',
+          '????? ????????? ?????',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,

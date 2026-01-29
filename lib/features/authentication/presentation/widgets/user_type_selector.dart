@@ -24,12 +24,12 @@ class UserTypeSelector extends StatelessWidget {
       children: [
         Text(
           t.translate('auth_account_type'),
-          style: AppTextStyles.labelMedium.copyWith(color: AppColors.gray700),
+          style: AppTextStyles.labelMedium.copyWith(color: context.textTertiary),
         ),
         SizedBox(height: context.dynamicHeight(0.01)),
         Container(
           decoration: BoxDecoration(
-            color: AppColors.gray100,
+            color: context.overlayBg,
             borderRadius: BorderRadius.circular(16),
           ),
           padding: const EdgeInsets.all(4),
@@ -103,7 +103,7 @@ class _UserTypeOption extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color: isSelected ? Colors.white : AppColors.gray500,
+              color: isSelected ? Colors.white : context.iconSecondary,
               size: context.dynamicWidth(0.051),
             ),
             SizedBox(width: context.dynamicWidth(0.021)),
@@ -111,7 +111,7 @@ class _UserTypeOption extends StatelessWidget {
               label,
               style: AppTextStyles.labelMedium.copyWith(
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected ? Colors.white : AppColors.gray600,
+                color: isSelected ? Colors.white : context.textSecondary,
               ),
             ),
           ],

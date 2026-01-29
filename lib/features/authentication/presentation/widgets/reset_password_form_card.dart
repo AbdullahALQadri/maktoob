@@ -120,7 +120,7 @@ class _PasswordField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: AppTextStyles.labelMedium.copyWith(color: AppColors.gray700),
+          style: AppTextStyles.labelMedium.copyWith(color: context.textTertiary),
         ),
         SizedBox(height: context.dynamicHeight(0.007)),
         TextFormField(
@@ -128,12 +128,12 @@ class _PasswordField extends StatelessWidget {
           obscureText: obscure,
           validator: validator,
           style: AppTextStyles.bodyLarge.copyWith(
-            color: AppColors.gray900,
+            color: context.textPrimary,
             fontWeight: FontWeight.w500,
           ),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.gray400),
+            hintStyle: AppTextStyles.bodyMedium.copyWith(color: context.iconDefault),
             prefixIcon: Container(
               margin: const EdgeInsetsDirectional.only(start: 14, end: 10),
               child: Icon(Icons.lock_outline_rounded, color: AppColors.primaryColor, size: 22),
@@ -145,14 +145,14 @@ class _PasswordField extends StatelessWidget {
                 padding: const EdgeInsetsDirectional.only(end: 14),
                 child: Icon(
                   obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                  color: AppColors.gray400,
+                  color: context.iconDefault,
                   size: 22,
                 ),
               ),
             ),
             suffixIconConstraints: const BoxConstraints(minWidth: 48, minHeight: 48),
             filled: true,
-            fillColor: AppColors.gray50,
+            fillColor: context.themeSurface,
             contentPadding: EdgeInsets.symmetric(
               horizontal: context.dynamicWidth(0.04),
               vertical: context.dynamicHeight(0.018),
@@ -163,7 +163,7 @@ class _PasswordField extends StatelessWidget {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppColors.gray200),
+              borderSide: BorderSide(color: context.borderColor),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),

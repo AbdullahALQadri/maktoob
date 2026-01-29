@@ -40,7 +40,7 @@ class GoldenPackageCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(screenWidth * 0.04),
               border: isSelected
                   ? null
-                  : Border.all(color: AppColors.gray200, width: 1.5),
+                  : Border.all(color: context.borderColor, width: 1.5),
               boxShadow: isSelected
                   ? [
                       BoxShadow(
@@ -80,7 +80,7 @@ class GoldenPackageCard extends StatelessWidget {
                             style: TextStyle(
                               fontSize: screenWidth * 0.045,
                               fontWeight: FontWeight.bold,
-                              color: isSelected ? Colors.white : AppColors.gray900,
+                              color: isSelected ? Colors.white : context.textPrimary,
                             ),
                           ),
                           Text(
@@ -89,7 +89,7 @@ class GoldenPackageCard extends StatelessWidget {
                               fontSize: screenWidth * 0.032,
                               color: isSelected
                                   ? Colors.white.withValues(alpha: 0.8)
-                                  : AppColors.gray500,
+                                  : context.iconSecondary,
                             ),
                           ),
                         ],
@@ -115,7 +115,7 @@ class GoldenPackageCard extends StatelessWidget {
                               fontSize: screenWidth * 0.028,
                               color: isSelected
                                   ? Colors.white.withValues(alpha: 0.7)
-                                  : AppColors.gray400,
+                                  : context.iconDefault,
                             ),
                           ),
                       ],
@@ -154,7 +154,7 @@ class GoldenPackageCard extends StatelessWidget {
                               fontSize: screenWidth * 0.035,
                               color: isSelected
                                   ? Colors.white.withValues(alpha: 0.9)
-                                  : AppColors.gray700,
+                                  : context.textTertiary,
                             ),
                           ),
                         ],

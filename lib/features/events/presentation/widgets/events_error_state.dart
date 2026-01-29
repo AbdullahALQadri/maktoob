@@ -35,7 +35,7 @@ class EventsErrorState extends StatelessWidget {
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.045),
                 fontWeight: FontWeight.bold,
-                color: AppColors.gray900,
+                color: context.textPrimary,
               ),
             ),
             SizedBox(height: context.dynamicHeight(0.01)),
@@ -43,7 +43,7 @@ class EventsErrorState extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: AppColors.gray500,
+                color: context.iconSecondary,
                 fontSize: context.dynamicWidth(0.035),
               ),
             ),

@@ -37,7 +37,7 @@ class PaymentSubmitButton extends StatelessWidget {
                         : [AppColors.primaryColor, AppColors.tertiaryColor],
                   )
                 : null,
-            color: canSubmit ? null : AppColors.gray300,
+            color: canSubmit ? null : context.borderColor,
             boxShadow: canSubmit
                 ? [
                     BoxShadow(

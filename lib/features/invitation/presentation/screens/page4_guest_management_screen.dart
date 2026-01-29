@@ -141,7 +141,7 @@ class _Page4GuestManagementScreenState
                   'Priority: Manual > Excel > Contacts',
               style: TextStyle(
                 fontSize: 12,
-                color: Colors.grey.shade600,
+                color: context.textSecondary,
                 fontStyle: FontStyle.italic,
               ),
             ),

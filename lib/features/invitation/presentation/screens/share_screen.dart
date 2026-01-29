@@ -40,16 +40,16 @@ class ShareScreen extends StatelessWidget {
               width: context.dynamicWidth(0.101),
               height: context.dynamicWidth(0.101),
               decoration: BoxDecoration(
-                color: AppColors.gray100,
+                color: context.overlayBg,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: AppColors.gray200,
+                  color: context.borderColor,
                   width: 1,
                 ),
               ),
               child: Icon(
                 Icons.arrow_back_rounded,
-                color: AppColors.gray800,
+                color: context.textPrimary,
                 size: context.dynamicWidth(0.056),
               ),
             ),
@@ -70,7 +70,7 @@ class ShareScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: context.dynamicWidth(0.064),
                         fontWeight: FontWeight.bold,
-                        color: AppColors.gray900,
+                        color: context.textPrimary,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -79,7 +79,7 @@ class ShareScreen extends StatelessWidget {
                       'Preview how your guests will see it',
                       style: TextStyle(
                         fontSize: context.dynamicWidth(0.04),
-                        color: AppColors.gray500,
+                        color: context.iconSecondary,
                       ),
                     ),
                   ],
@@ -250,7 +250,7 @@ class ShareScreen extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: context.dynamicWidth(0.032),
-            color: AppColors.gray600,
+            color: context.textSecondary,
           ),
         ),
       ],

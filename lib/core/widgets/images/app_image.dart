@@ -326,7 +326,7 @@ class AppImage extends StatelessWidget {
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: AppColors.gray200,
+          color: context.borderColor,
           borderRadius: BorderRadius.circular(borderRadius ?? 0),
         ),
         child: Center(
@@ -335,7 +335,7 @@ class AppImage extends StatelessWidget {
             height: context.dynamicWidth(0.06),
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.gray400),
+              valueColor: AlwaysStoppedAnimation<Color>(context.iconDefault),
             ),
           ),
         ),
@@ -344,7 +344,7 @@ class AppImage extends StatelessWidget {
     return Container(
       width: width,
       height: height,
-      color: AppColors.gray100,
+      color: context.overlayBg,
     );
   }
 
@@ -353,12 +353,12 @@ class AppImage extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: AppColors.gray100,
+        color: context.overlayBg,
         borderRadius: BorderRadius.circular(borderRadius ?? 0),
       ),
       child: Icon(
         Icons.image_not_supported_outlined,
-        color: AppColors.gray400,
+        color: context.iconDefault,
         size: context.dynamicWidth(0.08),
       ),
     );

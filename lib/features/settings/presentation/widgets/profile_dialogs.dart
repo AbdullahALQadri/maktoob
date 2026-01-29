@@ -184,7 +184,7 @@ class _ChangeTypeDialogContent extends StatelessWidget {
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.056),
                 fontWeight: FontWeight.bold,
-                color: AppColors.gray900,
+                color: context.textPrimary,
               ),
             ),
             SizedBox(height: context.dynamicHeight(0.012)),
@@ -266,7 +266,7 @@ class _DialogMessage extends StatelessWidget {
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: context.dynamicWidth(0.037),
-          color: AppColors.gray600,
+          color: context.textSecondary,
           height: 1.5,
         ),
       ),
@@ -297,7 +297,7 @@ class _DialogButtons extends StatelessWidget {
             child: Container(
               height: context.dynamicHeight(0.06),
               decoration: BoxDecoration(
-                color: AppColors.gray100,
+                color: context.overlayBg,
                 borderRadius:
                     BorderRadius.circular(context.dynamicWidth(0.035)),
               ),
@@ -307,7 +307,7 @@ class _DialogButtons extends StatelessWidget {
                   style: TextStyle(
                     fontSize: context.dynamicWidth(0.04),
                     fontWeight: FontWeight.w600,
-                    color: AppColors.gray700,
+                    color: context.textTertiary,
                   ),
                 ),
               ),
@@ -330,7 +330,7 @@ class _DialogButtons extends StatelessWidget {
                         ],
                       )
                     : null,
-                color: canConfirm ? null : AppColors.gray300,
+                color: canConfirm ? null : context.borderColor,
                 borderRadius:
                     BorderRadius.circular(context.dynamicWidth(0.035)),
                 boxShadow: canConfirm
@@ -349,7 +349,7 @@ class _DialogButtons extends StatelessWidget {
                   style: TextStyle(
                     fontSize: context.dynamicWidth(0.04),
                     fontWeight: FontWeight.w600,
-                    color: canConfirm ? Colors.white : AppColors.gray500,
+                    color: canConfirm ? Colors.white : context.iconSecondary,
                   ),
                 ),
               ),

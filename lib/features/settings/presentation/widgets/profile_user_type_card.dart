@@ -44,7 +44,7 @@ class ProfileUserTypeCard extends StatelessWidget {
             onTap: () => onTypeSelected(UserType.user),
           ),
           Divider(
-            color: AppColors.gray100,
+            color: context.overlayBg,
             height: context.dynamicHeight(0.02),
           ),
           _UserTypeOption(
@@ -103,14 +103,14 @@ class _UserTypeOption extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                       color: isSelected
                           ? AppColors.primaryColor
-                          : AppColors.gray900,
+                          : context.textPrimary,
                     ),
                   ),
                   Text(
                     subtitle,
                     style: TextStyle(
                       fontSize: context.dynamicWidth(0.029),
-                      color: AppColors.gray500,
+                      color: context.iconSecondary,
                     ),
                   ),
                 ],
@@ -141,12 +141,12 @@ class _TypeIcon extends StatelessWidget {
                 colors: [AppColors.primaryColor, AppColors.tertiaryColor],
               )
             : null,
-        color: isSelected ? null : AppColors.gray100,
+        color: isSelected ? null : context.overlayBg,
         borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
       ),
       child: Icon(
         icon,
-        color: isSelected ? Colors.white : AppColors.gray400,
+        color: isSelected ? Colors.white : context.iconDefault,
         size: context.dynamicWidth(0.061),
       ),
     );

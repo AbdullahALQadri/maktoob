@@ -24,7 +24,7 @@ class CompanionsSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,7 +59,7 @@ class CompanionsSection extends StatelessWidget {
                   style: TextStyle(
                     fontSize: context.dynamicWidth(0.037),
                     fontWeight: FontWeight.w500,
-                    color: Colors.grey.shade800,
+                    color: context.textPrimary,
                   ),
                 ),
               ),
@@ -80,7 +80,7 @@ class CompanionsSection extends StatelessWidget {
               'Number of companions per guest (1-10)',
           style: TextStyle(
             fontSize: context.dynamicWidth(0.032),
-            color: Colors.grey.shade600,
+            color: context.textSecondary,
           ),
         ),
         SizedBox(height: context.dynamicHeight(0.015)),
@@ -136,7 +136,7 @@ class _CompanionSwitch extends StatelessWidget {
         width: context.dynamicWidth(0.141),
         height: context.dynamicWidth(0.08),
         decoration: BoxDecoration(
-          color: isEnabled ? AppColors.primary : Colors.grey.shade300,
+          color: isEnabled ? AppColors.primary : context.borderColor,
           borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         ),
         child: AnimatedAlign(
@@ -167,7 +167,7 @@ class _CompanionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: onPressed != null ? AppColors.primary : Colors.grey.shade300,
+      color: onPressed != null ? AppColors.primary : context.borderColor,
       borderRadius: BorderRadius.circular(context.dynamicWidth(0.021)),
       child: InkWell(
         onTap: onPressed,
@@ -199,7 +199,7 @@ class _CompanionCounter extends StatelessWidget {
         margin: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.04)),
         padding: EdgeInsets.symmetric(vertical: context.dynamicHeight(0.015)),
         decoration: BoxDecoration(
-          color: Colors.grey.shade100,
+          color: context.overlayBg,
           borderRadius: BorderRadius.circular(context.dynamicWidth(0.021)),
         ),
         child: Text(

@@ -41,13 +41,13 @@ class _EmptyVenueState extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(Icons.location_off,
-              size: context.dynamicWidth(0.12), color: AppColors.gray300),
+              size: context.dynamicWidth(0.12), color: context.borderColor),
           SizedBox(height: context.dynamicHeight(0.02)),
           Text(
             l?.translate('invitation_no_venues_available') ??
                 'No venues available',
             style: TextStyle(
-              color: AppColors.gray500,
+              color: context.iconSecondary,
               fontSize: context.dynamicWidth(0.04),
             ),
           ),

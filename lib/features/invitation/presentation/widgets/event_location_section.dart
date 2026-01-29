@@ -122,7 +122,7 @@ class _SelectedLocationCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: context.dynamicWidth(0.037),
                     fontWeight: FontWeight.w600,
-                    color: AppColors.gray800,
+                    color: context.textPrimary,
                   ),
                 ),
                 if (subtitle != null)
@@ -130,7 +130,7 @@ class _SelectedLocationCard extends StatelessWidget {
                     subtitle,
                     style: TextStyle(
                       fontSize: context.dynamicWidth(0.032),
-                      color: AppColors.gray500,
+                      color: context.iconSecondary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -146,7 +146,7 @@ class _SelectedLocationCard extends StatelessWidget {
                 context.read<InvitationCubit>().clearLocation();
               }
             },
-            icon: Icon(Icons.close, color: AppColors.gray400),
+            icon: Icon(Icons.close, color: context.iconDefault),
           ),
         ],
       ),
@@ -174,9 +174,9 @@ class _LocationOption extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(context.dynamicWidth(0.04)),
         decoration: BoxDecoration(
-          color: AppColors.gray50,
+          color: context.themeSurface,
           borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
-          border: Border.all(color: AppColors.gray200),
+          border: Border.all(color: context.borderColor),
         ),
         child: Row(
           children: [
@@ -200,21 +200,21 @@ class _LocationOption extends StatelessWidget {
                     style: TextStyle(
                       fontSize: context.dynamicWidth(0.037),
                       fontWeight: FontWeight.w500,
-                      color: AppColors.gray800,
+                      color: context.textPrimary,
                     ),
                   ),
                   Text(
                     subtitle,
                     style: TextStyle(
                       fontSize: context.dynamicWidth(0.032),
-                      color: AppColors.gray500,
+                      color: context.iconSecondary,
                     ),
                   ),
                 ],
               ),
             ),
             Icon(Icons.arrow_forward_ios,
-                color: AppColors.gray400, size: context.dynamicWidth(0.04)),
+                color: context.iconDefault, size: context.dynamicWidth(0.04)),
           ],
         ),
       ),

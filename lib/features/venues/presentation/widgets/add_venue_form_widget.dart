@@ -268,10 +268,10 @@ class _FormField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.gray50,
+        color: context.themeSurface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.gray200,
+          color: context.borderColor,
           width: 1,
         ),
       ),
@@ -282,7 +282,7 @@ class _FormField extends StatelessWidget {
         decoration: InputDecoration(
           labelText: label,
           labelStyle: TextStyle(
-            color: Colors.grey[500],
+            color: context.iconSecondary,
             fontSize: 14,
           ),
           prefixIcon: Icon(

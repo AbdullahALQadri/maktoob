@@ -45,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.gray100,
+      backgroundColor: context.overlayBg,
       body: BlocBuilder<HomeCubit, HomeState>(
         buildWhen: _shouldRebuild,
         builder: _buildState,

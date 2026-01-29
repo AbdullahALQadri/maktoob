@@ -70,7 +70,7 @@ class _SectionHeader extends StatelessWidget {
             style: TextStyle(
               fontSize: context.dynamicWidth(0.051),
               fontWeight: FontWeight.bold,
-              color: AppColors.gray900,
+              color: context.textPrimary,
             ),
           ),
           AppTextButton(

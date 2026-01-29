@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 
@@ -274,7 +274,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
             Icon(
               Icons.map_outlined,
               size: 80,
-              color: Colors.grey.shade400,
+              color: context.iconDefault,
             ),
             const SizedBox(height: 16),
             Text(
@@ -282,7 +282,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.grey.shade700,
+                color: context.textTertiary,
               ),
             ),
             const SizedBox(height: 8),
@@ -291,7 +291,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey.shade600,
+                color: context.textSecondary,
               ),
             ),
             const SizedBox(height: 24),
@@ -431,7 +431,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
                             _selectedAddress ?? '',
                             style: TextStyle(
                               fontSize: 13,
-                              color: Colors.grey.shade700,
+                              color: context.textTertiary,
                             ),
                           ),
                       ],

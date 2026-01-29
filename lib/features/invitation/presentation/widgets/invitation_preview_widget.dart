@@ -275,7 +275,7 @@ class InvitationPreviewWidget extends StatelessWidget {
     // Use white text for dark backgrounds, dark text for light backgrounds
     switch (templateId) {
       case 'classic_white':
-        return AppColors.gray800;
+        return AppColors.gray900;
       case 'elegant_gold':
         return Colors.white;
       default:

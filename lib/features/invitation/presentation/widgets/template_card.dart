@@ -34,7 +34,7 @@ class TemplateCard extends StatelessWidget {
               : Colors.white,
           borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
           border: Border.all(
-            color: isSelected ? AppColors.primaryColor : AppColors.gray200,
+            color: isSelected ? AppColors.primaryColor : context.borderColor,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -67,17 +67,17 @@ class TemplateCard extends StatelessWidget {
     }
 
     return Container(
-      color: AppColors.gray100,
+      color: context.overlayBg,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.upload_file,
-              size: context.dynamicWidth(0.08), color: AppColors.gray400),
+              size: context.dynamicWidth(0.08), color: context.iconDefault),
           SizedBox(height: context.dynamicHeight(0.01)),
           Text(
             isEnglish ? 'Upload your design' : 'ارفع تصميمك',
             style: TextStyle(
-              color: AppColors.gray500,
+              color: context.iconSecondary,
               fontSize: context.dynamicWidth(0.029),
             ),
             textAlign: TextAlign.center,
@@ -100,10 +100,10 @@ class TemplateCard extends StatelessWidget {
 
   Widget _buildPlaceholder(BuildContext context) {
     return Container(
-      color: AppColors.gray100,
+      color: context.overlayBg,
       child: Center(
         child: Icon(Icons.image,
-            size: context.dynamicWidth(0.101), color: AppColors.gray300),
+            size: context.dynamicWidth(0.101), color: context.borderColor),
       ),
     );
   }

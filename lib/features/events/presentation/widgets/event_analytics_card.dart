@@ -146,7 +146,7 @@ class _ProgressBar extends StatelessWidget {
             return Container(
               height: 10,
               decoration: BoxDecoration(
-                color: AppColors.gray200,
+                color: context.borderColor,
                 borderRadius: BorderRadius.circular(5),
               ),
               child: Align(

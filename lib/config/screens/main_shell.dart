@@ -168,7 +168,7 @@ class _MainShellState extends State<MainShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.gray100,
+      backgroundColor: context.overlayBg,
       extendBody: true,
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),

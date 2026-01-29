@@ -102,7 +102,7 @@ class _ResponseRateCardWidgetState extends State<ResponseRateCardWidget>
                       style: TextStyle(
                         fontSize: context.dynamicWidth(0.04),
                         fontWeight: FontWeight.w600,
-                        color: AppColors.gray900,
+                        color: context.textPrimary,
                       ),
                     ),
                   ],
@@ -141,7 +141,7 @@ class _ResponseRateCardWidgetState extends State<ResponseRateCardWidget>
                         // Background
                         Container(
                           decoration: BoxDecoration(
-                            color: AppColors.gray200,
+                            color: context.borderColor,
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
@@ -176,7 +176,7 @@ class _ResponseRateCardWidgetState extends State<ResponseRateCardWidget>
                   '${widget.totalResponded} of ${widget.totalGuests} guests responded',
                   style: TextStyle(
                     fontSize: context.dynamicWidth(0.032),
-                    color: AppColors.gray500,
+                    color: context.iconSecondary,
                   ),
                 ),
                 Row(
@@ -185,14 +185,14 @@ class _ResponseRateCardWidgetState extends State<ResponseRateCardWidget>
                     Icon(
                       Icons.access_time,
                       size: context.dynamicWidth(0.035),
-                      color: AppColors.gray400,
+                      color: context.iconDefault,
                     ),
                     SizedBox(width: context.dynamicWidth(0.011)),
                     Text(
                       'Updated 2h ago',
                       style: TextStyle(
                         fontSize: context.dynamicWidth(0.029),
-                        color: AppColors.gray400,
+                        color: context.iconDefault,
                       ),
                     ),
                   ],

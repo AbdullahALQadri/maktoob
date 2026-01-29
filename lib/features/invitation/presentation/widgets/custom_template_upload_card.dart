@@ -33,10 +33,10 @@ class CustomTemplateUploadCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: _hasContent
               ? AppColors.primaryColor.withValues(alpha: 0.1)
-              : AppColors.gray50,
+              : context.themeSurface,
           borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
           border: Border.all(
-            color: _hasContent ? AppColors.primaryColor : AppColors.gray300,
+            color: _hasContent ? AppColors.primaryColor : context.borderColor,
             width: _hasContent ? 2 : 1,
           ),
         ),
@@ -186,7 +186,7 @@ class CustomTemplateUploadCard extends StatelessWidget {
           style: TextStyle(
             fontSize: context.dynamicWidth(0.04),
             fontWeight: FontWeight.w500,
-            color: AppColors.gray700,
+            color: context.textTertiary,
           ),
         ),
         SizedBox(height: context.dynamicHeight(0.01)),

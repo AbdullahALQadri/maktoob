@@ -83,7 +83,7 @@ class PackageCard extends StatelessWidget {
             ? AppColors.primary
             : isOverLimit
                 ? Colors.red.shade300
-                : Colors.grey.shade300,
+                : context.borderColor,
         width: isSelected ? 2 : 1,
       ),
       boxShadow: [
@@ -115,7 +115,7 @@ class PackageCard extends StatelessWidget {
         shape: BoxShape.circle,
         color: isSelected ? AppColors.primary : Colors.transparent,
         border: Border.all(
-          color: isSelected ? AppColors.primary : Colors.grey.shade400,
+          color: isSelected ? AppColors.primary : context.iconDefault,
           width: 2,
         ),
       ),
@@ -137,7 +137,7 @@ class PackageCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: context.dynamicWidth(0.045),
                   fontWeight: FontWeight.bold,
-                  color: isSelected ? AppColors.primary : Colors.grey.shade800,
+                  color: isSelected ? AppColors.primary : context.textPrimary,
                 ),
               ),
             ),
@@ -169,7 +169,7 @@ class PackageCard extends StatelessWidget {
             isEnglish ? package.nameAr : package.name,
             style: TextStyle(
               fontSize: context.dynamicWidth(0.029),
-              color: Colors.grey.shade600,
+              color: context.textSecondary,
             ),
           ),
       ],
@@ -183,7 +183,7 @@ class PackageCard extends StatelessWidget {
         vertical: context.dynamicHeight(0.01),
       ),
       decoration: BoxDecoration(
-        color: isSelected ? AppColors.primary : Colors.grey.shade100,
+        color: isSelected ? AppColors.primary : context.overlayBg,
         borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
       ),
       child: Column(
@@ -195,7 +195,7 @@ class PackageCard extends StatelessWidget {
             style: TextStyle(
               fontSize: context.dynamicWidth(0.045),
               fontWeight: FontWeight.bold,
-              color: isSelected ? Colors.white : Colors.grey.shade800,
+              color: isSelected ? Colors.white : context.textPrimary,
             ),
           ),
           if (isLoadingPrice && isCustom && isSelected)
@@ -230,7 +230,7 @@ class PackageCard extends StatelessWidget {
                       feature,
                       style: TextStyle(
                         fontSize: context.dynamicWidth(0.032),
-                        color: Colors.grey.shade700,
+                        color: context.textTertiary,
                       ),
                     ),
                   ),
@@ -246,7 +246,7 @@ class PackageCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(context.dynamicWidth(0.029)),
       decoration: BoxDecoration(
-        color: isOverLimit ? Colors.red.shade50 : Colors.grey.shade100,
+        color: isOverLimit ? Colors.red.shade50 : context.overlayBg,
         borderRadius: BorderRadius.circular(context.dynamicWidth(0.021)),
         border: isOverLimit ? Border.all(color: Colors.red.shade300) : null,
       ),
@@ -255,7 +255,7 @@ class PackageCard extends StatelessWidget {
           Icon(
             isOverLimit ? Icons.warning : Icons.mail_outline,
             size: context.dynamicWidth(0.051),
-            color: isOverLimit ? Colors.red.shade700 : Colors.grey.shade600,
+            color: isOverLimit ? Colors.red.shade700 : context.textSecondary,
           ),
           SizedBox(width: context.dynamicWidth(0.021)),
           Expanded(
@@ -263,7 +263,7 @@ class PackageCard extends StatelessWidget {
               '${l?.translate('invitation_invitation_limit') ?? 'Invitation limit'}: ${package.invitationLimit}',
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.032),
-                color: isOverLimit ? Colors.red.shade700 : Colors.grey.shade700,
+                color: isOverLimit ? Colors.red.shade700 : context.textTertiary,
                 fontWeight: isOverLimit ? FontWeight.bold : FontWeight.normal,
               ),
             ),

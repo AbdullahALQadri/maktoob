@@ -240,7 +240,7 @@ class AllEventsCardWidget extends StatelessWidget {
             text,
             style: TextStyle(
               fontSize: context.dynamicWidth(0.032),
-              color: AppColors.gray700,
+              color: context.textTertiary,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -256,7 +256,7 @@ class AllEventsCardWidget extends StatelessWidget {
         horizontal: context.dynamicWidth(0.029),
         vertical: context.dynamicHeight(0.012)),
       decoration: BoxDecoration(
-        color: AppColors.gray50,
+        color: context.themeSurface,
         borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
       ),
       child: Row(
@@ -307,7 +307,7 @@ class AllEventsCardWidget extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: context.dynamicWidth(0.027),
-            color: AppColors.gray500,
+            color: context.iconSecondary,
           ),
         ),
       ],
@@ -318,7 +318,7 @@ class AllEventsCardWidget extends StatelessWidget {
     return Container(
       width: 1,
       height: context.dynamicHeight(0.039),
-      color: AppColors.gray200,
+      color: context.borderColor,
     );
   }
 
@@ -335,7 +335,7 @@ class AllEventsCardWidget extends StatelessWidget {
               'Response Rate',
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.029),
-                color: AppColors.gray500,
+                color: context.iconSecondary,
               ),
             ),
             Text(
@@ -357,7 +357,7 @@ class AllEventsCardWidget extends StatelessWidget {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: AppColors.gray200,
+                    color: context.borderColor,
                     borderRadius: BorderRadius.circular(context.dynamicWidth(0.011)),
                   ),
                 ),

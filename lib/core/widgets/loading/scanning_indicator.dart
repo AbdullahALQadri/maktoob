@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
 import '../../utils/app_colors.dart';
@@ -257,7 +257,7 @@ class _ScanningIndicatorState extends State<ScanningIndicator>
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: AppColors.gray700,
+              color: context.textTertiary,
             ),
           ),
           const SizedBox(height: 8),

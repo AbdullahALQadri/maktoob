@@ -40,7 +40,7 @@ class PaymentInfoCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: context.dynamicWidth(0.04),
                     fontWeight: FontWeight.bold,
-                    color: AppColors.gray900,
+                    color: context.textPrimary,
                   ),
                 ),
                 SizedBox(height: context.dynamicHeight(0.01)),
@@ -48,7 +48,7 @@ class PaymentInfoCard extends StatelessWidget {
                   'Please transfer the payment amount to the bank account below and upload your transfer receipt or invoice as proof of payment.',
                   style: TextStyle(
                     fontSize: context.dynamicWidth(0.035),
-                    color: AppColors.gray600,
+                    color: context.textSecondary,
                     height: 1.5,
                   ),
                 ),

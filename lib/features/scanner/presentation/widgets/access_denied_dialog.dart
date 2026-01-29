@@ -97,7 +97,7 @@ class AccessDeniedDialog extends StatelessWidget {
               t.translate('scanner_already_checked_desc'),
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.032),
-                color: AppColors.gray500,
+                color: context.iconSecondary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -130,8 +130,8 @@ class AccessDeniedDialog extends StatelessWidget {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              AppColors.gray500,
-                              AppColors.gray600,
+                              context.iconSecondary,
+                              context.textSecondary,
                             ],
                           ),
                           borderRadius: BorderRadius.circular(12),
@@ -157,7 +157,7 @@ class AccessDeniedDialog extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: context.dynamicWidth(0.045),
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.gray900,
+                                color: context.textPrimary,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -225,7 +225,7 @@ class AccessDeniedDialog extends StatelessWidget {
                   SizedBox(height: context.dynamicHeight(0.02)),
                   Container(
                     height: 1,
-                    color: AppColors.gray200,
+                    color: context.borderColor,
                   ),
                   SizedBox(height: context.dynamicHeight(0.015)),
                   // Details Grid
@@ -242,7 +242,7 @@ class AccessDeniedDialog extends StatelessWidget {
                       Container(
                         width: 1,
                         height: context.dynamicHeight(0.05),
-                        color: AppColors.gray200,
+                        color: context.borderColor,
                       ),
                       Expanded(
                         child: _buildDetailItem(
@@ -303,14 +303,14 @@ class AccessDeniedDialog extends StatelessWidget {
         Icon(
           icon,
           size: context.dynamicWidth(0.051),
-          color: AppColors.gray500,
+          color: context.iconSecondary,
         ),
         SizedBox(height: context.dynamicHeight(0.005)),
         Text(
           label,
           style: TextStyle(
             fontSize: context.dynamicWidth(0.029),
-            color: AppColors.gray500,
+            color: context.iconSecondary,
           ),
         ),
         SizedBox(height: context.dynamicHeight(0.002)),
@@ -319,7 +319,7 @@ class AccessDeniedDialog extends StatelessWidget {
           style: TextStyle(
             fontSize: context.dynamicWidth(0.035),
             fontWeight: FontWeight.bold,
-            color: AppColors.gray900,
+            color: context.textPrimary,
           ),
         ),
       ],

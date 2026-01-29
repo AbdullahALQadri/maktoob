@@ -57,7 +57,7 @@ class _ScannerEventsContentState extends State<_ScannerEventsContent>
     final t = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.gray100,
+      backgroundColor: context.overlayBg,
       body: Column(
         children: [
           _AnimatedHeader(fadeController: _fadeController, t: t),
@@ -246,10 +246,10 @@ class _ErrorState extends StatelessWidget {
             SizedBox(height: context.dynamicHeight(0.025)),
             Text(
               t.translate('home_something_wrong'),
-              style: TextStyle(fontSize: context.dynamicWidth(0.045), fontWeight: FontWeight.bold, color: AppColors.gray900),
+              style: TextStyle(fontSize: context.dynamicWidth(0.045), fontWeight: FontWeight.bold, color: context.textPrimary),
             ),
             SizedBox(height: context.dynamicHeight(0.01)),
-            Text(message, textAlign: TextAlign.center, style: TextStyle(color: AppColors.gray500, fontSize: context.dynamicWidth(0.035))),
+            Text(message, textAlign: TextAlign.center, style: TextStyle(color: context.iconSecondary, fontSize: context.dynamicWidth(0.035))),
             SizedBox(height: context.dynamicHeight(0.03)),
             ElevatedButton(
               onPressed: () => context.read<EventsListCubit>().refreshEvents(),
@@ -293,13 +293,13 @@ class _EmptyState extends StatelessWidget {
             SizedBox(height: context.dynamicHeight(0.03)),
             Text(
               t.translate('scanner_no_ongoing_events'),
-              style: TextStyle(fontSize: context.dynamicWidth(0.051), fontWeight: FontWeight.bold, color: AppColors.gray900),
+              style: TextStyle(fontSize: context.dynamicWidth(0.051), fontWeight: FontWeight.bold, color: context.textPrimary),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: context.dynamicHeight(0.015)),
             Text(
               t.translate('scanner_no_ongoing_events_desc'),
-              style: TextStyle(fontSize: context.dynamicWidth(0.035), color: AppColors.gray500, height: 1.5),
+              style: TextStyle(fontSize: context.dynamicWidth(0.035), color: context.iconSecondary, height: 1.5),
               textAlign: TextAlign.center,
             ),
           ],

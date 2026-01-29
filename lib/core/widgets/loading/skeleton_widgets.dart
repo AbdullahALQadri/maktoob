@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../../utils/app_colors.dart';
 import 'shimmer_loading.dart';
@@ -40,7 +40,7 @@ class SkeletonBox extends StatelessWidget {
       height: height,
       margin: margin,
       decoration: BoxDecoration(
-        color: color ?? AppColors.gray200,
+        color: color ?? context.borderColor,
         borderRadius: isCircle ? null : BorderRadius.circular(borderRadius),
         shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
       ),
@@ -60,7 +60,7 @@ class StatCardSkeleton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.cardBg,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -135,7 +135,7 @@ class RecentEventCardSkeleton extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.cardBg,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -212,7 +212,7 @@ class ResponseRateCardSkeleton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.cardBg,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
@@ -381,7 +381,7 @@ class EventListItemSkeleton extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.cardBg,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -397,7 +397,7 @@ class EventListItemSkeleton extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.gray200,
+                color: context.borderColor,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(20),
                   topRight: Radius.circular(20),
@@ -409,7 +409,7 @@ class EventListItemSkeleton extends StatelessWidget {
                     width: 48,
                     height: 48,
                     borderRadius: 14,
-                    color: AppColors.gray300,
+                    color: context.borderColor,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -420,14 +420,14 @@ class EventListItemSkeleton extends StatelessWidget {
                           width: 150,
                           height: 20,
                           borderRadius: 4,
-                          color: AppColors.gray300,
+                          color: context.borderColor,
                         ),
                         const SizedBox(height: 8),
                         SkeletonBox(
                           width: 80,
                           height: 24,
                           borderRadius: 12,
-                          color: AppColors.gray300,
+                          color: context.borderColor,
                         ),
                       ],
                     ),
@@ -436,7 +436,7 @@ class EventListItemSkeleton extends StatelessWidget {
                     width: 70,
                     height: 28,
                     borderRadius: 20,
-                    color: AppColors.gray300,
+                    color: context.borderColor,
                   ),
                 ],
               ),
@@ -479,7 +479,7 @@ class EventListItemSkeleton extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(child: _buildStatSkeleton()),
-                      Container(width: 1, height: 40, color: AppColors.gray200),
+                      Container(width: 1, height: 40, color: context.borderColor),
                       Expanded(child: _buildStatSkeleton()),
                     ],
                   ),
@@ -490,7 +490,7 @@ class EventListItemSkeleton extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.gray100,
+                color: context.overlayBg,
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(20),
                   bottomRight: Radius.circular(20),
@@ -578,7 +578,7 @@ class VenueCardSkeleton extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.cardBg,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -814,7 +814,7 @@ class _QuickStatsSkeleton extends StatelessWidget {
         margin: const EdgeInsets.all(16),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.cardBg,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
@@ -863,7 +863,7 @@ class _TabBarSkeleton extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16),
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.cardBg,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -881,7 +881,7 @@ class _TabBarSkeleton extends StatelessWidget {
                 height: 44,
                 margin: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: index == 0 ? AppColors.gray200 : AppColors.transparent,
+                  color: index == 0 ? context.borderColor : AppColors.transparent,
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
@@ -907,7 +907,7 @@ class _EventContentSkeleton extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.white,
+                color: context.cardBg,
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
@@ -951,7 +951,7 @@ class _EventContentSkeleton extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.white,
+                color: context.cardBg,
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
@@ -1073,7 +1073,7 @@ class ScannerStatsSkeleton extends StatelessWidget {
               ),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.white,
+                color: context.cardBg,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
@@ -1118,10 +1118,10 @@ class UploadAreaSkeleton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.cardBg,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: AppColors.gray200,
+            color: context.borderColor,
             width: 2,
           ),
         ),
@@ -1157,7 +1157,7 @@ class BankDetailsCardSkeleton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.cardBg,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(

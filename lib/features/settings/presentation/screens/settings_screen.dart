@@ -20,7 +20,7 @@ class SettingsScreen extends StatelessWidget {
     return BlocBuilder<SettingsCubit, SettingsState>(
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: AppColors.gray100,
+          backgroundColor: context.overlayBg,
           body: CustomScrollView(
             slivers: [
               const SliverToBoxAdapter(child: SettingsHeader()),
@@ -212,8 +212,8 @@ class _ContactTile extends StatelessWidget {
           AppIconButton.soft(
             icon: Icons.copy_rounded,
             onPressed: null,
-            iconColor: AppColors.gray500,
-            backgroundColor: AppColors.gray100,
+            iconColor: context.iconSecondary,
+            backgroundColor: context.overlayBg,
           ),
         ],
       ),

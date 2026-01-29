@@ -427,7 +427,7 @@ class AdaptiveNavigationScaffold extends StatelessWidget {
       );
     } else {
       return Scaffold(
-        backgroundColor: backgroundColor ?? AppColors.gray100,
+        backgroundColor: backgroundColor ?? context.overlayBg,
         extendBody: extendBody,
         body: body,
         bottomNavigationBar: AdaptiveBottomNavigationBar(

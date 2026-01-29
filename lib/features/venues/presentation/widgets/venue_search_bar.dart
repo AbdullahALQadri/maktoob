@@ -40,19 +40,19 @@ class VenueSearchBar extends StatelessWidget {
           decoration: InputDecoration(
             hintText: 'Search venues...',
             hintStyle: TextStyle(
-              color: Colors.grey[400],
+              color: context.iconDefault,
               fontSize: context.dynamicWidth(0.04),
             ),
             prefixIcon: Icon(
               Icons.search,
-              color: Colors.grey[400],
+              color: context.iconDefault,
               size: context.dynamicWidth(0.056),
             ),
             suffixIcon: searchQuery.isNotEmpty
                 ? IconButton(
                     icon: Icon(
                       Icons.clear,
-                      color: Colors.grey[400],
+                      color: context.iconDefault,
                       size: context.dynamicWidth(0.051),
                     ),
                     onPressed: onClear,

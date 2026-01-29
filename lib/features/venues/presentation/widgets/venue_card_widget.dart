@@ -97,7 +97,7 @@ class VenueCardWidget extends StatelessWidget {
                   Icon(
                     Icons.location_on,
                     size: 14,
-                    color: Colors.grey[400],
+                    color: AppColors.gray400,
                   ),
                   const SizedBox(width: 4),
                   Expanded(
@@ -105,7 +105,7 @@ class VenueCardWidget extends StatelessWidget {
                       venue.address,
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.grey[500],
+                        color: AppColors.gray500,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -133,14 +133,14 @@ class VenueCardWidget extends StatelessWidget {
               Icon(
                 Icons.phone,
                 size: 16,
-                color: Colors.grey[500],
+                color: AppColors.gray500,
               ),
               const SizedBox(width: 10),
               Text(
                 venue.phone,
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.grey[600],
+                  color: AppColors.gray600,
                 ),
               ),
             ],
@@ -151,7 +151,7 @@ class VenueCardWidget extends StatelessWidget {
               Icon(
                 Icons.email,
                 size: 16,
-                color: Colors.grey[500],
+                color: AppColors.gray500,
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -159,7 +159,7 @@ class VenueCardWidget extends StatelessWidget {
                   venue.email,
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.grey[600],
+                    color: AppColors.gray600,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -259,7 +259,7 @@ class _StatItem extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontSize: 11,
-                  color: Colors.grey[500],
+                  color: AppColors.gray500,
                 ),
               ),
             ],

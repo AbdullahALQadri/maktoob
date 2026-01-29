@@ -75,7 +75,7 @@ class EventTemplateCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.gray100,
+          color: context.overlayBg,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
@@ -269,12 +269,12 @@ class _SettingRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.gray100,
+        color: context.overlayBg,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: AppColors.gray600),
+          Icon(icon, size: 20, color: context.textSecondary),
           const SizedBox(width: 12),
           Expanded(child: Text(label, style: AppTextStyles.bodyMedium)),
           Container(

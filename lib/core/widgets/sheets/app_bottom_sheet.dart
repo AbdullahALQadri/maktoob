@@ -767,7 +767,7 @@ class _OptionsSheet<T> extends StatelessWidget {
               vertical: context.dynamicHeight(0.018),
             ),
             decoration: BoxDecoration(
-              color: isSelected ? AppColors.purple50 : context.surfaceColor,
+              color: isSelected ? AppColors.purple50 : context.themeSurface,
               borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
               border: Border.all(
                 color: isSelected ? AppColors.primaryColor : context.borderColor,
@@ -873,7 +873,7 @@ class _ActionsSheet<T> extends StatelessWidget {
               decoration: BoxDecoration(
                 color: action.isDestructive
                     ? AppColors.red500.withValues(alpha: 0.05)
-                    : context.surfaceColor,
+                    : context.themeSurface,
                 borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
               ),
               child: Row(

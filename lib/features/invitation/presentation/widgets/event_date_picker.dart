@@ -23,14 +23,14 @@ class EventDatePicker extends StatelessWidget {
           vertical: context.dynamicHeight(0.018),
         ),
         decoration: BoxDecoration(
-          color: AppColors.gray50,
+          color: context.themeSurface,
           borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
-          border: Border.all(color: AppColors.gray200),
+          border: Border.all(color: context.borderColor),
         ),
         child: Row(
           children: [
             Icon(Icons.calendar_today,
-                color: AppColors.gray500, size: context.dynamicWidth(0.051)),
+                color: context.iconSecondary, size: context.dynamicWidth(0.051)),
             SizedBox(width: context.dynamicWidth(0.029)),
             Expanded(
               child: Text(
@@ -39,12 +39,12 @@ class EventDatePicker extends StatelessWidget {
                     : l?.translate('invitation_select_date') ?? 'Select date',
                 style: TextStyle(
                   color:
-                      selectedDate != null ? AppColors.gray800 : AppColors.gray400,
+                      selectedDate != null ? context.textPrimary : context.iconDefault,
                   fontSize: context.dynamicWidth(0.037),
                 ),
               ),
             ),
-            Icon(Icons.arrow_drop_down, color: AppColors.gray400),
+            Icon(Icons.arrow_drop_down, color: context.iconDefault),
           ],
         ),
       ),
@@ -64,7 +64,7 @@ class EventDatePicker extends StatelessWidget {
               primary: AppColors.primaryColor,
               onPrimary: Colors.white,
               surface: Colors.white,
-              onSurface: AppColors.gray800,
+              onSurface: context.textPrimary,
             ),
             datePickerTheme: DatePickerThemeData(
               backgroundColor: Colors.white,

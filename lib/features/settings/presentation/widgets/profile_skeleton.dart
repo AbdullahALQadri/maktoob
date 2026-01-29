@@ -198,7 +198,7 @@ class _UserTypeCardSkeleton extends StatelessWidget {
           children: [
             _UserTypeOptionSkeleton(),
             Divider(
-              color: AppColors.gray100,
+              color: context.overlayBg,
               height: context.dynamicHeight(0.02),
             ),
             _UserTypeOptionSkeleton(),
@@ -272,17 +272,17 @@ class _InfoCardSkeleton extends StatelessWidget {
           children: [
             _InfoRowSkeleton(),
             Divider(
-              color: AppColors.gray100,
+              color: context.overlayBg,
               height: context.dynamicHeight(0.025),
             ),
             _InfoRowSkeleton(),
             Divider(
-              color: AppColors.gray100,
+              color: context.overlayBg,
               height: context.dynamicHeight(0.025),
             ),
             _InfoRowSkeleton(),
             Divider(
-              color: AppColors.gray100,
+              color: context.overlayBg,
               height: context.dynamicHeight(0.025),
             ),
             _InfoRowSkeleton(),
@@ -348,11 +348,11 @@ class _ActionsCardSkeleton extends StatelessWidget {
         child: Column(
           children: [
             _ActionItemSkeleton(),
-            Divider(color: AppColors.gray100, height: 1),
+            Divider(color: context.overlayBg, height: 1),
             _ActionItemSkeleton(),
-            Divider(color: AppColors.gray100, height: 1),
+            Divider(color: context.overlayBg, height: 1),
             _ActionItemSkeleton(),
-            Divider(color: AppColors.gray100, height: 1),
+            Divider(color: context.overlayBg, height: 1),
             _ActionItemSkeleton(),
           ],
         ),

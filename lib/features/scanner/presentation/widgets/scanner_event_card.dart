@@ -72,7 +72,7 @@ class _CardContent extends StatelessWidget {
         children: [
           _HeaderRow(event: event),
           SizedBox(height: context.dynamicHeight(0.02)),
-          Container(height: context.dynamicHeight(0.001), color: AppColors.gray200),
+          Container(height: context.dynamicHeight(0.001), color: context.borderColor),
           SizedBox(height: context.dynamicHeight(0.015)),
           _DetailsRow(event: event),
           SizedBox(height: context.dynamicHeight(0.015)),
@@ -119,7 +119,7 @@ class _HeaderRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: context.dynamicWidth(0.043),
                   fontWeight: FontWeight.bold,
-                  color: AppColors.gray900,
+                  color: context.textPrimary,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -189,14 +189,14 @@ class _InfoItem extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: context.dynamicWidth(0.04), color: AppColors.gray500),
+        Icon(icon, size: context.dynamicWidth(0.04), color: context.iconSecondary),
         SizedBox(width: context.dynamicWidth(0.021)),
         Expanded(
           child: Text(
             text,
             style: TextStyle(
               fontSize: context.dynamicWidth(0.029),
-              color: AppColors.gray600,
+              color: context.textSecondary,
               height: 1.4,
             ),
             maxLines: 2,
@@ -219,7 +219,7 @@ class _StatsRow extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(context.dynamicWidth(0.029)),
       decoration: BoxDecoration(
-        color: AppColors.gray100,
+        color: context.overlayBg,
         borderRadius: BorderRadius.circular(context.dynamicWidth(0.024)),
       ),
       child: Row(
@@ -260,7 +260,7 @@ class _StatItem extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: context.dynamicWidth(0.024),
-            color: AppColors.gray500,
+            color: context.iconSecondary,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -275,7 +275,7 @@ class _StatDivider extends StatelessWidget {
     return Container(
       width: context.dynamicWidth(0.003),
       height: context.dynamicHeight(0.039),
-      color: AppColors.gray300,
+      color: context.borderColor,
     );
   }
 }

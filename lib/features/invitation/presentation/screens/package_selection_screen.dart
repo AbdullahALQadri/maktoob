@@ -29,7 +29,7 @@ class PackageSelectionScreen extends StatelessWidget {
     final packages = GoldenPackageModel.packages;
 
     return Scaffold(
-      backgroundColor: AppColors.gray50,
+      backgroundColor: context.themeSurface,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -44,16 +44,16 @@ class PackageSelectionScreen extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: AppColors.gray100,
+                color: context.overlayBg,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: AppColors.gray200,
+                  color: context.borderColor,
                   width: 1,
                 ),
               ),
               child: Icon(
                 Icons.arrow_back_rounded,
-                color: AppColors.gray800,
+                color: context.textPrimary,
                 size: 22,
               ),
             ),
@@ -74,7 +74,7 @@ class PackageSelectionScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: screenWidth * 0.065,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.gray900,
+                        color: context.textPrimary,
                       ),
                     ),
                     SizedBox(height: screenHeight * 0.01),
@@ -82,7 +82,7 @@ class PackageSelectionScreen extends StatelessWidget {
                       'Select the level of organization for your event',
                       style: TextStyle(
                         fontSize: screenWidth * 0.038,
-                        color: AppColors.gray500,
+                        color: context.iconSecondary,
                       ),
                       textAlign: TextAlign.center,
                     ),

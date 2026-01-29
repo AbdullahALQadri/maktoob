@@ -88,7 +88,7 @@ class RecentEventCardWidget extends StatelessWidget {
                       style: TextStyle(
                         fontSize: context.dynamicWidth(0.04),
                         fontWeight: FontWeight.bold,
-                        color: AppColors.gray900,
+                        color: context.textPrimary,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -99,7 +99,7 @@ class RecentEventCardWidget extends StatelessWidget {
                         Icon(
                           Icons.location_on_outlined,
                           size: context.dynamicWidth(0.035),
-                          color: AppColors.gray400,
+                          color: context.iconDefault,
                         ),
                         SizedBox(width: context.dynamicWidth(0.011)),
                         Expanded(
@@ -107,7 +107,7 @@ class RecentEventCardWidget extends StatelessWidget {
                             event.venue,
                             style: TextStyle(
                               fontSize: context.dynamicWidth(0.032),
-                              color: AppColors.gray500,
+                              color: context.iconSecondary,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -125,7 +125,7 @@ class RecentEventCardWidget extends StatelessWidget {
                   vertical: context.dynamicHeight(0.007),
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.gray100,
+                  color: context.overlayBg,
                   borderRadius: BorderRadius.circular(context.dynamicWidth(0.024)),
                 ),
                 child: Row(
@@ -134,7 +134,7 @@ class RecentEventCardWidget extends StatelessWidget {
                     Icon(
                       Icons.calendar_today,
                       size: context.dynamicWidth(0.029),
-                      color: AppColors.gray600,
+                      color: context.textSecondary,
                     ),
                     SizedBox(width: context.dynamicWidth(0.011)),
                     Text(
@@ -142,7 +142,7 @@ class RecentEventCardWidget extends StatelessWidget {
                       style: TextStyle(
                         fontSize: context.dynamicWidth(0.029),
                         fontWeight: FontWeight.w600,
-                        color: AppColors.gray600,
+                        color: context.textSecondary,
                       ),
                     ),
                   ],
@@ -203,7 +203,7 @@ class RecentEventCardWidget extends StatelessWidget {
             label,
             style: TextStyle(
               fontSize: context.dynamicWidth(0.029),
-              color: AppColors.gray500,
+              color: context.iconSecondary,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -229,7 +229,7 @@ class RecentEventCardWidget extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.029),
-                color: AppColors.gray500,
+                color: context.iconSecondary,
               ),
             ),
             Text(
@@ -256,7 +256,7 @@ class RecentEventCardWidget extends StatelessWidget {
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                        color: AppColors.gray200,
+                        color: context.borderColor,
                         borderRadius: BorderRadius.circular(context.dynamicWidth(0.011)),
                       ),
                     ),

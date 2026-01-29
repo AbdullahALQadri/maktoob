@@ -71,7 +71,7 @@ class _ActionDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Divider(color: AppColors.gray100, height: 1);
+    return Divider(color: context.overlayBg, height: 1);
   }
 }
 
@@ -90,8 +90,8 @@ class _ActionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isDestructive ? AppColors.red500 : AppColors.gray600;
-    final textColor = isDestructive ? AppColors.red500 : AppColors.gray900;
+    final color = isDestructive ? AppColors.red500 : context.textSecondary;
+    final textColor = isDestructive ? AppColors.red500 : context.textPrimary;
 
     return InkWell(
       onTap: onTap,
@@ -113,7 +113,7 @@ class _ActionItem extends StatelessWidget {
             ),
             Icon(
               Icons.arrow_forward_ios,
-              color: AppColors.gray400,
+              color: context.iconDefault,
               size: context.dynamicWidth(0.04),
             ),
           ],

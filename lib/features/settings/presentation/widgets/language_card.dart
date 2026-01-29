@@ -23,7 +23,7 @@ class LanguageCard extends StatelessWidget {
                 isSelected: state.language == AppLanguage.ar,
                 onTap: () => context.read<SettingsCubit>().setLanguage(AppLanguage.ar),
               ),
-              Divider(color: AppColors.gray100, height: context.dynamicHeight(0.02)),
+              Divider(color: context.overlayBg, height: context.dynamicHeight(0.02)),
               _LanguageOption(
                 title: 'English',
                 subtitle: 'الإنجليزية',
@@ -75,7 +75,7 @@ class _LanguageOption extends StatelessWidget {
                   Text(
                     title,
                     style: AppTextStyles.titleSmall.copyWith(
-                      color: isSelected ? AppColors.primaryColor : AppColors.gray900,
+                      color: isSelected ? AppColors.primaryColor : context.textPrimary,
                     ),
                   ),
                   Text(subtitle, style: AppTextStyles.caption),
@@ -106,12 +106,12 @@ class _LanguageIcon extends StatelessWidget {
                 colors: [AppColors.primaryColor, AppColors.tertiaryColor],
               )
             : null,
-        color: isSelected ? null : AppColors.gray100,
+        color: isSelected ? null : context.overlayBg,
         borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
       ),
       child: Icon(
         Icons.language,
-        color: isSelected ? Colors.white : AppColors.gray400,
+        color: isSelected ? Colors.white : context.iconDefault,
         size: context.dynamicWidth(0.061),
       ),
     );

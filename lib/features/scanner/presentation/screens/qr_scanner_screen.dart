@@ -113,7 +113,7 @@ class _QRScannerScreenState extends State<QRScannerScreen>
     return BlocListener<ScannerCubit, ScannerState>(
       listener: _handleStateChange,
       child: Scaffold(
-        backgroundColor: Colors.grey.shade100,
+        backgroundColor: context.overlayBg,
         body: SafeArea(
           child: Column(
             children: [

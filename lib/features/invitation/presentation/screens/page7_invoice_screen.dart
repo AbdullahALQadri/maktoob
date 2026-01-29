@@ -149,7 +149,7 @@ class _Page7InvoiceScreenState extends State<Page7InvoiceScreen> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.035),
-                color: Colors.grey.shade600,
+                color: context.textSecondary,
               ),
             ),
           ],
@@ -276,7 +276,7 @@ class _ErrorState extends StatelessWidget {
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.045),
                 fontWeight: FontWeight.bold,
-                color: Colors.grey.shade800,
+                color: context.textPrimary,
               ),
             ),
             SizedBox(height: context.dynamicHeight(0.01)),
@@ -285,7 +285,7 @@ class _ErrorState extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.035),
-                color: Colors.grey.shade600,
+                color: context.textSecondary,
               ),
             ),
             SizedBox(height: context.dynamicHeight(0.03)),

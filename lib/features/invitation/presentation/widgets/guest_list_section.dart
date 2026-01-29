@@ -38,21 +38,21 @@ class _EmptyGuestList extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         children: [
           Icon(
             Icons.person_add_disabled,
             size: context.dynamicWidth(0.16),
-            color: Colors.grey.shade400,
+            color: context.iconDefault,
           ),
           SizedBox(height: context.dynamicHeight(0.02)),
           Text(
             l?.translate('invitation_no_guests_yet') ?? 'No guests added yet',
             style: TextStyle(
               fontSize: context.dynamicWidth(0.04),
-              color: Colors.grey.shade600,
+              color: context.textSecondary,
             ),
           ),
           SizedBox(height: context.dynamicHeight(0.01)),
@@ -201,7 +201,7 @@ class _GuestListItem extends StatelessWidget {
               guest.phone,
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.032),
-                color: Colors.grey.shade600,
+                color: context.textSecondary,
               ),
               overflow: TextOverflow.ellipsis,
             ),

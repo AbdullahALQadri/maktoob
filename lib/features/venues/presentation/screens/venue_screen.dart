@@ -78,7 +78,7 @@ class _VenueScreenState extends State<VenueScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(color: AppColors.gray50),
+        decoration: BoxDecoration(color: context.themeSurface),
         child: SafeArea(
           child: BlocConsumer<VenuesCubit, VenuesState>(
             listenWhen: (previous, current) =>

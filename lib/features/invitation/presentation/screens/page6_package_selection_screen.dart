@@ -171,7 +171,7 @@ class _PackageContent extends StatelessWidget {
                 'Select the appropriate package for your guest count',
             style: TextStyle(
               fontSize: context.dynamicWidth(0.037),
-              color: Colors.grey.shade700,
+              color: context.textTertiary,
             ),
           ),
           SizedBox(height: context.dynamicHeight(0.02)),
@@ -244,7 +244,7 @@ class _ErrorState extends StatelessWidget {
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.045),
                 fontWeight: FontWeight.bold,
-                color: Colors.grey.shade800,
+                color: context.textPrimary,
               ),
             ),
             SizedBox(height: context.dynamicHeight(0.01)),
@@ -253,7 +253,7 @@ class _ErrorState extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.035),
-                color: Colors.grey.shade600,
+                color: context.textSecondary,
               ),
             ),
             SizedBox(height: context.dynamicHeight(0.03)),
@@ -287,14 +287,14 @@ class _EmptyState extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.inventory_2_outlined,
-                size: context.dynamicWidth(0.2), color: Colors.grey.shade400),
+                size: context.dynamicWidth(0.2), color: context.iconDefault),
             SizedBox(height: context.dynamicHeight(0.02)),
             Text(
               l?.translate('invitation_no_packages') ?? 'No packages available',
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.045),
                 fontWeight: FontWeight.bold,
-                color: Colors.grey.shade700,
+                color: context.textTertiary,
               ),
             ),
           ],

@@ -38,7 +38,7 @@ class OfflineScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.gray100,
+      backgroundColor: context.overlayBg,
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -49,13 +49,13 @@ class OfflineScreen extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.all(context.dynamicWidth(0.08)),
                   decoration: BoxDecoration(
-                    color: AppColors.gray200,
+                    color: context.borderColor,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.wifi_off_rounded,
                     size: context.dynamicWidth(0.2),
-                    color: AppColors.gray400,
+                    color: context.iconDefault,
                   ),
                 ),
                 SizedBox(height: context.dynamicHeight(0.039)),
@@ -64,7 +64,7 @@ class OfflineScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: context.dynamicWidth(0.061),
                     fontWeight: FontWeight.bold,
-                    color: AppColors.gray900,
+                    color: context.textPrimary,
                   ),
                 ),
                 SizedBox(height: context.dynamicHeight(0.015)),
@@ -73,7 +73,7 @@ class OfflineScreen extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: context.dynamicWidth(0.04),
-                    color: AppColors.gray500,
+                    color: context.iconSecondary,
                     height: 1.5,
                   ),
                 ),

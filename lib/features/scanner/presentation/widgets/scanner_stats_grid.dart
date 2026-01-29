@@ -105,7 +105,7 @@ class _StatCard extends StatelessWidget {
             label,
             style: TextStyle(
               fontSize: context.dynamicWidth(0.029),
-              color: Colors.grey.shade600,
+              color: context.textSecondary,
               fontWeight: FontWeight.w500,
             ),
           ),

@@ -30,7 +30,7 @@ class ExtraServiceCard extends StatelessWidget {
               : Colors.white,
           borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           border: Border.all(
-            color: isSelected ? AppColors.primary : Colors.grey.shade300,
+            color: isSelected ? AppColors.primary : context.borderColor,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: [
@@ -78,7 +78,7 @@ class ExtraServiceCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: isSelected
             ? AppColors.primary.withValues(alpha: 0.2)
-            : Colors.grey.shade100,
+            : context.overlayBg,
         borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
       ),
       child: service.iconUrl != null
@@ -98,7 +98,7 @@ class ExtraServiceCard extends StatelessWidget {
     return Icon(
       Icons.room_service,
       size: context.dynamicWidth(0.069),
-      color: isSelected ? AppColors.primary : Colors.grey.shade600,
+      color: isSelected ? AppColors.primary : context.textSecondary,
     );
   }
 
@@ -111,7 +111,7 @@ class ExtraServiceCard extends StatelessWidget {
       style: TextStyle(
         fontSize: context.dynamicWidth(0.035),
         fontWeight: FontWeight.bold,
-        color: isSelected ? AppColors.primary : Colors.grey.shade800,
+        color: isSelected ? AppColors.primary : context.textPrimary,
       ),
     );
   }
@@ -136,7 +136,7 @@ class ExtraServiceCard extends StatelessWidget {
         vertical: context.dynamicHeight(0.007),
       ),
       decoration: BoxDecoration(
-        color: isSelected ? AppColors.primary : Colors.grey.shade100,
+        color: isSelected ? AppColors.primary : context.overlayBg,
         borderRadius: BorderRadius.circular(context.dynamicWidth(0.051)),
       ),
       child: Text(
@@ -144,7 +144,7 @@ class ExtraServiceCard extends StatelessWidget {
         style: TextStyle(
           fontSize: context.dynamicWidth(0.035),
           fontWeight: FontWeight.bold,
-          color: isSelected ? Colors.white : Colors.grey.shade700,
+          color: isSelected ? Colors.white : context.textTertiary,
         ),
       ),
     );

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 
 import '../../../../config/locale/app_localizations.dart';
@@ -313,7 +313,7 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
               Icon(
                 Icons.contacts,
                 size: 64,
-                color: Colors.grey.shade400,
+                color: context.iconDefault,
               ),
               const SizedBox(height: 16),
               Text(
@@ -321,7 +321,7 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.grey.shade600,
+                  color: context.textSecondary,
                 ),
               ),
               const SizedBox(height: 24),
@@ -344,7 +344,7 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
             Icon(
               Icons.search_off,
               size: 64,
-              color: Colors.grey.shade400,
+              color: context.iconDefault,
             ),
             const SizedBox(height: 16),
             Text(
@@ -353,7 +353,7 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
                   : t.translate('contacts_no_results'),
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.grey.shade600,
+                color: context.textSecondary,
               ),
             ),
           ],
@@ -375,13 +375,13 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
           leading: CircleAvatar(
             backgroundColor: isSelected
                 ? AppColors.primary
-                : Colors.grey.shade300,
+                : context.borderColor,
             child: Text(
               contact.displayName.isNotEmpty
                   ? contact.displayName[0].toUpperCase()
                   : '?',
               style: TextStyle(
-                color: isSelected ? Colors.white : Colors.grey.shade700,
+                color: isSelected ? Colors.white : context.textTertiary,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -393,7 +393,7 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
           subtitle: Text(
             validPhone.number,
             style: TextStyle(
-              color: Colors.grey.shade600,
+              color: context.textSecondary,
               fontSize: 13,
             ),
           ),

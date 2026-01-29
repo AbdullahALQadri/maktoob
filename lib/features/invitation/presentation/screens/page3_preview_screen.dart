@@ -187,7 +187,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
               return Container(
                 height: context.dynamicHeight(0.35),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
+                  color: context.borderColor,
                   borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
                 ),
                 child: const Center(
@@ -212,9 +212,9 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
     return Container(
       height: context.dynamicHeight(0.35),
       decoration: BoxDecoration(
-        color: Colors.grey.shade200,
+        color: context.borderColor,
         borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -222,14 +222,14 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
           Icon(
             Icons.image_outlined,
             size: context.dynamicWidth(0.16),
-            color: Colors.grey.shade400,
+            color: context.iconDefault,
           ),
           SizedBox(height: context.dynamicHeight(0.02)),
           Text(
             l?.translate('invitation_no_preview') ?? 'No preview available',
             style: TextStyle(
               fontSize: context.dynamicWidth(0.04),
-              color: Colors.grey.shade600,
+              color: context.textSecondary,
             ),
           ),
           SizedBox(height: context.dynamicHeight(0.01)),
@@ -346,7 +346,7 @@ class _Page3PreviewScreenState extends State<Page3PreviewScreen> {
                   label,
                   style: TextStyle(
                     fontSize: context.dynamicWidth(0.029),
-                    color: Colors.grey.shade600,
+                    color: context.textSecondary,
                   ),
                 ),
                 SizedBox(height: context.dynamicHeight(0.005)),

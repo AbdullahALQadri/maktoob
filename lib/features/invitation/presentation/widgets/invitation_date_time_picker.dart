@@ -62,7 +62,7 @@ class _DatePickerField extends StatelessWidget {
           style: TextStyle(
             fontSize: context.dynamicWidth(0.04),
             fontWeight: FontWeight.w600,
-            color: AppColors.gray800,
+            color: context.textPrimary,
           ),
         ),
         SizedBox(height: context.dynamicWidth(0.021)),
@@ -74,15 +74,15 @@ class _DatePickerField extends StatelessWidget {
               vertical: context.dynamicWidth(0.035),
             ),
             decoration: BoxDecoration(
-              color: AppColors.gray100,
+              color: context.overlayBg,
               borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
-              border: Border.all(color: AppColors.gray200),
+              border: Border.all(color: context.borderColor),
             ),
             child: Row(
               children: [
                 Icon(
                   Icons.calendar_today_outlined,
-                  color: AppColors.gray500,
+                  color: context.iconSecondary,
                   size: context.dynamicWidth(0.051),
                 ),
                 SizedBox(width: context.dynamicWidth(0.029)),
@@ -91,8 +91,8 @@ class _DatePickerField extends StatelessWidget {
                     dateText,
                     style: TextStyle(
                       color: selectedDate != null
-                          ? AppColors.gray800
-                          : AppColors.gray400,
+                          ? context.textPrimary
+                          : context.iconDefault,
                       fontSize: context.dynamicWidth(0.037),
                     ),
                   ),
@@ -129,7 +129,7 @@ class _TimePickerField extends StatelessWidget {
           style: TextStyle(
             fontSize: context.dynamicWidth(0.04),
             fontWeight: FontWeight.w600,
-            color: AppColors.gray800,
+            color: context.textPrimary,
           ),
         ),
         SizedBox(height: context.dynamicWidth(0.021)),
@@ -141,15 +141,15 @@ class _TimePickerField extends StatelessWidget {
               vertical: context.dynamicWidth(0.035),
             ),
             decoration: BoxDecoration(
-              color: AppColors.gray100,
+              color: context.overlayBg,
               borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
-              border: Border.all(color: AppColors.gray200),
+              border: Border.all(color: context.borderColor),
             ),
             child: Row(
               children: [
                 Icon(
                   Icons.access_time_outlined,
-                  color: AppColors.gray500,
+                  color: context.iconSecondary,
                   size: context.dynamicWidth(0.051),
                 ),
                 SizedBox(width: context.dynamicWidth(0.029)),
@@ -158,8 +158,8 @@ class _TimePickerField extends StatelessWidget {
                     timeText,
                     style: TextStyle(
                       color: selectedTime != null
-                          ? AppColors.gray800
-                          : AppColors.gray400,
+                          ? context.textPrimary
+                          : context.iconDefault,
                       fontSize: context.dynamicWidth(0.037),
                     ),
                   ),
@@ -191,7 +191,7 @@ class InvitationPickerDialogs {
               primary: AppColors.primaryColor,
               onPrimary: Colors.white,
               surface: Colors.white,
-              onSurface: AppColors.gray900,
+              onSurface: context.textPrimary,
             ),
             datePickerTheme: DatePickerThemeData(
               backgroundColor: Colors.white,
@@ -235,7 +235,7 @@ class InvitationPickerDialogs {
               primary: AppColors.primaryColor,
               onPrimary: Colors.white,
               surface: Colors.white,
-              onSurface: AppColors.gray900,
+              onSurface: context.textPrimary,
             ),
             timePickerTheme: TimePickerThemeData(
               backgroundColor: Colors.white,

@@ -233,10 +233,10 @@ class _ImportButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: isActive
               ? AppColors.primary.withValues(alpha: 0.1)
-              : Colors.grey.shade100,
+              : context.overlayBg,
           borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
           border: Border.all(
-            color: isActive ? AppColors.primary : Colors.grey.shade300,
+            color: isActive ? AppColors.primary : context.borderColor,
           ),
         ),
         child: Column(
@@ -254,7 +254,7 @@ class _ImportButton extends StatelessWidget {
               Icon(
                 icon,
                 size: context.dynamicWidth(0.069),
-                color: isActive ? AppColors.primary : Colors.grey.shade600,
+                color: isActive ? AppColors.primary : context.textSecondary,
               ),
             SizedBox(height: context.dynamicHeight(0.01)),
             Text(
@@ -263,7 +263,7 @@ class _ImportButton extends StatelessWidget {
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.029),
                 fontWeight: FontWeight.w500,
-                color: isActive ? AppColors.primary : Colors.grey.shade700,
+                color: isActive ? AppColors.primary : context.textTertiary,
               ),
             ),
             if (count > 0) ...[

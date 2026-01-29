@@ -93,7 +93,7 @@ class _SectionTitle extends StatelessWidget {
       style: TextStyle(
         fontSize: context.dynamicWidth(0.045),
         fontWeight: FontWeight.w600,
-        color: AppColors.gray800,
+        color: context.textPrimary,
       ),
     );
   }

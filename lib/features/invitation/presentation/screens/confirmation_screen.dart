@@ -119,7 +119,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                           style: TextStyle(
                             fontSize: context.dynamicWidth(0.064),
                             fontWeight: FontWeight.bold,
-                            color: AppColors.gray900,
+                            color: context.textPrimary,
                           ),
                         ),
                         SizedBox(height: context.dynamicHeight(0.01)),
@@ -127,7 +127,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                           'Share it with your guests',
                           style: TextStyle(
                             fontSize: context.dynamicWidth(0.04),
-                            color: AppColors.gray500,
+                            color: context.iconSecondary,
                           ),
                         ),
                       ],
@@ -165,14 +165,14 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                             ),
                             dataModuleStyle: QrDataModuleStyle(
                               dataModuleShape: QrDataModuleShape.square,
-                              color: AppColors.gray800,
+                              color: context.textPrimary,
                             ),
                           ),
                           SizedBox(height: context.dynamicWidth(0.029)),
                           Text(
                             'Scan to view invitation',
                             style: TextStyle(
-                              color: AppColors.gray500,
+                              color: context.iconSecondary,
                               fontSize: context.dynamicWidth(0.035),
                             ),
                           ),
@@ -254,9 +254,9 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
     return Container(
       padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
-        color: AppColors.gray50,
+        color: context.themeSurface,
         borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
-        border: Border.all(color: AppColors.gray200),
+        border: Border.all(color: context.borderColor),
       ),
       child: Row(
         children: [
@@ -267,7 +267,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                 Text(
                   'Invitation Link',
                   style: TextStyle(
-                    color: AppColors.gray500,
+                    color: context.iconSecondary,
                     fontSize: context.dynamicWidth(0.032),
                   ),
                 ),
@@ -275,7 +275,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                 Text(
                   link,
                   style: TextStyle(
-                    color: AppColors.gray800,
+                    color: context.textPrimary,
                     fontSize: context.dynamicWidth(0.035),
                     fontWeight: FontWeight.w500,
                   ),
@@ -319,7 +319,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
           context,
           icon: Icons.share,
           label: 'More',
-          color: AppColors.gray600,
+          color: context.textSecondary,
           onTap: () => _shareGeneric(state),
         ),
       ],
@@ -354,7 +354,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
           Text(
             label,
             style: TextStyle(
-              color: AppColors.gray600,
+              color: context.textSecondary,
               fontSize: context.dynamicWidth(0.032),
             ),
           ),

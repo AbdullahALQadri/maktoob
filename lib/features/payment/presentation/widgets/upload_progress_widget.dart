@@ -48,7 +48,7 @@ class UploadProgressWidget extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.gray900,
+                      color: context.textPrimary,
                     ),
                   ),
                   if (file != null) ...[
@@ -57,7 +57,7 @@ class UploadProgressWidget extends StatelessWidget {
                       file!.name,
                       style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.gray500,
+                        color: context.iconSecondary,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -82,7 +82,7 @@ class UploadProgressWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           child: LinearProgressIndicator(
             value: progress,
-            backgroundColor: AppColors.gray200,
+            backgroundColor: context.borderColor,
             valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
             minHeight: 8,
           ),
@@ -118,7 +118,7 @@ class CircularUploadProgressWidget extends StatelessWidget {
             child: CircularProgressIndicator(
               value: progress,
               strokeWidth: strokeWidth,
-              backgroundColor: AppColors.gray200,
+              backgroundColor: context.borderColor,
               valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
             ),
           ),

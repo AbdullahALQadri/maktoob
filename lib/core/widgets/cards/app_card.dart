@@ -288,7 +288,7 @@ class AppCard extends StatelessWidget {
 
       case CardVariant.filled:
         return BoxDecoration(
-          color: backgroundColor ?? context.surfaceColor,
+          color: backgroundColor ?? context.themeSurface,
           borderRadius: BorderRadius.circular(radius),
         );
     }

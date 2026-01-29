@@ -66,11 +66,11 @@ class _CustomTemplateBottomSheetContentState
         height: context.dynamicHeight(0.22),
         width: double.infinity,
         decoration: BoxDecoration(
-          color: AppColors.gray50,
+          color: context.themeSurface,
           borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
           border: Border.all(
             color:
-                _selectedFile != null ? AppColors.primaryColor : AppColors.gray300,
+                _selectedFile != null ? AppColors.primaryColor : context.borderColor,
             width: _selectedFile != null ? 2 : 1,
           ),
         ),
@@ -121,12 +121,12 @@ class _CustomTemplateBottomSheetContentState
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Icon(Icons.cloud_upload,
-            size: context.dynamicWidth(0.12), color: AppColors.gray400),
+            size: context.dynamicWidth(0.12), color: context.iconDefault),
         SizedBox(height: context.dynamicHeight(0.015)),
         Text(
           l?.translate('invitation_tap_to_upload') ?? 'Tap to upload image',
           style: TextStyle(
-            color: AppColors.gray600,
+            color: context.textSecondary,
             fontSize: context.dynamicWidth(0.04),
           ),
         ),
@@ -134,7 +134,7 @@ class _CustomTemplateBottomSheetContentState
         Text(
           l?.translate('invitation_image_format') ?? 'PNG, JPG (max 1920x1920)',
           style: TextStyle(
-            color: AppColors.gray400,
+            color: context.iconDefault,
             fontSize: context.dynamicWidth(0.029),
           ),
         ),
@@ -152,7 +152,7 @@ class _CustomTemplateBottomSheetContentState
           style: TextStyle(
             fontSize: context.dynamicWidth(0.035),
             fontWeight: FontWeight.w500,
-            color: AppColors.gray700,
+            color: context.textTertiary,
           ),
         ),
         SizedBox(height: context.dynamicHeight(0.01)),
@@ -164,19 +164,19 @@ class _CustomTemplateBottomSheetContentState
             hintText: l?.translate('invitation_describe_design') ??
                 'Describe what you want in the design...',
             hintStyle: TextStyle(
-                color: AppColors.gray400,
+                color: context.iconDefault,
                 fontSize: context.dynamicWidth(0.035)),
             filled: true,
             fillColor: Colors.white,
             border: OutlineInputBorder(
               borderRadius:
                   BorderRadius.circular(context.dynamicWidth(0.029)),
-              borderSide: BorderSide(color: AppColors.gray300),
+              borderSide: BorderSide(color: context.borderColor),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius:
                   BorderRadius.circular(context.dynamicWidth(0.029)),
-              borderSide: BorderSide(color: AppColors.gray300),
+              borderSide: BorderSide(color: context.borderColor),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius:
@@ -238,7 +238,7 @@ class _CustomTemplateBottomSheetContentState
                 'Please upload an image or enter a description',
             style: TextStyle(
               fontSize: context.dynamicWidth(0.029),
-              color: AppColors.gray500,
+              color: context.iconSecondary,
             ),
           ),
         ),
