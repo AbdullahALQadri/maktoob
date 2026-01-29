@@ -420,6 +420,7 @@
   "invitation_save_send": "Save & Send",
   "invitation_draft_saved_success": "Draft saved successfully",
   "invitation_sent_via_whatsapp": "Invoice sent via WhatsApp",
+  "invitation_share_error": "Error sharing invoice. Please try again.",
 
   "settings_contact_subtitle": "We are here to help you",
 

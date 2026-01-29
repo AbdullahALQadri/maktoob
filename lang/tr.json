@@ -419,6 +419,7 @@
   "invitation_save_send": "Kaydet ve Gönder",
   "invitation_draft_saved_success": "Taslak başarıyla kaydedildi",
   "invitation_sent_via_whatsapp": "Fatura WhatsApp ile gönderildi",
+  "invitation_share_error": "Fatura paylaşılırken hata oluştu. Lütfen tekrar deneyin.",
 
   "settings_contact_subtitle": "Size yardımcı olmak için buradayız",
 

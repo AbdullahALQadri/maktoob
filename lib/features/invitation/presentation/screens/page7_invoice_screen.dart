@@ -519,8 +519,32 @@ class _SaveSendButton extends StatelessWidget {
       if (!context.mounted) return;
 
       final eventName = state.eventName ?? 'Event';
-      final shareText = l?.translate('invitation_share_invoice_text') ??
-          'Invoice for $eventName - Maktoob App';
+      final packageName = l?.isEnLocale == true
+          ? (state.selectedPackage?.name ?? 'N/A')
+          : (state.selectedPackage?.nameAr ?? 'N/A');
+      final guestCount = state.totalGuestCount;
+      final totalPrice = state.selectedPackage?.price ?? 0.0;
+
+      final isArabic = l?.isEnLocale == false;
+      final shareText = isArabic
+          ? 'مرحباً! هذه فاتورة حجز دعوة من تطبيق مكتوب\n\n'
+            'المناسبة: $eventName\n'
+            'الباقة: $packageName\n'
+            'عدد الضيوف: $guestCount\n'
+            'المبلغ الإجمالي: $totalPrice شيكل\n\n'
+            'أرفقت صورة الفاتورة.\n'
+            'شكراً لكم!\n\n'
+            '---\n'
+            'Maktoob Events'
+          : 'Hello! This is an invoice from Maktoob App\n\n'
+            'Event: $eventName\n'
+            'Package: $packageName\n'
+            'Number of Guests: $guestCount\n'
+            'Total Amount: $totalPrice ILS\n\n'
+            'Invoice image attached.\n'
+            'Thank you!\n\n'
+            '---\n'
+            'Maktoob Events';
 
       await Share.shareXFiles([XFile(filePath)], text: shareText);
     } catch (e) {

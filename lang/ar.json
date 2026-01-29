@@ -420,6 +420,7 @@
   "invitation_save_send": "حفظ وإرسال",
   "invitation_draft_saved_success": "تم الحفظ كمسودة بنجاح",
   "invitation_sent_via_whatsapp": "تم إرسال الفاتورة عبر واتساب",
+  "invitation_share_error": "حدث خطأ أثناء مشاركة الفاتورة. يرجى المحاولة مرة أخرى.",
 
   "settings_contact_subtitle": "نحن هنا لمساعدتك",
 
