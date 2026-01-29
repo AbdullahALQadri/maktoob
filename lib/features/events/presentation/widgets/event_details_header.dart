@@ -58,6 +58,7 @@ class EventDetailsHeader extends StatelessWidget {
                     onBack: onBack,
                     onEdit: onEdit,
                     onDelete: onDelete,
+                    isCompleted: event.status == EventStatus.completed,
                     t: t,
                   ),
                   const SizedBox(height: 20),
@@ -105,12 +106,14 @@ class _HeaderActions extends StatelessWidget {
   final VoidCallback onBack;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final bool isCompleted;
   final AppLocalizations t;
 
   const _HeaderActions({
     required this.onBack,
     required this.onEdit,
     required this.onDelete,
+    this.isCompleted = false,
     required this.t,
   });
 
@@ -120,7 +123,7 @@ class _HeaderActions extends StatelessWidget {
       children: [
         _CircleButton(icon: Icons.arrow_back_rounded, onTap: onBack),
         const Spacer(),
-        _MoreOptionsMenu(onEdit: onEdit, onDelete: onDelete, t: t),
+        _MoreOptionsMenu(onEdit: onEdit, onDelete: onDelete, isCompleted: isCompleted, t: t),
       ],
     );
   }
@@ -153,11 +156,13 @@ class _CircleButton extends StatelessWidget {
 class _MoreOptionsMenu extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final bool isCompleted;
   final AppLocalizations t;
 
   const _MoreOptionsMenu({
     required this.onEdit,
     required this.onDelete,
+    this.isCompleted = false,
     required this.t,
   });
 
@@ -172,7 +177,8 @@ class _MoreOptionsMenu extends StatelessWidget {
       color: Colors.white,
       offset: const Offset(0, 50),
       itemBuilder: (context) => [
-        _buildMenuItem('edit', Icons.edit_outlined, t.translate('event_details_edit'), AppColors.primaryColor),
+        if (!isCompleted)
+          _buildMenuItem('edit', Icons.edit_outlined, t.translate('event_details_edit'), AppColors.primaryColor),
         _buildMenuItem('delete', Icons.delete_outline, t.translate('event_details_delete'), AppColors.red500),
       ],
       child: Container(

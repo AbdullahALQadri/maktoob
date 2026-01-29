@@ -88,6 +88,8 @@ class Endpoints {
   static String eventStatistics(int id) => '/events/$id/statistics';
   static String eventSendInvitations(int id) => '/events/$id/send-invitations';
   static String eventDuplicate(int id) => '/events/$id/duplicate';
+  static String eventEditRequests(int id) => '/events/$id/edit-requests';
+  static String editRequest(int id) => '/edit-requests/$id';
 
   // ============================================================
   // CLIENT - GUESTS

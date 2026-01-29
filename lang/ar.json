@@ -566,5 +566,26 @@
   "map_go_back": "العودة",
   "map_select_location": "اختر الموقع",
   "map_confirm_location": "تأكيد الموقع",
-  "map_tap_instruction": "انقر على الخريطة لتحديد موقع الحدث"
+  "map_tap_instruction": "انقر على الخريطة لتحديد موقع الحدث",
+
+  "edit_event_title": "تعديل الفعالية",
+  "edit_event_saved": "تم تحديث الفعالية بنجاح",
+  "edit_event_submit_request": "إرسال طلب التعديل",
+  "edit_event_request_submitted": "تم إرسال طلب التعديل بنجاح",
+  "edit_event_request_pending": "قيد الانتظار",
+  "edit_event_request_approved": "تمت الموافقة",
+  "edit_event_request_rejected": "مرفوض",
+  "edit_event_admin_approval_required": "التغييرات على الفعاليات النشطة تتطلب موافقة الإدارة",
+  "edit_event_previous_requests": "طلبات التعديل السابقة",
+  "edit_event_no_changes": "لم يتم إجراء تغييرات",
+  "edit_event_admin_note": "ملاحظة الإدارة",
+  "edit_event_changes": "التغييرات",
+  "edit_event_name": "اسم الفعالية",
+  "edit_event_venue": "المكان",
+  "edit_event_venue_address": "عنوان المكان",
+  "edit_event_description": "الوصف",
+  "edit_event_date": "تاريخ الفعالية",
+  "edit_event_rsvp_deadline": "آخر موعد للرد",
+  "edit_event_max_companions": "الحد الأقصى للمرافقين",
+  "edit_event_allow_companions": "السماح بالمرافقين"
 }

@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/network/network_info.dart';
+import '../../domain/entities/edit_request_entity.dart';
 import '../../domain/entities/event_entity.dart';
 import '../../domain/entities/guest_entity.dart';
 import '../../domain/repositories/events_repository.dart';
@@ -199,6 +200,41 @@ class EventsRepositoryImpl implements EventsRepository {
       return Right(events.map((e) => e.toEntity()).toList());
     } on CacheException catch (e) {
       return Left(CacheFailure(message: e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, EditRequestEntity>> submitEditRequest(
+      String eventId, UpdateEventParams params) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final request =
+            await remoteDataSource.submitEditRequest(eventId, params);
+        return Right(request.toEntity());
+      } on ServerException catch (e) {
+        return Left(ServerFailure(message: e.message));
+      } catch (e) {
+        return Left(ServerFailure(message: e.toString()));
+      }
+    } else {
+      return const Left(NetworkFailure(message: 'No internet connection'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<EditRequestEntity>>> getEditRequests(
+      String eventId) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final requests = await remoteDataSource.getEditRequests(eventId);
+        return Right(requests.map((r) => r.toEntity()).toList());
+      } on ServerException catch (e) {
+        return Left(ServerFailure(message: e.message));
+      } catch (e) {
+        return Left(ServerFailure(message: e.toString()));
+      }
+    } else {
+      return const Left(NetworkFailure(message: 'No internet connection'));
     }
   }
 }

@@ -6,6 +6,8 @@ import '../../../../core/utils/app_colors.dart';
 import '../../domain/entities/event_entity.dart';
 import '../../domain/entities/guest_entity.dart';
 import '../../domain/repositories/events_repository.dart';
+import '../../domain/entities/edit_request_entity.dart';
+import '../models/edit_request_model.dart';
 import '../models/event_model.dart';
 import '../models/guest_model.dart';
 
@@ -33,6 +35,13 @@ abstract class EventsRemoteDataSource {
     String? searchQuery,
     EventStatus? status,
   });
+
+  /// Submits an edit request for an active event
+  Future<EditRequestModel> submitEditRequest(
+      String eventId, UpdateEventParams params);
+
+  /// Gets edit requests for an event
+  Future<List<EditRequestModel>> getEditRequests(String eventId);
 }
 
 class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
@@ -503,5 +512,103 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
     final hour = date.hour > 12 ? date.hour - 12 : date.hour;
     final period = date.hour >= 12 ? 'PM' : 'AM';
     return '$hour:${date.minute.toString().padLeft(2, '0')} $period';
+  }
+
+  // Mock edit requests storage
+  final List<EditRequestModel> _mockEditRequests = [
+    EditRequestModel(
+      id: '101',
+      eventId: '1',
+      changes: {'name': 'Annual Gala 2025', 'venue': 'Royal Palace'},
+      status: EditRequestStatus.approved,
+      createdAt: DateTime(2024, 12, 1),
+      adminNote: 'Approved - venue confirmed',
+    ),
+    EditRequestModel(
+      id: '102',
+      eventId: '1',
+      changes: {'description': 'Updated description for the gala event'},
+      status: EditRequestStatus.rejected,
+      createdAt: DateTime(2024, 12, 5),
+      adminNote: 'Description too vague, please provide more details',
+    ),
+    EditRequestModel(
+      id: '103',
+      eventId: '2',
+      changes: {'venue': 'Mountain Resort', 'venueAddress': '456 Mountain Rd'},
+      status: EditRequestStatus.pending,
+      createdAt: DateTime(2025, 1, 10),
+    ),
+  ];
+
+  @override
+  Future<EditRequestModel> submitEditRequest(
+      String eventId, UpdateEventParams params) async {
+    if (_hasApi) {
+      try {
+        final body = <String, dynamic>{};
+        if (params.name != null) body['name'] = params.name;
+        if (params.venue != null) body['venue'] = params.venue;
+        if (params.venueAddress != null) body['venue_address'] = params.venueAddress;
+        if (params.description != null) body['description'] = params.description;
+        if (params.eventDate != null) {
+          body['event_date'] = params.eventDate!.toIso8601String().split('T')[0];
+        }
+        if (params.maxCompanions != null) body['max_companions'] = params.maxCompanions;
+        if (params.allowCompanions != null) body['allow_companions'] = params.allowCompanions;
+        if (params.rsvpDeadline != null) {
+          body['rsvp_deadline'] = params.rsvpDeadline!.toIso8601String().split('T')[0];
+        }
+
+        final response = await apiConsumer!.post(
+          Endpoints.eventEditRequests(int.parse(eventId)),
+          body: body,
+        );
+        return EditRequestModel.fromJson(response['data']);
+      } catch (e) {
+        // Fall back to mock
+      }
+    }
+
+    await Future.delayed(const Duration(milliseconds: 200));
+
+    final changes = <String, dynamic>{};
+    if (params.name != null) changes['name'] = params.name;
+    if (params.venue != null) changes['venue'] = params.venue;
+    if (params.venueAddress != null) changes['venueAddress'] = params.venueAddress;
+    if (params.description != null) changes['description'] = params.description;
+    if (params.eventDate != null) changes['eventDate'] = params.eventDate!.toIso8601String();
+    if (params.maxCompanions != null) changes['maxCompanions'] = params.maxCompanions;
+    if (params.allowCompanions != null) changes['allowCompanions'] = params.allowCompanions;
+    if (params.rsvpDeadline != null) changes['rsvpDeadline'] = params.rsvpDeadline!.toIso8601String();
+
+    final newRequest = EditRequestModel(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      eventId: eventId,
+      changes: changes,
+      status: EditRequestStatus.pending,
+      createdAt: DateTime.now(),
+    );
+
+    _mockEditRequests.add(newRequest);
+    return newRequest;
+  }
+
+  @override
+  Future<List<EditRequestModel>> getEditRequests(String eventId) async {
+    if (_hasApi) {
+      try {
+        final response = await apiConsumer!.get(
+          Endpoints.eventEditRequests(int.parse(eventId)),
+        );
+        final data = response['data'] as List? ?? [];
+        return data.map((e) => EditRequestModel.fromJson(e)).toList();
+      } catch (e) {
+        // Fall back to mock
+      }
+    }
+
+    await Future.delayed(const Duration(milliseconds: 100));
+    return _mockEditRequests.where((r) => r.eventId == eventId).toList();
   }
 }

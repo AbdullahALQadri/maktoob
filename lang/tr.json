@@ -565,5 +565,26 @@
   "map_go_back": "Geri Dön",
   "map_select_location": "Konum Seç",
   "map_confirm_location": "Konumu Onayla",
-  "map_tap_instruction": "Etkinlik konumunu seçmek için haritaya dokunun"
+  "map_tap_instruction": "Etkinlik konumunu seçmek için haritaya dokunun",
+
+  "edit_event_title": "Etkinliği Düzenle",
+  "edit_event_saved": "Etkinlik başarıyla güncellendi",
+  "edit_event_submit_request": "Talep Gönder",
+  "edit_event_request_submitted": "Düzenleme talebi başarıyla gönderildi",
+  "edit_event_request_pending": "Beklemede",
+  "edit_event_request_approved": "Onaylandı",
+  "edit_event_request_rejected": "Reddedildi",
+  "edit_event_admin_approval_required": "Aktif etkinliklerdeki değişiklikler yönetici onayı gerektirir",
+  "edit_event_previous_requests": "Önceki Düzenleme Talepleri",
+  "edit_event_no_changes": "Değişiklik yapılmadı",
+  "edit_event_admin_note": "Yönetici Notu",
+  "edit_event_changes": "Değişiklikler",
+  "edit_event_name": "Etkinlik Adı",
+  "edit_event_venue": "Mekan",
+  "edit_event_venue_address": "Mekan Adresi",
+  "edit_event_description": "Açıklama",
+  "edit_event_date": "Etkinlik Tarihi",
+  "edit_event_rsvp_deadline": "RSVP Son Tarihi",
+  "edit_event_max_companions": "Maksimum Refakatçi",
+  "edit_event_allow_companions": "Refakatçilere İzin Ver"
 }

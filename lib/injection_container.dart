@@ -35,6 +35,7 @@ import 'features/events/domain/usecases/filter_events_usecase.dart';
 import 'features/events/domain/usecases/get_event_details_usecase.dart';
 import 'features/events/domain/usecases/get_events_usecase.dart';
 import 'features/events/presentation/cubit/events_list/events_list_cubit.dart';
+import 'features/events/presentation/cubit/edit_event/edit_event_cubit.dart';
 import 'features/events/presentation/cubit/event_details/event_details_cubit.dart';
 
 // Venues Feature
@@ -195,6 +196,10 @@ Future<void> init() async {
       getEventDetailsUseCase: sl(),
       eventsRepository: sl(),
     ),
+  );
+
+  sl.registerFactory(
+    () => EditEventCubit(eventsRepository: sl()),
   );
 
   //! ========== VENUES FEATURE ==========

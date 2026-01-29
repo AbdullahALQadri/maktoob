@@ -566,5 +566,26 @@
   "map_go_back": "Go Back",
   "map_select_location": "Select Location",
   "map_confirm_location": "Confirm Location",
-  "map_tap_instruction": "Tap on the map to select event location"
+  "map_tap_instruction": "Tap on the map to select event location",
+
+  "edit_event_title": "Edit Event",
+  "edit_event_saved": "Event updated successfully",
+  "edit_event_submit_request": "Submit Request",
+  "edit_event_request_submitted": "Edit request submitted successfully",
+  "edit_event_request_pending": "Pending",
+  "edit_event_request_approved": "Approved",
+  "edit_event_request_rejected": "Rejected",
+  "edit_event_admin_approval_required": "Changes to active events require admin approval",
+  "edit_event_previous_requests": "Previous Edit Requests",
+  "edit_event_no_changes": "No changes made",
+  "edit_event_admin_note": "Admin Note",
+  "edit_event_changes": "Changes",
+  "edit_event_name": "Event Name",
+  "edit_event_venue": "Venue",
+  "edit_event_venue_address": "Venue Address",
+  "edit_event_description": "Description",
+  "edit_event_date": "Event Date",
+  "edit_event_rsvp_deadline": "RSVP Deadline",
+  "edit_event_max_companions": "Max Companions",
+  "edit_event_allow_companions": "Allow Companions"
 }

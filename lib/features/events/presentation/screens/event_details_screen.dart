@@ -3,10 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
+import '../../../../injection_container.dart';
 import '../../domain/entities/event_entity.dart';
+import '../cubit/edit_event/edit_event_cubit.dart';
 import '../cubit/event_details/event_details_cubit.dart';
 import '../cubit/event_details/event_details_state.dart';
 import '../widgets/widgets.dart';
+import 'edit_event_screen.dart';
 
 /// Event details screen with overview, guests and details tabs.
 class EventDetailsScreen extends StatefulWidget {
@@ -79,7 +82,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                 child: EventDetailsHeader(
                   event: state.event!,
                   onBack: widget.onBack,
-                  onEdit: () => AppSnackBar.showInfo(context, message: t.translate('event_details_edit')),
+                  onEdit: () => _navigateToEditEvent(state.event!),
                   onDelete: () => _showDeleteConfirmation(state, t),
                 ),
               ),
@@ -98,6 +101,22 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         );
       },
     );
+  }
+
+  void _navigateToEditEvent(EventEntity event) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider(
+          create: (_) => sl<EditEventCubit>()..initializeWithEvent(event),
+          child: const EditEventScreen(),
+        ),
+      ),
+    ).then((result) {
+      if (result == true && mounted) {
+        context.read<EventDetailsCubit>().refreshEventDetails();
+      }
+    });
   }
 
   void _showDeleteConfirmation(EventDetailsState state, AppLocalizations t) {

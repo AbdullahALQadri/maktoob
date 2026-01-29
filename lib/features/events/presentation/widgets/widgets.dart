@@ -4,6 +4,8 @@ export 'all_events_card_widget.dart';
 export 'all_events_header.dart';
 export 'event_analytics_card.dart';
 export 'event_details_cards.dart';
+export 'edit_request_banner.dart';
+export 'edit_request_status_card.dart';
 export 'event_details_header.dart';
 export 'event_info_card.dart';
 export 'event_quick_stats.dart';

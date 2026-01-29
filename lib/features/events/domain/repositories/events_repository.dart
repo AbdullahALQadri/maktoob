@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
+import '../entities/edit_request_entity.dart';
 import '../entities/event_entity.dart';
 import '../entities/guest_entity.dart';
 
@@ -34,6 +35,14 @@ abstract class EventsRepository {
 
   /// Get cached events
   Future<Either<Failure, List<EventEntity>>> getCachedEvents();
+
+  /// Submit an edit request for an active event
+  Future<Either<Failure, EditRequestEntity>> submitEditRequest(
+      String eventId, UpdateEventParams params);
+
+  /// Get edit requests for an event
+  Future<Either<Failure, List<EditRequestEntity>>> getEditRequests(
+      String eventId);
 }
 
 class CreateEventParams {
