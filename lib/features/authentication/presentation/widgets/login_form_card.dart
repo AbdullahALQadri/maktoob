@@ -89,7 +89,7 @@ class _LoginFormCardState extends State<LoginFormCard> {
                   keyboardType: _isPhoneMode
                       ? TextInputType.number
                       : TextInputType.emailAddress,
-                  maxLength: _isPhoneMode ? 10 : null,
+                  maxLength: _isPhoneMode ? 15 : null,
                   inputFormatters: _isPhoneMode
                       ? [FilteringTextInputFormatter.digitsOnly]
                       : null,
@@ -99,8 +99,8 @@ class _LoginFormCardState extends State<LoginFormCard> {
                       return t.translate('auth_phone_or_email_required');
                     }
                     if (_isPhoneMode) {
-                      if (value.length != 10) {
-                        return t.translate('auth_phone_must_be_10_digits');
+                      if (value.length < 7 || value.length > 15) {
+                        return t.translate('auth_phone_invalid_length');
                       }
                     } else {
                       if (!RegExp(r'^[\w\.-]+@[\w\.-]+\.\w{2,}$').hasMatch(value)) {

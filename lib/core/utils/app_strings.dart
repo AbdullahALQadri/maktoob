@@ -2,7 +2,7 @@ class AppStrings {
   AppStrings._();
 
   static const String appName = "MAKTOOB";
-  static const String fontFamily = "Satoshi";
+  static const String fontFamily = "Tajawal";
 
   static const String noRoute = "No Route Found";
   static const String snackBarErrorMsg = "Failed to pick image";

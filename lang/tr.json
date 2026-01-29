@@ -499,6 +499,7 @@
   "auth_phone_required": "Lütfen telefon numaranızı girin",
   "auth_phone_start_5": "Telefon numarası 5 ile başlamalıdır",
   "auth_phone_must_be_10_digits": "Telefon numarası tam olarak 10 haneli olmalıdır",
+  "auth_phone_invalid_length": "Telefon numarası 7 ile 15 hane arasında olmalıdır",
   "auth_has_account": "Zaten hesabınız var mı? ",
   "auth_login": "Giriş Yap",
   "auth_pending_approval": "Onay Bekliyor",
