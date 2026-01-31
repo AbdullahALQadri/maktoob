@@ -536,6 +536,13 @@
   "auth_success": "تم بنجاح!",
   "auth_password_changed_msg": "تم تغيير كلمة المرور بنجاح.\nيمكنك الآن تسجيل الدخول.",
   "auth_phone_verification": "التحقق من الهاتف",
+  "auth_current_password": "كلمة المرور الحالية",
+  "auth_current_password_hint": "أدخل كلمة المرور الحالية",
+  "auth_current_password_required": "يرجى إدخال كلمة المرور الحالية",
+  "auth_change_password_subtitle": "أدخل كلمة المرور الحالية واختر كلمة مرور جديدة",
+  "auth_change_password_submit": "تغيير كلمة المرور",
+  "auth_forgot_password_link": "نسيت كلمة المرور؟",
+  "auth_password_changed_profile": "تم تغيير كلمة المرور بنجاح.",
 
   "guest_add_manual": "إضافة مدعو يدوياً",
   "guest_name_label": "اسم المدعو",

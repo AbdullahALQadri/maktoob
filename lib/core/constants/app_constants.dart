@@ -65,4 +65,19 @@ class AppConstants {
   static const String scannerTokenName = 'scanner-app';
   static const String guestTokenName = 'guest-app';
   static const String adminTokenName = 'admin-app';
+
+  // ============================================================
+  // RELEASE BUILD COMMANDS
+  // ============================================================
+  // Android APK (obfuscated):
+  //   flutter build apk --obfuscate --split-debug-info=build/debug-info
+  //
+  // Android App Bundle (obfuscated):
+  //   flutter build appbundle --obfuscate --split-debug-info=build/debug-info
+  //
+  // iOS (obfuscated):
+  //   flutter build ipa --obfuscate --split-debug-info=build/debug-info
+  //
+  // IMPORTANT: Always use --obfuscate for production builds to prevent
+  // reverse engineering. Keep the debug-info directory for crash reporting.
 }

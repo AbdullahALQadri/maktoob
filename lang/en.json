@@ -536,6 +536,13 @@
   "auth_success": "Success!",
   "auth_password_changed_msg": "Your password has been changed successfully.\nYou can now login.",
   "auth_phone_verification": "Phone Verification",
+  "auth_current_password": "Current Password",
+  "auth_current_password_hint": "Enter your current password",
+  "auth_current_password_required": "Please enter your current password",
+  "auth_change_password_subtitle": "Enter your current password and choose a new one",
+  "auth_change_password_submit": "Change Password",
+  "auth_forgot_password_link": "Forgot your password?",
+  "auth_password_changed_profile": "Your password has been changed successfully.",
 
   "guest_add_manual": "Add Guest Manually",
   "guest_name_label": "Guest Name",

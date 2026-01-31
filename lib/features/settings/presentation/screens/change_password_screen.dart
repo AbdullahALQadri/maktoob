@@ -1,14 +1,16 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
+import '../../../authentication/presentation/screens/forgot_password_otp_screen.dart';
 import '../../../authentication/presentation/screens/reset_password_screen.dart';
 import '../../../authentication/presentation/widgets/widgets.dart';
+import '../widgets/change_password_form_card.dart';
 
-/// Change password screen — sends OTP to the logged-in user's phone,
-/// verifies, then navigates to the new-password form.
+/// Change password screen — shows current/new/confirm password fields.
+///
+/// If the user taps "Forgot Password?" it navigates to the OTP verification
+/// screen and then to the reset password screen.
 class ChangePasswordScreen extends StatefulWidget {
   final String phone;
 
@@ -20,25 +22,23 @@ class ChangePasswordScreen extends StatefulWidget {
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen>
     with SingleTickerProviderStateMixin {
-  final _pinController = TextEditingController();
-  final _focusNode = FocusNode();
+  final _formKey = GlobalKey<FormState>();
+  final _currentPasswordController = TextEditingController();
+  final _newPasswordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  final _currentPasswordFocusNode = FocusNode();
+  final _newPasswordFocusNode = FocusNode();
+  final _confirmPasswordFocusNode = FocusNode();
+
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
-  Timer? _resendTimer;
-  int _resendSeconds = 60;
-  bool _canResend = false;
-  bool _isVerifying = false;
-  bool _isSendingOtp = true;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _initAnimation();
-    _sendInitialOtp();
-  }
-
-  void _initAnimation() {
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -49,77 +49,66 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
     _animationController.forward();
   }
 
-  void _sendInitialOtp() {
-    // Simulate sending OTP to the user's phone
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted) {
-        setState(() => _isSendingOtp = false);
-        _startResendTimer();
-      }
-    });
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _currentPasswordController.dispose();
+    _newPasswordController.dispose();
+    _confirmPasswordController.dispose();
+    _currentPasswordFocusNode.dispose();
+    _newPasswordFocusNode.dispose();
+    _confirmPasswordFocusNode.dispose();
+    super.dispose();
   }
 
-  void _startResendTimer() {
-    _resendSeconds = 60;
-    _canResend = false;
-    _resendTimer?.cancel();
-    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        if (_resendSeconds > 0) {
-          _resendSeconds--;
-        } else {
-          _canResend = true;
-          timer.cancel();
-        }
-      });
-    });
-  }
+  void _handleSubmit() {
+    if (_formKey.currentState?.validate() ?? false) {
+      setState(() => _isLoading = true);
 
-  void _verifyOtp() {
-    if (_pinController.text.length == 6) {
-      setState(() => _isVerifying = true);
+      // TODO: Replace with real API call to change password
       Future.delayed(const Duration(seconds: 2), () {
         if (mounted) {
-          setState(() => _isVerifying = false);
-          _navigateToNewPassword();
+          setState(() => _isLoading = false);
+          _showSuccessDialog();
         }
       });
     }
   }
 
-  void _navigateToNewPassword() {
+  void _showSuccessDialog() {
+    final t = AppLocalizations.of(context)!;
+    AppDialog.showSuccess(
+      context,
+      title: t.translate('auth_success'),
+      message: t.translate('auth_password_changed_profile'),
+      buttonText: t.translate('common_ok'),
+      onPressed: () => Navigator.pop(context),
+    );
+  }
+
+  void _handleForgotPassword() {
     final navigator = Navigator.of(context);
-    navigator.pushReplacement(
+    navigator.push(
       MaterialPageRoute(
-        builder: (_) => ResetPasswordScreen(
+        builder: (_) => ForgotPasswordOtpScreen(
           phone: widget.phone,
           onBack: () => navigator.pop(),
-          onSuccess: () {
-            navigator.popUntil((route) => route.isFirst);
+          onVerified: () {
+            navigator.pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => ResetPasswordScreen(
+                  phone: widget.phone,
+                  onBack: () => navigator.pop(),
+                  onSuccess: () {
+                    navigator.popUntil((route) => route.isFirst);
+                  },
+                ),
+              ),
+            );
           },
         ),
       ),
     );
-  }
-
-  void _resendOtp() {
-    if (_canResend) {
-      _startResendTimer();
-      _pinController.clear();
-      AppSnackBar.showSuccess(
-        context,
-        message: AppLocalizations.of(context)!.translate('auth_new_code_sent'),
-      );
-    }
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    _resendTimer?.cancel();
-    _pinController.dispose();
-    _focusNode.dispose();
-    super.dispose();
   }
 
   @override
@@ -136,46 +125,49 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                 physics: const BouncingScrollPhysics(),
                 padding: EdgeInsets.symmetric(
                     horizontal: context.dynamicWidth(0.061)),
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: Column(
-                    children: [
-                      SizedBox(height: context.dynamicHeight(0.02)),
-                      AuthBackHeader(
-                        title: t.translate('profile_change_password'),
-                        onBack: () => Navigator.pop(context),
-                      ),
-                      SizedBox(height: context.dynamicHeight(0.039)),
-                      const AuthScreenIcon(
-                          icon: Icons.mark_email_read_outlined),
-                      SizedBox(height: context.dynamicHeight(0.03)),
-                      AuthTitleSection(
-                        title: t.translate('auth_enter_code'),
-                        subtitle: t.translate('auth_code_sent_to'),
-                        extra: PhoneBadge(phone: widget.phone),
-                      ),
-                      SizedBox(height: context.dynamicHeight(0.039)),
-                      if (_isSendingOtp)
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: context.dynamicHeight(0.05)),
-                          child: CircularProgressIndicator(
-                            color: AppColors.primaryColor,
-                          ),
-                        )
-                      else
-                        OtpCard(
-                          pinController: _pinController,
-                          focusNode: _focusNode,
-                          isVerifying: _isVerifying,
-                          canResend: _canResend,
-                          resendSeconds: _resendSeconds,
-                          onVerify: _verifyOtp,
-                          onResend: _resendOtp,
-                          onChanged: () => setState(() {}),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.height -
+                        MediaQuery.of(context).padding.top -
+                        MediaQuery.of(context).padding.bottom,
+                  ),
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Column(
+                      children: [
+                        SizedBox(height: context.dynamicHeight(0.02)),
+                        AuthBackHeader(
+                          title: t.translate('profile_change_password'),
+                          onBack: () => Navigator.pop(context),
                         ),
-                      SizedBox(height: context.dynamicHeight(0.039)),
-                    ],
+                        SizedBox(height: context.dynamicHeight(0.06)),
+                        const AuthScreenIcon(
+                            icon: Icons.lock_outline_rounded),
+                        SizedBox(height: context.dynamicHeight(0.03)),
+                        AuthTitleSection(
+                          title: t.translate('profile_change_password'),
+                          subtitle:
+                              t.translate('auth_change_password_subtitle'),
+                        ),
+                        SizedBox(height: context.dynamicHeight(0.039)),
+                        ChangePasswordFormCard(
+                          formKey: _formKey,
+                          currentPasswordController:
+                              _currentPasswordController,
+                          newPasswordController: _newPasswordController,
+                          confirmPasswordController:
+                              _confirmPasswordController,
+                          currentPasswordFocusNode: _currentPasswordFocusNode,
+                          newPasswordFocusNode: _newPasswordFocusNode,
+                          confirmPasswordFocusNode:
+                              _confirmPasswordFocusNode,
+                          isLoading: _isLoading,
+                          onSubmit: _handleSubmit,
+                          onForgotPassword: _handleForgotPassword,
+                        ),
+                        SizedBox(height: context.dynamicHeight(0.039)),
+                      ],
+                    ),
                   ),
                 ),
               ),

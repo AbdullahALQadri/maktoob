@@ -6,8 +6,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 // Core
 import 'core/api/api_consumer.dart';
 import 'core/api/app_interceptors.dart';
+import 'core/api/auth_interceptor.dart';
 import 'core/api/dio_consumer.dart';
 import 'core/network/network_info.dart';
+import 'core/services/security/device_security_service.dart';
+import 'core/utils/storage/secure_storage_service.dart';
 import 'core/utils/storage/shared_preferences.dart';
 
 // Authentication Feature
@@ -91,9 +94,18 @@ Future<void> init() async {
     () => NetworkInfoImpl(connectionChecker: sl()),
   );
 
+  // Secure Storage (encrypted tokens & Hive cache) — must init before Dio
+  final secureStorage = SecureStorageService();
+  await secureStorage.init();
+  sl.registerLazySingleton(() => secureStorage);
+
+  // SharedPref Controller (non-sensitive flags only)
+  await SharedPrefController().initPreferences();
+
   // Dio & API Consumer
   sl.registerLazySingleton(() => Dio());
   sl.registerLazySingleton(() => AppIntercepters());
+  sl.registerLazySingleton(() => AuthInterceptor(secureStorage: sl()));
   sl.registerLazySingleton(() => LogInterceptor(
         request: true,
         requestBody: true,
@@ -106,8 +118,8 @@ Future<void> init() async {
     () => DioConsumer(client: sl()),
   );
 
-  // SharedPref Controller
-  await SharedPrefController().initPreferences();
+  // Device Security Service (root/jailbreak detection)
+  sl.registerLazySingleton(() => DeviceSecurityService());
 
   //! ========== AUTHENTICATION FEATURE ==========
   // Data Sources

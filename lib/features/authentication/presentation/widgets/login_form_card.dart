@@ -24,12 +24,16 @@ class _LoginFormCardState extends State<LoginFormCard> {
   final _formKey = GlobalKey<FormState>();
   final _loginController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _loginFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
   bool _isPhoneMode = false;
 
   @override
   void dispose() {
     _loginController.dispose();
     _passwordController.dispose();
+    _loginFocusNode.dispose();
+    _passwordFocusNode.dispose();
     super.dispose();
   }
 
@@ -81,6 +85,7 @@ class _LoginFormCardState extends State<LoginFormCard> {
               children: [
                 AppTextField(
                   controller: _loginController,
+                  focusNode: _loginFocusNode,
                   labelText: t.translate('auth_phone_or_email'),
                   hintText: t.translate('auth_phone_or_email_hint'),
                   prefixIcon: _isPhoneMode
@@ -89,6 +94,8 @@ class _LoginFormCardState extends State<LoginFormCard> {
                   keyboardType: _isPhoneMode
                       ? TextInputType.number
                       : TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  onSubmitted: (_) => _passwordFocusNode.requestFocus(),
                   maxLength: _isPhoneMode ? 15 : null,
                   inputFormatters: _isPhoneMode
                       ? [FilteringTextInputFormatter.digitsOnly]
@@ -113,10 +120,13 @@ class _LoginFormCardState extends State<LoginFormCard> {
                 SizedBox(height: context.dynamicHeight(0.02)),
                 AppTextField(
                   controller: _passwordController,
+                  focusNode: _passwordFocusNode,
                   labelText: t.translate('auth_password'),
                   hintText: t.translate('auth_password_hint'),
                   prefixIcon: Icons.lock_outline_rounded,
                   isPassword: true,
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) => _handleLogin(),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return t.translate('auth_password_required');

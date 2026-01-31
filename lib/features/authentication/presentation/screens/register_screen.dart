@@ -35,6 +35,15 @@ class _RegisterScreenState extends State<RegisterScreen>
   final _confirmPasswordController = TextEditingController();
   final _customGovernorateController = TextEditingController();
 
+  // FocusNodes for smooth keyboard navigation
+  final _nameFocusNode = FocusNode();
+  final _phoneFocusNode = FocusNode();
+  final _emailFocusNode = FocusNode();
+  final _locationFocusNode = FocusNode();
+  final _customGovernorateFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+  final _confirmPasswordFocusNode = FocusNode();
+
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   UserType _selectedUserType = UserType.user;
@@ -77,6 +86,13 @@ class _RegisterScreenState extends State<RegisterScreen>
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _customGovernorateController.dispose();
+    _nameFocusNode.dispose();
+    _phoneFocusNode.dispose();
+    _emailFocusNode.dispose();
+    _locationFocusNode.dispose();
+    _customGovernorateFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    _confirmPasswordFocusNode.dispose();
     super.dispose();
   }
 
@@ -236,6 +252,9 @@ class _RegisterScreenState extends State<RegisterScreen>
   Widget _buildNameField(AppLocalizations t) {
     return RegisterFormField(
       controller: _nameController,
+      focusNode: _nameFocusNode,
+      textInputAction: TextInputAction.next,
+      onFieldSubmitted: (_) => _phoneFocusNode.requestFocus(),
       label: _selectedUserType == UserType.institution
           ? t.translate('auth_institution_name')
           : t.translate('auth_full_name'),
@@ -276,7 +295,10 @@ class _RegisterScreenState extends State<RegisterScreen>
             Expanded(
               child: TextFormField(
                 controller: _phoneController,
+                focusNode: _phoneFocusNode,
                 keyboardType: TextInputType.phone,
+                textInputAction: TextInputAction.next,
+                onFieldSubmitted: (_) => _emailFocusNode.requestFocus(),
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(maxLength),
@@ -318,6 +340,9 @@ class _RegisterScreenState extends State<RegisterScreen>
   Widget _buildEmailField(AppLocalizations t) {
     return RegisterFormField(
       controller: _emailController,
+      focusNode: _emailFocusNode,
+      textInputAction: TextInputAction.next,
+      onFieldSubmitted: (_) => _passwordFocusNode.requestFocus(),
       label: t.translate('auth_email_optional'),
       hint: t.translate('auth_email_hint'),
       prefixIcon: Icons.alternate_email_rounded,
@@ -367,6 +392,9 @@ class _RegisterScreenState extends State<RegisterScreen>
       if (_showCustomGovernorate) ...[
         RegisterFormField(
           controller: _customGovernorateController,
+          focusNode: _customGovernorateFocusNode,
+          textInputAction: TextInputAction.next,
+          onFieldSubmitted: (_) => _locationFocusNode.requestFocus(),
           label: t.translate('auth_governorate_name'),
           hint: t.translate('auth_governorate_name_hint'),
           prefixIcon: Icons.edit_location_alt_outlined,
@@ -382,6 +410,9 @@ class _RegisterScreenState extends State<RegisterScreen>
       ],
       RegisterFormField(
         controller: _locationController,
+        focusNode: _locationFocusNode,
+        textInputAction: TextInputAction.next,
+        onFieldSubmitted: (_) => _passwordFocusNode.requestFocus(),
         label: t.translate('auth_location'),
         hint: t.translate('auth_location_hint'),
         prefixIcon: Icons.location_on_outlined,
@@ -396,6 +427,9 @@ class _RegisterScreenState extends State<RegisterScreen>
       children: [
         RegisterFormField(
           controller: _passwordController,
+          focusNode: _passwordFocusNode,
+          textInputAction: TextInputAction.next,
+          onFieldSubmitted: (_) => _confirmPasswordFocusNode.requestFocus(),
           label: t.translate('auth_password'),
           hint: t.translate('auth_create_password_hint'),
           prefixIcon: Icons.lock_outline_rounded,
@@ -417,6 +451,9 @@ class _RegisterScreenState extends State<RegisterScreen>
         SizedBox(height: context.dynamicHeight(0.016)),
         RegisterFormField(
           controller: _confirmPasswordController,
+          focusNode: _confirmPasswordFocusNode,
+          textInputAction: TextInputAction.done,
+          onFieldSubmitted: (_) => _handleRegister(),
           label: t.translate('auth_confirm_password'),
           hint: t.translate('auth_confirm_password_hint'),
           prefixIcon: Icons.lock_outline_rounded,

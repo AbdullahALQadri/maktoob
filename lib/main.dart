@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'app.dart';
 import 'bloc_observer.dart';
+import 'core/services/security/device_security_service.dart';
 import 'injection_container.dart' as di;
 
 void main() {
@@ -31,9 +32,19 @@ void main() {
         ]),
       ]);
 
+      // Run device security check (root/jailbreak detection)
+      final securityService = di.sl<DeviceSecurityService>();
+      await securityService.checkDeviceSecurity();
+
       // Set up BLoC Observer only in debug mode to reduce overhead in release
       if (kDebugMode) {
         Bloc.observer = MyBlocObserver();
+      }
+
+      // Block compromised devices in release mode
+      if (!securityService.isDeviceSecure) {
+        runApp(const _CompromisedDeviceApp());
+        return;
       }
 
       // Run the app (use DevicePreview only in debug mode)
@@ -49,4 +60,41 @@ void main() {
       }
     },
   );
+}
+
+/// Shown when the device fails security checks (rooted/jailbroken).
+class _CompromisedDeviceApp extends StatelessWidget {
+  const _CompromisedDeviceApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.security, size: 64, color: Colors.red),
+                const SizedBox(height: 24),
+                const Text(
+                  'Security Warning',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'This app cannot run on rooted or jailbroken devices for security reasons.',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

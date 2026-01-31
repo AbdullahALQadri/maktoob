@@ -130,13 +130,16 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<bool> isLoggedIn() async {
-    return sharedPrefController.loggedIn && sharedPrefController.token.isNotEmpty;
+    if (!sharedPrefController.loggedIn) return false;
+    final token = await sharedPrefController.getTokenAsync();
+    return token != null && token.isNotEmpty;
   }
 
   @override
   String? getToken() {
-    final token = sharedPrefController.token;
-    return token.isNotEmpty ? token : null;
+    // Synchronous token access is no longer available with secure storage.
+    // Token is read asynchronously via DioConsumer headers.
+    return null;
   }
 
   /// Parse user entity from auth response

@@ -535,6 +535,13 @@
   "auth_success": "Başarılı!",
   "auth_password_changed_msg": "Şifreniz başarıyla değiştirildi.\nArtık giriş yapabilirsiniz.",
   "auth_phone_verification": "Telefon Doğrulama",
+  "auth_current_password": "Mevcut Şifre",
+  "auth_current_password_hint": "Mevcut şifrenizi girin",
+  "auth_current_password_required": "Lütfen mevcut şifrenizi girin",
+  "auth_change_password_subtitle": "Mevcut şifrenizi girin ve yeni bir şifre seçin",
+  "auth_change_password_submit": "Şifre Değiştir",
+  "auth_forgot_password_link": "Şifrenizi mi unuttunuz?",
+  "auth_password_changed_profile": "Şifreniz başarıyla değiştirildi.",
 
   "guest_add_manual": "Manuel Misafir Ekle",
   "guest_name_label": "Misafir Adı",

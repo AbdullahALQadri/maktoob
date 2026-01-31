@@ -10,10 +10,13 @@ class RegisterFormField extends StatelessWidget {
   final String hint;
   final IconData prefixIcon;
   final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
   final bool obscureText;
   final Widget? suffixIcon;
   final String? Function(String?)? validator;
   final List<TextInputFormatter>? inputFormatters;
+  final FocusNode? focusNode;
+  final ValueChanged<String>? onFieldSubmitted;
 
   const RegisterFormField({
     super.key,
@@ -22,10 +25,13 @@ class RegisterFormField extends StatelessWidget {
     required this.hint,
     required this.prefixIcon,
     this.keyboardType,
+    this.textInputAction,
     this.obscureText = false,
     this.suffixIcon,
     this.validator,
     this.inputFormatters,
+    this.focusNode,
+    this.onFieldSubmitted,
   });
 
   @override
@@ -43,7 +49,10 @@ class RegisterFormField extends StatelessWidget {
         SizedBox(height: context.dynamicHeight(0.006)),
         TextFormField(
           controller: controller,
+          focusNode: focusNode,
           keyboardType: keyboardType,
+          textInputAction: textInputAction,
+          onFieldSubmitted: onFieldSubmitted,
           obscureText: obscureText,
           validator: validator,
           inputFormatters: inputFormatters,

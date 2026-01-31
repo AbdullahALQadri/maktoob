@@ -8,26 +8,39 @@ import 'package:flutter/foundation.dart';
 import '../../injection_container.dart' as di;
 import '../constants/app_constants.dart';
 import '../error/exceptions.dart';
-import '../utils/storage/shared_preferences.dart';
+import '../utils/storage/secure_storage_service.dart';
 import 'api_consumer.dart';
 import 'app_interceptors.dart';
+import 'auth_interceptor.dart';
 import 'end_points.dart';
 import 'status_code.dart';
 
 class DioConsumer implements ApiConsumer {
   final Dio client;
+  final SecureStorageService _secureStorage = SecureStorageService();
 
   DioConsumer({required this.client}) {
-    // Allow self-signed certificates in development
+    // Certificate pinning: only allow self-signed certs in debug mode
     (client.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
-      final client = HttpClient();
-      client.badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
-      return client;
+      final httpClient = HttpClient();
+      if (kReleaseMode) {
+        // In release mode, enforce strict SSL validation
+        httpClient.badCertificateCallback = (cert, host, port) => false;
+      } else {
+        // In debug mode, allow self-signed certificates for local dev
+        httpClient.badCertificateCallback = (cert, host, port) => true;
+      }
+      return httpClient;
     };
 
+    // Enforce HTTPS in release mode
+    final baseUrl = Endpoints.baseUrl;
+    if (kReleaseMode && !baseUrl.startsWith('https://')) {
+      throw StateError('API base URL must use HTTPS in release mode: $baseUrl');
+    }
+
     client.options
-      ..baseUrl = Endpoints.baseUrl
+      ..baseUrl = baseUrl
       ..responseType = ResponseType.plain
       ..followRedirects = false
       ..connectTimeout = Duration(milliseconds: AppConstants.apiTimeout)
@@ -36,14 +49,15 @@ class DioConsumer implements ApiConsumer {
       ..validateStatus = (status) => status! < StatusCode.internalServerError;
 
     client.interceptors.add(di.sl<AppIntercepters>());
+    client.interceptors.add(di.sl<AuthInterceptor>());
     if (kDebugMode) {
       client.interceptors.add(di.sl<LogInterceptor>());
     }
   }
 
-  /// Get authorization headers based on current user type
-  Map<String, dynamic> _getHeaders() {
-    final token = SharedPrefController().token;
+  /// Get authorization headers with async token retrieval from secure storage.
+  Future<Map<String, dynamic>> _getHeaders() async {
+    final token = await _secureStorage.getToken();
     return {
       "Accept": "application/json",
       "Content-Type": "application/json",
@@ -58,7 +72,7 @@ class DioConsumer implements ApiConsumer {
       final response = await client.get(
         path,
         queryParameters: queryParameters,
-        options: Options(headers: _getHeaders()),
+        options: Options(headers: await _getHeaders()),
       );
       return _handleResponseAsJson(response);
     } on DioException catch (error) {
@@ -78,7 +92,7 @@ class DioConsumer implements ApiConsumer {
       final response = await client.post(
         path,
         queryParameters: queryParameters,
-        options: Options(headers: _getHeaders()),
+        options: Options(headers: await _getHeaders()),
         data: formDataIsEnabled ? FormData.fromMap(body!) : body,
       );
       return _handleResponseAsJson(response);
@@ -112,12 +126,13 @@ class DioConsumer implements ApiConsumer {
         ...?body,
       });
 
+      final headers = await _getHeaders();
       final response = await client.post(
         path,
         queryParameters: queryParameters,
         options: Options(
           headers: {
-            ..._getHeaders(),
+            ...headers,
             "Content-Type": "multipart/form-data",
           },
         ),
@@ -201,12 +216,13 @@ class DioConsumer implements ApiConsumer {
         if (imageFile != null) "image": imageFile,
       });
 
+      final headers = await _getHeaders();
       final response = await client.post(
         path,
         queryParameters: queryParameters,
         options: Options(
           headers: {
-            ..._getHeaders(),
+            ...headers,
             "Content-Type": "multipart/form-data",
           },
         ),
@@ -230,7 +246,7 @@ class DioConsumer implements ApiConsumer {
         path,
         queryParameters: queryParameters,
         data: body,
-        options: Options(headers: _getHeaders()),
+        options: Options(headers: await _getHeaders()),
       );
       return _handleResponseAsJson(response);
     } on DioException catch (error) {
@@ -249,7 +265,7 @@ class DioConsumer implements ApiConsumer {
       final response = await client.delete(
         path,
         queryParameters: queryParameters,
-        options: Options(headers: _getHeaders()),
+        options: Options(headers: await _getHeaders()),
         data: body,
       );
       return _handleResponseAsJson(response);
@@ -276,7 +292,6 @@ class DioConsumer implements ApiConsumer {
         final statusCode = error.response?.statusCode;
         final responseData = error.response?.data;
 
-        // Try to extract error message from response
         String? message;
         if (responseData != null) {
           try {
@@ -312,9 +327,6 @@ class DioConsumer implements ApiConsumer {
 
       case DioExceptionType.badCertificate:
         throw const ServerException(message: "Invalid certificate");
-
-      default:
-        throw const ServerException(message: "Unknown error occurred");
     }
   }
 }
