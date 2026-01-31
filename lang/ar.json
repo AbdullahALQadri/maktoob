@@ -365,6 +365,8 @@
   "invitation_option_custom_package": "اختر الباقة المخصصة",
   "invitation_option_reduce_guests": "قم بتقليل عدد المدعوين",
   "invitation_exceeds_limit_warning": "عدد المدعوين يتجاوز حد الباقة. يرجى اختيار باقة أخرى أو تقليل المدعوين.",
+  "invitation_custom_package_info_title": "الباقة المخصصة",
+  "invitation_custom_package_info_message": "يجب أن يكون عدد الدعوات مساوياً أو أكبر من عدد المدعوين. يمكنك تعديل العدد في الأسفل.",
 
   "invitation_step7_title": "الفاتورة والحفظ",
   "invitation_loading_invoice": "جاري تحميل الفاتورة...",
@@ -403,6 +405,9 @@
   "invitation_select_services": "اختر الخدمات الإضافية التي تريدها لحدثك",
 
   "invitation_limit_exceeded": "تجاوز الحد!",
+  "invitation_enter_count": "أدخل عدد الدعوات",
+  "invitation_min_one": "الحد الأدنى دعوة واحدة",
+  "invitation_min_guests_required": "الحد الأدنى",
   "invitation_packages_error": "حدث خطأ أثناء تحميل الباقات",
   "invitation_no_packages": "لا توجد باقات متاحة",
   "invitation_select_package": "اختر الباقة المناسبة لعدد المدعوين",
@@ -451,6 +456,7 @@
   "profile_change_type_confirm": "هل أنت متأكد من تغيير نوع حسابك إلى",
   "profile_conversion_reason": "سبب التحويل",
   "profile_conversion_reason_hint": "أدخل سبب التحويل...",
+  "profile_conversion_reason_required": "يرجى إدخال سبب التحويل",
 
   "auth_welcome_back": "مرحباً بعودتك",
   "auth_sign_in_subtitle": "سجّل دخولك للمتابعة إلى مكتوب",
@@ -587,5 +593,13 @@
   "edit_event_date": "تاريخ الفعالية",
   "edit_event_rsvp_deadline": "آخر موعد للرد",
   "edit_event_max_companions": "الحد الأقصى للمرافقين",
-  "edit_event_allow_companions": "السماح بالمرافقين"
+  "edit_event_allow_companions": "السماح بالمرافقين",
+  "edit_event_name_required": "اسم الفعالية مطلوب",
+
+  "edit_profile_title": "تعديل الملف الشخصي",
+  "edit_profile_saved": "تم تحديث الملف الشخصي بنجاح",
+  "edit_profile_name_hint": "أدخل اسمك",
+  "edit_profile_email_hint": "أدخل بريدك الإلكتروني",
+  "edit_profile_company_hint": "أدخل اسم المنظمة",
+  "edit_profile_phone_locked": "لا يمكن تغيير رقم الهاتف لأنه يُستخدم للتحقق"
 }

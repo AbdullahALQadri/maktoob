@@ -340,24 +340,26 @@ class _InvoiceActionButtons extends StatelessWidget {
             Row(
               children: [
                 Expanded(
+                  flex: 3,
+                  child: _SaveSendButton(
+                    state: state,
+                    invoiceKey: invoiceKey,
+                    l: l,
+                  ),
+                ),
+                SizedBox(width: context.dynamicWidth(0.02)),
+                Expanded(
+                  flex: 2,
+                  child: _DraftButton(state: state, l: l),
+                ),
+                SizedBox(width: context.dynamicWidth(0.02)),
+                Expanded(
+                  flex: 2,
                   child: SecondaryButton(
                     text: l?.translate('common_back') ?? 'Back',
                     onPressed: state.isSaving
                         ? null
                         : () => context.read<InvitationCubit>().previousStep(),
-                  ),
-                ),
-                SizedBox(width: context.dynamicWidth(0.029)),
-                Expanded(
-                  child: _DraftButton(state: state, l: l),
-                ),
-                SizedBox(width: context.dynamicWidth(0.029)),
-                Expanded(
-                  flex: 2,
-                  child: _SaveSendButton(
-                    state: state,
-                    invoiceKey: invoiceKey,
-                    l: l,
                   ),
                 ),
               ],
@@ -413,39 +415,44 @@ class _DraftButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: state.isSaving
-          ? null
-          : () async => await context.read<InvitationCubit>().saveDraft(),
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: context.dynamicWidth(0.04),
-          vertical: context.dynamicHeight(0.018),
-        ),
-        decoration: BoxDecoration(
-          color: Colors.orange.shade100,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
-        ),
-        child: state.isSaving && state.isSaveAsDraft
-            ? Center(
-                child: SizedBox(
+    return Material(
+      color: Colors.orange.shade100,
+      borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
+      child: InkWell(
+        onTap: state.isSaving
+            ? null
+            : () async => await context.read<InvitationCubit>().saveDraft(),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: context.dynamicWidth(0.02),
+            vertical: context.dynamicHeight(0.018),
+          ),
+          alignment: Alignment.center,
+          child: state.isSaving && state.isSaveAsDraft
+              ? SizedBox(
                   width: context.dynamicWidth(0.05),
                   height: context.dynamicWidth(0.05),
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
                     color: Colors.orange.shade800,
                   ),
+                )
+              : FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    l?.translate('invitation_save_draft') ?? 'Save Draft',
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.orange.shade800,
+                      fontWeight: FontWeight.w600,
+                      fontSize: context.dynamicWidth(0.035),
+                    ),
+                  ),
                 ),
-              )
-            : Text(
-                l?.translate('invitation_save_draft') ?? 'Save Draft',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.orange.shade800,
-                  fontWeight: FontWeight.w600,
-                  fontSize: context.dynamicWidth(0.035),
-                ),
-              ),
+        ),
       ),
     );
   }

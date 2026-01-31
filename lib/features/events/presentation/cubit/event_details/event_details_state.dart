@@ -60,6 +60,7 @@ class EventDetailsState extends Equatable {
     EventDetailsTab? currentTab,
     String? guestSearchQuery,
     String? errorMessage,
+    bool clearErrorMessage = false,
     bool? isDeleting,
   }) {
     return EventDetailsState(
@@ -69,7 +70,7 @@ class EventDetailsState extends Equatable {
       filteredGuests: filteredGuests ?? this.filteredGuests,
       currentTab: currentTab ?? this.currentTab,
       guestSearchQuery: guestSearchQuery ?? this.guestSearchQuery,
-      errorMessage: errorMessage ?? this.errorMessage,
+      errorMessage: clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
       isDeleting: isDeleting ?? this.isDeleting,
     );
   }

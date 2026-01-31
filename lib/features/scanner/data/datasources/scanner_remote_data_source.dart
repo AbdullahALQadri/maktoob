@@ -18,83 +18,13 @@ abstract class ScannerRemoteDataSource {
 }
 
 class ScannerRemoteDataSourceImpl implements ScannerRemoteDataSource {
-  // Mock guest data storage (simulating a remote database)
-  final List<CheckInGuestModel> _mockGuests = [
-    const CheckInGuestModel(
-      id: '1',
-      name: 'John Smith',
-      status: 'VIP',
-      companions: 2,
-      checkedIn: false,
-      qrCode: 'QR001',
-    ),
-    const CheckInGuestModel(
-      id: '2',
-      name: 'Sarah Johnson',
-      status: 'Regular',
-      companions: 0,
-      checkedIn: true,
-      qrCode: 'QR002',
-    ),
-    const CheckInGuestModel(
-      id: '3',
-      name: 'Michael Brown',
-      status: 'VIP',
-      companions: 1,
-      checkedIn: false,
-      qrCode: 'QR003',
-    ),
-    const CheckInGuestModel(
-      id: '4',
-      name: 'Emily Davis',
-      status: 'Regular',
-      companions: 3,
-      checkedIn: true,
-      qrCode: 'QR004',
-    ),
-    const CheckInGuestModel(
-      id: '5',
-      name: 'David Wilson',
-      status: 'VIP',
-      companions: 0,
-      checkedIn: false,
-      qrCode: 'QR005',
-    ),
-    const CheckInGuestModel(
-      id: '6',
-      name: 'Jessica Martinez',
-      status: 'Regular',
-      companions: 1,
-      checkedIn: false,
-      qrCode: 'QR006',
-    ),
-    const CheckInGuestModel(
-      id: '7',
-      name: 'Christopher Lee',
-      status: 'VIP',
-      companions: 2,
-      checkedIn: true,
-      qrCode: 'QR007',
-    ),
-    const CheckInGuestModel(
-      id: '8',
-      name: 'Amanda Taylor',
-      status: 'Regular',
-      companions: 0,
-      checkedIn: false,
-      qrCode: 'QR008',
-    ),
-  ];
+  // TODO: Replace with actual API data
+  final List<CheckInGuestModel> _mockGuests = [];
 
-  // Map to track checked-in status (mutable state for simulation)
+  // Map to track checked-in status
   final Map<String, bool> _checkedInStatus = {};
 
-  ScannerRemoteDataSourceImpl() {
-    // Initialize checked-in status from mock data
-    for (final guest in _mockGuests) {
-      _checkedInStatus[guest.id] = guest.checkedIn;
-    }
-  }
+  ScannerRemoteDataSourceImpl();
 
   @override
   Future<ScanResultModel> scanQrCode() async {

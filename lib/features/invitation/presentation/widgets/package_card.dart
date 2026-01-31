@@ -33,6 +33,7 @@ class PackageCard extends StatelessWidget {
   bool get isCustom => package.isCustom;
   bool get isOverLimit =>
       !isCustom &&
+      !package.hasUnlimitedInvitations &&
       package.invitationLimit != null &&
       guestCount > package.invitationLimit!;
 
@@ -65,10 +66,19 @@ class PackageCard extends StatelessWidget {
   }
 
   void _onTap(BuildContext context) {
+    final l = AppLocalizations.of(context);
     context.read<InvitationCubit>().selectPackage(package);
     if (isCustom && customLimitController != null) {
       customLimitController!.text = guestCount.toString();
       context.read<InvitationCubit>().setCustomPackageLimit(guestCount);
+      AppSnackBar.showInfo(
+        context,
+        title: l?.translate('invitation_custom_package_info_title') ??
+            'Custom Package',
+        message: l?.translate('invitation_custom_package_info_message') ??
+            'The number of invitations must be equal to or greater than the number of guests ($guestCount). You can adjust the number below.',
+        duration: const Duration(seconds: 5),
+      );
     }
   }
 
@@ -283,6 +293,8 @@ class PackageCard extends StatelessWidget {
   }
 
   Widget _buildCustomInput(BuildContext context, AppLocalizations? l) {
+    final minRequired = guestCount < 1 ? 1 : guestCount;
+
     return Column(
       children: [
         SizedBox(height: context.dynamicHeight(0.02)),
@@ -307,7 +319,7 @@ class PackageCard extends StatelessWidget {
               ),
               SizedBox(height: context.dynamicHeight(0.01)),
               Text(
-                '${l?.translate('invitation_minimum') ?? 'Minimum'}: $guestCount (${l?.translate('invitation_current_guest_count') ?? 'current guest count'})',
+                '${l?.translate('invitation_minimum') ?? 'Minimum'}: $minRequired (${l?.translate('invitation_current_guest_count') ?? 'current guest count'})',
                 style: TextStyle(
                   fontSize: context.dynamicWidth(0.029),
                   color: Colors.purple.shade600,
@@ -321,11 +333,24 @@ class PackageCard extends StatelessWidget {
                       'Number of invitations',
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return l?.translate('invitation_enter_count') ??
+                          'Enter the number of invitations';
+                    }
+                    final limit = int.tryParse(value);
+                    if (limit == null || limit < 1) {
+                      return l?.translate('invitation_min_one') ??
+                          'Minimum 1 invitation';
+                    }
+                    if (limit < minRequired) {
+                      return '${l?.translate('invitation_min_guests_required') ?? 'Minimum'}: $minRequired';
+                    }
+                    return null;
+                  },
                   onChanged: (value) {
                     final limit = int.tryParse(value);
-                    if (limit != null && limit >= guestCount) {
-                      context.read<InvitationCubit>().setCustomPackageLimit(limit);
-                    }
+                    context.read<InvitationCubit>().setCustomPackageLimit(limit ?? 0);
                   },
                 ),
             ],

@@ -28,26 +28,63 @@ class AddGuestsScreen extends StatefulWidget {
 }
 
 class _AddGuestsScreenState extends State<AddGuestsScreen> {
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _phoneController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  late TextEditingController _nameController;
+  late TextEditingController _phoneController;
+  late TextEditingController _emailController;
+
+  late FocusNode _nameFocus;
+  late FocusNode _phoneFocus;
+  late FocusNode _emailFocus;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController();
+    _phoneController = TextEditingController();
+    _emailController = TextEditingController();
+
+    _nameFocus = FocusNode();
+    _phoneFocus = FocusNode();
+    _emailFocus = FocusNode();
+  }
 
   @override
   void dispose() {
     _nameController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
+
+    _nameFocus.dispose();
+    _phoneFocus.dispose();
+    _emailFocus.dispose();
+
     super.dispose();
   }
 
   void _resetForm() {
-    _nameController.dispose();
-    _phoneController.dispose();
-    _emailController.dispose();
+    _nameController.clear();
+    _phoneController.clear();
+    _emailController.clear();
+    _formKey.currentState?.reset();
+  }
 
-    _nameController = TextEditingController();
-    _phoneController = TextEditingController();
-    _emailController = TextEditingController();
+  void _addGuest() {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    final guest = GuestInfoModel(
+      name: _nameController.text.trim(),
+      phone: _phoneController.text.trim(),
+      email: _emailController.text.trim(),
+    );
+
+    context.read<InvitationCubit>().addGuestDirect(guest);
+
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _resetForm();
+    });
   }
 
   @override
@@ -131,44 +168,67 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
                       ),
                       SizedBox(height: context.dynamicHeight(0.015)),
 
-                      // Name field
-                      AppTextField(
-                        controller: _nameController,
-                        hintText: 'Guest name *',
-                        prefixIcon: Icons.person_outline,
-                        onChanged: (value) {
-                          context
-                              .read<InvitationCubit>()
-                              .updateCurrentGuestName(value);
-                        },
-                      ),
-                      SizedBox(height: context.dynamicHeight(0.015)),
+                      // Guest form
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            // Name field
+                            AppTextField(
+                              controller: _nameController,
+                              focusNode: _nameFocus,
+                              hintText: 'Guest name *',
+                              prefixIcon: Icons.person_outline,
+                              textInputAction: TextInputAction.next,
+                              onSubmitted: (_) => _phoneFocus.requestFocus(),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Guest name is required';
+                                }
+                                return null;
+                              },
+                              onChanged: (value) {
+                                context
+                                    .read<InvitationCubit>()
+                                    .updateCurrentGuestName(value);
+                              },
+                            ),
+                            SizedBox(height: context.dynamicHeight(0.015)),
 
-                      // Phone field
-                      AppTextField(
-                        controller: _phoneController,
-                        hintText: 'Phone number (optional)',
-                        prefixIcon: Icons.phone_outlined,
-                        keyboardType: TextInputType.phone,
-                        onChanged: (value) {
-                          context
-                              .read<InvitationCubit>()
-                              .updateCurrentGuestPhone(value);
-                        },
-                      ),
-                      SizedBox(height: context.dynamicHeight(0.015)),
+                            // Phone field
+                            AppTextField(
+                              controller: _phoneController,
+                              focusNode: _phoneFocus,
+                              hintText: 'Phone number (optional)',
+                              prefixIcon: Icons.phone_outlined,
+                              keyboardType: TextInputType.phone,
+                              textInputAction: TextInputAction.next,
+                              onSubmitted: (_) => _emailFocus.requestFocus(),
+                              onChanged: (value) {
+                                context
+                                    .read<InvitationCubit>()
+                                    .updateCurrentGuestPhone(value);
+                              },
+                            ),
+                            SizedBox(height: context.dynamicHeight(0.015)),
 
-                      // Email field
-                      AppTextField(
-                        controller: _emailController,
-                        hintText: 'Email (optional)',
-                        prefixIcon: Icons.email_outlined,
-                        keyboardType: TextInputType.emailAddress,
-                        onChanged: (value) {
-                          context
-                              .read<InvitationCubit>()
-                              .updateCurrentGuestEmail(value);
-                        },
+                            // Email field
+                            AppTextField(
+                              controller: _emailController,
+                              focusNode: _emailFocus,
+                              hintText: 'Email (optional)',
+                              prefixIcon: Icons.email_outlined,
+                              keyboardType: TextInputType.emailAddress,
+                              textInputAction: TextInputAction.done,
+                              onSubmitted: (_) => _addGuest(),
+                              onChanged: (value) {
+                                context
+                                    .read<InvitationCubit>()
+                                    .updateCurrentGuestEmail(value);
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                       SizedBox(height: context.dynamicHeight(0.02)),
 
@@ -411,23 +471,5 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
         ),
       ),
     );
-  }
-
-  void _addGuest() {
-    if (_nameController.text.isEmpty) return;
-
-    final guest = GuestInfoModel(
-      name: _nameController.text,
-      phone: _phoneController.text,
-      email: _emailController.text,
-    );
-
-    context.read<InvitationCubit>().addGuestDirect(guest);
-
-    // Close keyboard and reset form with new controllers
-    FocusScope.of(context).unfocus();
-    setState(() {
-      _resetForm();
-    });
   }
 }

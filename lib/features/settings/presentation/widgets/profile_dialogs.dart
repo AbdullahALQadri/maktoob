@@ -4,7 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
 import '../../../authentication/domain/entities/user_entity.dart';
+import '../../../authentication/presentation/cubit/auth_cubit.dart';
 import '../cubit/profile_cubit.dart';
+import '../screens/change_password_screen.dart';
+import '../screens/edit_profile_screen.dart';
 
 /// Profile dialog utilities.
 class ProfileDialogs {
@@ -22,7 +25,9 @@ class ProfileDialogs {
     final t = AppLocalizations.of(context)!;
     final profileCubit = context.read<ProfileCubit>();
     final bool isConvertingToOrg = newType == UserType.institution;
+    final formKey = GlobalKey<FormState>();
     final reasonController = TextEditingController();
+    final reasonFocus = FocusNode();
 
     showGeneralDialog(
       context: context,
@@ -42,20 +47,30 @@ class ProfileDialogs {
                 vertical: context.dynamicHeight(0.03),
               ),
               child: _ChangeTypeDialogContent(
+                formKey: formKey,
                 isConvertingToOrg: isConvertingToOrg,
                 newType: newType,
                 isArabic: isArabic,
                 reasonController: reasonController,
+                reasonFocus: reasonFocus,
                 canConfirm: canConfirm,
                 t: t,
                 onChanged: () => setState(() {}),
-                onCancel: () => Navigator.pop(dialogContext),
-                onConfirm: () {
+                onCancel: () {
+                  reasonController.dispose();
+                  reasonFocus.dispose();
                   Navigator.pop(dialogContext);
-                  profileCubit.changeUserType(
-                    newType,
-                    reason: reasonController.text.trim(),
-                  );
+                },
+                onConfirm: () {
+                  if (formKey.currentState?.validate() ?? false) {
+                    Navigator.pop(dialogContext);
+                    profileCubit.changeUserType(
+                      newType,
+                      reason: reasonController.text.trim(),
+                    );
+                    reasonController.dispose();
+                    reasonFocus.dispose();
+                  }
                 },
               ),
             );
@@ -74,25 +89,24 @@ class ProfileDialogs {
     );
   }
 
-  /// Shows edit profile dialog.
-  static void showEditProfile(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
-    AppDialog.showInfo(
-      context,
-      title: t.translate('profile_edit'),
-      message: t.translate('profile_edit_coming'),
-      buttonText: t.translate('common_ok'),
+  /// Navigates to edit profile screen.
+  static void showEditProfile(BuildContext context, {required UserEntity user}) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => BlocProvider.value(
+          value: context.read<ProfileCubit>(),
+          child: EditProfileScreen(user: user),
+        ),
+      ),
     );
   }
 
-  /// Shows change password dialog.
-  static void showChangePassword(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
-    AppDialog.showInfo(
-      context,
-      title: t.translate('profile_change_password'),
-      message: t.translate('profile_change_password_coming'),
-      buttonText: t.translate('common_ok'),
+  /// Navigates to change password screen with OTP verification.
+  static void showChangePassword(BuildContext context, {required String phone}) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ChangePasswordScreen(phone: phone),
+      ),
     );
   }
 
@@ -109,8 +123,8 @@ class ProfileDialogs {
       icon: Icons.logout_rounded,
     );
 
-    if (confirmed) {
-      // TODO: Implement logout
+    if (confirmed && context.mounted) {
+      context.read<AuthCubit>().logout();
     }
   }
 
@@ -134,10 +148,12 @@ class ProfileDialogs {
 }
 
 class _ChangeTypeDialogContent extends StatelessWidget {
+  final GlobalKey<FormState> formKey;
   final bool isConvertingToOrg;
   final UserType newType;
   final bool isArabic;
   final TextEditingController reasonController;
+  final FocusNode reasonFocus;
   final bool canConfirm;
   final AppLocalizations t;
   final VoidCallback onChanged;
@@ -145,10 +161,12 @@ class _ChangeTypeDialogContent extends StatelessWidget {
   final VoidCallback onConfirm;
 
   const _ChangeTypeDialogContent({
+    required this.formKey,
     required this.isConvertingToOrg,
     required this.newType,
     required this.isArabic,
     required this.reasonController,
+    required this.reasonFocus,
     required this.canConfirm,
     required this.t,
     required this.onChanged,
@@ -173,39 +191,50 @@ class _ChangeTypeDialogContent extends StatelessWidget {
         ],
       ),
       child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _DialogIcon(isConvertingToOrg: isConvertingToOrg),
-            SizedBox(height: context.dynamicHeight(0.02)),
-            Text(
-              t.translate('profile_change_type'),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: context.dynamicWidth(0.056),
-                fontWeight: FontWeight.bold,
-                color: context.textPrimary,
+        child: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _DialogIcon(isConvertingToOrg: isConvertingToOrg),
+              SizedBox(height: context.dynamicHeight(0.02)),
+              Text(
+                t.translate('profile_change_type'),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: context.dynamicWidth(0.056),
+                  fontWeight: FontWeight.bold,
+                  color: context.textPrimary,
+                ),
               ),
-            ),
-            SizedBox(height: context.dynamicHeight(0.012)),
-            _DialogMessage(newType: newType, isArabic: isArabic, t: t),
-            SizedBox(height: context.dynamicHeight(0.025)),
-            AppTextField(
-              controller: reasonController,
-              labelText: t.translate('profile_conversion_reason'),
-              hintText: t.translate('profile_conversion_reason_hint'),
-              prefixIcon: Icons.description_outlined,
-              maxLines: 3,
-              onChanged: (_) => onChanged(),
-            ),
-            SizedBox(height: context.dynamicHeight(0.03)),
-            _DialogButtons(
-              canConfirm: canConfirm,
-              t: t,
-              onCancel: onCancel,
-              onConfirm: onConfirm,
-            ),
-          ],
+              SizedBox(height: context.dynamicHeight(0.012)),
+              _DialogMessage(newType: newType, isArabic: isArabic, t: t),
+              SizedBox(height: context.dynamicHeight(0.025)),
+              AppTextField(
+                controller: reasonController,
+                focusNode: reasonFocus,
+                labelText: t.translate('profile_conversion_reason'),
+                hintText: t.translate('profile_conversion_reason_hint'),
+                prefixIcon: Icons.description_outlined,
+                maxLines: 3,
+                textInputAction: TextInputAction.done,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return t.translate('profile_conversion_reason_required');
+                  }
+                  return null;
+                },
+                onChanged: (_) => onChanged(),
+              ),
+              SizedBox(height: context.dynamicHeight(0.03)),
+              _DialogButtons(
+                canConfirm: canConfirm,
+                t: t,
+                onCancel: onCancel,
+                onConfirm: onConfirm,
+              ),
+            ],
+          ),
         ),
       ),
     );

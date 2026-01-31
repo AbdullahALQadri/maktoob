@@ -57,10 +57,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     final t = AppLocalizations.of(context)!;
 
     return BlocConsumer<EventDetailsCubit, EventDetailsState>(
+      listenWhen: (previous, current) =>
+          current.errorMessage != null &&
+          current.errorMessage != previous.errorMessage,
       listener: (context, state) {
-        if (state.errorMessage != null) {
-          AppSnackBar.showError(context, message: state.errorMessage!);
-        }
+        AppSnackBar.showError(context, message: state.errorMessage!);
       },
       builder: (context, state) {
         if (state.isLoading) {

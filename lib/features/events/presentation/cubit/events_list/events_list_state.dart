@@ -38,6 +38,7 @@ class EventsListState extends Equatable {
     EventStatus? filterStatus,
     bool clearFilterStatus = false,
     String? errorMessage,
+    bool clearErrorMessage = false,
   }) {
     return EventsListState(
       status: status ?? this.status,
@@ -45,7 +46,7 @@ class EventsListState extends Equatable {
       filteredEvents: filteredEvents ?? this.filteredEvents,
       searchQuery: searchQuery ?? this.searchQuery,
       filterStatus: clearFilterStatus ? null : (filterStatus ?? this.filterStatus),
-      errorMessage: errorMessage ?? this.errorMessage,
+      errorMessage: clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
     );
   }
 

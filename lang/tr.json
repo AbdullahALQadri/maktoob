@@ -365,6 +365,8 @@
   "invitation_option_custom_package": "Özel paketi seçin",
   "invitation_option_reduce_guests": "Misafir sayısını azaltın",
   "invitation_exceeds_limit_warning": "Misafir sayısı paket limitini aşıyor. Lütfen başka bir paket seçin veya misafir sayısını azaltın.",
+  "invitation_custom_package_info_title": "Özel Paket",
+  "invitation_custom_package_info_message": "Davetiye sayısı misafir sayısına eşit veya daha fazla olmalıdır. Aşağıdan sayıyı ayarlayabilirsiniz.",
 
   "invitation_step7_title": "Fatura ve Kaydet",
   "invitation_loading_invoice": "Fatura yükleniyor...",
@@ -403,6 +405,9 @@
   "invitation_select_services": "Etkinliğiniz için istediğiniz ek hizmetleri seçin",
 
   "invitation_limit_exceeded": "Limit aşıldı!",
+  "invitation_enter_count": "Davetiye sayısını girin",
+  "invitation_min_one": "En az 1 davetiye",
+  "invitation_min_guests_required": "En az",
   "invitation_packages_error": "Paketler yüklenirken hata",
   "invitation_no_packages": "Mevcut paket yok",
   "invitation_select_package": "Misafir sayınıza uygun paketi seçin",
@@ -450,6 +455,7 @@
   "profile_change_type_confirm": "Hesap türünüzü değiştirmek istediğinizden emin misiniz:",
   "profile_conversion_reason": "Dönüşüm nedeni",
   "profile_conversion_reason_hint": "Nedeni girin...",
+  "profile_conversion_reason_required": "Lütfen dönüşüm nedenini girin",
 
   "auth_welcome_back": "Tekrar Hoş Geldiniz",
   "auth_sign_in_subtitle": "Maktoob'a devam etmek için giriş yapın",
@@ -586,5 +592,13 @@
   "edit_event_date": "Etkinlik Tarihi",
   "edit_event_rsvp_deadline": "RSVP Son Tarihi",
   "edit_event_max_companions": "Maksimum Refakatçi",
-  "edit_event_allow_companions": "Refakatçilere İzin Ver"
+  "edit_event_allow_companions": "Refakatçilere İzin Ver",
+  "edit_event_name_required": "Etkinlik adı gerekli",
+
+  "edit_profile_title": "Profili Düzenle",
+  "edit_profile_saved": "Profil başarıyla güncellendi",
+  "edit_profile_name_hint": "Adınızı girin",
+  "edit_profile_email_hint": "E-postanızı girin",
+  "edit_profile_company_hint": "Kuruluş adını girin",
+  "edit_profile_phone_locked": "Telefon numarası doğrulama için kullanıldığından değiştirilemez"
 }

@@ -16,7 +16,7 @@ class EventsListCubit extends Cubit<EventsListState> {
 
   /// Load all events
   Future<void> loadEvents() async {
-    emit(state.copyWith(status: EventsListStatus.loading));
+    emit(state.copyWith(status: EventsListStatus.loading, clearErrorMessage: true));
 
     final result = await getEventsUseCase(const NoParams());
 
@@ -29,6 +29,7 @@ class EventsListCubit extends Cubit<EventsListState> {
         status: EventsListStatus.success,
         events: events,
         filteredEvents: _applyFilters(events, state.searchQuery, state.filterStatus),
+        clearErrorMessage: true,
       )),
     );
   }

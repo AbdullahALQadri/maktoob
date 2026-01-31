@@ -25,11 +25,18 @@ class HomeCubit extends Cubit<HomeState> {
         eventsResult.fold(
           (failure) => emit(HomeError(message: failure.toString())),
           (events) {
-            // Calculate response rate from stats
-            // Default values based on mock data
-            const totalGuests = 1234;
-            const totalResponded = 1048;
-            const responseRate = 0.85;
+            // Calculate response rate from actual stats
+            int totalGuests = 0;
+            int totalResponded = 0;
+            for (final stat in stats) {
+              if (stat.label == 'Total Guests') {
+                totalGuests = int.tryParse(stat.value.replaceAll(',', '')) ?? 0;
+              }
+              if (stat.label == 'Attending' || stat.label == 'Not Attending') {
+                totalResponded += int.tryParse(stat.value.replaceAll(',', '')) ?? 0;
+              }
+            }
+            final responseRate = totalGuests > 0 ? totalResponded.toDouble() / totalGuests : 0.0;
 
             emit(HomeLoaded(
               stats: stats,

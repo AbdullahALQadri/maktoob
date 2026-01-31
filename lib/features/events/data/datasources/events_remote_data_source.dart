@@ -4,9 +4,8 @@ import '../../../../core/api/end_points.dart';
 import '../../../../core/api/event_wizard_api_service.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../domain/entities/event_entity.dart';
-import '../../domain/entities/guest_entity.dart';
-import '../../domain/repositories/events_repository.dart';
 import '../../domain/entities/edit_request_entity.dart';
+import '../../domain/repositories/events_repository.dart';
 import '../models/edit_request_model.dart';
 import '../models/event_model.dart';
 import '../models/guest_model.dart';
@@ -56,208 +55,10 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
   /// Check if API is available
   bool get _hasApi => apiConsumer != null;
 
-  // Mock events data
-  final List<EventModel> _mockEvents = [
-    EventModel(
-      id: '1',
-      name: 'Annual Gala 2024',
-      type: 'Corporate',
-      date: 'Dec 15, 2024',
-      time: '7:00 PM',
-      venue: 'Grand Hotel Ballroom',
-      venueAddress: '123 Luxury Ave, Downtown City',
-      description: 'Join us for an elegant evening celebrating our company achievements.',
-      invitations: 250,
-      responses: 180,
-      attending: 145,
-      declined: 23,
-      pending: 38,
-      checkedIn: 45,
-      status: EventStatus.active,
-      eventDate: DateTime(2024, 12, 15, 19, 0),
-      rsvpDeadline: DateTime(2024, 12, 10),
-      packageName: 'Gold Package',
-      packagePrice: '\$599',
-      templateName: 'Elegant Gold',
-      maxCompanions: 2,
-      allowCompanions: true,
-      gradient: [AppColors.purple500, AppColors.pink500],
-      icon: Icons.celebration,
-    ),
-    EventModel(
-      id: '2',
-      name: 'Sarah & John Wedding',
-      type: 'Wedding',
-      date: 'Jan 20, 2025',
-      time: '4:00 PM',
-      venue: 'Beach Resort',
-      invitations: 150,
-      responses: 120,
-      attending: 98,
-      declined: 12,
-      pending: 10,
-      checkedIn: 0,
-      status: EventStatus.active,
-      eventDate: DateTime(2025, 1, 20, 16, 0),
-      gradient: [AppColors.pink500, AppColors.rose500],
-      icon: Icons.favorite,
-    ),
-    EventModel(
-      id: '3',
-      name: 'Tech Conference 2024',
-      type: 'Conference',
-      date: 'Nov 30, 2024',
-      time: '9:00 AM',
-      venue: 'Convention Center',
-      invitations: 500,
-      responses: 450,
-      attending: 420,
-      declined: 30,
-      pending: 0,
-      checkedIn: 420,
-      status: EventStatus.completed,
-      eventDate: DateTime(2024, 11, 30, 9, 0),
-      gradient: [AppColors.blue500, AppColors.cyan500],
-      icon: Icons.computer,
-    ),
-    EventModel(
-      id: '4',
-      name: 'Birthday Bash',
-      type: 'Birthday',
-      date: 'Feb 14, 2025',
-      time: '6:00 PM',
-      venue: 'Private Villa',
-      invitations: 50,
-      responses: 0,
-      attending: 0,
-      declined: 0,
-      pending: 50,
-      checkedIn: 0,
-      status: EventStatus.draft,
-      eventDate: DateTime(2025, 2, 14, 18, 0),
-      gradient: [AppColors.amber500, AppColors.orange500],
-      icon: Icons.cake,
-    ),
-    EventModel(
-      id: '5',
-      name: 'Charity Fundraiser',
-      type: 'Charity',
-      date: 'Mar 10, 2025',
-      time: '5:00 PM',
-      venue: 'Community Hall',
-      invitations: 200,
-      responses: 85,
-      attending: 70,
-      declined: 15,
-      pending: 100,
-      checkedIn: 0,
-      status: EventStatus.active,
-      eventDate: DateTime(2025, 3, 10, 17, 0),
-      gradient: [AppColors.emerald500, AppColors.green600],
-      icon: Icons.volunteer_activism,
-    ),
-    EventModel(
-      id: '6',
-      name: 'Graduation Ceremony',
-      type: 'Graduation',
-      date: 'Dec 1, 2024',
-      time: '10:00 AM',
-      venue: 'University Hall',
-      invitations: 300,
-      responses: 280,
-      attending: 275,
-      declined: 5,
-      pending: 0,
-      checkedIn: 275,
-      status: EventStatus.completed,
-      eventDate: DateTime(2024, 12, 1, 10, 0),
-      gradient: [AppColors.indigo500, AppColors.purple500],
-      icon: Icons.school,
-    ),
-  ];
+  // TODO: Replace with actual API data
+  final List<EventModel> _mockEvents = [];
 
-  final List<GuestModel> _mockGuests = [
-    GuestModel(
-      id: '1',
-      name: 'Sarah Johnson',
-      email: 'sarah.johnson@email.com',
-      phone: '+1 234 567 8901',
-      status: GuestStatus.attending,
-      companions: 1,
-      isCheckedIn: true,
-      avatarColor: AppColors.purple500,
-    ),
-    GuestModel(
-      id: '2',
-      name: 'Michael Chen',
-      email: 'michael.chen@email.com',
-      phone: '+1 234 567 8902',
-      status: GuestStatus.attending,
-      companions: 2,
-      isCheckedIn: true,
-      avatarColor: AppColors.blue500,
-    ),
-    GuestModel(
-      id: '3',
-      name: 'Emily Rodriguez',
-      email: 'emily.rodriguez@email.com',
-      phone: '+1 234 567 8903',
-      status: GuestStatus.pending,
-      companions: 0,
-      isCheckedIn: false,
-      avatarColor: AppColors.emerald500,
-    ),
-    GuestModel(
-      id: '4',
-      name: 'David Kim',
-      email: 'david.kim@email.com',
-      phone: '+1 234 567 8904',
-      status: GuestStatus.declined,
-      companions: 0,
-      isCheckedIn: false,
-      avatarColor: AppColors.amber500,
-    ),
-    GuestModel(
-      id: '5',
-      name: 'Jessica Williams',
-      email: 'jessica.williams@email.com',
-      phone: '+1 234 567 8905',
-      status: GuestStatus.attending,
-      companions: 1,
-      isCheckedIn: false,
-      avatarColor: AppColors.pink500,
-    ),
-    GuestModel(
-      id: '6',
-      name: 'Robert Taylor',
-      email: 'robert.taylor@email.com',
-      phone: '+1 234 567 8906',
-      status: GuestStatus.attending,
-      companions: 0,
-      isCheckedIn: true,
-      avatarColor: AppColors.cyan500,
-    ),
-    GuestModel(
-      id: '7',
-      name: 'Amanda Martinez',
-      email: 'amanda.martinez@email.com',
-      phone: '+1 234 567 8907',
-      status: GuestStatus.pending,
-      companions: 2,
-      isCheckedIn: false,
-      avatarColor: AppColors.indigo500,
-    ),
-    GuestModel(
-      id: '8',
-      name: 'Christopher Brown',
-      email: 'christopher.brown@email.com',
-      phone: '+1 234 567 8908',
-      status: GuestStatus.attending,
-      companions: 1,
-      isCheckedIn: true,
-      avatarColor: AppColors.orange500,
-    ),
-  ];
+  final List<GuestModel> _mockGuests = [];
 
   @override
   Future<List<EventModel>> getEvents() async {
@@ -514,32 +315,8 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
     return '$hour:${date.minute.toString().padLeft(2, '0')} $period';
   }
 
-  // Mock edit requests storage
-  final List<EditRequestModel> _mockEditRequests = [
-    EditRequestModel(
-      id: '101',
-      eventId: '1',
-      changes: {'name': 'Annual Gala 2025', 'venue': 'Royal Palace'},
-      status: EditRequestStatus.approved,
-      createdAt: DateTime(2024, 12, 1),
-      adminNote: 'Approved - venue confirmed',
-    ),
-    EditRequestModel(
-      id: '102',
-      eventId: '1',
-      changes: {'description': 'Updated description for the gala event'},
-      status: EditRequestStatus.rejected,
-      createdAt: DateTime(2024, 12, 5),
-      adminNote: 'Description too vague, please provide more details',
-    ),
-    EditRequestModel(
-      id: '103',
-      eventId: '2',
-      changes: {'venue': 'Mountain Resort', 'venueAddress': '456 Mountain Rd'},
-      status: EditRequestStatus.pending,
-      createdAt: DateTime(2025, 1, 10),
-    ),
-  ];
+  // TODO: Replace with actual API data
+  final List<EditRequestModel> _mockEditRequests = [];
 
   @override
   Future<EditRequestModel> submitEditRequest(

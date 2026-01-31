@@ -12,18 +12,17 @@ class ProfileCubit extends Cubit<ProfileState> {
   Future<void> loadProfile() async {
     emit(ProfileLoading());
 
-    // Simulate network delay
+    // TODO: Replace with actual API call
     await Future.delayed(const Duration(milliseconds: 500));
 
-    // Mock user data for testing the design
     final user = UserEntity(
-      id: 1,
-      name: 'محمد أحمد',
-      email: 'mohammed.ahmed@example.com',
-      phone: '+966 50 123 4567',
+      id: 0,
+      name: '',
+      email: '',
+      phone: '',
       avatar: null,
-      companyName: 'شركة التقنية المتقدمة',
-      isVerified: true,
+      companyName: null,
+      isVerified: false,
       locale: 'ar',
       userType: UserType.user,
     );
@@ -34,6 +33,7 @@ class ProfileCubit extends Cubit<ProfileState> {
   /// Update user profile - mock implementation
   Future<void> updateProfile({
     String? name,
+    String? email,
     String? phone,
     String? companyName,
   }) async {
@@ -46,6 +46,7 @@ class ProfileCubit extends Cubit<ProfileState> {
 
     final updatedUser = _currentUser!.copyWith(
       name: name ?? _currentUser!.name,
+      email: email ?? _currentUser!.email,
       phone: phone ?? _currentUser!.phone,
       companyName: companyName ?? _currentUser!.companyName,
     );
@@ -73,9 +74,7 @@ class ProfileCubit extends Cubit<ProfileState> {
 
     final updatedUser = _currentUser!.copyWith(
       userType: newType,
-      companyName: newType == UserType.institution
-          ? _currentUser!.companyName ?? 'شركة التقنية المتقدمة'
-          : _currentUser!.companyName,
+      companyName: _currentUser!.companyName,
     );
     _currentUser = updatedUser;
     emit(UserTypeChanged(

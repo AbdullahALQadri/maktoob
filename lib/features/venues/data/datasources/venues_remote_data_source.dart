@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
 import '../../../../core/error/exceptions.dart';
-import '../../../../core/utils/app_colors.dart';
 import '../models/venue_model.dart';
 
 /// Abstract interface for remote data source
@@ -25,77 +23,10 @@ abstract class VenuesRemoteDataSource {
 }
 
 /// Implementation of VenuesRemoteDataSource
-/// Currently uses mock data, replace with actual API calls
+/// TODO: Replace with actual API calls
 class VenuesRemoteDataSourceImpl implements VenuesRemoteDataSource {
-  // Mock data for demonstration
-  final List<VenueModel> _mockVenues = [
-    VenueModel(
-      id: '1',
-      name: 'Grand Conference Hall',
-      address: '123 Business District, Downtown',
-      phone: '+1 (555) 123-4567',
-      email: 'booking@grandconference.com',
-      capacity: 500,
-      events: 24,
-      gradient: [AppColors.primaryColor, AppColors.tertiaryColor],
-      icon: Icons.business,
-    ),
-    VenueModel(
-      id: '2',
-      name: 'Riverside Event Center',
-      address: '456 River Road, Waterfront',
-      phone: '+1 (555) 234-5678',
-      email: 'events@riverside.com',
-      capacity: 300,
-      events: 18,
-      gradient: [AppColors.tertiaryColor, AppColors.primaryColor],
-      icon: Icons.water,
-    ),
-    VenueModel(
-      id: '3',
-      name: 'Tech Innovation Hub',
-      address: '789 Silicon Avenue, Tech Park',
-      phone: '+1 (555) 345-6789',
-      email: 'hello@techhub.com',
-      capacity: 150,
-      events: 42,
-      gradient: [AppColors.primaryColor, AppColors.blue500],
-      icon: Icons.computer,
-    ),
-    VenueModel(
-      id: '4',
-      name: 'Garden Pavilion',
-      address: '321 Botanical Gardens, Green District',
-      phone: '+1 (555) 456-7890',
-      email: 'reserve@gardenpavilion.com',
-      capacity: 200,
-      events: 15,
-      gradient: [AppColors.emerald500, AppColors.primaryColor],
-      icon: Icons.local_florist,
-    ),
-    VenueModel(
-      id: '5',
-      name: 'Skyline Rooftop Lounge',
-      address: '555 High Tower, Uptown',
-      phone: '+1 (555) 567-8901',
-      email: 'info@skylinelounge.com',
-      capacity: 120,
-      events: 31,
-      gradient: [AppColors.primaryColor, AppColors.cyan500],
-      icon: Icons.nightlife,
-    ),
-    VenueModel(
-      id: '6',
-      name: 'Historic Arts Theater',
-      address: '888 Culture Street, Arts District',
-      phone: '+1 (555) 678-9012',
-      email: 'tickets@artstheater.com',
-      capacity: 450,
-      events: 56,
-      gradient: [AppColors.tertiaryColor, AppColors.primaryColor],
-      icon: Icons.theater_comedy,
-    ),
-  ];
+  // TODO: Replace with actual API data
+  final List<VenueModel> _mockVenues = [];
 
   @override
   Future<List<VenueModel>> getVenues() async {

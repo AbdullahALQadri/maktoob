@@ -15,7 +15,7 @@ class EventDetailsCubit extends Cubit<EventDetailsState> {
 
   /// Load event details and guests
   Future<void> loadEventDetails(String eventId) async {
-    emit(state.copyWith(status: EventDetailsStatus.loading));
+    emit(state.copyWith(status: EventDetailsStatus.loading, clearErrorMessage: true));
 
     final result = await getEventDetailsUseCase(
       GetEventDetailsParams(eventId: eventId),
@@ -31,6 +31,7 @@ class EventDetailsCubit extends Cubit<EventDetailsState> {
         event: details.event,
         guests: details.guests,
         filteredGuests: details.guests,
+        clearErrorMessage: true,
       )),
     );
   }

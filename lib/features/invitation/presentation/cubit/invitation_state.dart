@@ -551,6 +551,12 @@ class InvitationState extends Equatable {
   /// Check if package limit is exceeded
   bool get isPackageLimitExceeded {
     if (selectedPackage == null) return false;
+    // Custom packages: user defines the limit, check against customPackageLimit
+    if (selectedPackage!.isCustom) {
+      // No limit set yet, or limit < 1, or limit < guest count → invalid
+      if (customPackageLimit == null || customPackageLimit! < 1) return true;
+      return totalGuestCount > customPackageLimit!;
+    }
     if (selectedPackage!.hasUnlimitedInvitations) return false;
     final limit = selectedPackage!.invitationLimit;
     if (limit == null) return false;

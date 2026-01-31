@@ -48,8 +48,10 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
-        // AuthRegistered is handled by RegisterScreen (navigates to OTP first)
-        // After OTP verification, onRegisterSuccess triggers _goToLogin
+        // When user logs out, pop all pushed routes so LoginScreen is visible
+        if (state is AuthUnauthenticated) {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
       },
       builder: (context, state) {
         if (state is AuthInitial) {

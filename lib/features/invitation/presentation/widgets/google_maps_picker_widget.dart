@@ -17,7 +17,7 @@ class GoogleMapsPickerWidget extends StatefulWidget {
     super.key,
     this.initialLocation,
     required this.onLocationSelected,
-    this.restrictToGaza = false, // Set to false for testing - can mark anywhere
+    this.restrictToGaza = true,
   });
 
   @override

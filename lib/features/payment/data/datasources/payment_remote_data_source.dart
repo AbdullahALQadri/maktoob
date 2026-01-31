@@ -39,29 +39,12 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
     required String eventId,
   }) async {
     try {
-      // Simulate upload with progress updates (reduced duration for better UX)
-      const totalDuration = 800;
-      const steps = 10;
-      const stepDuration = totalDuration ~/ steps;
+      // TODO: Implement actual API upload with progress tracking
+      await Future.delayed(const Duration(milliseconds: 200));
+      _progressController.add(1.0);
 
-      for (int i = 1; i <= steps; i++) {
-        await Future.delayed(Duration(milliseconds: stepDuration));
-        _progressController.add(i / steps);
-      }
-
-      // In a real implementation, this would call the API
-      // final response = await apiConsumer.post(
-      //   EndPoints.uploadInvoice,
-      //   formData: FormData.fromMap({
-      //     'file': await MultipartFile.fromFile(file.path!, filename: file.name),
-      //     'event_id': eventId,
-      //   }),
-      // );
-      // return PaymentModel.fromJson(response);
-
-      // For now, return a mock response
       return PaymentModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        id: '',
         fileName: file.name,
         fileSize: file.size,
         fileExtension: file.extension ?? '',
@@ -77,19 +60,15 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
   @override
   Future<BankDetailsModel> getBankDetails() async {
     try {
-      // In a real implementation, this would call the API
-      // final response = await apiConsumer.get(EndPoints.bankDetails);
-      // return BankDetailsModel.fromJson(response);
-
-      // For now, return mock bank details (reduced delay for better performance)
+      // TODO: Replace with actual API call
       await Future.delayed(const Duration(milliseconds: 100));
 
       return const BankDetailsModel(
-        bankName: 'Al Rajhi Bank',
-        accountName: 'Maktoob Events LLC',
-        accountNumber: '1234567890123456',
-        iban: 'SA03 8000 0000 1234 5678 9012 3456',
-        swiftCode: 'RJHISARI',
+        bankName: '',
+        accountName: '',
+        accountNumber: '',
+        iban: '',
+        swiftCode: '',
       );
     } catch (e) {
       throw ServerException(message: 'Failed to fetch bank details: $e');

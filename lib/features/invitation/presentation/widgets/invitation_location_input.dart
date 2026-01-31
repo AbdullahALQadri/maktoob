@@ -8,6 +8,11 @@ class InvitationLocationInput extends StatelessWidget {
   final TextEditingController addressController;
   final ValueChanged<String> onLocationChanged;
   final ValueChanged<String> onAddressChanged;
+  final FocusNode? locationFocusNode;
+  final FocusNode? addressFocusNode;
+  final FocusNode? nextFocusNode;
+  final String? Function(String?)? locationValidator;
+  final String? Function(String?)? addressValidator;
 
   const InvitationLocationInput({
     super.key,
@@ -15,6 +20,11 @@ class InvitationLocationInput extends StatelessWidget {
     required this.addressController,
     required this.onLocationChanged,
     required this.onAddressChanged,
+    this.locationFocusNode,
+    this.addressFocusNode,
+    this.nextFocusNode,
+    this.locationValidator,
+    this.addressValidator,
   });
 
   @override
@@ -33,16 +43,32 @@ class InvitationLocationInput extends StatelessWidget {
         SizedBox(height: context.dynamicHeight(0.01)),
         AppTextField(
           controller: locationController,
+          focusNode: locationFocusNode,
           hintText: 'Venue name',
           prefixIcon: Icons.location_on_outlined,
+          textInputAction: TextInputAction.next,
+          onSubmitted: (_) => addressFocusNode?.requestFocus(),
           onChanged: onLocationChanged,
+          validator: locationValidator,
         ),
         SizedBox(height: context.dynamicHeight(0.015)),
         AppTextField(
           controller: addressController,
+          focusNode: addressFocusNode,
           hintText: 'Full address',
           prefixIcon: Icons.map_outlined,
+          textInputAction: nextFocusNode != null
+              ? TextInputAction.next
+              : TextInputAction.done,
+          onSubmitted: (_) {
+            if (nextFocusNode != null) {
+              nextFocusNode!.requestFocus();
+            } else {
+              FocusScope.of(context).unfocus();
+            }
+          },
           onChanged: onAddressChanged,
+          validator: addressValidator,
         ),
       ],
     );

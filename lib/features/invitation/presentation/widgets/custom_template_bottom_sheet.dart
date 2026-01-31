@@ -19,12 +19,18 @@ class CustomTemplateBottomSheetContent extends StatefulWidget {
 
 class _CustomTemplateBottomSheetContentState
     extends State<CustomTemplateBottomSheetContent> {
+  final _formKey = GlobalKey<FormState>();
+
   File? _selectedFile;
-  final _descriptionController = TextEditingController();
+  late TextEditingController _descriptionController;
+  late FocusNode _descriptionFocus;
 
   @override
   void initState() {
     super.initState();
+    _descriptionController = TextEditingController();
+    _descriptionFocus = FocusNode();
+
     final state = context.read<InvitationCubit>().state;
     _selectedFile = state.uploadedTemplateFile;
     _descriptionController.text = state.uploadedTemplateDescription ?? '';
@@ -33,6 +39,7 @@ class _CustomTemplateBottomSheetContentState
   @override
   void dispose() {
     _descriptionController.dispose();
+    _descriptionFocus.dispose();
     super.dispose();
   }
 
@@ -48,7 +55,10 @@ class _CustomTemplateBottomSheetContentState
       children: [
         _buildUploadArea(context, l),
         SizedBox(height: context.dynamicHeight(0.025)),
-        _buildDescriptionSection(context, l),
+        Form(
+          key: _formKey,
+          child: _buildDescriptionSection(context, l),
+        ),
         SizedBox(height: context.dynamicHeight(0.02)),
         _buildFeeNotice(context, l),
         SizedBox(height: context.dynamicHeight(0.03)),
@@ -156,9 +166,11 @@ class _CustomTemplateBottomSheetContentState
           ),
         ),
         SizedBox(height: context.dynamicHeight(0.01)),
-        TextField(
+        TextFormField(
           controller: _descriptionController,
+          focusNode: _descriptionFocus,
           maxLines: 3,
+          textInputAction: TextInputAction.done,
           style: TextStyle(fontSize: context.dynamicWidth(0.04)),
           decoration: InputDecoration(
             hintText: l?.translate('invitation_describe_design') ??

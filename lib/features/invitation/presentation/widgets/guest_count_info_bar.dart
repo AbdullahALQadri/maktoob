@@ -14,9 +14,21 @@ class GuestCountInfoBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final guestCount = state.allGuests.length;
-    final packageLimit = state.selectedPackage?.invitationLimit ?? 0;
-    final isOverLimit =
-        state.selectedPackage != null && guestCount > packageLimit;
+    final selectedPackage = state.selectedPackage;
+    final isCustom = selectedPackage?.isCustom ?? false;
+
+    // For custom packages, use customPackageLimit from state
+    // For regular packages, use the package's invitationLimit
+    final int? packageLimit = isCustom
+        ? state.customPackageLimit
+        : selectedPackage?.invitationLimit;
+
+    // Custom package is never "over limit" — the user defines the limit.
+    // Regular packages show over-limit when guest count exceeds the limit.
+    final bool isOverLimit = !isCustom &&
+        selectedPackage != null &&
+        packageLimit != null &&
+        guestCount > packageLimit;
 
     return Container(
       padding: EdgeInsets.symmetric(
@@ -44,9 +56,11 @@ class GuestCountInfoBar extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                if (state.selectedPackage != null)
+                if (selectedPackage != null)
                   Text(
-                    '${l?.translate('invitation_package_limit') ?? 'Package limit'}: $packageLimit ${l?.translate('invitation_invitations') ?? 'invitations'}',
+                    isCustom
+                        ? '${l?.translate('invitation_custom_package') ?? 'Custom'}: ${packageLimit ?? guestCount} ${l?.translate('invitation_invitations') ?? 'invitations'}'
+                        : '${l?.translate('invitation_package_limit') ?? 'Package limit'}: ${packageLimit ?? '∞'} ${l?.translate('invitation_invitations') ?? 'invitations'}',
                     style: TextStyle(
                       color: isOverLimit
                           ? Colors.red.shade700
@@ -65,10 +79,12 @@ class GuestCountInfoBar extends StatelessWidget {
               ),
               decoration: BoxDecoration(
                 color: Colors.red.shade700,
-                borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
+                borderRadius:
+                    BorderRadius.circular(context.dynamicWidth(0.029)),
               ),
               child: Text(
-                l?.translate('invitation_limit_exceeded') ?? 'Limit exceeded!',
+                l?.translate('invitation_limit_exceeded') ??
+                    'Limit exceeded!',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: context.dynamicWidth(0.029),

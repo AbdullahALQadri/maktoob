@@ -46,14 +46,7 @@ class InvitationCubit extends Cubit<InvitationState> {
         final eventTypesData = response['data']['event_types'] as List;
         eventTypes = eventTypesData.map((e) => EventTypeModel.fromJson(e)).toList();
       } else {
-        // Fallback to mock data
-        eventTypes = [
-          const EventTypeModel(id: 1, name: 'Wedding', nameAr: 'زفاف'),
-          const EventTypeModel(id: 2, name: 'Birthday', nameAr: 'عيد ميلاد'),
-          const EventTypeModel(id: 3, name: 'Engagement', nameAr: 'خطوبة'),
-          const EventTypeModel(id: 4, name: 'Graduation', nameAr: 'تخرج'),
-          const EventTypeModel(id: 5, name: 'Conference', nameAr: 'مؤتمر'),
-        ];
+        eventTypes = [];
       }
 
       emit(state.copyWith(
@@ -104,12 +97,7 @@ class InvitationCubit extends Cubit<InvitationState> {
         final templatesData = response['data']['templates'] as List;
         templates = templatesData.map((t) => TemplateModel.fromJson(t)).toList();
       } else {
-        // Fallback to mock data
-        templates = [
-          const TemplateModel(id: 1, name: 'Classic', nameAr: 'كلاسيكي', imageUrl: ''),
-          const TemplateModel(id: 2, name: 'Modern', nameAr: 'عصري', imageUrl: ''),
-          const TemplateModel(id: 3, name: 'Elegant', nameAr: 'أنيق', imageUrl: ''),
-        ];
+        templates = [];
       }
 
       emit(state.copyWith(
@@ -147,14 +135,6 @@ class InvitationCubit extends Cubit<InvitationState> {
       InvitationStep.payment: InvitationStep.confirmation,
       InvitationStep.confirmation: InvitationStep.confirmation,
     };
-
-    // Special case: Skip preview if custom type or uploaded template
-    if (state.currentStep == InvitationStep.eventDetails) {
-      if (state.shouldSkipPreview) {
-        emit(state.copyWith(currentStep: InvitationStep.guestManagement));
-        return;
-      }
-    }
 
     final next = nextStepMap[state.currentStep];
     if (next != null) {
@@ -606,7 +586,6 @@ class InvitationCubit extends Cubit<InvitationState> {
       selectedPackage: package,
       packageValidationError: false,
     ));
-    _validatePackageLimit();
   }
 
   /// Set custom package invitation limit
@@ -620,12 +599,19 @@ class InvitationCubit extends Cubit<InvitationState> {
     emit(state.copyWith(customPackagePrice: price));
   }
 
+  /// Clear the package validation error flag (after dialog is shown)
+  void clearPackageValidationError() {
+    emit(state.copyWith(packageValidationError: false));
+  }
+
   /// Validate package limit against guest count
   void _validatePackageLimit() {
     if (state.selectedPackage == null) return;
 
     final isExceeded = state.isPackageLimitExceeded;
-    emit(state.copyWith(packageValidationError: isExceeded));
+    if (state.packageValidationError != isExceeded) {
+      emit(state.copyWith(packageValidationError: isExceeded));
+    }
   }
 
   /// Check if can proceed from package selection
@@ -934,8 +920,7 @@ class InvitationCubit extends Cubit<InvitationState> {
         final data = response['data'];
         previewUrl = data['preview_url'];
       } else {
-        // Mock preview URL
-        previewUrl = 'https://example.com/preview/${state.selectedTemplate?.id ?? 1}';
+        previewUrl = null;
       }
 
       emit(state.copyWith(
@@ -1020,37 +1005,7 @@ class InvitationCubit extends Cubit<InvitationState> {
         final servicesData = response['data']['services'] as List? ?? [];
         services = servicesData.map((s) => ExtraServiceModel.fromJson(s)).toList();
       } else {
-        // Fallback to mock data
-        services = [
-          const ExtraServiceModel(
-            id: 1,
-            name: 'Photography',
-            nameAr: 'تصوير فوتوغرافي',
-            price: 500,
-            eventTypeId: 1,
-          ),
-          const ExtraServiceModel(
-            id: 2,
-            name: 'Video Recording',
-            nameAr: 'تصوير فيديو',
-            price: 800,
-            eventTypeId: 1,
-          ),
-          const ExtraServiceModel(
-            id: 3,
-            name: 'Decoration',
-            nameAr: 'تزيين القاعة',
-            price: 300,
-            eventTypeId: 1,
-          ),
-          const ExtraServiceModel(
-            id: 4,
-            name: 'Music',
-            nameAr: 'موسيقى',
-            price: 400,
-            eventTypeId: 1,
-          ),
-        ];
+        services = [];
       }
 
       emit(state.copyWith(
@@ -1082,42 +1037,29 @@ class InvitationCubit extends Cubit<InvitationState> {
         final packagesData = response['data']['packages'] as List? ?? [];
         packages = packagesData.map((p) => PackageModel.fromJson(p)).toList();
       } else {
-        // Fallback to mock data
-        packages = [
-          PackageModel(
-            id: 1,
-            name: 'Basic',
-            nameAr: 'الأساسية',
-            price: 100,
-            invitationLimit: 50,
-            features: ['50 دعوة', 'قالب أساسي', 'دعم فني'],
-          ),
-          PackageModel(
-            id: 2,
-            name: 'Standard',
-            nameAr: 'القياسية',
-            price: 200,
-            invitationLimit: 150,
-            features: ['150 دعوة', 'قوالب متعددة', 'دعم فني 24/7', 'تقارير'],
-          ),
-          PackageModel(
-            id: 3,
-            name: 'Premium',
-            nameAr: 'المميزة',
-            price: 400,
-            invitationLimit: 500,
-            features: ['500 دعوة', 'جميع القوالب', 'دعم VIP', 'تقارير متقدمة', 'تخصيص كامل'],
-          ),
-          PackageModel(
-            id: 4,
-            name: 'Custom',
-            nameAr: 'مخصصة',
-            price: 0,
-            invitationLimit: null,
-            features: ['عدد دعوات مخصص', 'تسعير حسب العدد'],
-            isCustom: true,
-          ),
-        ];
+        packages = [];
+      }
+
+      // Ensure a Custom package is always available
+      final hasCustom = packages.any((p) => p.isCustom);
+      if (!hasCustom) {
+        packages.add(const PackageModel(
+          id: -1,
+          name: 'Custom',
+          nameAr: 'مخصص',
+          price: 0,
+          isCustom: true,
+          features: [
+            'Flexible invitation count',
+            'Pay per invitation',
+            'All features included',
+          ],
+          featuresAr: [
+            'عدد دعوات مرن',
+            'ادفع حسب عدد الدعوات',
+            'جميع الميزات متضمنة',
+          ],
+        ));
       }
 
       emit(state.copyWith(
@@ -1278,12 +1220,7 @@ class InvitationCubit extends Cubit<InvitationState> {
         final venuesData = response['data']['venues'] as List? ?? [];
         venues = venuesData.map((v) => VenueModel.fromJson(v)).toList();
       } else {
-        // Fallback to mock data
-        venues = [
-          const VenueModel(id: 1, name: 'Grand Hall', nameAr: 'قاعة الكبرى', address: 'غزة'),
-          const VenueModel(id: 2, name: 'Garden Palace', nameAr: 'قصر الحدائق', address: 'خانيونس'),
-          const VenueModel(id: 3, name: 'Beach Resort', nameAr: 'منتجع الشاطئ', address: 'دير البلح'),
-        ];
+        venues = [];
       }
 
       emit(state.copyWith(
@@ -1322,23 +1259,7 @@ class InvitationCubit extends Cubit<InvitationState> {
         final venuesData = data['venues'] as List? ?? [];
         venues = venuesData.map((v) => VenueModel.fromJson(v)).toList();
       } else {
-        // Fallback to mock data
-        formFields = <EventTypeFormField>[
-          const EventTypeFormField(
-            key: 'groom_name',
-            label: 'Groom Name',
-            labelAr: 'اسم العريس',
-            type: 'text',
-            required: true,
-          ),
-          const EventTypeFormField(
-            key: 'bride_name',
-            label: 'Bride Name',
-            labelAr: 'اسم العروس',
-            type: 'text',
-            required: true,
-          ),
-        ];
+        formFields = [];
       }
 
       emit(state.copyWith(

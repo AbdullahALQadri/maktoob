@@ -24,6 +24,10 @@ class _Page6PackageSelectionScreenState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final state = context.read<InvitationCubit>().state;
+      if (state.customPackageLimit != null && state.customPackageLimit! > 0) {
+        _customLimitController.text = state.customPackageLimit.toString();
+      }
       context.read<InvitationCubit>().loadPackages();
     });
   }
@@ -40,10 +44,9 @@ class _Page6PackageSelectionScreenState
     final isEnglish = Localizations.localeOf(context).languageCode == 'en';
 
     return BlocConsumer<InvitationCubit, InvitationState>(
+      listenWhen: (previous, current) =>
+          previous.customPackageLimit != current.customPackageLimit,
       listener: (context, state) {
-        if (state.packageValidationError) {
-          _showValidationWarning(context, state, l);
-        }
         if (state.customPackageLimit != null &&
             _customLimitController.text != state.customPackageLimit.toString()) {
           _customLimitController.text = state.customPackageLimit.toString();
@@ -79,59 +82,6 @@ class _Page6PackageSelectionScreenState
     );
   }
 
-  void _showValidationWarning(
-    BuildContext context,
-    InvitationState state,
-    AppLocalizations? l,
-  ) {
-    final guestCount = state.allGuests.length;
-    final packageLimit = state.selectedPackage?.invitationLimit ?? 0;
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.warning_amber_rounded,
-                color: Colors.orange.shade700,
-                size: context.dynamicWidth(0.061)),
-            SizedBox(width: context.dynamicWidth(0.021)),
-            Expanded(
-              child: Text(l?.translate('invitation_package_limit_exceeded_title') ??
-                  'Package Limit Exceeded'),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '${l?.translate('invitation_guest_count_exceeds') ?? 'Guest count'} ($guestCount) ${l?.translate('invitation_exceeds_package_limit') ?? 'exceeds the selected package limit'} ($packageLimit).',
-            ),
-            SizedBox(height: context.dynamicHeight(0.02)),
-            Text(
-              l?.translate('invitation_available_options') ?? 'Available options:',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: context.dynamicHeight(0.01)),
-            Text(
-                '• ${l?.translate('invitation_option_higher_package') ?? 'Select a package with a higher limit'}'),
-            Text(
-                '• ${l?.translate('invitation_option_custom_package') ?? 'Select the custom package'}'),
-            Text(
-                '• ${l?.translate('invitation_option_reduce_guests') ?? 'Reduce the number of guests'}'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(l?.translate('common_ok') ?? 'OK'),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _PackageContent extends StatelessWidget {

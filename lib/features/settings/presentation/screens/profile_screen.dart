@@ -214,8 +214,8 @@ class _ProfileSections extends StatelessWidget {
         _SectionTitle(title: t.translate('profile_account_actions')),
         SizedBox(height: context.dynamicHeight(0.015)),
         ProfileActionsCard(
-          onEditProfile: () => ProfileDialogs.showEditProfile(context),
-          onChangePassword: () => ProfileDialogs.showChangePassword(context),
+          onEditProfile: () => ProfileDialogs.showEditProfile(context, user: user),
+          onChangePassword: () => ProfileDialogs.showChangePassword(context, phone: user.phone ?? ''),
           onLogout: () => ProfileDialogs.showLogout(context),
           onDeleteAccount: () => ProfileDialogs.showDeleteAccount(context),
         ),
