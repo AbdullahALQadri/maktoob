@@ -1,10 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
 import '../../domain/entities/user_entity.dart';
+import '../cubit/auth_cubit.dart';
+import '../cubit/auth_state.dart';
 import '../widgets/widgets.dart';
 
 /// OTP verification screen.
@@ -36,7 +39,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
   Timer? _resendTimer;
   int _resendSeconds = 60;
   bool _canResend = false;
-  bool _isVerifying = false;
 
   @override
   void initState() {
@@ -74,24 +76,20 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
 
   void _verifyOtp() {
     if (_pinController.text.length == 6) {
-      setState(() => _isVerifying = true);
-      Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) {
-          setState(() => _isVerifying = false);
-          widget.onVerified();
-        }
-      });
+      context.read<AuthCubit>().verifyOtp(
+            login: widget.phone,
+            otp: _pinController.text,
+          );
     }
   }
 
   void _resendOtp() {
     if (_canResend) {
+      context
+          .read<AuthCubit>()
+          .resendOtp(login: widget.phone, purpose: 'verification');
       _startResendTimer();
       _pinController.clear();
-      AppSnackBar.showSuccess(
-        context,
-        message: AppLocalizations.of(context)!.translate('auth_new_code_sent'),
-      );
     }
   }
 
@@ -106,45 +104,64 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _OtpBackground(
-        child: Stack(
-          children: [
-            const AuthDecorativePattern(),
-            SafeArea(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.symmetric(
-                  horizontal: context.dynamicWidth(0.061),
-                ),
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: Column(
-                    children: [
-                      SizedBox(height: context.dynamicHeight(0.02)),
-                      _OtpHeader(onBack: widget.onBack),
-                      SizedBox(height: context.dynamicHeight(0.039)),
-                      _OtpIcon(),
-                      SizedBox(height: context.dynamicHeight(0.03)),
-                      _OtpTitle(phone: widget.phone),
-                      SizedBox(height: context.dynamicHeight(0.039)),
-                      OtpCard(
-                        pinController: _pinController,
-                        focusNode: _focusNode,
-                        isVerifying: _isVerifying,
-                        canResend: _canResend,
-                        resendSeconds: _resendSeconds,
-                        onVerify: _verifyOtp,
-                        onResend: _resendOtp,
-                        onChanged: () => setState(() {}),
-                      ),
-                      SizedBox(height: context.dynamicHeight(0.039)),
-                    ],
+    return BlocListener<AuthCubit, AuthState>(
+      listener: (context, state) {
+        if (state is AuthOtpVerified) {
+          widget.onVerified();
+        } else if (state is AuthOtpSent) {
+          AppSnackBar.showSuccess(
+            context,
+            message: AppLocalizations.of(context)!
+                .translate('auth_new_code_sent'),
+          );
+        } else if (state is AuthError) {
+          AppSnackBar.showError(context, message: state.message);
+        }
+      },
+      child: Scaffold(
+        body: _OtpBackground(
+          child: Stack(
+            children: [
+              const AuthDecorativePattern(),
+              SafeArea(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: context.dynamicWidth(0.061),
+                  ),
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Column(
+                      children: [
+                        SizedBox(height: context.dynamicHeight(0.02)),
+                        _OtpHeader(onBack: widget.onBack),
+                        SizedBox(height: context.dynamicHeight(0.039)),
+                        _OtpIcon(),
+                        SizedBox(height: context.dynamicHeight(0.03)),
+                        _OtpTitle(phone: widget.phone),
+                        SizedBox(height: context.dynamicHeight(0.039)),
+                        BlocBuilder<AuthCubit, AuthState>(
+                          builder: (context, state) {
+                            return OtpCard(
+                              pinController: _pinController,
+                              focusNode: _focusNode,
+                              isVerifying: state is AuthLoading,
+                              canResend: _canResend,
+                              resendSeconds: _resendSeconds,
+                              onVerify: _verifyOtp,
+                              onResend: _resendOtp,
+                              onChanged: () => setState(() {}),
+                            );
+                          },
+                        ),
+                        SizedBox(height: context.dynamicHeight(0.039)),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

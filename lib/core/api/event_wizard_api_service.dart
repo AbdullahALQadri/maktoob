@@ -68,9 +68,8 @@ class EventWizardApiService {
     String? description,
   }) async {
     final response = await _apiConsumer.postWithImage(
-      Endpoints.wizardCustomTemplate,
+      Endpoints.wizardCustomTemplate(eventId),
       body: {
-        'event_id': eventId,
         if (description != null) 'description': description,
       },
       params: uploadFile != null ? _FileParams(uploadFile) : null,

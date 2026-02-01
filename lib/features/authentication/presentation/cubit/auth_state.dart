@@ -45,6 +45,51 @@ class AuthUnauthenticated extends AuthState {
   const AuthUnauthenticated();
 }
 
+/// OTP sent successfully (forgot password / resend)
+class AuthOtpSent extends AuthState {
+  final String message;
+
+  const AuthOtpSent({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
+
+/// OTP verified successfully
+class AuthOtpVerified extends AuthState {
+  final UserEntity user;
+
+  const AuthOtpVerified(this.user);
+
+  @override
+  List<Object?> get props => [user];
+}
+
+/// Password reset / changed successfully
+class AuthPasswordChanged extends AuthState {
+  final String message;
+
+  const AuthPasswordChanged({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
+
+/// Profile updated successfully
+class AuthProfileUpdated extends AuthState {
+  final UserEntity user;
+
+  const AuthProfileUpdated(this.user);
+
+  @override
+  List<Object?> get props => [user];
+}
+
+/// Account deleted
+class AuthAccountDeleted extends AuthState {
+  const AuthAccountDeleted();
+}
+
 /// Error state
 class AuthError extends AuthState {
   final String message;

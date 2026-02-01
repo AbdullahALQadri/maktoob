@@ -231,15 +231,10 @@ class _GuestsTab extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             itemCount: state.filteredGuests.length,
             itemBuilder: (context, index) {
-              return TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0.0, end: 1.0),
-                duration: Duration(milliseconds: 300 + (index * 50)),
-                builder: (context, value, child) {
-                  return Transform.translate(
-                    offset: Offset(0, 20 * (1 - value)),
-                    child: Opacity(opacity: value, child: child),
-                  );
-                },
+              return StaggeredSlideFade(
+                index: index,
+                baseDelayMs: 300,
+                staggerMs: 50,
                 child: GuestCard(guest: state.filteredGuests[index]),
               );
             },

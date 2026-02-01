@@ -608,5 +608,9 @@
   "edit_profile_name_hint": "أدخل اسمك",
   "edit_profile_email_hint": "أدخل بريدك الإلكتروني",
   "edit_profile_company_hint": "أدخل اسم المنظمة",
-  "edit_profile_phone_locked": "لا يمكن تغيير رقم الهاتف لأنه يُستخدم للتحقق"
+  "edit_profile_phone_locked": "لا يمكن تغيير رقم الهاتف لأنه يُستخدم للتحقق",
+
+  "security_warning_title": "تحذير أمني",
+  "security_warning_message": "لا يمكن تشغيل هذا التطبيق على أجهزة تم عمل روت أو جيلبريك لها لأسباب أمنية.",
+  "security_warning_subtitle": "يرجى استخدام جهاز غير معدّل للوصول إلى مكتوب."
 }

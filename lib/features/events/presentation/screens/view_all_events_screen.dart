@@ -55,6 +55,10 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
       body: Column(
         children: [
           BlocBuilder<EventsListCubit, EventsListState>(
+            buildWhen: (prev, curr) =>
+                prev.activeEvents != curr.activeEvents ||
+                prev.completedEvents != curr.completedEvents ||
+                prev.draftEvents != curr.draftEvents,
             builder: (context, state) {
               return AllEventsHeader(
                 title: t.translate('events_all_events'),
@@ -81,6 +85,10 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
           ),
           Expanded(
             child: BlocBuilder<EventsListCubit, EventsListState>(
+              buildWhen: (prev, curr) =>
+                  prev.status != curr.status ||
+                  prev.events != curr.events ||
+                  prev.filteredEvents != curr.filteredEvents,
               builder: (context, state) {
                 if (state.isLoading) {
                   return const _LoadingContent();

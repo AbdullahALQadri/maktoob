@@ -57,7 +57,7 @@ class VenueModel extends VenueEntity {
       'email': email,
       'capacity': capacity,
       'events': events,
-      'gradient': gradient.map((c) => c.value).toList(),
+      'gradient': gradient.map((c) => c.toARGB32()).toList(),
       'icon': icon.codePoint,
     };
   }

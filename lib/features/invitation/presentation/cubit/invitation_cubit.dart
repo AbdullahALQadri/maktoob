@@ -136,6 +136,14 @@ class InvitationCubit extends Cubit<InvitationState> {
       InvitationStep.confirmation: InvitationStep.confirmation,
     };
 
+    // Special case: Skip preview if custom type or uploaded template
+    if (state.currentStep == InvitationStep.eventDetails) {
+      if (state.shouldSkipPreview) {
+        emit(state.copyWith(currentStep: InvitationStep.guestManagement));
+        return;
+      }
+    }
+
     final next = nextStepMap[state.currentStep];
     if (next != null) {
       emit(state.copyWith(currentStep: next));
@@ -816,7 +824,7 @@ class InvitationCubit extends Cubit<InvitationState> {
         }
 
         // Step 7: Final save
-        final saveResponse = await apiService!.saveEvent(eventId, isDraft: false);
+        await apiService!.saveEvent(eventId, isDraft: false);
 
         emit(state.copyWith(
           status: InvitationStatus.success,

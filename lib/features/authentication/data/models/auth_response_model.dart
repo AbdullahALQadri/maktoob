@@ -15,11 +15,12 @@ class AuthResponseModel extends Equatable {
   });
 
   factory AuthResponseModel.fromJson(Map<String, dynamic> json) {
+    final token = json['token'] ?? json['data']?['token'];
     return AuthResponseModel(
-      success: json['success'] ?? false,
+      success: json['success'] ?? (token != null),
       message: json['message'] ?? '',
-      token: json['token'] ?? json['data']?['token'],
-      data: json['data'],
+      token: token,
+      data: json['data'] ?? json,
     );
   }
 

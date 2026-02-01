@@ -29,7 +29,7 @@ class GuestModel extends GuestEntity {
       status: _parseStatus(json['status'] as String? ?? 'pending'),
       companions: json['companions'] as int? ?? 0,
       isCheckedIn: json['is_checked_in'] as bool? ?? (json['open_count'] as int? ?? 0) > 0,
-      avatarColor: Color(json['avatar_color'] as int? ?? AppColors.primaryColor.value),
+      avatarColor: Color(json['avatar_color'] as int? ?? AppColors.primaryColor.toARGB32()),
     );
   }
 
@@ -42,7 +42,7 @@ class GuestModel extends GuestEntity {
       'status': _statusToString(status),
       'companions': companions,
       'is_checked_in': isCheckedIn,
-      'avatar_color': avatarColor.value,
+      'avatar_color': avatarColor.toARGB32(),
     };
   }
 

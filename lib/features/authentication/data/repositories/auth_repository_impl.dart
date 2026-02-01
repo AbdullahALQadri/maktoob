@@ -129,6 +129,175 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, UserEntity>> verifyOtp({
+    required String login,
+    required String otp,
+  }) async {
+    try {
+      final response = await remoteDataSource.clientVerifyOtp(login, otp);
+
+      if (response.success && response.token != null) {
+        await sharedPrefController.save(token: response.token!);
+        final user = _parseUserFromResponse(response);
+        return Right(user);
+      } else {
+        return Left(AuthenticationFailure(message: response.message));
+      }
+    } on UnauthorizedException catch (e) {
+      return Left(AuthenticationFailure(message: e.message ?? 'Invalid OTP'));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message ?? 'Server error'));
+    } on NoInternetConnectionException {
+      return const Left(NetworkFailure(message: 'No internet connection'));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> forgotPassword({required String login}) async {
+    try {
+      final response = await remoteDataSource.clientForgotPassword(login);
+      if (response.success) {
+        return const Right(null);
+      } else {
+        return Left(ServerFailure(message: response.message));
+      }
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message ?? 'Server error'));
+    } on NoInternetConnectionException {
+      return const Left(NetworkFailure(message: 'No internet connection'));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> resendOtp({
+    required String login,
+    String? purpose,
+  }) async {
+    try {
+      final response =
+          await remoteDataSource.clientResendOtp(login, purpose: purpose);
+      if (response.success) {
+        return const Right(null);
+      } else {
+        return Left(ServerFailure(message: response.message));
+      }
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message ?? 'Server error'));
+    } on NoInternetConnectionException {
+      return const Left(NetworkFailure(message: 'No internet connection'));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> resetPassword({
+    required String login,
+    required String code,
+    required String newPassword,
+  }) async {
+    try {
+      final response =
+          await remoteDataSource.clientResetPassword(login, code, newPassword);
+      if (response.success) {
+        return const Right(null);
+      } else {
+        return Left(ServerFailure(message: response.message));
+      }
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message ?? 'Server error'));
+    } on NoInternetConnectionException {
+      return const Left(NetworkFailure(message: 'No internet connection'));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      await remoteDataSource.clientChangePassword(currentPassword, newPassword);
+      return const Right(null);
+    } on UnauthorizedException catch (e) {
+      return Left(
+          AuthenticationFailure(message: e.message ?? 'Invalid password'));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message ?? 'Server error'));
+    } on NoInternetConnectionException {
+      return const Left(NetworkFailure(message: 'No internet connection'));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> updateProfile({
+    String? name,
+    String? email,
+    String? phone,
+    String? companyName,
+  }) async {
+    try {
+      final response = await remoteDataSource.updateClientProfile(
+        name: name,
+        email: email,
+        phone: phone,
+        companyName: companyName,
+      );
+      if (response.success) {
+        final user = _parseUserFromResponse(response);
+        return Right(user);
+      } else {
+        return Left(ServerFailure(message: response.message));
+      }
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(message: e.message ?? 'Validation error'));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message ?? 'Server error'));
+    } on NoInternetConnectionException {
+      return const Left(NetworkFailure(message: 'No internet connection'));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateFcmToken(String fcmToken) async {
+    try {
+      await remoteDataSource.updateFcmToken(fcmToken);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message ?? 'Server error'));
+    } on NoInternetConnectionException {
+      return const Left(NetworkFailure(message: 'No internet connection'));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteAccount() async {
+    try {
+      await remoteDataSource.deleteAccount();
+      await sharedPrefController.clear();
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message ?? 'Server error'));
+    } on NoInternetConnectionException {
+      return const Left(NetworkFailure(message: 'No internet connection'));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
   Future<bool> isLoggedIn() async {
     if (!sharedPrefController.loggedIn) return false;
     final token = await sharedPrefController.getTokenAsync();

@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'app.dart';
 import 'bloc_observer.dart';
 import 'core/services/security/device_security_service.dart';
@@ -43,7 +44,7 @@ void main() {
 
       // Block compromised devices in release mode
       if (!securityService.isDeviceSecure) {
-        runApp(const _CompromisedDeviceApp());
+        runApp(const CompromisedDeviceApp());
         return;
       }
 
@@ -60,41 +61,4 @@ void main() {
       }
     },
   );
-}
-
-/// Shown when the device fails security checks (rooted/jailbroken).
-class _CompromisedDeviceApp extends StatelessWidget {
-  const _CompromisedDeviceApp();
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.security, size: 64, color: Colors.red),
-                const SizedBox(height: 24),
-                const Text(
-                  'Security Warning',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'This app cannot run on rooted or jailbroken devices for security reasons.',
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }

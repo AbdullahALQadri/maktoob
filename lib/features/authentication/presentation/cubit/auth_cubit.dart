@@ -93,6 +93,133 @@ class AuthCubit extends Cubit<AuthState> {
     emit(const AuthUnauthenticated());
   }
 
+  /// Verify OTP code
+  Future<void> verifyOtp({
+    required String login,
+    required String otp,
+  }) async {
+    emit(const AuthLoading());
+
+    final result = await authRepository.verifyOtp(login: login, otp: otp);
+
+    result.fold(
+      (failure) =>
+          emit(AuthError(failure.message ?? 'OTP verification failed')),
+      (user) => emit(AuthOtpVerified(user)),
+    );
+  }
+
+  /// Send forgot password OTP
+  Future<void> forgotPassword({required String login}) async {
+    emit(const AuthLoading());
+
+    final result = await authRepository.forgotPassword(login: login);
+
+    result.fold(
+      (failure) => emit(AuthError(failure.message ?? 'Failed to send OTP')),
+      (_) => emit(const AuthOtpSent(message: 'OTP sent successfully')),
+    );
+  }
+
+  /// Resend OTP code
+  Future<void> resendOtp({
+    required String login,
+    String? purpose,
+  }) async {
+    emit(const AuthLoading());
+
+    final result =
+        await authRepository.resendOtp(login: login, purpose: purpose);
+
+    result.fold(
+      (failure) => emit(AuthError(failure.message ?? 'Failed to resend OTP')),
+      (_) => emit(const AuthOtpSent(message: 'OTP resent successfully')),
+    );
+  }
+
+  /// Reset password with OTP code
+  Future<void> resetPassword({
+    required String login,
+    required String code,
+    required String newPassword,
+  }) async {
+    emit(const AuthLoading());
+
+    final result = await authRepository.resetPassword(
+      login: login,
+      code: code,
+      newPassword: newPassword,
+    );
+
+    result.fold(
+      (failure) =>
+          emit(AuthError(failure.message ?? 'Failed to reset password')),
+      (_) => emit(
+          const AuthPasswordChanged(message: 'Password reset successfully')),
+    );
+  }
+
+  /// Change password (authenticated user)
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    emit(const AuthLoading());
+
+    final result = await authRepository.changePassword(
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    );
+
+    result.fold(
+      (failure) =>
+          emit(AuthError(failure.message ?? 'Failed to change password')),
+      (_) => emit(
+          const AuthPasswordChanged(message: 'Password changed successfully')),
+    );
+  }
+
+  /// Update user profile
+  Future<void> updateProfile({
+    String? name,
+    String? email,
+    String? phone,
+    String? companyName,
+  }) async {
+    emit(const AuthLoading());
+
+    final result = await authRepository.updateProfile(
+      name: name,
+      email: email,
+      phone: phone,
+      companyName: companyName,
+    );
+
+    result.fold(
+      (failure) =>
+          emit(AuthError(failure.message ?? 'Failed to update profile')),
+      (user) => emit(AuthProfileUpdated(user)),
+    );
+  }
+
+  /// Update FCM token (silent — no state change on failure)
+  Future<void> updateFcmToken(String fcmToken) async {
+    await authRepository.updateFcmToken(fcmToken);
+  }
+
+  /// Delete user account
+  Future<void> deleteAccount() async {
+    emit(const AuthLoading());
+
+    final result = await authRepository.deleteAccount();
+
+    result.fold(
+      (failure) =>
+          emit(AuthError(failure.message ?? 'Failed to delete account')),
+      (_) => emit(const AuthAccountDeleted()),
+    );
+  }
+
   /// Reset to unauthenticated (clear error state)
   void resetState() {
     emit(const AuthUnauthenticated());

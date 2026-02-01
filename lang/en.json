@@ -608,5 +608,9 @@
   "edit_profile_name_hint": "Enter your name",
   "edit_profile_email_hint": "Enter your email",
   "edit_profile_company_hint": "Enter organization name",
-  "edit_profile_phone_locked": "Phone number cannot be changed as it is used for verification"
+  "edit_profile_phone_locked": "Phone number cannot be changed as it is used for verification",
+
+  "security_warning_title": "Security Warning",
+  "security_warning_message": "This app cannot run on rooted or jailbroken devices for security reasons.",
+  "security_warning_subtitle": "Please use an unmodified device to access Maktoob."
 }

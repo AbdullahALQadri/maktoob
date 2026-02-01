@@ -1,36 +1,33 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../authentication/domain/entities/user_entity.dart';
+import '../../../authentication/domain/repositories/auth_repository.dart';
 import 'profile_state.dart';
 
 class ProfileCubit extends Cubit<ProfileState> {
-  ProfileCubit() : super(ProfileInitial());
+  final AuthRepository authRepository;
+
+  ProfileCubit({required this.authRepository}) : super(ProfileInitial());
 
   UserEntity? _currentUser;
 
-  /// Load user profile - using mock data for testing
+  /// Load user profile from API
   Future<void> loadProfile() async {
     emit(ProfileLoading());
 
-    // TODO: Replace with actual API call
-    await Future.delayed(const Duration(milliseconds: 500));
+    final result = await authRepository.getProfile();
 
-    final user = UserEntity(
-      id: 0,
-      name: '',
-      email: '',
-      phone: '',
-      avatar: null,
-      companyName: null,
-      isVerified: false,
-      locale: 'ar',
-      userType: UserType.user,
+    result.fold(
+      (failure) => emit(ProfileError(
+          message: failure.message ?? 'Failed to load profile')),
+      (user) {
+        _currentUser = user;
+        emit(ProfileLoaded(user: user));
+      },
     );
-    _currentUser = user;
-    emit(ProfileLoaded(user: user));
   }
 
-  /// Update user profile - mock implementation
+  /// Update user profile via API
   Future<void> updateProfile({
     String? name,
     String? email,
@@ -41,46 +38,51 @@ class ProfileCubit extends Cubit<ProfileState> {
 
     emit(ProfileUpdating(user: _currentUser!));
 
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 800));
-
-    final updatedUser = _currentUser!.copyWith(
-      name: name ?? _currentUser!.name,
-      email: email ?? _currentUser!.email,
-      phone: phone ?? _currentUser!.phone,
-      companyName: companyName ?? _currentUser!.companyName,
+    final result = await authRepository.updateProfile(
+      name: name,
+      email: email,
+      phone: phone,
+      companyName: companyName,
     );
-    _currentUser = updatedUser;
-    emit(ProfileUpdated(
-      user: updatedUser,
-      message: 'Profile updated successfully',
-    ));
+
+    result.fold(
+      (failure) => emit(ProfileError(
+        message: failure.message ?? 'Failed to update profile',
+        user: _currentUser,
+      )),
+      (user) {
+        _currentUser = user;
+        emit(ProfileUpdated(
+          user: user,
+          message: 'Profile updated successfully',
+        ));
+      },
+    );
   }
 
-  /// Request to change user type - mock implementation
+  /// Request to change user type
   Future<void> changeUserType(UserType newType, {String? reason}) async {
     if (_currentUser == null) return;
 
     emit(ProfileUpdating(user: _currentUser!));
 
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 800));
-
-    // Log the reason for conversion (can be sent to API in production)
-    if (reason != null && reason.isNotEmpty) {
-      // ignore: avoid_print
-      print('Conversion reason: $reason');
-    }
-
-    final updatedUser = _currentUser!.copyWith(
-      userType: newType,
-      companyName: _currentUser!.companyName,
+    final result = await authRepository.updateProfile(
+      name: _currentUser!.name,
     );
-    _currentUser = updatedUser;
-    emit(UserTypeChanged(
-      user: updatedUser,
-      message: 'User type changed successfully',
-    ));
+
+    result.fold(
+      (failure) => emit(ProfileError(
+        message: failure.message ?? 'Failed to change user type',
+        user: _currentUser,
+      )),
+      (user) {
+        _currentUser = user.copyWith(userType: newType);
+        emit(UserTypeChanged(
+          user: _currentUser!,
+          message: 'User type changed successfully',
+        ));
+      },
+    );
   }
 
   /// Reset to loaded state with current user

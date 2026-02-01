@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
+import '../../../authentication/presentation/cubit/auth_cubit.dart';
+import '../../../authentication/presentation/cubit/auth_state.dart';
 import '../../../authentication/presentation/screens/forgot_password_otp_screen.dart';
 import '../../../authentication/presentation/screens/reset_password_screen.dart';
 import '../../../authentication/presentation/widgets/widgets.dart';
@@ -34,8 +37,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
-  bool _isLoading = false;
-
   @override
   void initState() {
     super.initState();
@@ -63,15 +64,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
 
   void _handleSubmit() {
     if (_formKey.currentState?.validate() ?? false) {
-      setState(() => _isLoading = true);
-
-      // TODO: Replace with real API call to change password
-      Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) {
-          setState(() => _isLoading = false);
-          _showSuccessDialog();
-        }
-      });
+      context.read<AuthCubit>().changePassword(
+            currentPassword: _currentPasswordController.text,
+            newPassword: _newPasswordController.text,
+          );
     }
   }
 
@@ -93,11 +89,12 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
         builder: (_) => ForgotPasswordOtpScreen(
           phone: widget.phone,
           onBack: () => navigator.pop(),
-          onVerified: () {
+          onVerified: (code) {
             navigator.pushReplacement(
               MaterialPageRoute(
                 builder: (_) => ResetPasswordScreen(
                   phone: widget.phone,
+                  code: code,
                   onBack: () => navigator.pop(),
                   onSuccess: () {
                     navigator.popUntil((route) => route.isFirst);
@@ -115,64 +112,78 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      body: AuthGradientBackground(
-        child: Stack(
-          children: [
-            const AuthDecorativePattern(),
-            SafeArea(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.symmetric(
-                    horizontal: context.dynamicWidth(0.061)),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: MediaQuery.of(context).size.height -
-                        MediaQuery.of(context).padding.top -
-                        MediaQuery.of(context).padding.bottom,
-                  ),
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: Column(
-                      children: [
-                        SizedBox(height: context.dynamicHeight(0.02)),
-                        AuthBackHeader(
-                          title: t.translate('profile_change_password'),
-                          onBack: () => Navigator.pop(context),
-                        ),
-                        SizedBox(height: context.dynamicHeight(0.06)),
-                        const AuthScreenIcon(
-                            icon: Icons.lock_outline_rounded),
-                        SizedBox(height: context.dynamicHeight(0.03)),
-                        AuthTitleSection(
-                          title: t.translate('profile_change_password'),
-                          subtitle:
-                              t.translate('auth_change_password_subtitle'),
-                        ),
-                        SizedBox(height: context.dynamicHeight(0.039)),
-                        ChangePasswordFormCard(
-                          formKey: _formKey,
-                          currentPasswordController:
-                              _currentPasswordController,
-                          newPasswordController: _newPasswordController,
-                          confirmPasswordController:
-                              _confirmPasswordController,
-                          currentPasswordFocusNode: _currentPasswordFocusNode,
-                          newPasswordFocusNode: _newPasswordFocusNode,
-                          confirmPasswordFocusNode:
-                              _confirmPasswordFocusNode,
-                          isLoading: _isLoading,
-                          onSubmit: _handleSubmit,
-                          onForgotPassword: _handleForgotPassword,
-                        ),
-                        SizedBox(height: context.dynamicHeight(0.039)),
-                      ],
+    return BlocListener<AuthCubit, AuthState>(
+      listener: (context, state) {
+        if (state is AuthPasswordChanged) {
+          _showSuccessDialog();
+        } else if (state is AuthError) {
+          AppSnackBar.showError(context, message: state.message);
+        }
+      },
+      child: Scaffold(
+        body: AuthGradientBackground(
+          child: Stack(
+            children: [
+              const AuthDecorativePattern(),
+              SafeArea(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: context.dynamicWidth(0.061)),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: MediaQuery.of(context).size.height -
+                          MediaQuery.of(context).padding.top -
+                          MediaQuery.of(context).padding.bottom,
+                    ),
+                    child: FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: Column(
+                        children: [
+                          SizedBox(height: context.dynamicHeight(0.02)),
+                          AuthBackHeader(
+                            title: t.translate('profile_change_password'),
+                            onBack: () => Navigator.pop(context),
+                          ),
+                          SizedBox(height: context.dynamicHeight(0.06)),
+                          const AuthScreenIcon(
+                              icon: Icons.lock_outline_rounded),
+                          SizedBox(height: context.dynamicHeight(0.03)),
+                          AuthTitleSection(
+                            title: t.translate('profile_change_password'),
+                            subtitle:
+                                t.translate('auth_change_password_subtitle'),
+                          ),
+                          SizedBox(height: context.dynamicHeight(0.039)),
+                          BlocBuilder<AuthCubit, AuthState>(
+                            builder: (context, state) {
+                              return ChangePasswordFormCard(
+                                formKey: _formKey,
+                                currentPasswordController:
+                                    _currentPasswordController,
+                                newPasswordController: _newPasswordController,
+                                confirmPasswordController:
+                                    _confirmPasswordController,
+                                currentPasswordFocusNode:
+                                    _currentPasswordFocusNode,
+                                newPasswordFocusNode: _newPasswordFocusNode,
+                                confirmPasswordFocusNode:
+                                    _confirmPasswordFocusNode,
+                                isLoading: state is AuthLoading,
+                                onSubmit: _handleSubmit,
+                                onForgotPassword: _handleForgotPassword,
+                              );
+                            },
+                          ),
+                          SizedBox(height: context.dynamicHeight(0.039)),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

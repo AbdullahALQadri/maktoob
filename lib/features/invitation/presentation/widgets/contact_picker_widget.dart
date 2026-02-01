@@ -3,7 +3,7 @@ import 'package:flutter_contacts/flutter_contacts.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/buttons/primary_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../data/models/invitation_draft_model.dart';
 
@@ -277,7 +277,7 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
                   ),
                 ],
               ),
-              child: AppButton(
+              child: PrimaryButton(
                 text: '${t.translate('guest_add_button')} (${_selectedPhones.length})',
                 onPressed: _confirmSelection,
                 width: double.infinity,
@@ -325,7 +325,7 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
                 ),
               ),
               const SizedBox(height: 24),
-              AppButton(
+              PrimaryButton(
                 text: t.translate('contacts_retry'),
                 onPressed: _loadContacts,
                 width: 200,

@@ -28,8 +28,8 @@ class StatModel extends StatEntity {
       'label': label,
       'value': value,
       'icon': icon.codePoint,
-      'gradientColors': gradientColors.map((c) => c.value).toList(),
-      'bgColor': bgColor.value,
+      'gradientColors': gradientColors.map((c) => c.toARGB32()).toList(),
+      'bgColor': bgColor.toARGB32(),
     };
   }
 

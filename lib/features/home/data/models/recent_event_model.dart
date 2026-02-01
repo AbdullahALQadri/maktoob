@@ -38,7 +38,7 @@ class RecentEventModel extends RecentEventEntity {
       'invitations': invitations,
       'responses': responses,
       'attending': attending,
-      'gradientColors': gradientColors.map((c) => c.value).toList(),
+      'gradientColors': gradientColors.map((c) => c.toARGB32()).toList(),
     };
   }
 

@@ -21,6 +21,21 @@ abstract class AuthRemoteDataSource {
   Future<void> clientLogout();
   Future<ClientModel> getClientProfile();
 
+  // Client — Additional Operations
+  Future<AuthResponseModel> clientResendOtp(String login, {String? purpose});
+  Future<AuthResponseModel> clientResetPassword(
+      String login, String code, String password);
+  Future<void> clientChangePassword(
+      String currentPassword, String newPassword);
+  Future<AuthResponseModel> updateClientProfile({
+    String? name,
+    String? email,
+    String? phone,
+    String? companyName,
+  });
+  Future<void> updateFcmToken(String fcmToken);
+  Future<void> deleteAccount();
+
   // Guest Authentication (OTP-based)
   Future<AuthResponseModel> guestSendOtp(String phone);
   Future<AuthResponseModel> guestVerifyOtp(String phone, String otp);
@@ -118,6 +133,83 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<ClientModel> getClientProfile() async {
     final response = await apiConsumer.get(Endpoints.clientProfile);
     return ClientModel.fromJson(response['client'] ?? response['data']?['client'] ?? response);
+  }
+
+  // ============================================================
+  // CLIENT — ADDITIONAL OPERATIONS
+  // ============================================================
+
+  @override
+  Future<AuthResponseModel> clientResendOtp(String login,
+      {String? purpose}) async {
+    final response = await apiConsumer.post(
+      Endpoints.clientResendOtp,
+      body: {
+        'login': login,
+        if (purpose != null) 'purpose': purpose,
+      },
+    );
+    return AuthResponseModel.fromJson(response);
+  }
+
+  @override
+  Future<AuthResponseModel> clientResetPassword(
+      String login, String code, String password) async {
+    final response = await apiConsumer.post(
+      Endpoints.clientResetPassword,
+      body: {
+        'login': login,
+        'code': code,
+        'password': password,
+        'password_confirmation': password,
+      },
+    );
+    return AuthResponseModel.fromJson(response);
+  }
+
+  @override
+  Future<void> clientChangePassword(
+      String currentPassword, String newPassword) async {
+    await apiConsumer.post(
+      Endpoints.clientChangePassword,
+      body: {
+        'current_password': currentPassword,
+        'password': newPassword,
+        'password_confirmation': newPassword,
+      },
+    );
+  }
+
+  @override
+  Future<AuthResponseModel> updateClientProfile({
+    String? name,
+    String? email,
+    String? phone,
+    String? companyName,
+  }) async {
+    final response = await apiConsumer.put(
+      Endpoints.clientUpdateProfile,
+      body: {
+        if (name != null) 'name': name,
+        if (email != null) 'email': email,
+        if (phone != null) 'phone': phone,
+        if (companyName != null) 'company_name': companyName,
+      },
+    );
+    return AuthResponseModel.fromJson(response);
+  }
+
+  @override
+  Future<void> updateFcmToken(String fcmToken) async {
+    await apiConsumer.post(
+      Endpoints.clientFcmToken,
+      body: {'fcm_token': fcmToken},
+    );
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    await apiConsumer.delete(Endpoints.clientDeleteAccount);
   }
 
   // ============================================================

@@ -4,7 +4,7 @@ import 'package:geocoding/geocoding.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/buttons/primary_button.dart';
 import '../../../../core/services/permissions/permission_service.dart';
 import '../../data/models/location_model.dart';
 
@@ -295,7 +295,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
               ),
             ),
             const SizedBox(height: 24),
-            AppButton(
+            PrimaryButton(
               text: t.translate('contacts_retry'),
               onPressed: () {
                 setState(() {
@@ -440,7 +440,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
 
                 // Confirm button
                 if (_selectedPosition != null && !_isLoading)
-                  AppButton(
+                  PrimaryButton(
                     text: t.translate('map_confirm_location'),
                     onPressed: _confirmSelection,
                     width: double.infinity,

@@ -1,11 +1,11 @@
-import 'dart:math';
-
+import '../../../../core/api/api_consumer.dart';
+import '../../../../core/api/end_points.dart';
 import '../models/check_in_guest_model.dart';
 import '../models/scan_result_model.dart';
 
 abstract class ScannerRemoteDataSource {
-  /// Simulates scanning a QR code and returns a random guest
-  Future<ScanResultModel> scanQrCode();
+  /// Sends QR code data to server for validation
+  Future<ScanResultModel> scanQrCode(String qrData);
 
   /// Checks in a guest by their ID
   Future<CheckInGuestModel> checkInGuest(String guestId);
@@ -18,84 +18,46 @@ abstract class ScannerRemoteDataSource {
 }
 
 class ScannerRemoteDataSourceImpl implements ScannerRemoteDataSource {
-  // TODO: Replace with actual API data
-  final List<CheckInGuestModel> _mockGuests = [];
+  final ApiConsumer apiConsumer;
 
-  // Map to track checked-in status
-  final Map<String, bool> _checkedInStatus = {};
-
-  ScannerRemoteDataSourceImpl();
+  ScannerRemoteDataSourceImpl({required this.apiConsumer});
 
   @override
-  Future<ScanResultModel> scanQrCode() async {
-    // Simulate network delay for scanning (reduced for better UX)
-    await Future.delayed(const Duration(milliseconds: 800));
-
-    // Select a random guest
-    final random = Random();
-    final randomGuest = _mockGuests[random.nextInt(_mockGuests.length)];
-
-    return ScanResultModel(
-      qrCode: randomGuest.qrCode,
-      isValid: true,
-      guestId: randomGuest.id,
+  Future<ScanResultModel> scanQrCode(String qrData) async {
+    final response = await apiConsumer.post(
+      Endpoints.scannerScan,
+      body: {'qr_data': qrData},
     );
+    return ScanResultModel.fromJson(response['data'] ?? response);
   }
 
   @override
   Future<CheckInGuestModel> checkInGuest(String guestId) async {
-    // Simulate network delay (reduced for better performance)
-    await Future.delayed(const Duration(milliseconds: 150));
-
-    final guestIndex = _mockGuests.indexWhere((g) => g.id == guestId);
-
-    if (guestIndex == -1) {
-      throw Exception('Guest not found');
-    }
-
-    // Update the checked-in status
-    _checkedInStatus[guestId] = true;
-
-    // Return updated guest model
-    return _mockGuests[guestIndex].copyWith(checkedIn: true);
+    final response = await apiConsumer.post(
+      Endpoints.scannerCheckInVerify(int.parse(guestId)),
+    );
+    return CheckInGuestModel.fromJson(response['data'] ?? response);
   }
 
   @override
   Future<List<CheckInGuestModel>> getGuestList({String? searchQuery}) async {
-    // Simulate network delay (reduced for better performance)
-    await Future.delayed(const Duration(milliseconds: 150));
-
-    // Get guests with current checked-in status
-    List<CheckInGuestModel> guests = _mockGuests.map((guest) {
-      return guest.copyWith(
-        checkedIn: _checkedInStatus[guest.id] ?? guest.checkedIn,
-      );
-    }).toList();
-
-    // Apply search filter if provided
+    final queryParams = <String, dynamic>{};
     if (searchQuery != null && searchQuery.isNotEmpty) {
-      final query = searchQuery.toLowerCase();
-      guests = guests.where((guest) {
-        return guest.name.toLowerCase().contains(query) ||
-            guest.qrCode.toLowerCase().contains(query);
-      }).toList();
+      queryParams['search'] = searchQuery;
     }
-
-    return guests;
+    final response = await apiConsumer.get(
+      Endpoints.scannerCheckInHistory,
+      queryParameters: queryParams,
+    );
+    final data = response['data'] as List? ?? [];
+    return data.map((g) => CheckInGuestModel.fromJson(g)).toList();
   }
 
   @override
   Future<CheckInGuestModel> getGuestById(String guestId) async {
-    // Simulate network delay (reduced for better performance)
-    await Future.delayed(const Duration(milliseconds: 100));
-
-    final guest = _mockGuests.firstWhere(
-      (g) => g.id == guestId,
-      orElse: () => throw Exception('Guest not found'),
+    final response = await apiConsumer.get(
+      Endpoints.scannerCheckInVerify(int.parse(guestId)),
     );
-
-    return guest.copyWith(
-      checkedIn: _checkedInStatus[guestId] ?? guest.checkedIn,
-    );
+    return CheckInGuestModel.fromJson(response['data'] ?? response);
   }
 }

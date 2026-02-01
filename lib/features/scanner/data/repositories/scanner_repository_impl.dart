@@ -12,9 +12,9 @@ class ScannerRepositoryImpl implements ScannerRepository {
   ScannerRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure, ScanResultEntity>> scanQrCode() async {
+  Future<Either<Failure, ScanResultEntity>> scanQrCode(String qrData) async {
     try {
-      final result = await remoteDataSource.scanQrCode();
+      final result = await remoteDataSource.scanQrCode(qrData);
       return Right(result);
     } catch (e) {
       return Left(ScannerFailure(message: e.toString()));

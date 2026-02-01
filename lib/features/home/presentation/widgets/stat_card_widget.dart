@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/widgets/animations/staggered_slide_fade.dart';
 import '../../domain/entities/stat_entity.dart';
 
 class StatCardWidget extends StatelessWidget {
@@ -16,19 +17,9 @@ class StatCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: Duration(milliseconds: 400 + (index * 100)),
-      curve: Curves.easeOut,
-      builder: (context, value, child) {
-        return Transform.translate(
-          offset: Offset(0, 20 * (1 - value)),
-          child: Opacity(
-            opacity: value,
-            child: child,
-          ),
-        );
-      },
+    return StaggeredSlideFade(
+      index: index,
+      staggerMs: 100,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,

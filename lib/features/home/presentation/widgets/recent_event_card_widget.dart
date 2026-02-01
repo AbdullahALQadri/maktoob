@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/widgets/animations/staggered_slide_fade.dart';
 import '../../domain/entities/recent_event_entity.dart';
 
 class RecentEventCardWidget extends StatelessWidget {
@@ -18,19 +19,11 @@ class RecentEventCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: Duration(milliseconds: 500 + (index * 100)),
-      curve: Curves.easeOut,
-      builder: (context, value, child) {
-        return Transform.translate(
-          offset: Offset(0, 30 * (1 - value)),
-          child: Opacity(
-            opacity: value,
-            child: child,
-          ),
-        );
-      },
+    return StaggeredSlideFade(
+      index: index,
+      baseDelayMs: 500,
+      staggerMs: 100,
+      slideOffset: 30,
       child: Padding(
         padding: EdgeInsets.only(bottom: context.dynamicHeight(0.015)),
         child: GestureDetector(

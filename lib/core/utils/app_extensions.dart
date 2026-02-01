@@ -113,6 +113,12 @@ extension BuildContextExtensions on BuildContext {
   /// Screen padding (safe area)
   EdgeInsets get screenPadding => MediaQuery.paddingOf(this);
 
+  /// Top padding (status bar height)
+  double get topPadding => MediaQuery.paddingOf(this).top;
+
+  /// Bottom padding (home indicator height)
+  double get bottomPadding => MediaQuery.paddingOf(this).bottom;
+
   /// View insets (keyboard height, etc.)
   EdgeInsets get viewInsets => MediaQuery.viewInsetsOf(this);
 

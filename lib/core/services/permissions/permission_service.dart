@@ -84,7 +84,7 @@ class PermissionService {
       final status = await p.status;
       return status.isGranted || status.isLimited;
     } catch (e) {
-      debugPrint('Check permission error: $e');
+      if (kDebugMode) debugPrint('Check permission error: $e');
       return false;
     }
   }
@@ -112,7 +112,7 @@ class PermissionService {
 
       return false;
     } catch (e) {
-      debugPrint('Check photos permission error: $e');
+      if (kDebugMode) debugPrint('Check photos permission error: $e');
       return false;
     }
   }
@@ -129,10 +129,10 @@ class PermissionService {
 
       final ph.Permission p = _mapPermission(permission);
       final status = await p.request();
-      debugPrint('Requested permission: ${permission.name}, status: $status');
+      if (kDebugMode) debugPrint('Requested permission: ${permission.name}, status: $status');
       return status.isGranted || status.isLimited;
     } catch (e) {
-      debugPrint('Request permission error: $e');
+      if (kDebugMode) debugPrint('Request permission error: $e');
       return false;
     }
   }
@@ -142,28 +142,28 @@ class PermissionService {
     try {
       // First try photos permission (Android 13+ / iOS)
       var status = await ph.Permission.photos.request();
-      debugPrint('Photos permission status: $status');
+      if (kDebugMode) debugPrint('Photos permission status: $status');
       if (status.isGranted || status.isLimited) {
         return true;
       }
 
       // If photos didn't work, try storage (Android < 13)
       status = await ph.Permission.storage.request();
-      debugPrint('Storage permission status: $status');
+      if (kDebugMode) debugPrint('Storage permission status: $status');
       if (status.isGranted || status.isLimited) {
         return true;
       }
 
       // Try mediaLibrary as another fallback
       status = await ph.Permission.mediaLibrary.request();
-      debugPrint('MediaLibrary permission status: $status');
+      if (kDebugMode) debugPrint('MediaLibrary permission status: $status');
       if (status.isGranted || status.isLimited) {
         return true;
       }
 
       return false;
     } catch (e) {
-      debugPrint('Request photos permission error: $e');
+      if (kDebugMode) debugPrint('Request photos permission error: $e');
       return false;
     }
   }
@@ -190,7 +190,7 @@ class PermissionService {
             status?.isGranted == true || status?.isLimited == true;
       }
     } catch (e) {
-      debugPrint('Request permissions error: $e');
+      if (kDebugMode) debugPrint('Request permissions error: $e');
       // Fallback to individual requests
       for (final permission in permissions) {
         results[permission] = await requestPermission(permission);
@@ -212,7 +212,7 @@ class PermissionService {
       final status = await p.status;
       return status.isPermanentlyDenied;
     } catch (e) {
-      debugPrint('Check permanently denied error: $e');
+      if (kDebugMode) debugPrint('Check permanently denied error: $e');
       return false;
     }
   }
@@ -230,7 +230,7 @@ class PermissionService {
           storageStatus.isPermanentlyDenied &&
           mediaStatus.isPermanentlyDenied;
     } catch (e) {
-      debugPrint('Check photos permanently denied error: $e');
+      if (kDebugMode) debugPrint('Check photos permanently denied error: $e');
       return false;
     }
   }
@@ -240,7 +240,7 @@ class PermissionService {
     try {
       return await ph.openAppSettings();
     } catch (e) {
-      debugPrint('Open app settings error: $e');
+      if (kDebugMode) debugPrint('Open app settings error: $e');
       return false;
     }
   }
@@ -252,7 +252,7 @@ class PermissionService {
       final status = await p.status;
       return _mapStatus(status);
     } catch (e) {
-      debugPrint('Get permission status error: $e');
+      if (kDebugMode) debugPrint('Get permission status error: $e');
       return PermissionStatus.unknown;
     }
   }
@@ -263,7 +263,7 @@ class PermissionService {
       final ph.Permission p = _mapPermission(permission);
       return await p.shouldShowRequestRationale;
     } catch (e) {
-      debugPrint('Should show rationale error: $e');
+      if (kDebugMode) debugPrint('Should show rationale error: $e');
       return false;
     }
   }

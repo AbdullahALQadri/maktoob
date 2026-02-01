@@ -15,7 +15,6 @@ import 'core/utils/storage/shared_preferences.dart';
 
 // Authentication Feature
 import 'features/authentication/data/datasources/auth_remote_data_source.dart';
-import 'features/authentication/data/datasources/mock_auth_remote_data_source.dart';
 import 'features/authentication/data/repositories/auth_repository_impl.dart';
 import 'features/authentication/domain/repositories/auth_repository.dart';
 import 'features/authentication/presentation/cubit/auth_cubit.dart';
@@ -73,9 +72,12 @@ import 'features/settings/presentation/cubit/settings_cubit.dart';
 import 'features/settings/presentation/cubit/profile_cubit.dart';
 
 // Invitation Feature (Golden Scenario)
+import 'core/api/event_wizard_api_service.dart';
+import 'features/invitation/data/repositories/invitation_repository_impl.dart';
 import 'features/invitation/data/services/excel_parser_service.dart';
 import 'features/invitation/data/services/invoice_generator.dart';
 import 'features/invitation/data/services/whatsapp_service.dart';
+import 'features/invitation/domain/repositories/invitation_repository.dart';
 import 'features/invitation/presentation/cubit/invitation_cubit.dart';
 
 final GetIt sl = GetIt.instance;
@@ -123,9 +125,8 @@ Future<void> init() async {
 
   //! ========== AUTHENTICATION FEATURE ==========
   // Data Sources
-  // TODO: Swap back to AuthRemoteDataSourceImpl(apiConsumer: sl()) for real API
   sl.registerLazySingleton<AuthRemoteDataSource>(
-    () => MockAuthRemoteDataSource(),
+    () => AuthRemoteDataSourceImpl(apiConsumer: sl()),
   );
 
   // Repository
@@ -144,7 +145,7 @@ Future<void> init() async {
   //! ========== HOME FEATURE ==========
   // Data Sources
   sl.registerLazySingleton<HomeRemoteDataSource>(
-    () => HomeRemoteDataSourceImpl(),
+    () => HomeRemoteDataSourceImpl(apiConsumer: sl()),
   );
 
   sl.registerLazySingleton<HomeLocalDataSource>(
@@ -174,7 +175,7 @@ Future<void> init() async {
   //! ========== EVENTS FEATURE ==========
   // Data Sources
   sl.registerLazySingleton<EventsRemoteDataSource>(
-    () => EventsRemoteDataSourceImpl(),
+    () => EventsRemoteDataSourceImpl(apiConsumer: sl()),
   );
 
   sl.registerLazySingleton<EventsLocalDataSource>(
@@ -217,7 +218,7 @@ Future<void> init() async {
   //! ========== VENUES FEATURE ==========
   // Data Sources
   sl.registerLazySingleton<VenuesRemoteDataSource>(
-    () => VenuesRemoteDataSourceImpl(),
+    () => VenuesRemoteDataSourceImpl(apiConsumer: sl()),
   );
 
   sl.registerLazySingleton<VenuesLocalDataSource>(
@@ -250,7 +251,7 @@ Future<void> init() async {
   //! ========== SCANNER FEATURE ==========
   // Data Sources
   sl.registerLazySingleton<ScannerRemoteDataSource>(
-    () => ScannerRemoteDataSourceImpl(),
+    () => ScannerRemoteDataSourceImpl(apiConsumer: sl()),
   );
 
   // Repository
@@ -275,7 +276,7 @@ Future<void> init() async {
   //! ========== PAYMENT FEATURE ==========
   // Data Sources
   sl.registerLazySingleton<PaymentRemoteDataSource>(
-    () => PaymentRemoteDataSourceImpl(),
+    () => PaymentRemoteDataSourceImpl(apiConsumer: sl(), dio: sl()),
   );
 
   // Repository
@@ -299,20 +300,34 @@ Future<void> init() async {
   // Cubit (no data/domain layer - simple local settings)
   sl.registerFactory(() => SettingsCubit());
 
-  // Profile Cubit (using mock data for testing)
+  // Profile Cubit
   sl.registerFactory(
-    () => ProfileCubit(),
+    () => ProfileCubit(authRepository: sl()),
   );
 
   //! ========== INVITATION FEATURE (Golden Scenario) ==========
+  // API Service
+  sl.registerLazySingleton(
+    () => EventWizardApiService(apiConsumer: sl()),
+  );
+
   // Services
   sl.registerLazySingleton(() => ExcelParserService());
   sl.registerLazySingleton(() => WhatsAppService());
   sl.registerLazySingleton(() => InvoiceGenerator());
 
+  // Repository
+  sl.registerLazySingleton<InvitationRepository>(
+    () => InvitationRepositoryImpl(
+      excelParserService: sl(),
+      wizardApiService: sl(),
+    ),
+  );
+
   // Cubit - manages the entire 7-page event creation wizard
   sl.registerFactory(
     () => InvitationCubit(
+      apiService: sl(),
       excelParserService: sl(),
       whatsAppService: sl(),
       invoiceGenerator: sl(),

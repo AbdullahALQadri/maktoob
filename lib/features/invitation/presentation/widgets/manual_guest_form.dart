@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/buttons/primary_button.dart';
 import '../../../../core/widgets/snackbar/app_snackbar.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../data/models/invitation_draft_model.dart';
@@ -201,7 +201,7 @@ class _ManualGuestFormState extends State<ManualGuestForm> {
             const SizedBox(height: 16),
 
             // Add Button
-            AppButton(
+            PrimaryButton(
               text: t.translate('guest_add_button'),
               onPressed: _addGuest,
               width: double.infinity,

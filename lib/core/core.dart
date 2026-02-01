@@ -14,8 +14,13 @@ export 'utils/app_strings.dart';
 export 'utils/app_text_styles.dart';
 export 'utils/app_spacing.dart';
 export 'utils/app_extensions.dart';
-export 'utils/extensions.dart' hide StringExtensions, DateTimeExtensions, ListExtensions;
 export 'utils/responsive.dart';
+
+// =============================================================================
+// WIDGETS - ANIMATIONS
+// =============================================================================
+
+export 'widgets/animations/staggered_slide_fade.dart';
 
 // =============================================================================
 // WIDGETS - BUTTONS

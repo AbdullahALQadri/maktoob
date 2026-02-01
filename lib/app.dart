@@ -7,6 +7,7 @@ import 'config/locale/app_localizations_setup.dart';
 import 'config/themes/app_theme.dart';
 import 'core/utils/app_strings.dart';
 import 'core/widgets/network/offline_wrapper.dart';
+import 'core/widgets/screens/compromised_device_screen.dart';
 import 'features/authentication/presentation/cubit/auth_cubit.dart';
 import 'features/authentication/presentation/widgets/auth_wrapper.dart';
 import 'features/events/presentation/cubit/event_details/event_details_cubit.dart';
@@ -19,6 +20,32 @@ import 'features/settings/presentation/cubit/settings_cubit.dart';
 import 'features/settings/presentation/cubit/settings_state.dart';
 import 'features/venues/presentation/cubit/venues_cubit.dart';
 import 'injection_container.dart' as di;
+
+/// Standalone app shown when the device fails security checks.
+///
+/// Uses the app's theme and localization delegates so the screen
+/// looks consistent and supports Arabic/Turkish/English.
+class CompromisedDeviceApp extends StatelessWidget {
+  const CompromisedDeviceApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: AppStrings.appName,
+      theme: AppTheme.lightTheme,
+      supportedLocales: AppLocalizationsSetup.supportedLocales,
+      localizationsDelegates: AppLocalizationsSetup.localizationsDelegates,
+      localeResolutionCallback: (deviceLocale, supportedLocales) {
+        return AppLocalizationsSetup.localeResolutionCallback(
+          deviceLocale,
+          supportedLocales,
+        );
+      },
+      home: const CompromisedDeviceScreen(),
+    );
+  }
+}
 
 class Maktoob extends StatelessWidget {
   const Maktoob({super.key});

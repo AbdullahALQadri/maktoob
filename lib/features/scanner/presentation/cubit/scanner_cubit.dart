@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/usecases/usecase.dart';
 import '../../domain/entities/check_in_guest_entity.dart';
 import '../../domain/usecases/check_in_guest_usecase.dart';
 import '../../domain/usecases/get_guest_list_usecase.dart';
@@ -41,14 +40,16 @@ class ScannerCubit extends Cubit<ScannerState> {
     );
   }
 
-  /// Simulate QR code scanning (legacy method for testing)
-  Future<void> startScanning() async {
+  /// Process a QR code scanned from the camera
+  Future<void> processQRCode(String qrCode) async {
     emit(Scanning(
       guests: _currentGuests,
       searchQuery: _currentSearchQuery,
     ));
 
-    final scanResult = await scanQrCodeUseCase(const NoParams());
+    final scanResult = await scanQrCodeUseCase(
+      ScanQrCodeParams(qrData: qrCode),
+    );
 
     await scanResult.fold(
       (failure) async {
@@ -60,8 +61,9 @@ class ScannerCubit extends Cubit<ScannerState> {
       },
       (result) async {
         if (result.guestId != null) {
-          // Get the guest details
-          final guestResult = await getGuestListUseCase(const GetGuestListParams());
+          // Refresh guest list and find the scanned guest
+          final guestResult =
+              await getGuestListUseCase(const GetGuestListParams());
 
           guestResult.fold(
             (failure) => emit(ScannerError(
@@ -71,15 +73,22 @@ class ScannerCubit extends Cubit<ScannerState> {
             )),
             (guests) {
               _currentGuests = guests;
-              final guest = guests.firstWhere(
-                (g) => g.id == result.guestId,
-                orElse: () => throw Exception('Guest not found'),
-              );
-              emit(GuestScanned(
-                guest: guest,
-                guests: _currentGuests,
-                searchQuery: _currentSearchQuery,
-              ));
+              final foundIndex =
+                  guests.indexWhere((g) => g.id == result.guestId);
+
+              if (foundIndex != -1) {
+                emit(GuestScanned(
+                  guest: guests[foundIndex],
+                  guests: _currentGuests,
+                  searchQuery: _currentSearchQuery,
+                ));
+              } else {
+                emit(ScannerError(
+                  message: 'Guest not found in the system',
+                  guests: _currentGuests,
+                  searchQuery: _currentSearchQuery,
+                ));
+              }
             },
           );
         } else {
@@ -91,84 +100,6 @@ class ScannerCubit extends Cubit<ScannerState> {
         }
       },
     );
-  }
-
-  /// Process a QR code scanned from the camera
-  Future<void> processQRCode(String qrCode) async {
-    emit(Scanning(
-      guests: _currentGuests,
-      searchQuery: _currentSearchQuery,
-    ));
-
-    // Try to extract guest ID from QR code
-    // QR code format could be: "guest_id:123" or just "123" or a JSON string
-    String? guestId;
-
-    try {
-      // Try to parse as simple ID
-      if (qrCode.contains(':')) {
-        guestId = qrCode.split(':').last.trim();
-      } else if (qrCode.startsWith('{')) {
-        // Try to parse as JSON (basic parsing)
-        final match = RegExp(r'"(?:guest_id|id|guestId)":\s*"?(\w+)"?').firstMatch(qrCode);
-        guestId = match?.group(1);
-      } else {
-        // Assume the QR code is the guest ID itself
-        guestId = qrCode.trim();
-      }
-    } catch (e) {
-      guestId = qrCode.trim();
-    }
-
-    if (guestId == null || guestId.isEmpty) {
-      emit(ScannerError(
-        message: 'Invalid QR code format',
-        guests: _currentGuests,
-        searchQuery: _currentSearchQuery,
-      ));
-      return;
-    }
-
-    // Find the guest in the current list
-    final guestIndex = _currentGuests.indexWhere((g) => g.id == guestId);
-
-    if (guestIndex != -1) {
-      final guest = _currentGuests[guestIndex];
-      emit(GuestScanned(
-        guest: guest,
-        guests: _currentGuests,
-        searchQuery: _currentSearchQuery,
-      ));
-    } else {
-      // Guest not found in local list, try to fetch from server
-      final guestResult = await getGuestListUseCase(const GetGuestListParams());
-
-      guestResult.fold(
-        (failure) => emit(ScannerError(
-          message: 'Guest not found',
-          guests: _currentGuests,
-          searchQuery: _currentSearchQuery,
-        )),
-        (guests) {
-          _currentGuests = guests;
-          final foundIndex = guests.indexWhere((g) => g.id == guestId);
-
-          if (foundIndex != -1) {
-            emit(GuestScanned(
-              guest: guests[foundIndex],
-              guests: _currentGuests,
-              searchQuery: _currentSearchQuery,
-            ));
-          } else {
-            emit(ScannerError(
-              message: 'Guest not found in the system',
-              guests: _currentGuests,
-              searchQuery: _currentSearchQuery,
-            ));
-          }
-        },
-      );
-    }
   }
 
   /// Check in a guest

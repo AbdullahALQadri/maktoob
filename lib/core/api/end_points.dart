@@ -4,11 +4,14 @@ class Endpoints {
   // Base URL - Update this based on your environment
   // For local development: http://10.5.50.103:8000/api/v1
   // For production: https://your-domain.com/api/v1
-  static String baseUrl = "https://maktoob.owqy.tech/api/v1";
+  static String baseUrl = "https://maktoob.social/api/v1";
 
   // ============================================================
   // PUBLIC ENDPOINTS (No Authentication Required)
   // ============================================================
+  static const String publicEvents = '/public/events';
+  static String publicEvent(int id) => '/public/events/$id';
+  static const String publicVenues = '/public/venues';
   static const String publicEventTypes = '/public/event-types';
   static const String publicTemplates = '/public/templates';
   static const String publicPackages = '/public/packages';
@@ -23,9 +26,9 @@ class Endpoints {
   // Page 1 - Event Type & Template Selection
   static const String wizardEventTypes = '/event-wizard/event-types';
   static String wizardEventTypeTemplates(int typeId) => '/event-wizard/event-types/$typeId/templates';
-  static const String wizardCustomEventType = '/event-wizard/custom-event-type';
+  static const String wizardCustomEventType = '/event-wizard/event-types/custom';
   static const String wizardInitialize = '/event-wizard/initialize';
-  static const String wizardCustomTemplate = '/event-wizard/custom-template';
+  static String wizardCustomTemplate(int eventId) => '/event-wizard/$eventId/custom-template';
 
   // Page 2 - Event Details
   static String wizardFormFields(int eventId) => '/event-wizard/$eventId/form-fields';
@@ -36,12 +39,13 @@ class Endpoints {
 
   // Page 4 - Guest Management
   static String wizardGuests(int eventId) => '/event-wizard/$eventId/guests';
-  static String wizardGuestsContacts(int eventId) => '/event-wizard/$eventId/guests/contacts';
-  static String wizardGuestsExcel(int eventId) => '/event-wizard/$eventId/guests/excel';
+  static String wizardGuestsContacts(int eventId) => '/event-wizard/$eventId/guests/import-contacts';
+  static String wizardGuestsExcel(int eventId) => '/event-wizard/$eventId/guests/import-excel';
   static String wizardGuestsManual(int eventId) => '/event-wizard/$eventId/guests/manual';
   static String wizardGuestsContactsSelected(int eventId) => '/event-wizard/$eventId/guests/contacts-selected';
   static String wizardGuestDelete(int eventId, int guestId) => '/event-wizard/$eventId/guests/$guestId';
   static String wizardGuestsBulkRemove(int eventId) => '/event-wizard/$eventId/guests/bulk-remove';
+  static String wizardGuestsClear(int eventId) => '/event-wizard/$eventId/guests/clear';
   static String wizardGuestsRemoveDuplicates(int eventId) => '/event-wizard/$eventId/guests/remove-duplicates';
   static const String wizardExcelFormat = '/event-wizard/excel-format';
 
@@ -75,10 +79,19 @@ class Endpoints {
   static const String clientChangeUserType = '/auth/change-user-type';
   static const String clientForgotPassword = '/auth/forgot-password';
   static const String clientVerifyOtp = '/auth/verify-otp';
+  static const String clientResendOtp = '/auth/resend-otp';
   static const String clientResetPassword = '/auth/reset-password';
   static const String clientChangePassword = '/auth/change-password';
   static const String clientFcmToken = '/auth/fcm-token';
   static const String clientDeleteAccount = '/auth/account';
+  static const String clientRefreshToken = '/auth/refresh-token';
+
+  // ============================================================
+  // CLIENT - DASHBOARD
+  // ============================================================
+  static const String clientDashboardStats = '/client/dashboard/stats';
+  static const String clientDashboardRecentEvents =
+      '/client/dashboard/recent-events';
 
   // ============================================================
   // CLIENT - EVENTS
@@ -166,6 +179,7 @@ class Endpoints {
   // ============================================================
   static const String scannerAssignments = '/scanner/assignments';
   static const String scannerAssignmentsActive = '/scanner/assignments/active';
+  static String scannerAssignment(int id) => '/scanner/assignments/$id';
 
   // ============================================================
   // SCANNER - VENUES & EVENTS
@@ -177,10 +191,10 @@ class Endpoints {
   // ============================================================
   // SCANNER - CHECK-IN
   // ============================================================
-  static const String scannerScan = '/scanner/scan';
-  static const String scannerCheckIn = '/scanner/check-in';
+  static const String scannerScan = '/scanner/check-in/scan';
+  static String scannerCheckInVerify(int id) => '/scanner/check-in/$id/verify';
+  static const String scannerCheckInHistory = '/scanner/check-in/history';
   static String scannerAttendance(int venueId) => '/scanner/attendance/$venueId';
-  static const String scannerHistory = '/scanner/history';
 
   // ============================================================
   // ADMIN AUTHENTICATION
@@ -191,61 +205,5 @@ class Endpoints {
   static const String adminUpdateProfile = '/admin/auth/profile';
   static const String adminChangePassword = '/admin/auth/change-password';
 
-  // ============================================================
-  // ADMIN - DASHBOARD
-  // ============================================================
-  static const String adminDashboardStats = '/admin/dashboard/statistics';
-  static const String adminDashboardActivity = '/admin/dashboard/recent-activity';
-
-  // ============================================================
-  // ADMIN - CLIENTS
-  // ============================================================
-  static const String adminClients = '/admin/clients';
-  static String adminClient(int id) => '/admin/clients/$id';
-  static String adminClientToggleStatus(int id) => '/admin/clients/$id/toggle-status';
-  static String adminClientVerify(int id) => '/admin/clients/$id/verify';
-
-  // ============================================================
-  // ADMIN - EVENTS
-  // ============================================================
-  static const String adminEvents = '/admin/events';
-  static String adminEvent(int id) => '/admin/events/$id';
-  static String adminEventStatistics(int id) => '/admin/events/$id/statistics';
-
-  // ============================================================
-  // ADMIN - VENUES
-  // ============================================================
-  static const String adminVenues = '/admin/venues';
-  static String adminVenue(int id) => '/admin/venues/$id';
-  static String adminVenueToggleStatus(int id) => '/admin/venues/$id/toggle-status';
-
-  // ============================================================
-  // ADMIN - USERS
-  // ============================================================
-  static const String adminUsers = '/admin/users';
-  static const String adminUsersRoles = '/admin/users/roles';
-  static String adminUser(int id) => '/admin/users/$id';
-  static String adminUserToggleStatus(int id) => '/admin/users/$id/toggle-status';
-
-  // ============================================================
-  // ADMIN - PAYMENTS
-  // ============================================================
-  static const String adminPayments = '/admin/payments';
-  static const String adminPaymentsReport = '/admin/payments/report';
-  static String adminPayment(int id) => '/admin/payments/$id';
-  static String adminPaymentStatus(int id) => '/admin/payments/$id/status';
-
-  // ============================================================
-  // ADMIN - PAYMENT REQUESTS
-  // ============================================================
-  static const String adminPaymentRequests = '/admin/payment-requests';
-  static String adminPaymentRequest(int id) => '/admin/payment-requests/$id';
-  static String adminPaymentRequestApprove(int id) => '/admin/payment-requests/$id/approve';
-  static String adminPaymentRequestReject(int id) => '/admin/payment-requests/$id/reject';
-
-  // ============================================================
-  // LEGACY ENDPOINTS (For backward compatibility)
-  // ============================================================
-  static const String stripeSetupEndpoint = '/stripe/setup';
-  static const String stripeConfirmEndpoint = '/stripe/confirm';
+  // Admin management endpoints: add when admin panel feature is implemented.
 }

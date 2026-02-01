@@ -101,8 +101,8 @@ class _RegisterScreenState extends State<RegisterScreen>
   void _handleRegister() {
     if (_formKey.currentState?.validate() ?? false) {
       String phoneNumber = _phoneController.text.trim();
-      if (phoneNumber.startsWith('0')) phoneNumber = phoneNumber.substring(1);
-      final fullPhone = '$_selectedCountryCode$phoneNumber';
+      // Ensure local number starts with 0
+      if (!phoneNumber.startsWith('0')) phoneNumber = '0$phoneNumber';
 
       String? governorateValue;
       if (_selectedUserType == UserType.institution && _selectedGovernorateIndex != null) {
@@ -114,7 +114,7 @@ class _RegisterScreenState extends State<RegisterScreen>
       context.read<AuthCubit>().register(
             name: _nameController.text.trim(),
             email: _emailController.text.trim().isNotEmpty ? _emailController.text.trim() : null,
-            phone: fullPhone,
+            phone: phoneNumber,
             password: _passwordController.text,
             userType: _selectedUserType.apiValue,
             governorate: governorateValue,
@@ -165,7 +165,7 @@ class _RegisterScreenState extends State<RegisterScreen>
   void _handleAuthState(BuildContext context, AuthState state) {
     if (state is AuthRegistered) {
       String phoneNumber = _phoneController.text.trim();
-      if (phoneNumber.startsWith('0')) phoneNumber = phoneNumber.substring(1);
+      if (!phoneNumber.startsWith('0')) phoneNumber = '0$phoneNumber';
 
       Navigator.push(
         context,
@@ -173,7 +173,7 @@ class _RegisterScreenState extends State<RegisterScreen>
           builder: (_) => BlocProvider.value(
             value: context.read<AuthCubit>(),
             child: OtpVerificationScreen(
-              phone: '$_selectedCountryCode$phoneNumber',
+              phone: phoneNumber,
               userType: _selectedUserType,
               onVerified: () {
                 if (_selectedUserType == UserType.institution) {

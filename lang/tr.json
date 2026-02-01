@@ -607,5 +607,9 @@
   "edit_profile_name_hint": "Adınızı girin",
   "edit_profile_email_hint": "E-postanızı girin",
   "edit_profile_company_hint": "Kuruluş adını girin",
-  "edit_profile_phone_locked": "Telefon numarası doğrulama için kullanıldığından değiştirilemez"
+  "edit_profile_phone_locked": "Telefon numarası doğrulama için kullanıldığından değiştirilemez",
+
+  "security_warning_title": "Güvenlik Uyarısı",
+  "security_warning_message": "Bu uygulama, güvenlik nedenleriyle rootlanmış veya jailbreak yapılmış cihazlarda çalıştırılamaz.",
+  "security_warning_subtitle": "Maktoob'a erişmek için değiştirilmemiş bir cihaz kullanın."
 }
