@@ -48,7 +48,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
     // Send OTP automatically for verification
     context.read<AuthCubit>().resendOtp(
           login: phone,
-          purpose: 'register',
+          purpose: 'registration',
         );
 
     showDialog(
@@ -192,7 +192,7 @@ class _UnverifiedAccountOtpDialogState
     if (_canResend) {
       context.read<AuthCubit>().resendOtp(
             login: widget.phone,
-            purpose: 'register',
+            purpose: 'registration',
           );
       _startResendTimer();
       _pinController.clear();

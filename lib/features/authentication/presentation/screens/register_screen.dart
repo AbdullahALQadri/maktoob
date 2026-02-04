@@ -768,7 +768,7 @@ class _OtpVerificationDialogState extends State<_OtpVerificationDialog> {
 
   void _resendOtp() {
     if (_canResend) {
-      context.read<AuthCubit>().resendOtp(login: widget.phone, purpose: 'register');
+      context.read<AuthCubit>().resendOtp(login: widget.phone, purpose: 'registration');
       _startResendTimer();
       _pinController.clear();
     }
