@@ -91,7 +91,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
     if (_canResend) {
       context
           .read<AuthCubit>()
-          .resendOtp(login: widget.phone, purpose: 'verification');
+          .resendOtp(login: widget.phone, purpose: 'register');
       _startResendTimer();
       _pinController.clear();
     }

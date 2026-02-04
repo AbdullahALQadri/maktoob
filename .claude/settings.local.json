@@ -45,7 +45,8 @@
       "Bash(tree:*)",
       "Bash(wc:*)",
       "Bash(del \"c:\\\\Users\\\\MSI\\\\StudioProjects\\\\maktoob\\\\lib\\\\features\\\\authentication\\\\data\\\\datasources\\\\mock_auth_remote_data_source.dart\")",
-      "Bash(flutter --version:*)"
+      "Bash(flutter --version:*)",
+      "Bash(git -C \"c:/Users/MSI/StudioProjects/maktoob\" status)"
     ]
   }
 }

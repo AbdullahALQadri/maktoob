@@ -83,7 +83,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
           // Send OTP automatically for verification
           context.read<AuthCubit>().resendOtp(
                 login: state.phone,
-                purpose: 'verification',
+                purpose: 'register',
               );
         }
         // Handle successful authentication (from login, register+OTP, or unverified account OTP)
