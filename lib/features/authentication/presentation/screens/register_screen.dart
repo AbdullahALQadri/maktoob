@@ -183,8 +183,8 @@ class _RegisterScreenState extends State<RegisterScreen>
                   MaterialPageRoute(builder: (_) => const AdminApprovalWaitingScreen()),
                 );
               } else {
-                // Go back to login screen
-                widget.onLoginTap?.call();
+                // Auto-login after successful registration and OTP verification
+                widget.onRegisterSuccess?.call();
               }
             },
           ),
@@ -763,6 +763,7 @@ class _OtpVerificationDialogState extends State<_OtpVerificationDialog> {
       context.read<AuthCubit>().verifyOtp(
             login: widget.phone,
             otp: _pinController.text,
+            loginAfterVerify: true,
           );
     }
   }
@@ -790,7 +791,7 @@ class _OtpVerificationDialogState extends State<_OtpVerificationDialog> {
 
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
-        if (state is AuthOtpVerified) {
+        if (state is AuthOtpVerified || state is AuthAuthenticated) {
           AppSnackBar.showSuccess(
             context,
             message: t.translate('auth_account_verified'),

@@ -122,7 +122,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
         if (_showRegister) {
           return RegisterScreen(
             onLoginTap: _goToLogin,
-            onRegisterSuccess: _goToLogin,
+            onRegisterSuccess: _onAuthSuccess,
           );
         }
 
