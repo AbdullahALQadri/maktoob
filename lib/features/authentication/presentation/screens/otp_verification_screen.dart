@@ -16,6 +16,8 @@ class OtpVerificationScreen extends StatefulWidget {
   final UserType userType;
   final VoidCallback onVerified;
   final VoidCallback onBack;
+  /// If true, user will be authenticated after OTP verification
+  final bool loginAfterVerify;
 
   const OtpVerificationScreen({
     super.key,
@@ -23,6 +25,7 @@ class OtpVerificationScreen extends StatefulWidget {
     required this.userType,
     required this.onVerified,
     required this.onBack,
+    this.loginAfterVerify = false,
   });
 
   @override
@@ -79,6 +82,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
       context.read<AuthCubit>().verifyOtp(
             login: widget.phone,
             otp: _pinController.text,
+            loginAfterVerify: widget.loginAfterVerify,
           );
     }
   }
@@ -106,7 +110,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
-        if (state is AuthOtpVerified) {
+        if (state is AuthOtpVerified || state is AuthAuthenticated) {
           widget.onVerified();
         } else if (state is AuthOtpSent) {
           AppSnackBar.showSuccess(

@@ -67,17 +67,21 @@ class AuthRepositoryImpl implements AuthRepository {
         location: location,
       );
 
-      if (response.success) {
-        // If token is returned, save it (auto-login after register)
-        if (response.token != null) {
-          await sharedPrefController.save(token: response.token!);
-        }
+      // Check for validation errors in the response (e.g., 422 responses)
+      final data = response.data;
+      final hasErrors = data is Map<String, dynamic> && data.containsKey('errors');
 
-        final user = _parseUserFromResponse(response);
-        return Right(user);
-      } else {
+      if (hasErrors) {
         return Left(ValidationFailure(message: response.message));
       }
+
+      // Registration succeeded — save token if provided
+      if (response.token != null) {
+        await sharedPrefController.save(token: response.token!);
+      }
+
+      final user = _parseUserFromResponse(response);
+      return Right(user);
     } on ValidationException catch (e) {
       return Left(ValidationFailure(message: e.message ?? 'Validation error'));
     } on ServerException catch (e) {

@@ -90,6 +90,17 @@ class AuthAccountDeleted extends AuthState {
   const AuthAccountDeleted();
 }
 
+/// Account not verified - needs OTP verification
+class AuthUnverified extends AuthState {
+  final UserEntity user;
+  final String phone;
+
+  const AuthUnverified({required this.user, required this.phone});
+
+  @override
+  List<Object?> get props => [user, phone];
+}
+
 /// Error state
 class AuthError extends AuthState {
   final String message;

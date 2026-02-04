@@ -46,7 +46,12 @@ class AuthCubit extends Cubit<AuthState> {
         emit(AuthError(failure.message ?? 'Login failed'));
       },
       (user) {
-        emit(AuthAuthenticated(user));
+        // Check if account is verified
+        if (!user.isVerified) {
+          emit(AuthUnverified(user: user, phone: login));
+        } else {
+          emit(AuthAuthenticated(user));
+        }
       },
     );
   }
@@ -94,9 +99,11 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   /// Verify OTP code
+  /// If [loginAfterVerify] is true, emit AuthAuthenticated after successful verification
   Future<void> verifyOtp({
     required String login,
     required String otp,
+    bool loginAfterVerify = false,
   }) async {
     emit(const AuthLoading());
 
@@ -105,7 +112,14 @@ class AuthCubit extends Cubit<AuthState> {
     result.fold(
       (failure) =>
           emit(AuthError(failure.message ?? 'OTP verification failed')),
-      (user) => emit(AuthOtpVerified(user)),
+      (user) {
+        if (loginAfterVerify) {
+          // After verification, user should be authenticated
+          emit(AuthAuthenticated(user));
+        } else {
+          emit(AuthOtpVerified(user));
+        }
+      },
     );
   }
 

@@ -141,8 +141,8 @@ class ProfileDialogs {
       icon: Icons.delete_forever_rounded,
     );
 
-    if (confirmed) {
-      // TODO: Implement delete account
+    if (confirmed && context.mounted) {
+      context.read<AuthCubit>().deleteAccount();
     }
   }
 }

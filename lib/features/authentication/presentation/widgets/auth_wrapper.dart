@@ -8,8 +8,10 @@ import '../../../home/presentation/cubit/home_cubit.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 import '../screens/login_screen.dart';
+import '../screens/otp_verification_screen.dart';
 import '../screens/register_screen.dart';
 import '../screens/splash_screen.dart';
+import '../../domain/entities/user_entity.dart';
 
 class AuthWrapper extends StatefulWidget {
   const AuthWrapper({super.key});
@@ -21,6 +23,9 @@ class AuthWrapper extends StatefulWidget {
 class _AuthWrapperState extends State<AuthWrapper> {
   bool _showSplash = true;
   bool _showRegister = false;
+  // Track unverified state to show OTP screen
+  String? _unverifiedPhone;
+  UserType? _unverifiedUserType;
 
   void _onSplashFinished() {
     if (!mounted) return;
@@ -32,12 +37,24 @@ class _AuthWrapperState extends State<AuthWrapper> {
   }
 
   void _goToLogin() {
-    setState(() => _showRegister = false);
+    setState(() {
+      _showRegister = false;
+      _unverifiedPhone = null;
+      _unverifiedUserType = null;
+    });
   }
 
   void _onAuthSuccess() {
     context.read<HomeCubit>().loadHomeData();
     context.read<EventsListCubit>().loadEvents();
+  }
+
+  void _onOtpVerified() {
+    setState(() {
+      _unverifiedPhone = null;
+      _unverifiedUserType = null;
+    });
+    _onAuthSuccess();
   }
 
   @override
@@ -48,9 +65,30 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
-        // When user logs out, pop all pushed routes so LoginScreen is visible
-        if (state is AuthUnauthenticated) {
+        // When user logs out or deletes account, pop all pushed routes
+        if (state is AuthUnauthenticated || state is AuthAccountDeleted) {
           Navigator.of(context).popUntil((route) => route.isFirst);
+          setState(() {
+            _unverifiedPhone = null;
+            _unverifiedUserType = null;
+          });
+        }
+        // Handle unverified account - send OTP automatically
+        if (state is AuthUnverified) {
+          setState(() {
+            _unverifiedPhone = state.phone;
+            _unverifiedUserType = state.user.userType;
+          });
+          // Send OTP automatically for verification
+          context.read<AuthCubit>().resendOtp(
+                login: state.phone,
+                purpose: 'verification',
+              );
+        }
+        // Handle successful OTP verification (also handles AuthAuthenticated from loginAfterVerify)
+        if (state is AuthOtpVerified ||
+            (state is AuthAuthenticated && _unverifiedPhone != null)) {
+          _onOtpVerified();
         }
       },
       builder: (context, state) {
@@ -68,6 +106,17 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
         if (state is AuthAuthenticated) {
           return const MainShell();
+        }
+
+        // Show OTP verification screen for unverified accounts
+        if (_unverifiedPhone != null) {
+          return OtpVerificationScreen(
+            phone: _unverifiedPhone!,
+            userType: _unverifiedUserType ?? UserType.user,
+            onVerified: _onOtpVerified,
+            onBack: _goToLogin,
+            loginAfterVerify: true,
+          );
         }
 
         if (_showRegister) {

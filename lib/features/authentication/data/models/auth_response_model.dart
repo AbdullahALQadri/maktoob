@@ -16,8 +16,14 @@ class AuthResponseModel extends Equatable {
 
   factory AuthResponseModel.fromJson(Map<String, dynamic> json) {
     final token = json['token'] ?? json['data']?['token'];
+    // Infer success when the API doesn't return a 'success' field:
+    // - has a token (login/verify), OR
+    // - has a client/user object (register/update)
+    final inferredSuccess = token != null ||
+        json.containsKey('client') ||
+        json.containsKey('user');
     return AuthResponseModel(
-      success: json['success'] ?? (token != null),
+      success: json['success'] ?? inferredSuccess,
       message: json['message'] ?? '',
       token: token,
       data: json['data'] ?? json,
