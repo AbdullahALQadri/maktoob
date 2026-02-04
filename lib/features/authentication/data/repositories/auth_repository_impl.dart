@@ -140,8 +140,11 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final response = await remoteDataSource.clientVerifyOtp(login, otp);
 
-      if (response.success && response.token != null) {
-        await sharedPrefController.save(token: response.token!);
+      if (response.success) {
+        // Save token if provided (some APIs return token, others don't)
+        if (response.token != null) {
+          await sharedPrefController.save(token: response.token!);
+        }
         final user = _parseUserFromResponse(response);
         return Right(user);
       } else {

@@ -69,6 +69,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
         if (state is AuthUnauthenticated || state is AuthAccountDeleted) {
           Navigator.of(context).popUntil((route) => route.isFirst);
           setState(() {
+            _showRegister = false;
             _unverifiedPhone = null;
             _unverifiedUserType = null;
           });
@@ -85,10 +86,22 @@ class _AuthWrapperState extends State<AuthWrapper> {
                 purpose: 'verification',
               );
         }
-        // Handle successful OTP verification (also handles AuthAuthenticated from loginAfterVerify)
-        if (state is AuthOtpVerified ||
-            (state is AuthAuthenticated && _unverifiedPhone != null)) {
-          _onOtpVerified();
+        // Handle successful authentication (from login, register+OTP, or unverified account OTP)
+        if (state is AuthAuthenticated) {
+          // Reset registration state and clear any pending OTP verification
+          setState(() {
+            _showRegister = false;
+            _unverifiedPhone = null;
+            _unverifiedUserType = null;
+          });
+          _onAuthSuccess();
+        }
+        // Handle OTP verified without auto-login
+        if (state is AuthOtpVerified) {
+          setState(() {
+            _unverifiedPhone = null;
+            _unverifiedUserType = null;
+          });
         }
       },
       builder: (context, state) {

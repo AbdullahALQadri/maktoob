@@ -182,16 +182,13 @@ class _RegisterScreenState extends State<RegisterScreen>
                   context,
                   MaterialPageRoute(builder: (_) => const AdminApprovalWaitingScreen()),
                 );
-              } else {
-                // Auto-login after successful registration and OTP verification
-                widget.onRegisterSuccess?.call();
               }
+              // For regular users, auth_wrapper handles navigation to MainShell
+              // when AuthAuthenticated state is emitted
             },
           ),
         ),
       );
-    } else if (state is AuthAuthenticated) {
-      widget.onRegisterSuccess?.call();
     } else if (state is AuthError) {
       AppSnackBar.showError(context, message: state.message);
     }
