@@ -526,6 +526,8 @@
   "auth_resend_code": "إعادة إرسال الرمز",
   "auth_new_code_sent": "تم إرسال رمز جديد",
   "auth_account_verified": "تم التحقق من الحساب بنجاح! يرجى تسجيل الدخول.",
+  "auth_account_not_verified": "الحساب غير موثّق",
+  "auth_verify_to_continue": "يرجى توثيق حسابك للمتابعة",
   "auth_new_password_title": "كلمة مرور جديدة",
   "auth_create_new_password": "إنشاء كلمة مرور جديدة",
   "auth_new_password_subtitle": "أدخل كلمة مرور جديدة وقوية لحسابك",

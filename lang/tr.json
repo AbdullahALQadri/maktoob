@@ -525,6 +525,8 @@
   "auth_resend_code": "Kodu Tekrar Gönder",
   "auth_new_code_sent": "Yeni kod gönderildi",
   "auth_account_verified": "Hesap başarıyla doğrulandı! Lütfen giriş yapın.",
+  "auth_account_not_verified": "Hesap Doğrulanmadı",
+  "auth_verify_to_continue": "Devam etmek için hesabınızı doğrulayın",
   "auth_new_password_title": "Yeni Şifre",
   "auth_create_new_password": "Yeni Şifre Oluştur",
   "auth_new_password_subtitle": "Hesabınız için güçlü bir yeni şifre belirleyin",

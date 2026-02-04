@@ -526,6 +526,8 @@
   "auth_resend_code": "Resend Code",
   "auth_new_code_sent": "New code sent",
   "auth_account_verified": "Account verified successfully! Please login.",
+  "auth_account_not_verified": "Account Not Verified",
+  "auth_verify_to_continue": "Please verify your account to continue",
   "auth_new_password_title": "New Password",
   "auth_create_new_password": "Create New Password",
   "auth_new_password_subtitle": "Enter a strong new password for your account",
