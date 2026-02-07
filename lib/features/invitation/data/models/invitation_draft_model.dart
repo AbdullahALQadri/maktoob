@@ -168,7 +168,7 @@ class GuestInfoModel extends Equatable {
   /// Create from JSON response
   factory GuestInfoModel.fromJson(Map<String, dynamic> json) {
     return GuestInfoModel(
-      name: json['name'] as String,
+      name: json['name'] as String? ?? '',
       phone: json['phone'] as String? ?? '',
       email: json['email'] as String? ?? '',
       status: GuestStatus.values.firstWhere(

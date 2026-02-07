@@ -75,7 +75,8 @@ class _Page4GuestManagementScreenState
                   ),
                 ),
                 WizardBottomBar(
-                  canProceed: state.canProceedFromGuestManagement,
+                  canProceed: state.canProceedFromGuestManagement && !state.isLoading,
+                  onNext: () => context.read<InvitationCubit>().saveGuestsAndProceed(),
                 ),
               ],
             ),

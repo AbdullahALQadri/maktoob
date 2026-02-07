@@ -57,19 +57,23 @@ class ProfileDialogs {
                 t: t,
                 onChanged: () => setState(() {}),
                 onCancel: () {
-                  reasonController.dispose();
-                  reasonFocus.dispose();
                   Navigator.pop(dialogContext);
+                  // Defer disposal to allow dialog exit animation to complete
+                  Future.delayed(const Duration(milliseconds: 350), () {
+                    reasonController.dispose();
+                    reasonFocus.dispose();
+                  });
                 },
                 onConfirm: () {
                   if (formKey.currentState?.validate() ?? false) {
+                    final reason = reasonController.text.trim();
                     Navigator.pop(dialogContext);
-                    profileCubit.changeUserType(
-                      newType,
-                      reason: reasonController.text.trim(),
-                    );
-                    reasonController.dispose();
-                    reasonFocus.dispose();
+                    profileCubit.changeUserType(newType, reason: reason);
+                    // Defer disposal to allow dialog exit animation to complete
+                    Future.delayed(const Duration(milliseconds: 350), () {
+                      reasonController.dispose();
+                      reasonFocus.dispose();
+                    });
                   }
                 },
               ),

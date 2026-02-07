@@ -66,7 +66,20 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
                   ),
                 ),
               ),
-              WizardBottomBar(canProceed: state.canProceedFromEventDetails),
+              WizardBottomBar(
+                canProceed: state.canProceedFromEventDetails && !state.isLoading,
+                onNext: () {
+                  // Ensure event name is saved from controller before proceeding
+                  final cubit = context.read<InvitationCubit>();
+                  if (_nameController.text.isNotEmpty) {
+                    cubit.updateEventName(_nameController.text);
+                  }
+                  if (_descriptionController.text.isNotEmpty) {
+                    cubit.updateEventDescription(_descriptionController.text);
+                  }
+                  cubit.saveDetailsAndProceed();
+                },
+              ),
             ],
           ),
         );

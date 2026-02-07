@@ -107,6 +107,10 @@
   "event_details_delete_warning": "Bu işlem geri alınamaz.",
   "event_details_deleted": "Etkinlik başarıyla silindi",
   "event_details_error": "Etkinlik yüklenirken hata",
+  "event_details_no_guests": "Henüz misafir yok",
+  "event_details_guests_will_appear_here": "Misafirler etkinliğe eklendikten sonra burada görünecek",
+  "event_details_no_search_results": "Sonuç bulunamadı",
+  "event_details_try_different_search": "Farklı anahtar kelimelerle aramayı deneyin",
   "event_details_yes": "Evet",
   "event_details_no": "Hayır",
 
@@ -604,6 +608,10 @@
   "edit_event_max_companions": "Maksimum Refakatçi",
   "edit_event_allow_companions": "Refakatçilere İzin Ver",
   "edit_event_name_required": "Etkinlik adı gerekli",
+  "edit_event_max_companions_required": "Refakatçi sayısı gerekli",
+  "edit_event_max_companions_invalid": "Lütfen geçerli bir sayı girin",
+  "edit_event_max_companions_min": "Minimum refakatçi sayısı 1",
+  "edit_event_max_companions_max": "Maksimum refakatçi sayısı 10",
 
   "edit_profile_title": "Profili Düzenle",
   "edit_profile_saved": "Profil başarıyla güncellendi",

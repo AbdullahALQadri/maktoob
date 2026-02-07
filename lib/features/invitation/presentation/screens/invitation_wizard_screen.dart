@@ -14,7 +14,7 @@ import 'page7_invoice_screen.dart';
 
 /// Main container screen for the 7-page event creation wizard.
 /// Manages navigation between pages based on the current step in the cubit state.
-class InvitationWizardScreen extends StatelessWidget {
+class InvitationWizardScreen extends StatefulWidget {
   /// Optional draft event ID to resume editing
   final int? draftEventId;
 
@@ -32,37 +32,75 @@ class InvitationWizardScreen extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  State<InvitationWizardScreen> createState() => _InvitationWizardScreenState();
+}
+
+class _InvitationWizardScreenState extends State<InvitationWizardScreen> {
+  InvitationCubit? _cubit;
+  bool _ownsOwnCubit = false;
+  bool _initialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Defer initialization to didChangeDependencies where context is available
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _initializeCubit();
+    }
+  }
+
+  void _initializeCubit() {
     // Try to find existing cubit from parent context
-    InvitationCubit? existingCubit;
     try {
-      existingCubit = context.read<InvitationCubit>();
+      _cubit = context.read<InvitationCubit>();
+      _ownsOwnCubit = false;
+      // Initialize wizard after frame is built
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _cubit!.initializeWizard(draftEventId: widget.draftEventId);
+        }
+      });
     } catch (_) {
-      // No cubit in context, will create one
+      // No cubit in context, create one
+      _cubit = sl<InvitationCubit>();
+      _ownsOwnCubit = true;
+      _cubit!.initializeWizard(draftEventId: widget.draftEventId);
+    }
+  }
+
+  @override
+  void dispose() {
+    if (_ownsOwnCubit) {
+      _cubit?.close();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_cubit == null) {
+      return const Center(child: CircularProgressIndicator());
     }
 
-    if (existingCubit != null) {
-      // Use existing cubit, just initialize wizard
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        existingCubit!.initializeWizard(draftEventId: draftEventId);
-      });
-      return _InvitationWizardView(
-        onLogin: onLogin,
-        onComplete: onComplete,
+    if (_ownsOwnCubit) {
+      return BlocProvider.value(
+        value: _cubit!,
+        child: _InvitationWizardView(
+          onLogin: widget.onLogin,
+          onComplete: widget.onComplete,
+        ),
       );
     }
 
-    // Create new cubit if none exists
-    return BlocProvider(
-      create: (context) {
-        final cubit = sl<InvitationCubit>();
-        cubit.initializeWizard(draftEventId: draftEventId);
-        return cubit;
-      },
-      child: _InvitationWizardView(
-        onLogin: onLogin,
-        onComplete: onComplete,
-      ),
+    return _InvitationWizardView(
+      onLogin: widget.onLogin,
+      onComplete: widget.onComplete,
     );
   }
 }

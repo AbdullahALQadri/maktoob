@@ -51,8 +51,21 @@ class EditEventCubit extends Cubit<EditEventState> {
       emit(state.copyWith(rsvpDeadline: value));
   void updateMaxCompanions(int value) =>
       emit(state.copyWith(maxCompanions: value));
-  void updateAllowCompanions(bool value) =>
-      emit(state.copyWith(allowCompanions: value));
+  void updateAllowCompanions(bool value) {
+    if (value) {
+      // When enabling, restore default if was 0
+      emit(state.copyWith(
+        allowCompanions: true,
+        maxCompanions: state.maxCompanions == 0 ? 2 : state.maxCompanions,
+      ));
+    } else {
+      // When disabling, set max companions to 0
+      emit(state.copyWith(
+        allowCompanions: false,
+        maxCompanions: 0,
+      ));
+    }
+  }
 
   Future<bool> saveChanges() async {
     if (!state.hasChanges) return false;

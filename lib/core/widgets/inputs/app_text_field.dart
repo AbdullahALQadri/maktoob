@@ -166,19 +166,43 @@ class _AppTextFieldState extends State<AppTextField> {
   late FocusNode _focusNode;
   bool _isFocused = false;
 
+  bool _ownsNode = false;
+
   @override
   void initState() {
     super.initState();
+    _ownsNode = widget.focusNode == null;
     _focusNode = widget.focusNode ?? FocusNode();
     _focusNode.addListener(_handleFocusChange);
   }
 
   @override
+  void didUpdateWidget(covariant AppTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.focusNode != oldWidget.focusNode) {
+      final oldNode = _focusNode;
+      final shouldDisposeOldNode = _ownsNode;
+
+      oldNode.removeListener(_handleFocusChange);
+
+      _ownsNode = widget.focusNode == null;
+      _focusNode = widget.focusNode ?? FocusNode();
+      _focusNode.addListener(_handleFocusChange);
+
+      // Defer disposal to allow framework to finish updating child widgets
+      if (shouldDisposeOldNode) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          oldNode.dispose();
+        });
+      }
+    }
+  }
+
+  @override
   void dispose() {
-    if (widget.focusNode == null) {
+    _focusNode.removeListener(_handleFocusChange);
+    if (_ownsNode) {
       _focusNode.dispose();
-    } else {
-      _focusNode.removeListener(_handleFocusChange);
     }
     super.dispose();
   }

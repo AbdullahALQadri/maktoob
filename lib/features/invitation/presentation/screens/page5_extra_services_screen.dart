@@ -54,7 +54,8 @@ class _Page5ExtraServicesScreenState extends State<Page5ExtraServicesScreen> {
                     isEnglish: isEnglish,
                   ),
                 WizardBottomBar(
-                  canProceed: !state.isLoadingServices,
+                  canProceed: !state.isLoadingServices && !state.isLoading,
+                  onNext: () => context.read<InvitationCubit>().saveServicesAndProceed(),
                 ),
               ],
             ),

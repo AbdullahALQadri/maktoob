@@ -114,6 +114,178 @@ class InvitationCubit extends Cubit<InvitationState> {
 
   // ============ Navigation ============
 
+  /// Create draft event on server and proceed to next step (from Page 1)
+  /// This should be called when user clicks "Next" on Page 1
+  Future<void> createDraftAndProceed() async {
+    // Skip if already has draft
+    if (state.draftEventId != null) {
+      nextStep();
+      return;
+    }
+
+    emit(state.copyWith(isLoading: true, clearError: true));
+
+    try {
+      if (apiService != null) {
+        // Call API to create draft event
+        final response = await apiService!.initializeWizard(
+          eventTypeId: state.selectedEventType?.id,
+          customEventTypeName: state.customEventTypeName,
+          templateId: state.selectedTemplate?.id,
+        );
+
+        final eventId = response['data']['event_id'] as int?;
+        if (eventId != null) {
+          emit(state.copyWith(
+            isLoading: false,
+            draftEventId: eventId,
+          ));
+          nextStep();
+        } else {
+          emit(state.copyWith(
+            isLoading: false,
+            errorMessage: 'Failed to create event draft',
+          ));
+        }
+      } else {
+        // No API service, just proceed locally
+        emit(state.copyWith(isLoading: false));
+        nextStep();
+      }
+    } catch (e) {
+      emit(state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString(),
+      ));
+    }
+  }
+
+  /// Save event details and proceed to next step (from Page 2)
+  Future<void> saveDetailsAndProceed() async {
+    if (state.draftEventId == null) {
+      nextStep();
+      return;
+    }
+
+    emit(state.copyWith(isLoading: true, clearError: true));
+
+    try {
+      if (apiService != null) {
+        await apiService!.saveEventDetails(
+          state.draftEventId!,
+          titleAr: state.eventName ?? 'حدث جديد',
+          titleEn: state.eventName,
+          descriptionAr: state.eventDescription,
+          eventDate: state.eventDate ?? DateTime.now().add(const Duration(days: 30)),
+          eventTime: state.eventTime != null
+              ? '${state.eventTime!.hour.toString().padLeft(2, '0')}:${state.eventTime!.minute.toString().padLeft(2, '0')}'
+              : null,
+          venueId: state.selectedVenue?.id,
+          customVenueNameAr: state.customLocation?.placeName,
+          customVenueAddressAr: state.customLocation?.address,
+          customVenueLat: state.customLocation?.latitude,
+          customVenueLng: state.customLocation?.longitude,
+          partnerCount: state.partnerWithGuests,
+          eventTypeFormValues: state.eventTypeFormData,
+        );
+      }
+
+      emit(state.copyWith(isLoading: false));
+      nextStep();
+    } catch (e) {
+      emit(state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString(),
+      ));
+    }
+  }
+
+  /// Save guests and proceed to next step (from Page 4)
+  Future<void> saveGuestsAndProceed() async {
+    if (state.draftEventId == null || state.guests.isEmpty) {
+      nextStep();
+      return;
+    }
+
+    emit(state.copyWith(isLoading: true, clearError: true));
+
+    try {
+      if (apiService != null) {
+        await apiService!.addManualGuests(
+          state.draftEventId!,
+          state.guests.map((g) => {
+            'name': g.name,
+            'phone': g.phone,
+          }).toList(),
+        );
+      }
+
+      emit(state.copyWith(isLoading: false));
+      nextStep();
+    } catch (e) {
+      emit(state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString(),
+      ));
+    }
+  }
+
+  /// Save services and proceed to next step (from Page 5)
+  Future<void> saveServicesAndProceed() async {
+    if (state.draftEventId == null) {
+      nextStep();
+      return;
+    }
+
+    emit(state.copyWith(isLoading: true, clearError: true));
+
+    try {
+      if (apiService != null && state.selectedServices.isNotEmpty) {
+        await apiService!.saveExtraServices(
+          state.draftEventId!,
+          state.selectedServices.map((s) => s.id).toList(),
+        );
+      }
+
+      emit(state.copyWith(isLoading: false));
+      nextStep();
+    } catch (e) {
+      emit(state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString(),
+      ));
+    }
+  }
+
+  /// Save package selection and proceed to next step (from Page 6)
+  Future<void> savePackageAndProceed() async {
+    if (state.draftEventId == null || state.selectedPackage == null) {
+      nextStep();
+      return;
+    }
+
+    emit(state.copyWith(isLoading: true, clearError: true));
+
+    try {
+      if (apiService != null) {
+        await apiService!.selectPackage(
+          state.draftEventId!,
+          packageId: state.selectedPackage!.isCustom ? null : state.selectedPackage!.id,
+          isCustomPackage: state.selectedPackage!.isCustom,
+          customGuestCount: state.selectedPackage!.isCustom ? state.customPackageLimit : null,
+        );
+      }
+
+      emit(state.copyWith(isLoading: false));
+      nextStep();
+    } catch (e) {
+      emit(state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString(),
+      ));
+    }
+  }
+
   /// Navigate to the next step
   void nextStep() {
     final nextStepMap = {
@@ -135,14 +307,6 @@ class InvitationCubit extends Cubit<InvitationState> {
       InvitationStep.payment: InvitationStep.confirmation,
       InvitationStep.confirmation: InvitationStep.confirmation,
     };
-
-    // Special case: Skip preview if custom type or uploaded template
-    if (state.currentStep == InvitationStep.eventDetails) {
-      if (state.shouldSkipPreview) {
-        emit(state.copyWith(currentStep: InvitationStep.guestManagement));
-        return;
-      }
-    }
 
     final next = nextStepMap[state.currentStep];
     if (next != null) {
@@ -171,14 +335,6 @@ class InvitationCubit extends Cubit<InvitationState> {
       InvitationStep.payment: InvitationStep.package,
       InvitationStep.confirmation: InvitationStep.payment,
     };
-
-    // Special case: Skip preview if custom type or uploaded template
-    if (state.currentStep == InvitationStep.guestManagement) {
-      if (state.shouldSkipPreview) {
-        emit(state.copyWith(currentStep: InvitationStep.eventDetails));
-        return;
-      }
-    }
 
     final prev = prevStepMap[state.currentStep];
     if (prev != null) {
@@ -797,11 +953,12 @@ class InvitationCubit extends Cubit<InvitationState> {
         }
 
         // Step 4: Save invitation configuration
+        final hasCompanions = state.partnerWithGuests != null && state.partnerWithGuests! > 0;
         await apiService!.saveInvitationConfig(
           eventId,
           defaultDeliveryMethod: 'whatsapp',
-          allowCompanions: true,
-          maxCompanions: 2,
+          allowCompanions: hasCompanions,
+          maxCompanions: hasCompanions ? state.partnerWithGuests! : 0,
           requireResponse: true,
         );
 
@@ -913,8 +1070,6 @@ class InvitationCubit extends Cubit<InvitationState> {
 
   /// Load preview from API
   Future<void> loadPreview() async {
-    if (state.shouldSkipPreview) return;
-
     emit(state.copyWith(
       isLoadingPreview: true,
       previewError: null,
@@ -1123,20 +1278,20 @@ class InvitationCubit extends Cubit<InvitationState> {
         final items = (data['items'] as List? ?? []).map((item) => InvoiceLineItem(
           description: item['name_en'] ?? item['name_ar'] ?? '',
           descriptionAr: item['name_ar'] ?? '',
-          amount: (item['price'] as num?)?.toDouble() ?? 0,
+          amount: _parseNum(item['price']),
         )).toList();
 
         final invoice = InvoiceSummaryModel(
           invoiceNumber: data['invoice_number'] ?? 'INV-${DateTime.now().millisecondsSinceEpoch}',
-          basePrice: (data['subtotal'] as num?)?.toDouble() ?? 0,
+          basePrice: _parseNum(data['subtotal']),
           servicesTotal: 0,
           templateFee: 0,
-          totalPrice: (data['total'] as num?)?.toDouble() ?? 0,
+          totalPrice: _parseNum(data['total']),
           lineItems: items,
           createdAt: DateTime.now(),
           eventName: data['event']?['title'] ?? state.eventName,
           packageName: state.selectedPackage?.name,
-          guestCount: data['guest_count'] ?? state.totalGuestCount,
+          guestCount: _parseInt(data['guest_count']) ?? state.totalGuestCount,
         );
 
         emit(state.copyWith(
@@ -1383,5 +1538,24 @@ class InvitationCubit extends Cubit<InvitationState> {
       orElse: () => state.availableTemplates.first,
     );
     selectTemplate(template);
+  }
+
+  // ============ Helper Methods ============
+
+  /// Parse number from various formats (String or num)
+  static double _parseNum(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
+  }
+
+  /// Parse integer from various formats (String or int)
+  static int? _parseInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value);
+    return null;
   }
 }

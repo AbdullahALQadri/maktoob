@@ -77,26 +77,30 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
 
         return Scaffold(
           backgroundColor: context.overlayBg,
-          body: NestedScrollView(
-            headerSliverBuilder: (context, _) => [
-              SliverToBoxAdapter(
-                child: EventDetailsHeader(
-                  event: state.event!,
-                  onBack: widget.onBack,
-                  onEdit: () => _navigateToEditEvent(state.event!),
-                  onDelete: () => _showDeleteConfirmation(state, t),
+          body: SafeArea(
+            child: NestedScrollView(
+              headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                SliverToBoxAdapter(
+                  child: EventDetailsHeader(
+                    event: state.event!,
+                    onBack: widget.onBack,
+                    onEdit: () => _navigateToEditEvent(state.event!),
+                    onDelete: () => _showDeleteConfirmation(state, t),
+                  ),
                 ),
-              ),
-              SliverToBoxAdapter(child: EventQuickStats(event: state.event!)),
-              SliverToBoxAdapter(child: EventTabBar(controller: _tabController)),
-            ],
-            body: TabBarView(
-              controller: _tabController,
-              children: [
-                _OverviewTab(event: state.event!),
-                _GuestsTab(state: state, searchController: _searchController),
-                _DetailsTab(event: state.event!),
+                SliverToBoxAdapter(child: EventQuickStats(event: state.event!)),
+                SliverToBoxAdapter(
+                  child: EventTabBar(controller: _tabController),
+                ),
               ],
+              body: TabBarView(
+                controller: _tabController,
+                children: [
+                  _OverviewTab(event: state.event!),
+                  _GuestsTab(state: state, searchController: _searchController),
+                  _DetailsTab(event: state.event!),
+                ],
+              ),
             ),
           ),
         );
@@ -133,7 +137,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                 color: AppColors.red500.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.warning_amber_rounded, color: AppColors.red500, size: 24),
+              child: Icon(
+                Icons.warning_amber_rounded,
+                color: AppColors.red500,
+                size: 24,
+              ),
             ),
             const SizedBox(width: 12),
             Text(t.translate('event_details_delete')),
@@ -146,7 +154,10 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: Text(t.translate('common_cancel'), style: TextStyle(color: context.textSecondary)),
+            child: Text(
+              t.translate('common_cancel'),
+              style: TextStyle(color: context.textSecondary),
+            ),
           ),
           BlocBuilder<EventDetailsCubit, EventDetailsState>(
             builder: (context, deleteState) {
@@ -154,16 +165,23 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                 onPressed: deleteState.isDeleting
                     ? null
                     : () async {
-                        final success = await context.read<EventDetailsCubit>().deleteEvent();
+                        final success = await context
+                            .read<EventDetailsCubit>()
+                            .deleteEvent();
                         if (success && mounted) {
                           Navigator.pop(dialogContext);
                           widget.onBack();
-                          AppSnackBar.showSuccess(context, message: t.translate('event_details_deleted'));
+                          AppSnackBar.showSuccess(
+                            context,
+                            message: t.translate('event_details_deleted'),
+                          );
                         }
                       },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.red500,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 child: deleteState.isDeleting
                     ? const SizedBox(
@@ -171,10 +189,15 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         ),
                       )
-                    : Text(t.translate('common_delete'), style: const TextStyle(color: Colors.white)),
+                    : Text(
+                        t.translate('common_delete'),
+                        style: const TextStyle(color: Colors.white),
+                      ),
               );
             },
           ),
@@ -194,11 +217,14 @@ class _OverviewTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.dynamicWidth(0.04),
+        vertical: context.dynamicHeight(0.02),
+      ),
       child: Column(
         children: [
           EventInfoCard(event: event),
-          const SizedBox(height: 16),
+          SizedBox(height: context.dynamicHeight(0.02)),
           EventAnalyticsCard(event: event),
         ],
       ),
@@ -215,32 +241,53 @@ class _GuestsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
+    final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
+    final horizontalPadding = context.dynamicWidth(0.04);
 
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: _SearchBar(
-            controller: searchController,
-            query: state.guestSearchQuery,
-            t: t,
-          ),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                horizontalPadding,
+                context.dynamicHeight(0.02),
+                horizontalPadding,
+                context.dynamicHeight(0.02),
+              ),
+              child: _SearchBar(
+                controller: searchController,
+                query: state.guestSearchQuery,
+                t: t,
+              ),
+            ),
+            state.filteredGuests.isEmpty
+                ? _EmptyGuestsState(
+                    hasSearchQuery: state.guestSearchQuery.isNotEmpty,
+                    t: t,
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: EdgeInsets.only(
+                      left: horizontalPadding,
+                      right: horizontalPadding,
+                      bottom: bottomPadding,
+                    ),
+                    itemCount: state.filteredGuests.length,
+                    itemBuilder: (context, index) {
+                      return StaggeredSlideFade(
+                        index: index,
+                        baseDelayMs: 300,
+                        staggerMs: 50,
+                        child: GuestCard(guest: state.filteredGuests[index]),
+                      );
+                    },
+                  ),
+          ],
         ),
-        Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            itemCount: state.filteredGuests.length,
-            itemBuilder: (context, index) {
-              return StaggeredSlideFade(
-                index: index,
-                baseDelayMs: 300,
-                staggerMs: 50,
-                child: GuestCard(guest: state.filteredGuests[index]),
-              );
-            },
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -253,19 +300,22 @@ class _DetailsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.dynamicWidth(0.04),
+        vertical: context.dynamicHeight(0.02),
+      ),
       child: Column(
         children: [
           EventPackageCard(event: event),
-          const SizedBox(height: 16),
+          SizedBox(height: context.dynamicHeight(0.02)),
           EventTemplateCard(event: event),
-          const SizedBox(height: 16),
+          SizedBox(height: context.dynamicHeight(0.02)),
           EventSettingsCard(event: event),
           if (event.description != null && event.description!.isNotEmpty) ...[
-            const SizedBox(height: 16),
+            SizedBox(height: context.dynamicHeight(0.02)),
             EventDescriptionCard(event: event),
           ],
-          const SizedBox(height: 32),
+          SizedBox(height: context.dynamicHeight(0.04)),
         ],
       ),
     );
@@ -285,19 +335,85 @@ class _ErrorView extends StatelessWidget {
     return Scaffold(
       backgroundColor: context.overlayBg,
       body: Center(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(
+            horizontal: context.dynamicWidth(0.08),
+            vertical: context.dynamicHeight(0.04),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: context.dynamicWidth(0.16),
+                color: AppColors.red500,
+              ),
+              SizedBox(height: context.dynamicHeight(0.02)),
+              Text(
+                t.translate('event_details_error'),
+                style: AppTextStyles.titleMedium.copyWith(
+                  color: context.textTertiary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: context.dynamicHeight(0.02)),
+              ElevatedButton(
+                onPressed: () =>
+                    context.read<EventDetailsCubit>().loadEventDetails(eventId),
+                child: Text(t.translate('common_retry')),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyGuestsState extends StatelessWidget {
+  final bool hasSearchQuery;
+  final AppLocalizations t;
+
+  const _EmptyGuestsState({
+    required this.hasSearchQuery,
+    required this.t,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(
+          vertical: context.dynamicHeight(0.04),
+          horizontal: context.dynamicWidth(0.08),
+        ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline, size: 64, color: AppColors.red500),
-            const SizedBox(height: 16),
-            Text(
-              t.translate('event_details_error'),
-              style: AppTextStyles.titleMedium.copyWith(color: context.textTertiary),
+            Icon(
+              hasSearchQuery ? Icons.search_off : Icons.people_outline,
+              size: context.dynamicWidth(0.16),
+              color: context.iconDefault,
             ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => context.read<EventDetailsCubit>().loadEventDetails(eventId),
-              child: Text(t.translate('common_retry')),
+            SizedBox(height: context.dynamicHeight(0.02)),
+            Text(
+              hasSearchQuery
+                  ? t.translate('event_details_no_search_results')
+                  : t.translate('event_details_no_guests'),
+              style: AppTextStyles.titleMedium.copyWith(
+                color: context.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: context.dynamicHeight(0.01)),
+            Text(
+              hasSearchQuery
+                  ? t.translate('event_details_try_different_search')
+                  : t.translate('event_details_guests_will_appear_here'),
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: context.textTertiary,
+              ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -322,7 +438,7 @@ class _SearchBar extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -333,10 +449,14 @@ class _SearchBar extends StatelessWidget {
       ),
       child: TextField(
         controller: controller,
-        onChanged: (value) => context.read<EventDetailsCubit>().searchGuests(value),
+        scrollPadding: EdgeInsets.zero,
+        onChanged: (value) =>
+            context.read<EventDetailsCubit>().searchGuests(value),
         decoration: InputDecoration(
           hintText: t.translate('event_details_search_guests'),
-          hintStyle: AppTextStyles.bodyMedium.copyWith(color: context.iconDefault),
+          hintStyle: AppTextStyles.bodyMedium.copyWith(
+            color: context.iconDefault,
+          ),
           prefixIcon: Icon(Icons.search, color: context.iconDefault),
           suffixIcon: query.isNotEmpty
               ? IconButton(
@@ -348,7 +468,10 @@ class _SearchBar extends StatelessWidget {
                 )
               : null,
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: context.dynamicWidth(0.04),
+            vertical: context.dynamicHeight(0.018),
+          ),
         ),
       ),
     );

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:equatable/equatable.dart';
@@ -77,10 +78,11 @@ class EventTypeModel extends Equatable {
   }
 
   factory EventTypeModel.fromJson(Map<String, dynamic> json) {
+    final name = json['name'] as String? ?? '';
     return EventTypeModel(
       id: json['id'] as int?,
-      name: json['name'] as String,
-      nameAr: json['name_ar'] as String? ?? json['name'] as String,
+      name: name,
+      nameAr: json['name_ar'] as String? ?? name,
       iconUrl: json['icon_url'] as String?,
       emoji: json['emoji'] as String?,
     );
@@ -134,10 +136,11 @@ class TemplateModel extends Equatable {
   }) : imageUrl = imageUrl ?? previewUrl;
 
   factory TemplateModel.fromJson(Map<String, dynamic> json) {
+    final name = json['name'] as String? ?? '';
     return TemplateModel(
       id: json['id'] as int?,
-      name: json['name'] as String,
-      nameAr: json['name_ar'] as String? ?? json['name'] as String,
+      name: name,
+      nameAr: json['name_ar'] as String? ?? name,
       previewUrl: json['preview_url'] as String?,
       isCustom: json['is_custom'] as bool? ?? false,
       hasExtraFee: json['has_extra_fee'] as bool? ?? false,
@@ -192,10 +195,11 @@ class VenueModel extends Equatable {
   });
 
   factory VenueModel.fromJson(Map<String, dynamic> json) {
+    final name = json['name'] as String? ?? '';
     return VenueModel(
-      id: json['id'] as int,
-      name: json['name'] as String,
-      nameAr: json['name_ar'] as String? ?? json['name'] as String,
+      id: json['id'] as int? ?? 0,
+      name: name,
+      nameAr: json['name_ar'] as String? ?? name,
       address: json['address'] as String?,
       latitude: (json['latitude'] as num?)?.toDouble(),
       longitude: (json['longitude'] as num?)?.toDouble(),
@@ -246,22 +250,50 @@ class PackageModel extends Equatable {
   bool get hasUnlimitedInvitations => invitationLimit == null || invitationLimit == -1;
 
   factory PackageModel.fromJson(Map<String, dynamic> json) {
+    // API returns name_en/name_ar, fallback to name for compatibility
+    final nameEn = json['name_en'] as String? ?? json['name'] as String?;
+    final nameAr = json['name_ar'] as String?;
+
+    // Parse price from various formats (String or num)
+    double parsePrice(dynamic value) {
+      if (value == null) return 0.0;
+      if (value is num) return value.toDouble();
+      if (value is String) return double.tryParse(value) ?? 0.0;
+      return 0.0;
+    }
+
+    // Parse features from JSON string or list
+    List<String> features = [];
+    List<String> featuresAr = [];
+    final featuresRaw = json['features'];
+    if (featuresRaw is String) {
+      // Features is a JSON string like {"ar":["..."],"en":["..."]}
+      try {
+        final parsed = jsonDecode(featuresRaw) as Map<String, dynamic>;
+        features = (parsed['en'] as List?)?.map((e) => e.toString()).toList() ?? [];
+        featuresAr = (parsed['ar'] as List?)?.map((e) => e.toString()).toList() ?? [];
+      } catch (_) {
+        // Ignore parsing errors
+      }
+    } else if (featuresRaw is List) {
+      features = featuresRaw.map((e) => e.toString()).toList();
+    }
+    // Override featuresAr if provided separately
+    if (json['features_ar'] is List) {
+      featuresAr = (json['features_ar'] as List).map((e) => e.toString()).toList();
+    }
+
     return PackageModel(
-      id: json['id'] as int,
-      name: json['name'] as String,
-      nameAr: json['name_ar'] as String? ?? json['name'] as String,
-      price: (json['price'] as num).toDouble(),
-      invitationLimit: json['invitation_limit'] as int?,
+      id: json['id'] as int? ?? 0,
+      name: nameEn ?? nameAr ?? '',
+      nameAr: nameAr ?? nameEn ?? '',
+      price: parsePrice(json['price']),
+      // API uses invitations_limit, code expects invitation_limit
+      invitationLimit: json['invitations_limit'] as int? ?? json['invitation_limit'] as int?,
       isCustom: json['is_custom'] as bool? ?? false,
       minInvitations: json['min_invitations'] as int?,
-      features: (json['features'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          [],
-      featuresAr: (json['features_ar'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          [],
+      features: features,
+      featuresAr: featuresAr,
       isHighlighted: json['is_highlighted'] as bool? ?? false,
     );
   }
@@ -346,10 +378,12 @@ class EventTypeFormField extends Equatable {
        required = required ?? isRequired;
 
   factory EventTypeFormField.fromJson(Map<String, dynamic> json) {
+    final key = json['key'] as String? ?? '';
+    final label = json['label'] as String? ?? '';
     return EventTypeFormField(
-      key: json['key'] as String,
-      label: json['label'] as String,
-      labelAr: json['label_ar'] as String? ?? json['label'] as String,
+      key: key,
+      label: label,
+      labelAr: json['label_ar'] as String? ?? label,
       type: json['type'] as String? ?? 'text',
       isRequired: json['is_required'] as bool? ?? false,
       hint: json['hint'] as String?,

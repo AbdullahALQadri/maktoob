@@ -24,16 +24,28 @@ class ExtraServiceModel extends Equatable {
 
   /// Create from JSON response
   factory ExtraServiceModel.fromJson(Map<String, dynamic> json) {
+    // API returns name_en/name_ar, fallback to name for compatibility
+    final nameEn = json['name_en'] as String? ?? json['name'] as String?;
+    final nameAr = json['name_ar'] as String?;
+
     return ExtraServiceModel(
       id: json['id'] as int,
-      name: json['name'] as String,
-      nameAr: json['name_ar'] as String? ?? json['name'] as String,
-      description: json['description'] as String?,
+      name: nameEn ?? nameAr ?? '',
+      nameAr: nameAr ?? nameEn ?? '',
+      description: json['description_en'] as String? ?? json['description'] as String?,
       descriptionAr: json['description_ar'] as String?,
-      price: (json['price'] as num).toDouble(),
-      iconUrl: json['icon_url'] as String?,
+      price: _parsePrice(json['price'] ?? json['base_price']),
+      iconUrl: json['icon_url'] as String? ?? json['icon'] as String?,
       eventTypeId: json['event_type_id'] as int?,
     );
+  }
+
+  /// Parse price from various formats (String or num)
+  static double _parsePrice(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
   }
 
   /// Convert to JSON for API request

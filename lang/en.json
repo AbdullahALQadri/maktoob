@@ -107,6 +107,10 @@
   "event_details_delete_warning": "This action cannot be undone.",
   "event_details_deleted": "Event deleted successfully",
   "event_details_error": "Error loading event",
+  "event_details_no_guests": "No guests yet",
+  "event_details_guests_will_appear_here": "Guests will appear here once they are added to the event",
+  "event_details_no_search_results": "No results found",
+  "event_details_try_different_search": "Try searching with different keywords",
   "event_details_yes": "Yes",
   "event_details_no": "No",
 
@@ -605,6 +609,10 @@
   "edit_event_max_companions": "Max Companions",
   "edit_event_allow_companions": "Allow Companions",
   "edit_event_name_required": "Event name is required",
+  "edit_event_max_companions_required": "Number of companions is required",
+  "edit_event_max_companions_invalid": "Please enter a valid number",
+  "edit_event_max_companions_min": "Minimum companions is 1",
+  "edit_event_max_companions_max": "Maximum companions is 10",
 
   "edit_profile_title": "Edit Profile",
   "edit_profile_saved": "Profile updated successfully",

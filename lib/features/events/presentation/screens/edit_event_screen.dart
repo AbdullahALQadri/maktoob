@@ -174,24 +174,6 @@ class _EditEventScreenState extends State<EditEventScreen> {
                               context.read<EditEventCubit>().updateRsvpDeadline,
                         ),
                         SizedBox(height: context.dynamicHeight(0.02)),
-                        _buildTextField(
-                          label: t.translate('edit_event_max_companions'),
-                          controller: _maxCompanionsController,
-                          focusNode: _maxCompanionsFocus,
-                          keyboardType: TextInputType.number,
-                          textInputAction: TextInputAction.done,
-                          onFieldSubmitted: (_) =>
-                              FocusScope.of(context).unfocus(),
-                          onChanged: (value) {
-                            final parsed = int.tryParse(value);
-                            if (parsed != null) {
-                              context
-                                  .read<EditEventCubit>()
-                                  .updateMaxCompanions(parsed);
-                            }
-                          },
-                        ),
-                        SizedBox(height: context.dynamicHeight(0.02)),
                         _buildSwitchField(
                           label: t.translate('edit_event_allow_companions'),
                           value: state.allowCompanions,
@@ -199,6 +181,46 @@ class _EditEventScreenState extends State<EditEventScreen> {
                               .read<EditEventCubit>()
                               .updateAllowCompanions,
                         ),
+                        if (state.allowCompanions) ...[
+                          SizedBox(height: context.dynamicHeight(0.02)),
+                          _buildTextField(
+                            label: t.translate('edit_event_max_companions'),
+                            controller: _maxCompanionsController,
+                            focusNode: _maxCompanionsFocus,
+                            keyboardType: TextInputType.number,
+                            textInputAction: TextInputAction.done,
+                            onFieldSubmitted: (_) =>
+                                FocusScope.of(context).unfocus(),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return t.translate(
+                                    'edit_event_max_companions_required');
+                              }
+                              final parsed = int.tryParse(value);
+                              if (parsed == null) {
+                                return t.translate(
+                                    'edit_event_max_companions_invalid');
+                              }
+                              if (parsed < 1) {
+                                return t.translate(
+                                    'edit_event_max_companions_min');
+                              }
+                              if (parsed > 10) {
+                                return t.translate(
+                                    'edit_event_max_companions_max');
+                              }
+                              return null;
+                            },
+                            onChanged: (value) {
+                              final parsed = int.tryParse(value);
+                              if (parsed != null) {
+                                context
+                                    .read<EditEventCubit>()
+                                    .updateMaxCompanions(parsed);
+                              }
+                            },
+                          ),
+                        ],
                         if (!state.isDraft &&
                             state.previousRequests.isNotEmpty) ...[
                           SizedBox(height: context.dynamicHeight(0.03)),

@@ -46,12 +46,12 @@ class EventModel extends EventEntity {
       venue: json['venue'] as String? ?? json['venue_data']?['name_ar'] as String? ?? json['custom_venue_name_ar'] as String? ?? '',
       venueAddress: json['venue_address'] as String? ?? json['custom_venue_address_ar'] as String?,
       description: json['description'] as String? ?? json['description_ar'] as String?,
-      invitations: json['invitations'] as int? ?? json['max_invitations'] as int? ?? 0,
-      responses: json['responses'] as int? ?? 0,
-      attending: json['attending'] as int? ?? 0,
-      declined: json['declined'] as int? ?? 0,
-      pending: json['pending'] as int? ?? 0,
-      checkedIn: json['checked_in'] as int? ?? json['invitations_used'] as int? ?? 0,
+      invitations: _parseIntOrListLength(json['invitations']) ?? _parseIntOrListLength(json['max_invitations']) ?? 0,
+      responses: _parseIntOrListLength(json['responses']) ?? 0,
+      attending: _parseIntOrListLength(json['attending']) ?? 0,
+      declined: _parseIntOrListLength(json['declined']) ?? 0,
+      pending: _parseIntOrListLength(json['pending']) ?? 0,
+      checkedIn: _parseIntOrListLength(json['checked_in']) ?? _parseIntOrListLength(json['invitations_used']) ?? 0,
       status: _parseStatus(json['status'] as String? ?? 'draft'),
       eventDate: eventDate != null
           ? (eventDate is String ? DateTime.tryParse(eventDate) : null)
@@ -62,11 +62,20 @@ class EventModel extends EventEntity {
       packageName: json['package_name'] as String? ?? json['package']?['name_ar'] as String?,
       packagePrice: json['package_price'] as String? ?? (json['price'] != null ? '\$${json['price']}' : null),
       templateName: json['template_name'] as String? ?? json['template']?['name_ar'] as String?,
-      maxCompanions: json['max_companions'] as int? ?? 2,
+      maxCompanions: _parseIntOrListLength(json['max_companions']) ?? 2,
       allowCompanions: json['allow_companions'] as bool? ?? true,
       gradient: _parseGradient(json['gradient']),
       icon: _parseIcon(json['icon']),
     );
+  }
+
+  /// Parses a value that could be an int, a List (returns length), or null
+  static int? _parseIntOrListLength(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is List) return value.length;
+    if (value is String) return int.tryParse(value);
+    return null;
   }
 
   static String _formatDateFromApi(dynamic eventDate) {

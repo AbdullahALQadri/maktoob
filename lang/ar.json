@@ -107,6 +107,10 @@
   "event_details_delete_warning": "لا يمكن التراجع عن هذا الإجراء.",
   "event_details_deleted": "تم حذف الفعالية بنجاح",
   "event_details_error": "خطأ في تحميل الفعالية",
+  "event_details_no_guests": "لا يوجد ضيوف",
+  "event_details_guests_will_appear_here": "سيظهر الضيوف هنا بعد إضافتهم للفعالية",
+  "event_details_no_search_results": "لا توجد نتائج",
+  "event_details_try_different_search": "جرب البحث بكلمات مختلفة",
   "event_details_yes": "نعم",
   "event_details_no": "لا",
 
@@ -605,6 +609,10 @@
   "edit_event_max_companions": "الحد الأقصى للمرافقين",
   "edit_event_allow_companions": "السماح بالمرافقين",
   "edit_event_name_required": "اسم الفعالية مطلوب",
+  "edit_event_max_companions_required": "عدد المرافقين مطلوب",
+  "edit_event_max_companions_invalid": "الرجاء إدخال رقم صحيح",
+  "edit_event_max_companions_min": "الحد الأدنى للمرافقين هو 1",
+  "edit_event_max_companions_max": "الحد الأقصى للمرافقين هو 10",
 
   "edit_profile_title": "تعديل الملف الشخصي",
   "edit_profile_saved": "تم تحديث الملف الشخصي بنجاح",

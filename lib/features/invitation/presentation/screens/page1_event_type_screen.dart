@@ -19,7 +19,25 @@ class Page1EventTypeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
 
-    return BlocBuilder<InvitationCubit, InvitationState>(
+    return BlocConsumer<InvitationCubit, InvitationState>(
+      listenWhen: (previous, current) =>
+          previous.errorMessage != current.errorMessage &&
+          current.errorMessage != null,
+      listener: (context, state) {
+        if (state.errorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                state.errorMessage!,
+                style: const TextStyle(color: Colors.white),
+              ),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          context.read<InvitationCubit>().clearError();
+        }
+      },
       builder: (context, state) {
         return Scaffold(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -268,6 +286,7 @@ class _BottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final canProceed = state.canProceedFromEventType;
+    final isLoading = state.isLoading;
 
     return Container(
       padding: EdgeInsets.all(context.dynamicWidth(0.04)),
@@ -284,8 +303,10 @@ class _BottomBar extends StatelessWidget {
       child: SafeArea(
         child: PrimaryButton(
           text: l?.translate('common_next') ?? 'Next',
-          onPressed:
-              canProceed ? () => context.read<InvitationCubit>().nextStep() : null,
+          isLoading: isLoading,
+          onPressed: canProceed && !isLoading
+              ? () => context.read<InvitationCubit>().createDraftAndProceed()
+              : null,
         ),
       ),
     );

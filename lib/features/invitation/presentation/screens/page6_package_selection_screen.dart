@@ -296,8 +296,9 @@ class _PackageBottomBar extends StatelessWidget {
                   flex: 2,
                   child: PrimaryButton(
                     text: l?.translate('common_next') ?? 'Next',
-                    onPressed: canProceed
-                        ? () => context.read<InvitationCubit>().nextStep()
+                    isLoading: state.isLoading,
+                    onPressed: canProceed && !state.isLoading
+                        ? () => context.read<InvitationCubit>().savePackageAndProceed()
                         : null,
                   ),
                 ),

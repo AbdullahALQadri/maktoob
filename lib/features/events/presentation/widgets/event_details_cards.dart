@@ -156,7 +156,7 @@ class EventSettingsCard extends StatelessWidget {
           _SettingRow(
             icon: Icons.person_add_outlined,
             label: t.translate('event_details_max_companions'),
-            value: event.maxCompanions.toString(),
+            value: event.allowCompanions ? event.maxCompanions.toString() : '0',
           ),
           const SizedBox(height: 12),
           _SettingRow(

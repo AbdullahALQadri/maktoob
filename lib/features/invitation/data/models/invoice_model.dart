@@ -20,9 +20,26 @@ class InvoiceLineItem extends Equatable {
     return InvoiceLineItem(
       description: json['description'] as String,
       descriptionAr: json['description_ar'] as String? ?? json['description'] as String,
-      amount: (json['amount'] as num).toDouble(),
-      quantity: json['quantity'] as int? ?? 1,
+      amount: _parseNum(json['amount']),
+      quantity: _parseInt(json['quantity']) ?? 1,
     );
+  }
+
+  /// Parse number from various formats (String or num)
+  static double _parseNum(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
+  }
+
+  /// Parse integer from various formats (String or int)
+  static int? _parseInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value);
+    return null;
   }
 
   Map<String, dynamic> toJson() {
@@ -85,11 +102,11 @@ class InvoiceSummaryModel extends Equatable {
   factory InvoiceSummaryModel.fromJson(Map<String, dynamic> json) {
     return InvoiceSummaryModel(
       invoiceNumber: json['invoice_number'] as String?,
-      basePrice: (json['base_price'] as num).toDouble(),
-      servicesTotal: (json['services_total'] as num).toDouble(),
-      templateFee: (json['template_fee'] as num?)?.toDouble() ?? 0,
-      discount: (json['discount'] as num?)?.toDouble() ?? 0,
-      totalPrice: (json['total_price'] as num).toDouble(),
+      basePrice: _parseNum(json['base_price']),
+      servicesTotal: _parseNum(json['services_total']),
+      templateFee: _parseNum(json['template_fee']),
+      discount: _parseNum(json['discount']),
+      totalPrice: _parseNum(json['total_price']),
       lineItems: (json['line_items'] as List<dynamic>?)
               ?.map((e) => InvoiceLineItem.fromJson(e as Map<String, dynamic>))
               .toList() ??
@@ -99,8 +116,25 @@ class InvoiceSummaryModel extends Equatable {
           : null,
       eventName: json['event_name'] as String?,
       packageName: json['package_name'] as String?,
-      guestCount: json['guest_count'] as int?,
+      guestCount: _parseInt(json['guest_count']),
     );
+  }
+
+  /// Parse number from various formats (String or num)
+  static double _parseNum(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
+  }
+
+  /// Parse integer from various formats (String or int)
+  static int? _parseInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value);
+    return null;
   }
 
   /// Convert to JSON for API request

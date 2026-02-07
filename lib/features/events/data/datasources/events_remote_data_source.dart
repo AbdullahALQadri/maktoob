@@ -43,7 +43,8 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
   Future<EventModel> getEventDetails(String eventId) async {
     final response =
         await apiConsumer.get(Endpoints.event(int.parse(eventId)));
-    return EventModel.fromJson(response['data']);
+    // API returns {"event": {...}} for single event details
+    return EventModel.fromJson(response['event'] ?? response['data']);
   }
 
   @override
@@ -134,6 +135,7 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
       body: {
         if (params.name != null) 'title_ar': params.name,
         if (params.venueId != null) 'venue_id': params.venueId,
+        if (params.venue != null) 'custom_venue_name_ar': params.venue,
         if (params.venueAddress != null)
           'custom_venue_address_ar': params.venueAddress,
         if (params.description != null)
@@ -141,6 +143,9 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
         if (params.eventDate != null)
           'event_date':
               params.eventDate!.toIso8601String().split('T')[0],
+        if (params.rsvpDeadline != null)
+          'response_deadline':
+              params.rsvpDeadline!.toIso8601String().split('T')[0],
         if (params.status != null) 'status': params.status!.name,
         if (params.maxCompanions != null)
           'max_companions': params.maxCompanions,
@@ -148,7 +153,8 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
           'allow_companions': params.allowCompanions,
       },
     );
-    return EventModel.fromJson(response['data']);
+    // API returns {"event": {...}} for update response
+    return EventModel.fromJson(response['event'] ?? response['data']);
   }
 
   @override
