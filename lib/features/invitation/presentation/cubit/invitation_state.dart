@@ -78,11 +78,13 @@ class EventTypeModel extends Equatable {
   }
 
   factory EventTypeModel.fromJson(Map<String, dynamic> json) {
-    final name = json['name'] as String? ?? '';
+    // API returns name_en/name_ar, fallback to name for compatibility
+    final nameEn = json['name_en'] as String? ?? json['name'] as String? ?? '';
+    final nameAr = json['name_ar'] as String? ?? nameEn;
     return EventTypeModel(
       id: json['id'] as int?,
-      name: name,
-      nameAr: json['name_ar'] as String? ?? name,
+      name: nameEn.isNotEmpty ? nameEn : nameAr,
+      nameAr: nameAr.isNotEmpty ? nameAr : nameEn,
       iconUrl: json['icon_url'] as String?,
       emoji: json['emoji'] as String?,
     );
