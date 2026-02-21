@@ -56,6 +56,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
     );
 
     // Generate share link when screen loads
+    // ignore: deprecated_member_use_from_same_package
     context.read<InvitationCubit>().generateShareLink();
 
     _animationController.forward();
@@ -200,7 +201,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
                   SizedBox(height: context.dynamicHeight(0.03)),
 
                   // Marketing footer (only for free plan)
-                  if (state.isFreePlanSelected)
+                  if (state.selectedPackage?.price == 0)
                     FadeTransition(
                       opacity: _fadeAnimation,
                       child: const MarketingFooterWidget(),
@@ -374,7 +375,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
 
   void _shareViaWhatsApp(InvitationState state) async {
     final link = state.shareLink ?? '';
-    final eventName = state.names.isNotEmpty ? state.names.first : 'My Event';
+    final eventName = state.eventName ?? 'My Event';
     final message = 'You\'re invited to $eventName! View invitation: $link';
 
     try {
@@ -391,7 +392,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen>
 
   void _shareGeneric(InvitationState state) async {
     final link = state.shareLink ?? '';
-    final eventName = state.names.isNotEmpty ? state.names.first : 'My Event';
+    final eventName = state.eventName ?? 'My Event';
     final message = 'You\'re invited to $eventName! View invitation: $link';
 
     try {

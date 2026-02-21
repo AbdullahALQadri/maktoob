@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use_from_same_package
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -107,7 +108,7 @@ class ShareScreen extends StatelessWidget {
               SizedBox(height: context.dynamicHeight(0.03)),
 
               // Guest count summary
-              if (state.totalGuests > 0)
+              if (state.totalGuestCount > 0)
                 Container(
                   margin: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.061)),
                   padding: EdgeInsets.all(context.dynamicWidth(0.04)),
@@ -125,7 +126,7 @@ class ShareScreen extends StatelessWidget {
                       ),
                       SizedBox(width: context.dynamicWidth(0.021)),
                       Text(
-                        '${state.totalGuests} guests will receive this invitation',
+                        '${state.totalGuestCount} guests will receive this invitation',
                         style: TextStyle(
                           color: AppColors.primaryColor,
                           fontSize: context.dynamicWidth(0.037),

@@ -72,7 +72,7 @@ class WhatsAppPaymentScreen extends StatelessWidget {
       body: BlocBuilder<InvitationCubit, InvitationState>(
         builder: (context, state) {
           final selectedPackage = GoldenPackageModel.getById(
-            state.selectedPackageId ?? '',
+            state.selectedPackage?.id.toString() ?? '',
           );
 
           return SingleChildScrollView(
@@ -457,7 +457,7 @@ class WhatsAppPaymentScreen extends StatelessWidget {
                   child: PrimaryButton(
                     text: 'I\'ve Completed Payment',
                     onPressed: () {
-                      context.read<InvitationCubit>().submitInvitation();
+                      context.read<InvitationCubit>().saveAndSubmit();
                       onComplete?.call();
                     },
                   ),
@@ -486,6 +486,7 @@ class WhatsAppPaymentScreen extends StatelessWidget {
 
   Future<void> _openWhatsApp(BuildContext context, InvitationState state) async {
     final cubit = context.read<InvitationCubit>();
+    // ignore: deprecated_member_use_from_same_package
     final url = cubit.getWhatsAppUrl(_whatsappNumber);
 
     try {

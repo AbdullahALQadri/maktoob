@@ -278,17 +278,17 @@ class GradientAnimatedBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedWidget_(
+    return AnimatedWidgetBase(
       animation: animation,
       builder: builder,
     );
   }
 }
 
-class AnimatedWidget_ extends AnimatedWidget {
+class AnimatedWidgetBase extends AnimatedWidget {
   final Widget Function(BuildContext, Widget?) builder;
 
-  const AnimatedWidget_({
+  const AnimatedWidgetBase({
     super.key,
     required Animation<double> animation,
     required this.builder,

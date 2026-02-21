@@ -50,7 +50,12 @@ class InvitationRepositoryImpl implements InvitationRepository {
       final templates = data.map((json) => TemplateEntity(
         id: json['id'] as int,
         name: json['name'] ?? json['name_en'] ?? '',
-        previewUrl: json['preview_url'] as String?,
+        previewUrl: json['preview_url'] as String? ??
+            json['image_url'] as String? ??
+            json['image'] as String? ??
+            json['thumbnail'] as String? ??
+            json['thumbnail_url'] as String? ??
+            json['photo'] as String?,
         eventTypeId: json['event_type_id'] as int? ?? eventTypeId,
       )).toList();
       return Right(templates);

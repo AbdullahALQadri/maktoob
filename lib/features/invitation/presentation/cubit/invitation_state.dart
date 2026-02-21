@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use_from_same_package
 import 'dart:convert';
 import 'dart:io';
 
@@ -139,11 +140,18 @@ class TemplateModel extends Equatable {
 
   factory TemplateModel.fromJson(Map<String, dynamic> json) {
     final name = json['name'] as String? ?? '';
+    // The API may return the image URL under different field names
+    final previewUrl = json['preview_url'] as String? ??
+        json['image_url'] as String? ??
+        json['image'] as String? ??
+        json['thumbnail'] as String? ??
+        json['thumbnail_url'] as String? ??
+        json['photo'] as String?;
     return TemplateModel(
       id: json['id'] as int?,
       name: name,
       nameAr: json['name_ar'] as String? ?? name,
-      previewUrl: json['preview_url'] as String?,
+      previewUrl: previewUrl,
       isCustom: json['is_custom'] as bool? ?? false,
       hasExtraFee: json['has_extra_fee'] as bool? ?? false,
       extraFeeAmount: (json['extra_fee_amount'] as num?)?.toDouble(),

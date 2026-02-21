@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use_from_same_package
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -114,7 +115,7 @@ class _CreateInvitationScreenState extends State<CreateInvitationScreen> {
               ),
               BackdropActionBar(
                 buttonText: 'Continue to Add Guests',
-                isEnabled: state.canProceedFromCreation,
+                isEnabled: state.canProceedFromEventDetails,
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
                     context.read<InvitationCubit>().nextStep();

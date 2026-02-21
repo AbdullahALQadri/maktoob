@@ -79,7 +79,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
       email: _emailController.text.trim(),
     );
 
-    context.read<InvitationCubit>().addGuestDirect(guest);
+    context.read<InvitationCubit>().addManualGuest(guest);
 
     FocusScope.of(context).unfocus();
     setState(() {
@@ -141,7 +141,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
                   vertical: context.dynamicWidth(0.021),
                 ),
                 child: GuestStatsCard(
-                  total: state.totalGuests,
+                  total: state.totalGuestCount,
                   confirmed: state.confirmedGuests,
                   declined: state.declinedGuests,
                   pending: state.pendingGuests,
@@ -272,7 +272,7 @@ class _AddGuestsScreenState extends State<AddGuestsScreen> {
                             ),
                             TextButton(
                               onPressed: () {
-                                context.read<InvitationCubit>().clearGuests();
+                                context.read<InvitationCubit>().clearAllGuests();
                               },
                               child: Text(
                                 'Clear All',

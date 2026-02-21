@@ -6,6 +6,7 @@
 /// - Skeleton widgets - Various skeleton layouts for different content types
 /// - ScanningIndicator - Modern scanning animation for QR scanners
 /// - AppLoader - General purpose loading indicator
+library;
 
 export 'shimmer_loading.dart';
 export 'skeleton_widgets.dart';

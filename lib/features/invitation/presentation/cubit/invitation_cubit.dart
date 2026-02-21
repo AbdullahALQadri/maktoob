@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use_from_same_package
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -94,7 +95,13 @@ class InvitationCubit extends Cubit<InvitationState> {
 
       if (apiService != null) {
         final response = await apiService!.getTemplatesForEventType(eventTypeId);
+        debugPrint('📋 Templates API full response: $response');
+        debugPrint('📋 Templates API response[data]: ${response['data']}');
         final templatesData = response['data']['templates'] as List;
+        for (final t in templatesData) {
+          debugPrint('📋 Template JSON keys: ${(t as Map).keys.toList()}');
+          debugPrint('📋 Template JSON: $t');
+        }
         templates = templatesData.map((t) => TemplateModel.fromJson(t)).toList();
       } else {
         templates = [];

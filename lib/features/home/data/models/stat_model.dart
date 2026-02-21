@@ -11,11 +11,26 @@ class StatModel extends StatEntity {
     required super.bgColor,
   });
 
+  static const _knownIcons = [
+    Icons.calendar_today,
+    Icons.people,
+    Icons.check_circle,
+    Icons.cancel,
+    Icons.event,
+  ];
+
+  static IconData _resolveIcon(int codePoint) {
+    for (final icon in _knownIcons) {
+      if (icon.codePoint == codePoint) return icon;
+    }
+    return Icons.event;
+  }
+
   factory StatModel.fromJson(Map<String, dynamic> json) {
     return StatModel(
       label: json['label'] as String,
       value: json['value'] as String,
-      icon: IconData(json['icon'] as int, fontFamily: 'MaterialIcons'),
+      icon: _resolveIcon(json['icon'] as int),
       gradientColors: (json['gradientColors'] as List<dynamic>)
           .map((c) => Color(c as int))
           .toList(),

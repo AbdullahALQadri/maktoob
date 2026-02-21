@@ -24,13 +24,13 @@ import '../error/failures.dart';
 ///   }
 /// }
 /// ```
-abstract class UseCase<Type, Params> {
+abstract class UseCase<T, Params> {
   /// Executes the use case with the given [params].
   ///
   /// Returns an [Either] containing:
   /// - [Failure] on the left side if the operation fails
-  /// - [Type] on the right side if the operation succeeds
-  Future<Either<Failure, Type>> call(Params params);
+  /// - [T] on the right side if the operation succeeds
+  Future<Either<Failure, T>> call(Params params);
 }
 
 /// Use this class when a use case does not require any parameters.

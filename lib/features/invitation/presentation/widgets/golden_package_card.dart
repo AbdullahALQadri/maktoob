@@ -101,7 +101,7 @@ class GoldenPackageCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          package.isFree ? 'Free' : '${package.price}',
+                          package.isFree ? 'Free' : package.price.toString(),
                           style: TextStyle(
                             fontSize: screenWidth * 0.055,
                             fontWeight: FontWeight.bold,

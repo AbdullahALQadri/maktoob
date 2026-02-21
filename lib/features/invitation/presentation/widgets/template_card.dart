@@ -88,10 +88,26 @@ class TemplateCard extends StatelessWidget {
   }
 
   Widget _buildTemplatePreview(BuildContext context) {
-    if (template.previewUrl != null) {
+    if (template.previewUrl != null && template.previewUrl!.isNotEmpty) {
       return Image.network(
         template.previewUrl!,
         fit: BoxFit.cover,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Container(
+            color: context.overlayBg,
+            child: Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+                strokeWidth: 2,
+                color: AppColors.primaryColor,
+              ),
+            ),
+          );
+        },
         errorBuilder: (_, __, ___) => _buildPlaceholder(context),
       );
     }

@@ -209,9 +209,24 @@ class EventModel extends EventEntity {
     return [Colors.purple, Colors.pink];
   }
 
+  static const _knownIcons = [
+    Icons.event,
+    Icons.calendar_today,
+    Icons.people,
+    Icons.check_circle,
+    Icons.cancel,
+    Icons.celebration,
+    Icons.cake,
+    Icons.business,
+    Icons.school,
+    Icons.sports,
+  ];
+
   static IconData _parseIcon(dynamic icon) {
     if (icon is int) {
-      return IconData(icon, fontFamily: 'MaterialIcons');
+      for (final knownIcon in _knownIcons) {
+        if (knownIcon.codePoint == icon) return knownIcon;
+      }
     }
     return Icons.event;
   }

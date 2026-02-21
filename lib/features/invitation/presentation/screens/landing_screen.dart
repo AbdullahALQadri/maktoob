@@ -248,7 +248,7 @@ class _LandingScreenState extends State<LandingScreen>
 
   void _onGetStarted() {
     // Navigate to event type selection
-    context.read<InvitationCubit>().goToStep(InvitationStep.eventType);
+    context.read<InvitationCubit>().goToStep(InvitationStep.eventTypeSelection);
     widget.onGetStarted?.call();
   }
 }

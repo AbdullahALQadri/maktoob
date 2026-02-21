@@ -103,10 +103,11 @@ class PackageSelectionScreen extends StatelessWidget {
                       padding: EdgeInsets.only(bottom: screenWidth * 0.04),
                       child: GoldenPackageCard(
                         package: package,
-                        isSelected: state.selectedPackageId == package.id,
+                        isSelected: state.selectedPackage?.id.toString() == package.id,
                         onTap: () {
                           context
                               .read<InvitationCubit>()
+                              // ignore: deprecated_member_use_from_same_package
                               .selectPackageById(package.id);
                         },
                       ),
@@ -138,16 +139,16 @@ class PackageSelectionScreen extends StatelessWidget {
                           SizedBox(
                             width: double.infinity,
                             child: PrimaryButton(
-                              text: state.isFreePlanSelected
+                              text: state.selectedPackage?.price == 0
                                   ? 'Continue with Free Plan'
                                   : 'Continue',
                               onPressed: state.canProceedFromPackage
                                   ? () {
-                                      if (state.isFreePlanSelected) {
+                                      if (state.selectedPackage?.price == 0) {
                                         // Skip payment, go directly to confirmation
                                         context
                                             .read<InvitationCubit>()
-                                            .skipToConfirmation();
+                                            .goToStep(InvitationStep.invoiceSummary);
                                         onSelectFree?.call();
                                       } else {
                                         // Go to payment

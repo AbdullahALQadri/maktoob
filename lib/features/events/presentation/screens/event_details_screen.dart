@@ -165,11 +165,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                 onPressed: deleteState.isDeleting
                     ? null
                     : () async {
+                        final navigator = Navigator.of(dialogContext);
                         final success = await context
                             .read<EventDetailsCubit>()
                             .deleteEvent();
-                        if (success && mounted) {
-                          Navigator.pop(dialogContext);
+                        if (success && context.mounted) {
+                          navigator.pop();
                           widget.onBack();
                           AppSnackBar.showSuccess(
                             context,
