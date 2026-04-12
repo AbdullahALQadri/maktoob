@@ -1,18 +1,15 @@
+// ignore_for_file: deprecated_member_use_from_same_package
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../injection_container.dart';
 import '../cubit/invitation_cubit.dart';
 import '../cubit/invitation_state.dart';
-import 'page1_event_type_screen.dart';
-import 'page2_event_details_screen.dart';
-import 'page3_preview_screen.dart';
-import 'page4_guest_management_screen.dart';
-import 'page5_extra_services_screen.dart';
-import 'page6_package_selection_screen.dart';
-import 'page7_invoice_screen.dart';
+import 'page1_event_setup_screen.dart';
+import 'page2_guests_services_screen.dart';
+import 'page3_review_submit_screen.dart';
 
-/// Main container screen for the 7-page event creation wizard.
+/// Main container screen for the 3-page event creation wizard.
 /// Manages navigation between pages based on the current step in the cubit state.
 class InvitationWizardScreen extends StatefulWidget {
   /// Optional draft event ID to resume editing
@@ -124,14 +121,20 @@ class _InvitationWizardView extends StatelessWidget {
       },
       builder: (context, state) {
         return PopScope(
-          canPop: state.currentStep == InvitationStep.eventTypeSelection,
+          canPop: state.currentStep == InvitationStep.eventSetup,
           onPopInvokedWithResult: (didPop, result) {
             if (!didPop) {
               // Go to previous step instead of closing
               context.read<InvitationCubit>().previousStep();
             }
           },
-          child: _buildCurrentPage(context, state.currentStep),
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, animation) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+            child: _buildCurrentPage(context, state.currentStep),
+          ),
         );
       },
     );
@@ -139,46 +142,52 @@ class _InvitationWizardView extends StatelessWidget {
 
   Widget _buildCurrentPage(BuildContext context, InvitationStep step) {
     switch (step) {
-      // New wizard steps (7-page flow)
-      case InvitationStep.eventTypeSelection:
-        return const Page1EventTypeScreen();
-      case InvitationStep.eventDetails:
-        return const Page2EventDetailsScreen();
-      case InvitationStep.invitationPreview:
-        return const Page3PreviewScreen();
-      case InvitationStep.guestManagement:
-        return const Page4GuestManagementScreen();
-      case InvitationStep.extraServices:
-        return const Page5ExtraServicesScreen();
-      case InvitationStep.packageSelection:
-        return const Page6PackageSelectionScreen();
-      case InvitationStep.invoiceSummary:
-        return Page7InvoiceScreen(onComplete: onComplete);
+      // Modern 3-page wizard
+      case InvitationStep.eventSetup:
+        return const Page1EventSetupScreen(key: ValueKey('page1'));
+      case InvitationStep.guestsAndServices:
+        return const Page2GuestsServicesScreen(key: ValueKey('page2'));
+      case InvitationStep.reviewAndSubmit:
+        return Page3ReviewSubmitScreen(
+            key: const ValueKey('page3'), onComplete: onComplete);
 
-      // Legacy steps - redirect to first page (these should not be used with new wizard)
-      // ignore: deprecated_member_use_from_same_package
+      // Legacy steps → redirect to modern equivalents
+      case InvitationStep.eventTypeSelection:
+      case InvitationStep.eventDetails:
+      case InvitationStep.invitationPreview:
       case InvitationStep.landing:
-      // ignore: deprecated_member_use_from_same_package
       case InvitationStep.eventType:
-      // ignore: deprecated_member_use_from_same_package
       case InvitationStep.creation:
-      // ignore: deprecated_member_use_from_same_package
-      case InvitationStep.guests:
-      // ignore: deprecated_member_use_from_same_package
-      case InvitationStep.share:
-      // ignore: deprecated_member_use_from_same_package
-      case InvitationStep.package:
-      // ignore: deprecated_member_use_from_same_package
-      case InvitationStep.payment:
-      // ignore: deprecated_member_use_from_same_package
-      case InvitationStep.confirmation:
-        // Reset to first wizard step
         WidgetsBinding.instance.addPostFrameCallback((_) {
           context
               .read<InvitationCubit>()
-              .goToStep(InvitationStep.eventTypeSelection);
+              .goToStep(InvitationStep.eventSetup);
         });
-        return const Page1EventTypeScreen();
+        return const Page1EventSetupScreen(key: ValueKey('page1'));
+
+      case InvitationStep.guestManagement:
+      case InvitationStep.extraServices:
+      case InvitationStep.guests:
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          context
+              .read<InvitationCubit>()
+              .goToStep(InvitationStep.guestsAndServices);
+        });
+        return const Page2GuestsServicesScreen(key: ValueKey('page2'));
+
+      case InvitationStep.packageSelection:
+      case InvitationStep.invoiceSummary:
+      case InvitationStep.share:
+      case InvitationStep.package:
+      case InvitationStep.payment:
+      case InvitationStep.confirmation:
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          context
+              .read<InvitationCubit>()
+              .goToStep(InvitationStep.reviewAndSubmit);
+        });
+        return Page3ReviewSubmitScreen(
+            key: const ValueKey('page3'), onComplete: onComplete);
     }
   }
 }

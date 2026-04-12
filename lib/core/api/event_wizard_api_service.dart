@@ -146,6 +146,39 @@ class EventWizardApiService {
     return response as Map<String, dynamic>;
   }
 
+  /// Generate AI template image
+  Future<Map<String, dynamic>> generateTemplate(
+    int eventId, {
+    String? prompt,
+    String? basePrompt,
+    int? eventTypeId,
+    Map<String, dynamic>? formValues,
+    String? customPrompt,
+  }) async {
+    final response = await _apiConsumer.post(
+      Endpoints.wizardGenerateTemplate(eventId),
+      body: {
+        if (prompt != null) 'prompt': prompt,
+        if (basePrompt != null) 'base_prompt': basePrompt,
+        if (eventTypeId != null) 'event_type_id': eventTypeId,
+        if (formValues != null) 'form_values': formValues,
+        if (customPrompt != null) 'custom_prompt': customPrompt,
+      },
+    );
+    return response as Map<String, dynamic>;
+  }
+
+  /// Poll AI generation status
+  Future<Map<String, dynamic>> getGenerationStatus(
+    int eventId,
+    int imageId,
+  ) async {
+    final response = await _apiConsumer.get(
+      Endpoints.wizardGenerationStatus(eventId, imageId),
+    );
+    return response as Map<String, dynamic>;
+  }
+
   // ============================================================
   // PAGE 4: Guest Management
   // ============================================================

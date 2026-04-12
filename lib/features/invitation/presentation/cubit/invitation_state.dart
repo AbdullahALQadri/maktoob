@@ -10,33 +10,45 @@ import '../../data/models/invitation_draft_model.dart';
 import '../../data/models/invoice_model.dart';
 import '../../data/models/location_model.dart';
 
-/// Steps in the 7-page event creation wizard
+/// Steps in the 3-page event creation wizard
 enum InvitationStep {
-  // New wizard steps (7-page flow)
-  eventTypeSelection, // Page 1: Event type + template selection
-  eventDetails, // Page 2: Event name, date, location, etc.
-  invitationPreview, // Page 3: Template preview
-  guestManagement, // Page 4: Guest management
-  extraServices, // Page 5: Paid extra services
-  packageSelection, // Page 6: Package selection
-  invoiceSummary, // Page 7: Invoice & save
+  // Modern 3-page wizard steps
+  eventSetup, // Page 1: Event type + template + details + preview
+  guestsAndServices, // Page 2: Guest management + extra services
+  reviewAndSubmit, // Page 3: Package selection + invoice + submit
+
+  // Legacy 7-page steps (for backward compatibility)
+  @Deprecated('Use eventSetup instead')
+  eventTypeSelection,
+  @Deprecated('Use eventSetup instead')
+  eventDetails,
+  @Deprecated('Use eventSetup instead')
+  invitationPreview,
+  @Deprecated('Use guestsAndServices instead')
+  guestManagement,
+  @Deprecated('Use guestsAndServices instead')
+  extraServices,
+  @Deprecated('Use reviewAndSubmit instead')
+  packageSelection,
+  @Deprecated('Use reviewAndSubmit instead')
+  invoiceSummary,
 
   // Legacy steps (for backward compatibility with old flow)
-  @Deprecated('Use eventTypeSelection instead')
+  @Deprecated('Use eventSetup instead')
   landing,
-  @Deprecated('Use eventTypeSelection instead')
+  @Deprecated('Use eventSetup instead')
   eventType,
-  @Deprecated('Use eventDetails instead')
+  @Deprecated('Use eventSetup instead')
   creation,
-  @Deprecated('Use guestManagement instead')
+  @Deprecated('Use guestsAndServices instead')
   guests,
-  @Deprecated('Use invoiceSummary instead')
+  @Deprecated('Use reviewAndSubmit instead')
   share,
-  @Deprecated('Use packageSelection instead')
+  @Deprecated('Use reviewAndSubmit instead')
   package,
-  @Deprecated('Use invoiceSummary instead')
+  @Deprecated('Use reviewAndSubmit instead')
   payment,
-  @Deprecated('Use invoiceSummary instead')
+  @Deprecated('Use reviewAndSubmit instead')
   confirmation,
 }
 
@@ -460,8 +472,12 @@ class InvitationState extends Equatable {
   final List<EventTypeFormField> eventTypeFormFields;
   final Map<String, dynamic> eventTypeFormData;
 
-  // Page 3: Preview
+  // Preview & AI Generation
   final String? previewImageUrl;
+  final bool isGeneratingImage;
+  final int? generatingImageId;
+  final String? generatedImageUrl;
+  final String? generationError;
 
   // Page 4: Guest Management
   final List<GuestInfoModel> guests;
@@ -495,7 +511,7 @@ class InvitationState extends Equatable {
 
   const InvitationState({
     // Navigation
-    this.currentStep = InvitationStep.eventTypeSelection,
+    this.currentStep = InvitationStep.eventSetup,
     this.status = InvitationStatus.initial,
     // Wizard tracking
     this.draftEventId,
@@ -539,8 +555,12 @@ class InvitationState extends Equatable {
     this.partnerWithGuests,
     this.eventTypeFormFields = const [],
     this.eventTypeFormData = const {},
-    // Page 3
+    // Preview & AI Generation
     this.previewImageUrl,
+    this.isGeneratingImage = false,
+    this.generatingImageId,
+    this.generatedImageUrl,
+    this.generationError,
     // Page 4
     this.guests = const [],
     this.contactsGuests = const [],
@@ -654,8 +674,14 @@ class InvitationState extends Equatable {
     int? partnerWithGuests,
     List<EventTypeFormField>? eventTypeFormFields,
     Map<String, dynamic>? eventTypeFormData,
-    // Page 3
+    // Preview & AI Generation
     String? previewImageUrl,
+    bool? isGeneratingImage,
+    int? generatingImageId,
+    String? generatedImageUrl,
+    String? generationError,
+    bool clearGeneratedImage = false,
+    bool clearGenerationError = false,
     // Page 4
     List<GuestInfoModel>? guests,
     List<GuestInfoModel>? contactsGuests,
@@ -749,8 +775,16 @@ class InvitationState extends Equatable {
           clearPartnerWithGuests ? null : (partnerWithGuests ?? this.partnerWithGuests),
       eventTypeFormFields: eventTypeFormFields ?? this.eventTypeFormFields,
       eventTypeFormData: eventTypeFormData ?? this.eventTypeFormData,
-      // Page 3
+      // Preview & AI Generation
       previewImageUrl: previewImageUrl ?? this.previewImageUrl,
+      isGeneratingImage: isGeneratingImage ?? this.isGeneratingImage,
+      generatingImageId: generatingImageId ?? this.generatingImageId,
+      generatedImageUrl: clearGeneratedImage
+          ? null
+          : (generatedImageUrl ?? this.generatedImageUrl),
+      generationError: clearGenerationError
+          ? null
+          : (generationError ?? this.generationError),
       // Page 4
       guests: guests ?? this.guests,
       contactsGuests: contactsGuests ?? this.contactsGuests,
@@ -824,79 +858,64 @@ class InvitationState extends Equatable {
   /// Get progress percentage (0.0 - 1.0)
   double get progressPercentage {
     switch (currentStep) {
-      case InvitationStep.eventTypeSelection:
-        return 0.14;
-      case InvitationStep.eventDetails:
-        return 0.28;
-      case InvitationStep.invitationPreview:
-        return 0.42;
-      case InvitationStep.guestManagement:
-        return 0.57;
-      case InvitationStep.extraServices:
-        return 0.71;
-      case InvitationStep.packageSelection:
-        return 0.85;
-      case InvitationStep.invoiceSummary:
+      // Modern 3-page wizard
+      case InvitationStep.eventSetup:
+        return 0.33;
+      case InvitationStep.guestsAndServices:
+        return 0.66;
+      case InvitationStep.reviewAndSubmit:
         return 1.0;
-      // Legacy steps (for backward compatibility)
+      // Legacy 7-page steps → map to closest modern step
+      case InvitationStep.eventTypeSelection:
+      case InvitationStep.eventDetails:
+      case InvitationStep.invitationPreview:
       case InvitationStep.landing:
-        return 0.0;
       case InvitationStep.eventType:
-        return 0.14;
       case InvitationStep.creation:
-        return 0.28;
+        return 0.33;
+      case InvitationStep.guestManagement:
+      case InvitationStep.extraServices:
       case InvitationStep.guests:
-        return 0.42;
+        return 0.66;
+      case InvitationStep.packageSelection:
+      case InvitationStep.invoiceSummary:
       case InvitationStep.share:
-        return 0.57;
       case InvitationStep.package:
-        return 0.71;
       case InvitationStep.payment:
-        return 0.85;
       case InvitationStep.confirmation:
         return 1.0;
     }
   }
 
-  /// Get step number (1-7)
+  /// Get step number (1-3)
   int get stepNumber {
     switch (currentStep) {
+      case InvitationStep.eventSetup:
       case InvitationStep.eventTypeSelection:
-        return 1;
       case InvitationStep.eventDetails:
-        return 2;
       case InvitationStep.invitationPreview:
-        return 3;
-      case InvitationStep.guestManagement:
-        return 4;
-      case InvitationStep.extraServices:
-        return 5;
-      case InvitationStep.packageSelection:
-        return 6;
-      case InvitationStep.invoiceSummary:
-        return 7;
-      // Legacy steps (for backward compatibility)
       case InvitationStep.landing:
-        return 1;
       case InvitationStep.eventType:
-        return 2;
       case InvitationStep.creation:
-        return 3;
+        return 1;
+      case InvitationStep.guestsAndServices:
+      case InvitationStep.guestManagement:
+      case InvitationStep.extraServices:
       case InvitationStep.guests:
-        return 4;
+        return 2;
+      case InvitationStep.reviewAndSubmit:
+      case InvitationStep.packageSelection:
+      case InvitationStep.invoiceSummary:
       case InvitationStep.share:
-        return 5;
       case InvitationStep.package:
-        return 6;
       case InvitationStep.payment:
-        return 7;
       case InvitationStep.confirmation:
-        return 8;
+        return 3;
     }
   }
 
   /// Total steps
-  int get totalSteps => 7;
+  int get totalSteps => 3;
 
   /// Guest statistics
   int get confirmedGuests =>
@@ -1009,8 +1028,12 @@ class InvitationState extends Equatable {
         partnerWithGuests,
         eventTypeFormFields,
         eventTypeFormData,
-        // Page 3
+        // Preview & AI Generation
         previewImageUrl,
+        isGeneratingImage,
+        generatingImageId,
+        generatedImageUrl,
+        generationError,
         // Page 4
         guests,
         contactsGuests,

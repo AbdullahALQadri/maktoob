@@ -167,6 +167,97 @@ class InvitationCubit extends Cubit<InvitationState> {
     }
   }
 
+  /// Create draft + save details in one step, then proceed (3-page wizard Page 1)
+  Future<void> createDraftAndSaveDetails() async {
+    emit(state.copyWith(isLoading: true, clearError: true));
+
+    try {
+      // Step 1: Create draft if needed
+      if (state.draftEventId == null && apiService != null) {
+        final response = await apiService!.initializeWizard(
+          eventTypeId: state.selectedEventType?.id,
+          customEventTypeName: state.customEventTypeName,
+          templateId: state.selectedTemplate?.id,
+        );
+        final eventId = response['data']['event_id'] as int?;
+        if (eventId != null) {
+          emit(state.copyWith(draftEventId: eventId));
+        } else {
+          emit(state.copyWith(
+            isLoading: false,
+            errorMessage: 'Failed to create event draft',
+          ));
+          return;
+        }
+      }
+
+      // Step 2: Save event details
+      if (apiService != null && state.draftEventId != null) {
+        await apiService!.saveEventDetails(
+          state.draftEventId!,
+          titleAr: state.eventName ?? 'حدث جديد',
+          titleEn: state.eventName,
+          descriptionAr: state.eventDescription,
+          eventDate: state.eventDate ?? DateTime.now().add(const Duration(days: 30)),
+          eventTime: state.eventTime != null
+              ? '${state.eventTime!.hour.toString().padLeft(2, '0')}:${state.eventTime!.minute.toString().padLeft(2, '0')}'
+              : null,
+          venueId: state.selectedVenue?.id,
+          customVenueNameAr: state.customLocation?.placeName,
+          customVenueAddressAr: state.customLocation?.address,
+          customVenueLat: state.customLocation?.latitude,
+          customVenueLng: state.customLocation?.longitude,
+          partnerCount: state.partnerWithGuests,
+          eventTypeFormValues: state.eventTypeFormData,
+        );
+      }
+
+      emit(state.copyWith(isLoading: false));
+      nextStep();
+    } catch (e) {
+      emit(state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString(),
+      ));
+    }
+  }
+
+  /// Save guests + services in one step, then proceed (3-page wizard Page 2)
+  Future<void> saveGuestsAndServicesAndProceed() async {
+    emit(state.copyWith(isLoading: true, clearError: true));
+
+    try {
+      if (apiService != null && state.draftEventId != null) {
+        // Save guests
+        if (state.guests.isNotEmpty) {
+          await apiService!.addManualGuests(
+            state.draftEventId!,
+            state.guests.map((g) => {
+              'name': g.name,
+              'phone': g.phone,
+            }).toList(),
+          );
+        }
+
+        // Save services
+        if (state.selectedServices.isNotEmpty) {
+          await apiService!.saveExtraServices(
+            state.draftEventId!,
+            state.selectedServices.map((s) => s.id).toList(),
+          );
+        }
+      }
+
+      emit(state.copyWith(isLoading: false));
+      nextStep();
+    } catch (e) {
+      emit(state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString(),
+      ));
+    }
+  }
+
   /// Save event details and proceed to next step (from Page 2)
   Future<void> saveDetailsAndProceed() async {
     if (state.draftEventId == null) {
@@ -293,26 +384,29 @@ class InvitationCubit extends Cubit<InvitationState> {
     }
   }
 
-  /// Navigate to the next step
+  /// Navigate to the next step (3-page wizard)
   void nextStep() {
     final nextStepMap = {
-      // New wizard steps
-      InvitationStep.eventTypeSelection: InvitationStep.eventDetails,
-      InvitationStep.eventDetails: InvitationStep.invitationPreview,
-      InvitationStep.invitationPreview: InvitationStep.guestManagement,
-      InvitationStep.guestManagement: InvitationStep.extraServices,
-      InvitationStep.extraServices: InvitationStep.packageSelection,
-      InvitationStep.packageSelection: InvitationStep.invoiceSummary,
-      InvitationStep.invoiceSummary: InvitationStep.invoiceSummary,
-      // Legacy steps (for backward compatibility)
-      InvitationStep.landing: InvitationStep.eventType,
-      InvitationStep.eventType: InvitationStep.creation,
-      InvitationStep.creation: InvitationStep.guests,
-      InvitationStep.guests: InvitationStep.share,
-      InvitationStep.share: InvitationStep.package,
-      InvitationStep.package: InvitationStep.payment,
-      InvitationStep.payment: InvitationStep.confirmation,
-      InvitationStep.confirmation: InvitationStep.confirmation,
+      // Modern 3-page wizard
+      InvitationStep.eventSetup: InvitationStep.guestsAndServices,
+      InvitationStep.guestsAndServices: InvitationStep.reviewAndSubmit,
+      InvitationStep.reviewAndSubmit: InvitationStep.reviewAndSubmit,
+      // Legacy steps → redirect to modern equivalents
+      InvitationStep.eventTypeSelection: InvitationStep.guestsAndServices,
+      InvitationStep.eventDetails: InvitationStep.guestsAndServices,
+      InvitationStep.invitationPreview: InvitationStep.guestsAndServices,
+      InvitationStep.guestManagement: InvitationStep.reviewAndSubmit,
+      InvitationStep.extraServices: InvitationStep.reviewAndSubmit,
+      InvitationStep.packageSelection: InvitationStep.reviewAndSubmit,
+      InvitationStep.invoiceSummary: InvitationStep.reviewAndSubmit,
+      InvitationStep.landing: InvitationStep.eventSetup,
+      InvitationStep.eventType: InvitationStep.eventSetup,
+      InvitationStep.creation: InvitationStep.guestsAndServices,
+      InvitationStep.guests: InvitationStep.reviewAndSubmit,
+      InvitationStep.share: InvitationStep.reviewAndSubmit,
+      InvitationStep.package: InvitationStep.reviewAndSubmit,
+      InvitationStep.payment: InvitationStep.reviewAndSubmit,
+      InvitationStep.confirmation: InvitationStep.reviewAndSubmit,
     };
 
     final next = nextStepMap[state.currentStep];
@@ -321,26 +415,29 @@ class InvitationCubit extends Cubit<InvitationState> {
     }
   }
 
-  /// Navigate to the previous step
+  /// Navigate to the previous step (3-page wizard)
   void previousStep() {
     final prevStepMap = {
-      // New wizard steps
-      InvitationStep.eventTypeSelection: InvitationStep.eventTypeSelection,
-      InvitationStep.eventDetails: InvitationStep.eventTypeSelection,
-      InvitationStep.invitationPreview: InvitationStep.eventDetails,
-      InvitationStep.guestManagement: InvitationStep.invitationPreview,
-      InvitationStep.extraServices: InvitationStep.guestManagement,
-      InvitationStep.packageSelection: InvitationStep.extraServices,
-      InvitationStep.invoiceSummary: InvitationStep.packageSelection,
-      // Legacy steps (for backward compatibility)
-      InvitationStep.landing: InvitationStep.landing,
-      InvitationStep.eventType: InvitationStep.landing,
-      InvitationStep.creation: InvitationStep.eventType,
-      InvitationStep.guests: InvitationStep.creation,
-      InvitationStep.share: InvitationStep.guests,
-      InvitationStep.package: InvitationStep.share,
-      InvitationStep.payment: InvitationStep.package,
-      InvitationStep.confirmation: InvitationStep.payment,
+      // Modern 3-page wizard
+      InvitationStep.eventSetup: InvitationStep.eventSetup,
+      InvitationStep.guestsAndServices: InvitationStep.eventSetup,
+      InvitationStep.reviewAndSubmit: InvitationStep.guestsAndServices,
+      // Legacy steps → redirect to modern equivalents
+      InvitationStep.eventTypeSelection: InvitationStep.eventSetup,
+      InvitationStep.eventDetails: InvitationStep.eventSetup,
+      InvitationStep.invitationPreview: InvitationStep.eventSetup,
+      InvitationStep.guestManagement: InvitationStep.eventSetup,
+      InvitationStep.extraServices: InvitationStep.eventSetup,
+      InvitationStep.packageSelection: InvitationStep.guestsAndServices,
+      InvitationStep.invoiceSummary: InvitationStep.guestsAndServices,
+      InvitationStep.landing: InvitationStep.eventSetup,
+      InvitationStep.eventType: InvitationStep.eventSetup,
+      InvitationStep.creation: InvitationStep.eventSetup,
+      InvitationStep.guests: InvitationStep.eventSetup,
+      InvitationStep.share: InvitationStep.guestsAndServices,
+      InvitationStep.package: InvitationStep.guestsAndServices,
+      InvitationStep.payment: InvitationStep.guestsAndServices,
+      InvitationStep.confirmation: InvitationStep.guestsAndServices,
     };
 
     final prev = prevStepMap[state.currentStep];
@@ -1072,6 +1169,102 @@ class InvitationCubit extends Cubit<InvitationState> {
 
   /// Check if loading
   bool get isLoading => state.status == InvitationStatus.loading;
+
+  // ============ AI Image Generation ============
+
+  /// Generate an AI template image
+  Future<void> generateAiImage({String? prompt}) async {
+    if (state.draftEventId == null) return;
+
+    emit(state.copyWith(
+      isGeneratingImage: true,
+      clearGenerationError: true,
+      clearGeneratedImage: true,
+    ));
+
+    try {
+      if (apiService != null) {
+        final response = await apiService!.generateTemplate(
+          state.draftEventId!,
+          prompt: prompt,
+          basePrompt: prompt,
+          eventTypeId: state.selectedEventType?.id,
+          formValues: state.eventTypeFormData.isNotEmpty
+              ? state.eventTypeFormData
+              : null,
+        );
+
+        final imageId = response['data']['image_id'] as int?;
+        if (imageId != null) {
+          emit(state.copyWith(generatingImageId: imageId));
+          // Start polling
+          _pollGenerationStatus(imageId);
+        } else {
+          emit(state.copyWith(
+            isGeneratingImage: false,
+            generationError: 'Failed to start generation',
+          ));
+        }
+      }
+    } catch (e) {
+      emit(state.copyWith(
+        isGeneratingImage: false,
+        generationError: e.toString(),
+      ));
+    }
+  }
+
+  /// Poll generation status every 3 seconds
+  Future<void> _pollGenerationStatus(int imageId) async {
+    if (apiService == null || state.draftEventId == null) return;
+
+    const maxAttempts = 40; // 2 minutes max (40 * 3s)
+    for (int attempt = 0; attempt < maxAttempts; attempt++) {
+      await Future.delayed(const Duration(seconds: 3));
+
+      // Check if still relevant
+      if (state.generatingImageId != imageId || !state.isGeneratingImage) return;
+
+      try {
+        final response = await apiService!.getGenerationStatus(
+          state.draftEventId!,
+          imageId,
+        );
+
+        final data = response['data'];
+        final status = data['status'] as String?;
+
+        if (status == 'completed') {
+          final imageUrl = data['image_url'] as String?;
+          emit(state.copyWith(
+            isGeneratingImage: false,
+            generatedImageUrl: imageUrl,
+            previewImageUrl: imageUrl,
+          ));
+          return;
+        } else if (status == 'failed') {
+          emit(state.copyWith(
+            isGeneratingImage: false,
+            generationError: data['error'] ?? 'Generation failed',
+          ));
+          return;
+        }
+        // Still processing, continue polling
+      } catch (e) {
+        emit(state.copyWith(
+          isGeneratingImage: false,
+          generationError: e.toString(),
+        ));
+        return;
+      }
+    }
+
+    // Timeout
+    emit(state.copyWith(
+      isGeneratingImage: false,
+      generationError: 'Generation timed out. Please try again.',
+    ));
+  }
 
   // ============ Page 3: Load Preview ============
 

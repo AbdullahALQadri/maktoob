@@ -37,6 +37,10 @@ class Endpoints {
   // Page 3 - Invitation Preview
   static String wizardPreview(int eventId) => '/event-wizard/$eventId/preview';
 
+  // AI Template Generation
+  static String wizardGenerateTemplate(int eventId) => '/event-wizard/$eventId/generate-template';
+  static String wizardGenerationStatus(int eventId, int imageId) => '/event-wizard/$eventId/generation-status/$imageId';
+
   // Page 4 - Guest Management
   static String wizardGuests(int eventId) => '/event-wizard/$eventId/guests';
   static String wizardGuestsContacts(int eventId) => '/event-wizard/$eventId/guests/import-contacts';
