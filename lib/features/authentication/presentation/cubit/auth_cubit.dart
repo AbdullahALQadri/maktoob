@@ -1,12 +1,43 @@
+import 'dart:async';
+import 'dart:developer' as dev;
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/services/fcm_service.dart';
 import '../../domain/repositories/auth_repository.dart';
 import 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   final AuthRepository authRepository;
+  final FcmService? fcmService;
+  StreamSubscription<String>? _tokenSub;
+  String? _pendingFcmToken; // most recent token captured before user was authenticated
 
-  AuthCubit({required this.authRepository}) : super(const AuthInitial());
+  AuthCubit({required this.authRepository, this.fcmService})
+      : super(const AuthInitial()) {
+    _tokenSub = fcmService?.tokenStream.listen((t) {
+      _pendingFcmToken = t;
+      _registerFcmToken(t);
+    });
+  }
+
+  Future<void> _registerFcmToken(String token) async {
+    // Only register if the user is authenticated — calling /auth/fcm-token
+    // unauthenticated would 401. Keep the token in [_pendingFcmToken] so we
+    // can register it as soon as login completes.
+    if (state is! AuthAuthenticated) return;
+    final result = await authRepository.updateFcmToken(token);
+    result.fold(
+      (f) => dev.log('FCM token register failed: ${f.message}', name: 'AuthCubit'),
+      (_) => dev.log('FCM token registered', name: 'AuthCubit'),
+    );
+  }
+
+  @override
+  Future<void> close() {
+    _tokenSub?.cancel();
+    return super.close();
+  }
 
   /// Check if user is already logged in
   Future<void> checkAuthStatus() async {
@@ -22,6 +53,7 @@ class AuthCubit extends Cubit<AuthState> {
         },
         (user) {
           emit(AuthAuthenticated(user));
+          _pushCurrentFcmToken();
         },
       );
     } else {
@@ -51,9 +83,17 @@ class AuthCubit extends Cubit<AuthState> {
           emit(AuthUnverified(user: user, phone: login));
         } else {
           emit(AuthAuthenticated(user));
+          _pushCurrentFcmToken();
         }
       },
     );
+  }
+
+  Future<void> _pushCurrentFcmToken() async {
+    if (fcmService == null) return;
+    // Prefer the cached token captured before login (handles token-rotation-before-auth case).
+    final token = _pendingFcmToken ?? await fcmService!.getToken();
+    if (token != null) await _registerFcmToken(token);
   }
 
   /// Register new user
@@ -94,8 +134,25 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> logout() async {
     emit(const AuthLoading());
 
+    // Best-effort: unregister this device's FCM token before logging out
+    // so the user stops receiving push notifications meant for this account.
+    try {
+      await authRepository.updateFcmToken('');
+    } catch (_) {
+      // Non-fatal — proceed with logout
+    }
+
     await authRepository.logout();
+    _pendingFcmToken = null;
     emit(const AuthUnauthenticated());
+  }
+
+  /// Force unauthenticated state without a server call.
+  /// Called by AuthInterceptor when a token refresh fails mid-session.
+  void forceLogout() {
+    if (state is! AuthUnauthenticated) {
+      emit(const AuthUnauthenticated());
+    }
   }
 
   /// Verify OTP code
@@ -116,6 +173,7 @@ class AuthCubit extends Cubit<AuthState> {
         if (loginAfterVerify) {
           // After verification, user should be authenticated
           emit(AuthAuthenticated(user));
+          _pushCurrentFcmToken();
         } else {
           emit(AuthOtpVerified(user));
         }

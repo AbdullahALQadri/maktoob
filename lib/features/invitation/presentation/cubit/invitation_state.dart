@@ -820,16 +820,17 @@ class InvitationState extends Equatable {
 
   // ============ Validation Helpers ============
 
-  /// Check if page 1 is complete
+  /// Check if Page 1 (Event Type + AI Design) is complete.
+  /// Accepts any of: AI-generated image, an uploaded file, a freeform description.
+  /// (The legacy template selection is no longer part of the wizard UI.)
   bool get canProceedFromEventType {
     if (selectedEventType == null) return false;
     if (selectedEventType!.isCustom && (customEventTypeName?.isEmpty ?? true)) {
       return false;
     }
-    // Must have template selected, uploaded file, OR description for custom
-    return selectedTemplate != null ||
-        uploadedTemplateFile != null ||
-        (uploadedTemplateDescription?.isNotEmpty ?? false);
+    return (generatedImageUrl?.isNotEmpty ?? false)
+        || uploadedTemplateFile != null
+        || (uploadedTemplateDescription?.isNotEmpty ?? false);
   }
 
   /// Check if page 2 is complete

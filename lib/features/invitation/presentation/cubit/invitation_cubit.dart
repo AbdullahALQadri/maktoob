@@ -44,8 +44,8 @@ class InvitationCubit extends Cubit<InvitationState> {
       if (apiService != null) {
         // Load event types from API
         final response = await apiService!.getEventTypes();
-        final eventTypesData = response['data']['event_types'] as List;
-        eventTypes = eventTypesData.map((e) => EventTypeModel.fromJson(e)).toList();
+        final eventTypesData = (response['data']?['event_types'] as List?) ?? [];
+        eventTypes = eventTypesData.map((e) => EventTypeModel.fromJson(e as Map<String, dynamic>)).toList();
       } else {
         eventTypes = [];
       }
@@ -82,7 +82,7 @@ class InvitationCubit extends Cubit<InvitationState> {
         ));
       }
     } catch (e) {
-      emit(state.copyWith(errorMessage: 'Failed to load draft: ${e.toString()}'));
+      emit(state.copyWith(errorMessage: e.toString()));
     }
   }
 
@@ -95,14 +95,8 @@ class InvitationCubit extends Cubit<InvitationState> {
 
       if (apiService != null) {
         final response = await apiService!.getTemplatesForEventType(eventTypeId);
-        debugPrint('📋 Templates API full response: $response');
-        debugPrint('📋 Templates API response[data]: ${response['data']}');
-        final templatesData = response['data']['templates'] as List;
-        for (final t in templatesData) {
-          debugPrint('📋 Template JSON keys: ${(t as Map).keys.toList()}');
-          debugPrint('📋 Template JSON: $t');
-        }
-        templates = templatesData.map((t) => TemplateModel.fromJson(t)).toList();
+        final templatesData = (response['data']?['templates'] as List?) ?? [];
+        templates = templatesData.map((t) => TemplateModel.fromJson(t as Map<String, dynamic>)).toList();
       } else {
         templates = [];
       }
@@ -123,6 +117,32 @@ class InvitationCubit extends Cubit<InvitationState> {
 
   /// Create draft event on server and proceed to next step (from Page 1)
   /// This should be called when user clicks "Next" on Page 1
+  /// Initialize draft event without proceeding to next step.
+  /// Used by AI Design Studio when the user opens it before filling all details.
+  Future<void> initializeWizardIfNeeded() async {
+    if (state.draftEventId != null) return; // already created
+
+    emit(state.copyWith(isLoading: true, clearError: true));
+    try {
+      if (apiService != null) {
+        final response = await apiService!.initializeWizard(
+          eventTypeId: state.selectedEventType?.id,
+          customEventTypeName: state.customEventTypeName,
+        );
+        final eventId = response['data']?['event_id'] as int?;
+        emit(state.copyWith(
+          isLoading: false,
+          draftEventId: eventId,
+          errorMessage: eventId == null ? 'invitation_failed_create_draft' : null,
+        ));
+      } else {
+        emit(state.copyWith(isLoading: false));
+      }
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
+    }
+  }
+
   Future<void> createDraftAndProceed() async {
     // Skip if already has draft
     if (state.draftEventId != null) {
@@ -141,7 +161,7 @@ class InvitationCubit extends Cubit<InvitationState> {
           templateId: state.selectedTemplate?.id,
         );
 
-        final eventId = response['data']['event_id'] as int?;
+        final eventId = response['data']?['event_id'] as int?;
         if (eventId != null) {
           emit(state.copyWith(
             isLoading: false,
@@ -151,7 +171,7 @@ class InvitationCubit extends Cubit<InvitationState> {
         } else {
           emit(state.copyWith(
             isLoading: false,
-            errorMessage: 'Failed to create event draft',
+            errorMessage: 'invitation_failed_create_draft',
           ));
         }
       } else {
@@ -179,13 +199,13 @@ class InvitationCubit extends Cubit<InvitationState> {
           customEventTypeName: state.customEventTypeName,
           templateId: state.selectedTemplate?.id,
         );
-        final eventId = response['data']['event_id'] as int?;
+        final eventId = response['data']?['event_id'] as int?;
         if (eventId != null) {
           emit(state.copyWith(draftEventId: eventId));
         } else {
           emit(state.copyWith(
             isLoading: false,
-            errorMessage: 'Failed to create event draft',
+            errorMessage: 'invitation_failed_create_draft',
           ));
           return;
         }
@@ -193,23 +213,7 @@ class InvitationCubit extends Cubit<InvitationState> {
 
       // Step 2: Save event details
       if (apiService != null && state.draftEventId != null) {
-        await apiService!.saveEventDetails(
-          state.draftEventId!,
-          titleAr: state.eventName ?? 'حدث جديد',
-          titleEn: state.eventName,
-          descriptionAr: state.eventDescription,
-          eventDate: state.eventDate ?? DateTime.now().add(const Duration(days: 30)),
-          eventTime: state.eventTime != null
-              ? '${state.eventTime!.hour.toString().padLeft(2, '0')}:${state.eventTime!.minute.toString().padLeft(2, '0')}'
-              : null,
-          venueId: state.selectedVenue?.id,
-          customVenueNameAr: state.customLocation?.placeName,
-          customVenueAddressAr: state.customLocation?.address,
-          customVenueLat: state.customLocation?.latitude,
-          customVenueLng: state.customLocation?.longitude,
-          partnerCount: state.partnerWithGuests,
-          eventTypeFormValues: state.eventTypeFormData,
-        );
+        await _callSaveEventDetails(state.draftEventId!);
       }
 
       emit(state.copyWith(isLoading: false));
@@ -220,6 +224,26 @@ class InvitationCubit extends Cubit<InvitationState> {
         errorMessage: e.toString(),
       ));
     }
+  }
+
+  Future<void> _callSaveEventDetails(int eventId) {
+    return apiService!.saveEventDetails(
+      eventId,
+      titleAr: state.eventName ?? '',
+      titleEn: state.eventName,
+      descriptionAr: state.eventDescription,
+      eventDate: state.eventDate ?? DateTime.now().add(const Duration(days: 30)),
+      eventTime: state.eventTime != null
+          ? '${state.eventTime!.hour.toString().padLeft(2, '0')}:${state.eventTime!.minute.toString().padLeft(2, '0')}'
+          : null,
+      venueId: state.selectedVenue?.id,
+      customVenueNameAr: state.customLocation?.placeName,
+      customVenueAddressAr: state.customLocation?.address,
+      customVenueLat: state.customLocation?.latitude,
+      customVenueLng: state.customLocation?.longitude,
+      partnerCount: state.partnerWithGuests,
+      eventTypeFormValues: state.eventTypeFormData,
+    );
   }
 
   /// Save guests + services in one step, then proceed (3-page wizard Page 2)
@@ -269,23 +293,7 @@ class InvitationCubit extends Cubit<InvitationState> {
 
     try {
       if (apiService != null) {
-        await apiService!.saveEventDetails(
-          state.draftEventId!,
-          titleAr: state.eventName ?? 'حدث جديد',
-          titleEn: state.eventName,
-          descriptionAr: state.eventDescription,
-          eventDate: state.eventDate ?? DateTime.now().add(const Duration(days: 30)),
-          eventTime: state.eventTime != null
-              ? '${state.eventTime!.hour.toString().padLeft(2, '0')}:${state.eventTime!.minute.toString().padLeft(2, '0')}'
-              : null,
-          venueId: state.selectedVenue?.id,
-          customVenueNameAr: state.customLocation?.placeName,
-          customVenueAddressAr: state.customLocation?.address,
-          customVenueLat: state.customLocation?.latitude,
-          customVenueLng: state.customLocation?.longitude,
-          partnerCount: state.partnerWithGuests,
-          eventTypeFormValues: state.eventTypeFormData,
-        );
+        await _callSaveEventDetails(state.draftEventId!);
       }
 
       emit(state.copyWith(isLoading: false));
@@ -466,15 +474,19 @@ class InvitationCubit extends Cubit<InvitationState> {
       formFields = const [
         EventTypeFormField(
           key: 'groom_name',
-          label: 'Groom Name',
-          labelAr: 'اسم العريس',
+          label: 'invitation_groom_name',
+          labelAr: 'invitation_groom_name',
+          hint: 'invitation_groom_name_hint',
+          hintAr: 'invitation_groom_name_hint',
           type: 'text',
           required: true,
         ),
         EventTypeFormField(
           key: 'bride_name',
-          label: 'Bride Name',
-          labelAr: 'اسم العروس',
+          label: 'invitation_bride_name',
+          labelAr: 'invitation_bride_name',
+          hint: 'invitation_bride_name_hint',
+          hintAr: 'invitation_bride_name_hint',
           type: 'text',
           required: true,
         ),
@@ -1020,30 +1032,14 @@ class InvitationCubit extends Cubit<InvitationState> {
             customEventTypeName: state.customEventTypeName,
             templateId: state.selectedTemplate?.id,
           );
-          eventId = initResponse['data']['event_id'];
+          eventId = initResponse['data']?['event_id'] as int? ?? 0;
           emit(state.copyWith(draftEventId: eventId));
         } else {
           eventId = state.draftEventId!;
         }
 
         // Step 2: Save event details
-        await apiService!.saveEventDetails(
-          eventId,
-          titleAr: state.eventName ?? 'حدث جديد',
-          titleEn: state.eventName,
-          descriptionAr: state.eventDescription,
-          eventDate: state.eventDate ?? DateTime.now().add(const Duration(days: 30)),
-          eventTime: state.eventTime != null
-              ? '${state.eventTime!.hour.toString().padLeft(2, '0')}:${state.eventTime!.minute.toString().padLeft(2, '0')}'
-              : null,
-          venueId: state.selectedVenue?.id,
-          customVenueNameAr: state.customLocation?.placeName,
-          customVenueAddressAr: state.customLocation?.address,
-          customVenueLat: state.customLocation?.latitude,
-          customVenueLng: state.customLocation?.longitude,
-          partnerCount: state.partnerWithGuests,
-          eventTypeFormValues: state.eventTypeFormData,
-        );
+        await _callSaveEventDetails(eventId);
 
         // Step 3: Add guests
         if (state.guests.isNotEmpty) {
@@ -1120,8 +1116,8 @@ class InvitationCubit extends Cubit<InvitationState> {
       // Generate invoice image
       final invoiceImageFile = await invoiceGenerator!.generateInvoiceImage(
         invoice: state.invoiceSummary ?? InvoiceSummaryModel.empty(),
-        eventName: state.eventName ?? 'حدث',
-        packageName: state.selectedPackage?.name ?? 'Unknown',
+        eventName: state.eventName ?? '',
+        packageName: state.selectedPackage?.name ?? '',
         guestCount: state.totalGuestCount,
         eventType: state.selectedEventType?.name,
       );
@@ -1133,8 +1129,8 @@ class InvitationCubit extends Cubit<InvitationState> {
 
       // Generate message
       final message = whatsAppService!.generateInvoiceMessage(
-        eventName: state.eventName ?? 'حدث',
-        packageName: state.selectedPackage?.name ?? 'Unknown',
+        eventName: state.eventName ?? '',
+        packageName: state.selectedPackage?.name ?? '',
         totalPrice: state.invoiceSummary?.totalPrice ?? 0,
         guestCount: state.totalGuestCount,
       );
@@ -1172,97 +1168,24 @@ class InvitationCubit extends Cubit<InvitationState> {
 
   // ============ AI Image Generation ============
 
-  /// Generate an AI template image
-  Future<void> generateAiImage({String? prompt}) async {
-    if (state.draftEventId == null) return;
+  // Legacy generateAiImage and _pollGenerationStatus removed.
+  // AI image generation now lives in `AiDesignCubit` which uses FCM push
+  // (with polling fallback at 8s) instead of polling every 3 seconds.
 
+  /// Register the AI-generated image URL into wizard state so the
+  /// "Continue to Guests" button can enable.
+  void setAiGeneratedImage(String url, {int? imageId}) {
     emit(state.copyWith(
-      isGeneratingImage: true,
-      clearGenerationError: true,
-      clearGeneratedImage: true,
+      generatedImageUrl: url,
+      generatingImageId: imageId,
+      previewImageUrl:   url, // also feed the legacy preview slot
     ));
-
-    try {
-      if (apiService != null) {
-        final response = await apiService!.generateTemplate(
-          state.draftEventId!,
-          prompt: prompt,
-          basePrompt: prompt,
-          eventTypeId: state.selectedEventType?.id,
-          formValues: state.eventTypeFormData.isNotEmpty
-              ? state.eventTypeFormData
-              : null,
-        );
-
-        final imageId = response['data']['image_id'] as int?;
-        if (imageId != null) {
-          emit(state.copyWith(generatingImageId: imageId));
-          // Start polling
-          _pollGenerationStatus(imageId);
-        } else {
-          emit(state.copyWith(
-            isGeneratingImage: false,
-            generationError: 'Failed to start generation',
-          ));
-        }
-      }
-    } catch (e) {
-      emit(state.copyWith(
-        isGeneratingImage: false,
-        generationError: e.toString(),
-      ));
-    }
   }
 
-  /// Poll generation status every 3 seconds
-  Future<void> _pollGenerationStatus(int imageId) async {
-    if (apiService == null || state.draftEventId == null) return;
-
-    const maxAttempts = 40; // 2 minutes max (40 * 3s)
-    for (int attempt = 0; attempt < maxAttempts; attempt++) {
-      await Future.delayed(const Duration(seconds: 3));
-
-      // Check if still relevant
-      if (state.generatingImageId != imageId || !state.isGeneratingImage) return;
-
-      try {
-        final response = await apiService!.getGenerationStatus(
-          state.draftEventId!,
-          imageId,
-        );
-
-        final data = response['data'];
-        final status = data['status'] as String?;
-
-        if (status == 'completed') {
-          final imageUrl = data['image_url'] as String?;
-          emit(state.copyWith(
-            isGeneratingImage: false,
-            generatedImageUrl: imageUrl,
-            previewImageUrl: imageUrl,
-          ));
-          return;
-        } else if (status == 'failed') {
-          emit(state.copyWith(
-            isGeneratingImage: false,
-            generationError: data['error'] ?? 'Generation failed',
-          ));
-          return;
-        }
-        // Still processing, continue polling
-      } catch (e) {
-        emit(state.copyWith(
-          isGeneratingImage: false,
-          generationError: e.toString(),
-        ));
-        return;
-      }
-    }
-
-    // Timeout
+  /// Clear the AI-generated image (e.g. user wants to regenerate)
+  void clearAiGeneratedImage() {
     emit(state.copyWith(
-      isGeneratingImage: false,
-      generationError: 'Generation timed out. Please try again.',
+      clearGeneratedImage: true,
     ));
   }
 
@@ -1316,7 +1239,7 @@ class InvitationCubit extends Cubit<InvitationState> {
     } catch (e) {
       emit(state.copyWith(
         isLoadingExcel: false,
-        errorMessage: 'فشل في قراءة ملف الإكسل: $e',
+        errorMessage: 'invitation_excel_read_error',
       ));
     }
   }
@@ -1408,19 +1331,19 @@ class InvitationCubit extends Cubit<InvitationState> {
       if (!hasCustom) {
         packages.add(const PackageModel(
           id: -1,
-          name: 'Custom',
-          nameAr: 'مخصص',
+          name: 'invitation_custom_package',
+          nameAr: 'invitation_custom_package',
           price: 0,
           isCustom: true,
           features: [
-            'Flexible invitation count',
-            'Pay per invitation',
-            'All features included',
+            'invitation_custom_package_feature1',
+            'invitation_custom_package_feature2',
+            'invitation_custom_package_feature3',
           ],
           featuresAr: [
-            'عدد دعوات مرن',
-            'ادفع حسب عدد الدعوات',
-            'جميع الميزات متضمنة',
+            'invitation_custom_package_feature1',
+            'invitation_custom_package_feature2',
+            'invitation_custom_package_feature3',
           ],
         ));
       }
@@ -1534,8 +1457,8 @@ class InvitationCubit extends Cubit<InvitationState> {
       try {
         if (whatsAppService != null && state.whatsappNumber != null) {
           final message = whatsAppService!.generateInvoiceMessage(
-            eventName: state.eventName ?? 'حدث',
-            packageName: state.selectedPackage?.nameAr ?? 'غير محدد',
+            eventName: state.eventName ?? '',
+            packageName: state.selectedPackage?.nameAr ?? state.selectedPackage?.name ?? '',
             totalPrice: state.invoiceSummary?.totalPrice ?? 0,
             guestCount: state.totalGuestCount,
           );

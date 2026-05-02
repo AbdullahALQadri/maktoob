@@ -2,9 +2,10 @@
 /// Base URL should be updated based on environment
 class Endpoints {
   // Base URL - Update this based on your environment
-  // For local development: http://10.5.50.103:8000/api/v1
-  // For production: https://your-domain.com/api/v1
-  static String baseUrl = "https://maktoob.social/api/v1";
+  // Android emulator  → http://10.0.2.2:8000/api/v1
+  // Physical device   → http://<your-machine-ip>:8000/api/v1  (e.g. 10.5.50.103)
+  // Production        → https://maktoob.social/api/v1
+  static String baseUrl = "http://10.5.50.57:8000/api/v1";
 
   // ============================================================
   // PUBLIC ENDPOINTS (No Authentication Required)
@@ -37,9 +38,16 @@ class Endpoints {
   // Page 3 - Invitation Preview
   static String wizardPreview(int eventId) => '/event-wizard/$eventId/preview';
 
-  // AI Template Generation
+  // AI Template Generation (legacy — kept for backwards compat)
   static String wizardGenerateTemplate(int eventId) => '/event-wizard/$eventId/generate-template';
   static String wizardGenerationStatus(int eventId, int imageId) => '/event-wizard/$eventId/generation-status/$imageId';
+
+  // AI Design Studio — two-step generation
+  static const String wizardAiImages = '/event-wizard/ai-images';
+  static String wizardAiFormFields(int eventTypeId) => '/event-wizard/ai-form-fields/$eventTypeId';
+  static String wizardGeneratePrompt(int eventId) => '/event-wizard/$eventId/generate-prompt';
+  static String wizardConfirmGenerate(int eventId) => '/event-wizard/$eventId/confirm-generate';
+  static String wizardSaveAiImage(int eventId) => '/event-wizard/$eventId/details';
 
   // Page 4 - Guest Management
   static String wizardGuests(int eventId) => '/event-wizard/$eventId/guests';

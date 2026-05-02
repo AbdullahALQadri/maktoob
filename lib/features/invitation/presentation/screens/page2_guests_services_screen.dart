@@ -54,14 +54,9 @@ class _Page2GuestsServicesScreenState extends State<Page2GuestsServicesScreen>
           _showDuplicateDialog(context, state.duplicatePhoneNumbers, l);
         }
         if (state.errorMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.errorMessage!,
-                  style: const TextStyle(color: Colors.white)),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          final l = AppLocalizations.of(context);
+          final msg = l?.translate(state.errorMessage!) ?? state.errorMessage!;
+          AppSnackBar.showError(context, message: msg);
           context.read<InvitationCubit>().clearError();
         }
       },

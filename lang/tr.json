@@ -622,5 +622,47 @@
 
   "security_warning_title": "Güvenlik Uyarısı",
   "security_warning_message": "Bu uygulama, güvenlik nedenleriyle rootlanmış veya jailbreak yapılmış cihazlarda çalıştırılamaz.",
-  "security_warning_subtitle": "Maktoob'a erişmek için değiştirilmemiş bir cihaz kullanın."
+  "security_warning_subtitle": "Maktoob'a erişmek için değiştirilmemiş bir cihaz kullanın.",
+
+  "wizard_step1_setup_title": "Etkinlik Kurulumu",
+  "wizard_step1_setup_subtitle": "Etkinlik türünüzü seçin ve detayları doldurun",
+  "wizard_step2_guests_title": "Misafirler ve Hizmetler",
+  "wizard_step2_guests_subtitle": "Misafir ekleyin ve ekstra hizmetler seçin",
+  "wizard_step3_review_title": "İncele ve Gönder",
+  "wizard_step3_review_subtitle": "Paket seçin ve etkinliğinizi onaylayın",
+  "wizard_continue_to_guests": "Misafirlere Devam Et",
+  "wizard_continue_to_review": "İncelemeye Devam Et",
+
+  "invitation_ai_preview": "Davet Önizlemesi",
+  "invitation_image_ready": "Görsel hazır",
+  "invitation_upload_or_describe": "Bir görsel yükleyin veya tasarımınızı açıklayın",
+  "invitation_ai_prompt": "Yapay Zeka ile Oluştur (İsteğe bağlı)",
+  "invitation_ai_prompt_hint": "İstediğiniz davet tasarımını açıklayın...",
+  "invitation_generate_ai": "Yapay Zeka ile Oluştur",
+  "invitation_regenerate": "Yeniden Oluştur",
+  "invitation_generating_image": "Tasarımınız oluşturuluyor...",
+  "invitation_generation_wait": "Bu 30 saniyeye kadar sürebilir",
+  "invitation_generate_hint": "Özel tasarım oluşturmak için Yapay Zeka kullanın",
+  "invitation_services": "Hizmetler",
+  "invitation_package_selection": "Paket",
+  "invitation_invoice": "Fatura",
+  "invitation_select_package_first": "Fatura görmek için yukarıdan paket seçin",
+
+  "invitation_groom_name": "Damat Adı",
+  "invitation_groom_name_hint": "Damat adını girin",
+  "invitation_bride_name": "Gelin Adı",
+  "invitation_bride_name_hint": "Gelin adını girin",
+
+  "invitation_custom_package_feature1": "Esnek davet sayısı",
+  "invitation_custom_package_feature2": "Davet başına öde",
+  "invitation_custom_package_feature3": "Tüm özellikler dahil",
+
+  "invitation_failed_create_draft": "Etkinlik taslağı oluşturulamadı",
+  "invitation_failed_load_draft": "Taslak yüklenemedi",
+  "invitation_excel_read_error": "Excel dosyası okunamadı",
+  "invitation_generation_failed": "Oluşturma başarısız",
+  "invitation_generation_timeout": "Oluşturma zaman aşımına uğradı. Lütfen tekrar deneyin.",
+
+  "error_picking_image": "Galeri açılamadı. Uygulama izinlerini kontrol edin.",
+  "open_settings": "Ayarlar"
 }

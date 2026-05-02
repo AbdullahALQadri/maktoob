@@ -1,11 +1,9 @@
-import 'dart:io';
-
+﻿import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:permission_handler/permission_handler.dart' as ph;
 
 import '../../../../config/locale/app_localizations.dart';
+import '../../../../config/routes/app_routes.dart';
 import '../../../../core/core.dart';
 import '../cubit/invitation_cubit.dart';
 import '../cubit/invitation_state.dart';
@@ -24,27 +22,89 @@ class _Page1EventSetupScreenState extends State<Page1EventSetupScreen> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
 
-  final _promptController = TextEditingController();
-
   // Track which sections are expanded
   bool _eventTypeExpanded = true;
   bool _detailsExpanded = false;
   bool _previewExpanded = false;
 
+  // Tracks the last event type that triggered auto-expand so it fires only once
+  int? _lastAutoExpandedForEventTypeId;
+
+  // AI Design â€” image URL returned from AiDesignPage
+  String? _aiImageUrl;
+
   @override
   void initState() {
     super.initState();
     final state = context.read<InvitationCubit>().state;
-    _nameController.text = state.eventName ?? '';
+    _nameController.text        = state.eventName ?? '';
     _descriptionController.text = state.eventDescription ?? '';
+    // Restore preview if user had already generated an image
+    _aiImageUrl = state.generatedImageUrl;
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
-    _promptController.dispose();
     super.dispose();
+  }
+
+  Future<void> _openAiDesign(BuildContext ctx, InvitationState state) async {
+    final l = AppLocalizations.of(ctx);
+
+    // Event type must be selected and have a valid ID
+    final eventTypeId = state.selectedEventType?.id;
+    if (eventTypeId == null || eventTypeId == 0) {
+      ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
+        content: Text(l?.translate('invitation_select_event_type_first') ??
+            'اختر نوع المناسبة أولاً'),
+        backgroundColor: Colors.orange,
+      ));
+      return;
+    }
+
+    int? eventId = state.draftEventId;
+
+    // If no draft event yet, create one now before opening AI Design
+    if (eventId == null) {
+      final cubit = ctx.read<InvitationCubit>();
+
+      // Sync name from controller if filled
+      if (_nameController.text.isNotEmpty) {
+        cubit.updateEventName(_nameController.text);
+      }
+
+      await cubit.initializeWizardIfNeeded();
+
+      if (!mounted) return;
+      // BLoC emit() is synchronous — cubit.state is updated as soon as
+      // initializeWizardIfNeeded() completes, so this read is safe.
+      eventId = cubit.state.draftEventId;
+
+      if (eventId == null) {
+        ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
+          content: Text(l?.translate('invitation_fill_details_first') ??
+              'أدخل اسم المناسبة أولاً'),
+          backgroundColor: Colors.orange,
+        ));
+        return;
+      }
+    }
+
+    final result = await Navigator.of(ctx).pushNamed(
+      Routes.aiDesign,
+      arguments: {'eventId': eventId, 'eventTypeId': eventTypeId},
+    );
+
+    if (result is String && result.isNotEmpty && mounted) {
+      // Register with the wizard cubit so canProceedFromEventType becomes true.
+      ctx.read<InvitationCubit>().setAiGeneratedImage(result);
+      setState(() {
+        _aiImageUrl      = result;
+        _previewExpanded = true;
+      });
+    }
   }
 
   @override
@@ -57,30 +117,21 @@ class _Page1EventSetupScreenState extends State<Page1EventSetupScreen> {
           current.errorMessage != null,
       listener: (context, state) {
         if (state.errorMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.errorMessage!,
-                  style: const TextStyle(color: Colors.white)),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          final l = AppLocalizations.of(context);
+          final msg = l?.translate(state.errorMessage!) ?? state.errorMessage!;
+          AppSnackBar.showError(context, message: msg);
           context.read<InvitationCubit>().clearError();
         }
       },
       builder: (context, state) {
-        // Auto-expand details section when event type is selected
-        if (state.selectedEventType != null &&
-            (state.selectedTemplate != null ||
-                state.uploadedTemplateFile != null ||
-                (state.uploadedTemplateDescription?.isNotEmpty ?? false))) {
-          if (!_detailsExpanded && _eventTypeExpanded) {
+        // Auto-expand details section once when event type is selected
+        final currentTypeId = state.selectedEventType?.id;
+        if (currentTypeId != null &&
+            currentTypeId != _lastAutoExpandedForEventTypeId) {
+          _lastAutoExpandedForEventTypeId = currentTypeId;
+          if (!_detailsExpanded) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) {
-                setState(() {
-                  _detailsExpanded = true;
-                });
-              }
+              if (mounted) setState(() => _detailsExpanded = true);
             });
           }
         }
@@ -140,24 +191,22 @@ class _Page1EventSetupScreenState extends State<Page1EventSetupScreen> {
                       ),
                       SizedBox(height: context.dynamicHeight(0.015)),
 
-                      // Section 3: AI Preview & Generate
+                      // Section 3: AI Design Studio
                       _CollapsibleSection(
-                        title: l?.translate('invitation_ai_preview') ??
-                            'Invitation Preview',
-                        subtitle: state.generatedImageUrl != null
+                        title: l?.translate('ai_design_title') ??
+                            'ØªØµÙ…ÙŠÙ… Ø§Ù„Ø¯Ø¹ÙˆØ© Ø¨Ø§Ù„Ø°ÙƒØ§Ø¡ Ø§Ù„Ø§ØµØ·Ù†Ø§Ø¹ÙŠ',
+                        subtitle: _aiImageUrl != null
                             ? (l?.translate('invitation_image_ready') ??
                                 'Image ready')
                             : null,
                         icon: Icons.auto_awesome_rounded,
                         isExpanded: _previewExpanded,
-                        isComplete: state.generatedImageUrl != null ||
-                            state.previewImageUrl != null ||
-                            state.uploadedTemplateFile != null,
+                        isComplete: _aiImageUrl != null,
                         onToggle: () => setState(
                             () => _previewExpanded = !_previewExpanded),
-                        child: _PreviewSection(
-                          state: state,
-                          promptController: _promptController,
+                        child: _AiDesignStudioSection(
+                          imageUrl: _aiImageUrl,
+                          onOpenDesign: () => _openAiDesign(context, state),
                         ),
                       ),
                       SizedBox(height: context.dynamicHeight(0.1)),
@@ -490,141 +539,109 @@ class _EventTypeSection extends StatelessWidget {
             },
           ),
         ],
-        if (state.selectedEventType != null) ...[
-          SizedBox(height: context.dynamicHeight(0.02)),
-          _SectionLabel(
-            text: l?.translate('invitation_choose_template') ??
-                'Choose Template',
-          ),
-          SizedBox(height: context.dynamicHeight(0.01)),
-          if (state.isCustomEventType)
-            CustomTemplateUploadCard(
-              uploadedFile: state.uploadedTemplateFile,
-              description: state.uploadedTemplateDescription,
-            )
-          else
-            _TemplatesGrid(state: state),
-        ],
       ],
     );
   }
 }
 
-class _TemplatesGrid extends StatelessWidget {
-  final InvitationState state;
+// =============================================================================
+// AI DESIGN STUDIO SECTION
+// =============================================================================
 
-  const _TemplatesGrid({required this.state});
+class _AiDesignStudioSection extends StatelessWidget {
+  final String? imageUrl;
+  final VoidCallback onOpenDesign;
+
+  const _AiDesignStudioSection({this.imageUrl, required this.onOpenDesign});
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final templates = [
-      TemplateModel.customPlaceholder(),
-      ...state.availableTemplates,
-    ];
-    final isEnglish = l?.isEnLocale ?? false;
+    final l       = AppLocalizations.of(context);
+    final primary = Theme.of(context).colorScheme.primary;
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: context.dynamicWidth(0.025),
-        mainAxisSpacing: context.dynamicWidth(0.025),
-        childAspectRatio: 0.8,
-      ),
-      itemCount: templates.length,
-      itemBuilder: (context, index) {
-        final template = templates[index];
-        final isCustomSelected = state.uploadedTemplateFile != null ||
-            (state.uploadedTemplateDescription?.isNotEmpty ?? false);
-        final isSelected = template.isCustom
-            ? isCustomSelected
-            : state.selectedTemplate?.id == template.id;
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Divider(color: context.borderColor),
+      SizedBox(height: context.dynamicHeight(0.01)),
 
-        return TemplateCard(
-          template: template,
-          isSelected: isSelected,
-          uploadedFile: template.isCustom ? state.uploadedTemplateFile : null,
-          isEnglish: isEnglish,
-          onTap: () => _onTemplateTap(context, template),
-        );
-      },
-    );
-  }
-
-  void _onTemplateTap(BuildContext context, TemplateModel template) {
-    if (template.isCustom) {
-      _showCustomTemplateBottomSheet(context);
-    } else {
-      context.read<InvitationCubit>().clearCustomTemplate();
-      context.read<InvitationCubit>().selectTemplate(template);
-    }
-  }
-
-  Future<void> _showCustomTemplateBottomSheet(BuildContext context) async {
-    final l = AppLocalizations.of(context);
-    final result = await AppBottomSheet.show<String>(
-      context,
-      title: l?.translate('invitation_custom_template') ?? 'Custom Template',
-      subtitle: l?.translate('invitation_upload_or_describe') ??
-          'Upload an image or describe your design',
-      icon: Icons.design_services_rounded,
-      iconColor: AppColors.primaryColor,
-      iconBackgroundColor: AppColors.purple50,
-      child: BlocProvider.value(
-        value: context.read<InvitationCubit>(),
-        child: const CustomTemplateBottomSheetContent(),
-      ),
-    );
-
-    if (result == 'pick_image' && context.mounted) {
-      await _pickImageFromGallery(context);
-    }
-  }
-
-  Future<void> _pickImageFromGallery(BuildContext context) async {
-    try {
-      final storageStatus = await ph.Permission.storage.request();
-      debugPrint('Storage permission status: $storageStatus');
-
-      if (!storageStatus.isGranted) {
-        final photosStatus = await ph.Permission.photos.request();
-        debugPrint('Photos permission status: $photosStatus');
-      }
-
-      final picker = ImagePicker();
-      final image = await picker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 1920,
-        maxHeight: 1920,
-        imageQuality: 85,
-        requestFullMetadata: false,
-      );
-
-      if (image != null && context.mounted) {
-        final cubit = context.read<InvitationCubit>();
-        cubit.clearSelectedTemplate();
-        cubit.uploadCustomTemplate(File(image.path));
-      }
-    } catch (e) {
-      debugPrint('Error picking image: $e');
-      if (context.mounted) {
-        final l = AppLocalizations.of(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              l?.translate('error_picking_image') ??
-                  'Failed to open gallery. Please check app permissions.',
-            ),
-            action: SnackBarAction(
-              label: l?.translate('open_settings') ?? 'Settings',
-              onPressed: () => ph.openAppSettings(),
+      if (imageUrl != null && imageUrl!.isNotEmpty) ...[
+        // Show selected AI image preview
+        ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: CachedNetworkImage(
+            imageUrl: imageUrl!,
+            height: context.dynamicHeight(0.3),
+            width: double.infinity,
+            fit: BoxFit.contain,
+            errorWidget: (_, __, ___) => Container(
+              height: context.dynamicHeight(0.2),
+              color: context.inputFill,
+              child: const Icon(Icons.broken_image_outlined, color: Colors.grey),
             ),
           ),
-        );
-      }
-    }
+        ),
+        SizedBox(height: context.dynamicHeight(0.015)),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: onOpenDesign,
+            icon: const Icon(Icons.auto_awesome),
+            label: Text(l?.translate('ai_regenerate_image') ?? 'ØªØºÙŠÙŠØ± Ø§Ù„ØµÙˆØ±Ø©'),
+          ),
+        ),
+      ] else ...[
+        // Invite card to open AI Design Studio
+        InkWell(
+          onTap: onOpenDesign,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: primary.withOpacity(0.3)),
+              gradient: LinearGradient(
+                colors: [primary.withOpacity(0.05), primary.withOpacity(0.12)],
+              ),
+            ),
+            child: Row(children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: primary.withOpacity(0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.auto_awesome, color: primary, size: 28),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(
+                    l?.translate('ai_design_title') ??
+                        'ØªØµÙ…ÙŠÙ… Ø§Ù„Ø¯Ø¹ÙˆØ© Ø¨Ø§Ù„Ø°ÙƒØ§Ø¡ Ø§Ù„Ø§ØµØ·Ù†Ø§Ø¹ÙŠ',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: context.dynamicWidth(0.038),
+                      color: primary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    l?.translate('ai_design_subtitle') ??
+                        'Ø§Ø®ØªØ± Ù…Ù† Ø§Ù„ØªØµØ§Ù…ÙŠÙ… Ø£Ùˆ Ø£Ù†Ø´Ø¦ ØªØµÙ…ÙŠÙ…Ø§Ù‹ ÙØ±ÙŠØ¯Ø§Ù‹',
+                    style: TextStyle(
+                      fontSize: context.dynamicWidth(0.032),
+                      color: context.textSecondary,
+                    ),
+                  ),
+                ]),
+              ),
+              Icon(Icons.arrow_forward_ios_rounded, color: primary, size: 18),
+            ]),
+          ),
+        ),
+      ],
+      SizedBox(height: context.dynamicHeight(0.01)),
+    ]);
   }
 }
 
@@ -669,13 +686,8 @@ class _EventDetailsSection extends StatelessWidget {
           },
         ),
 
-        // Dynamic form fields (e.g., groom/bride names for weddings)
-        if (!state.isCustomEventType &&
-            !state.isCustomTemplate &&
-            state.eventTypeFormFields.isNotEmpty) ...[
-          SizedBox(height: context.dynamicHeight(0.02)),
-          _EventTypeFormFields(state: state),
-        ],
+        // Event-specific form fields (bride/groom names etc.) are collected
+        // in the AI Design Studio form fields section — not duplicated here.
 
         // Description
         SizedBox(height: context.dynamicHeight(0.02)),
@@ -745,54 +757,6 @@ class _EventDetailsSection extends StatelessWidget {
   }
 }
 
-class _EventTypeFormFields extends StatelessWidget {
-  final InvitationState state;
-
-  const _EventTypeFormFields({required this.state});
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
-    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _SectionLabel(text: t.translate('invitation_couple_info')),
-        SizedBox(height: context.dynamicHeight(0.008)),
-        ...state.eventTypeFormFields.map((field) {
-          IconData fieldIcon = Icons.person_outline;
-          if (field.key == 'groom_name') {
-            fieldIcon = Icons.person;
-          } else if (field.key == 'bride_name') {
-            fieldIcon = Icons.person_outline;
-          }
-
-          final label = isArabic ? field.labelAr : field.label;
-          final hint = isArabic
-              ? (field.hintAr ?? field.labelAr)
-              : (field.hint ?? field.label);
-
-          return Padding(
-            padding: EdgeInsets.only(bottom: context.dynamicHeight(0.015)),
-            child: AppTextField(
-              labelText: label,
-              hintText: hint,
-              prefixIcon: fieldIcon,
-              initialValue: state.eventTypeFormData[field.key]?.toString(),
-              onChanged: (value) {
-                context
-                    .read<InvitationCubit>()
-                    .updateEventTypeFormField(field.key, value);
-              },
-            ),
-          );
-        }),
-      ],
-    );
-  }
-}
-
 // =============================================================================
 // SHARED WIDGETS
 // =============================================================================
@@ -815,296 +779,6 @@ class _SectionLabel extends StatelessWidget {
   }
 }
 
-// =============================================================================
-// PREVIEW & AI GENERATION SECTION
-// =============================================================================
-
-class _PreviewSection extends StatelessWidget {
-  final InvitationState state;
-  final TextEditingController promptController;
-
-  const _PreviewSection({
-    required this.state,
-    required this.promptController,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Divider(color: context.borderColor),
-        SizedBox(height: context.dynamicHeight(0.01)),
-
-        // Show current preview image (uploaded, template, or AI-generated)
-        _PreviewImage(state: state),
-
-        SizedBox(height: context.dynamicHeight(0.02)),
-
-        // AI Generation input
-        _SectionLabel(
-          text: l?.translate('invitation_ai_prompt') ??
-              'Generate with AI (Optional)',
-        ),
-        SizedBox(height: context.dynamicHeight(0.008)),
-        AppTextField(
-          controller: promptController,
-          hintText: l?.translate('invitation_ai_prompt_hint') ??
-              'Describe the invitation design you want...',
-          prefixIcon: Icons.auto_awesome,
-          maxLines: 2,
-        ),
-        SizedBox(height: context.dynamicHeight(0.015)),
-
-        // Generate / Regenerate button
-        Row(
-          children: [
-            Expanded(
-              child: _GenerateButton(
-                state: state,
-                promptController: promptController,
-              ),
-            ),
-            if (state.generatedImageUrl != null) ...[
-              SizedBox(width: context.dynamicWidth(0.03)),
-              Expanded(
-                child: SecondaryButton(
-                  text: l?.translate('invitation_regenerate') ?? 'Regenerate',
-                  onPressed: state.isGeneratingImage
-                      ? null
-                      : () {
-                          context.read<InvitationCubit>().generateAiImage(
-                                prompt: promptController.text.isNotEmpty
-                                    ? promptController.text
-                                    : null,
-                              );
-                        },
-                ),
-              ),
-            ],
-          ],
-        ),
-
-        // Error message
-        if (state.generationError != null) ...[
-          SizedBox(height: context.dynamicHeight(0.01)),
-          Container(
-            padding: EdgeInsets.all(context.dynamicWidth(0.025)),
-            decoration: BoxDecoration(
-              color: Colors.red.shade50,
-              borderRadius:
-                  BorderRadius.circular(context.dynamicWidth(0.02)),
-              border: Border.all(color: Colors.red.shade200),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.error_outline,
-                    color: Colors.red.shade700,
-                    size: context.dynamicWidth(0.04)),
-                SizedBox(width: context.dynamicWidth(0.02)),
-                Expanded(
-                  child: Text(
-                    state.generationError!,
-                    style: TextStyle(
-                      fontSize: context.dynamicWidth(0.028),
-                      color: Colors.red.shade700,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-class _PreviewImage extends StatelessWidget {
-  final InvitationState state;
-
-  const _PreviewImage({required this.state});
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-
-    // Show AI generation loading
-    if (state.isGeneratingImage) {
-      return Container(
-        height: context.dynamicHeight(0.25),
-        decoration: BoxDecoration(
-          color: context.inputFill,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: context.dynamicWidth(0.1),
-                height: context.dynamicWidth(0.1),
-                child: const CircularProgressIndicator(strokeWidth: 3),
-              ),
-              SizedBox(height: context.dynamicHeight(0.015)),
-              Text(
-                l?.translate('invitation_generating_image') ??
-                    'Generating your design...',
-                style: TextStyle(
-                  color: context.textSecondary,
-                  fontSize: context.dynamicWidth(0.035),
-                ),
-              ),
-              SizedBox(height: context.dynamicHeight(0.005)),
-              Text(
-                l?.translate('invitation_generation_wait') ??
-                    'This may take up to 30 seconds',
-                style: TextStyle(
-                  color: context.iconSecondary,
-                  fontSize: context.dynamicWidth(0.03),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    // Show uploaded custom file
-    if (state.uploadedTemplateFile != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
-        child: Image.file(
-          state.uploadedTemplateFile!,
-          height: context.dynamicHeight(0.3),
-          width: double.infinity,
-          fit: BoxFit.contain,
-          errorBuilder: (_, __, ___) => _placeholder(context, l),
-        ),
-      );
-    }
-
-    // Show generated or preview image from URL
-    final imageUrl = state.generatedImageUrl ?? state.previewImageUrl;
-    if (imageUrl != null && imageUrl.isNotEmpty) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
-        child: Image.network(
-          imageUrl,
-          height: context.dynamicHeight(0.3),
-          width: double.infinity,
-          fit: BoxFit.contain,
-          loadingBuilder: (ctx, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return Container(
-              height: context.dynamicHeight(0.25),
-              decoration: BoxDecoration(
-                color: context.inputFill,
-                borderRadius:
-                    BorderRadius.circular(context.dynamicWidth(0.03)),
-              ),
-              child: const Center(child: CircularProgressIndicator()),
-            );
-          },
-          errorBuilder: (_, __, ___) => _placeholder(context, l),
-        ),
-      );
-    }
-
-    // Show selected template thumbnail
-    if (state.selectedTemplate != null &&
-        state.selectedTemplate!.previewUrl != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
-        child: Image.network(
-          state.selectedTemplate!.previewUrl!,
-          height: context.dynamicHeight(0.3),
-          width: double.infinity,
-          fit: BoxFit.contain,
-          errorBuilder: (_, __, ___) => _placeholder(context, l),
-        ),
-      );
-    }
-
-    return _placeholder(context, l);
-  }
-
-  Widget _placeholder(BuildContext context, AppLocalizations? l) {
-    return Container(
-      height: context.dynamicHeight(0.2),
-      decoration: BoxDecoration(
-        color: context.inputFill,
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.03)),
-        border: Border.all(color: context.borderColor),
-      ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.image_outlined,
-              size: context.dynamicWidth(0.1),
-              color: context.iconDefault,
-            ),
-            SizedBox(height: context.dynamicHeight(0.01)),
-            Text(
-              l?.translate('invitation_no_preview') ??
-                  'No preview yet',
-              style: TextStyle(
-                fontSize: context.dynamicWidth(0.033),
-                color: context.textSecondary,
-              ),
-            ),
-            SizedBox(height: context.dynamicHeight(0.005)),
-            Text(
-              l?.translate('invitation_generate_hint') ??
-                  'Use AI to generate a custom design',
-              style: TextStyle(
-                fontSize: context.dynamicWidth(0.028),
-                color: context.iconSecondary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _GenerateButton extends StatelessWidget {
-  final InvitationState state;
-  final TextEditingController promptController;
-
-  const _GenerateButton({
-    required this.state,
-    required this.promptController,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final hasExistingImage = state.generatedImageUrl != null;
-
-    return PrimaryButton(
-      text: hasExistingImage
-          ? (l?.translate('invitation_regenerate') ?? 'Regenerate')
-          : (l?.translate('invitation_generate_ai') ?? 'Generate with AI'),
-      icon: Icons.auto_awesome,
-      isLoading: state.isGeneratingImage,
-      onPressed: state.isGeneratingImage
-          ? null
-          : () {
-              context.read<InvitationCubit>().generateAiImage(
-                    prompt: promptController.text.isNotEmpty
-                        ? promptController.text
-                        : null,
-                  );
-            },
-    );
-  }
-}
 
 // =============================================================================
 // BOTTOM BAR
@@ -1127,6 +801,7 @@ class _BottomBar extends StatelessWidget {
     final canProceed =
         state.canProceedFromEventType && state.canProceedFromEventDetails;
     final isLoading = state.isLoading;
+    final missing   = _missingFields(state, l);
 
     return Container(
       padding: EdgeInsets.all(context.dynamicWidth(0.04)),
@@ -1141,27 +816,87 @@ class _BottomBar extends StatelessWidget {
         ],
       ),
       child: SafeArea(
-        child: PrimaryButton(
-          text: l?.translate('wizard_continue_to_guests') ??
-              'Continue to Guests',
-          icon: Icons.arrow_forward_rounded,
-          isLoading: isLoading,
-          onPressed: canProceed && !isLoading
-              ? () {
-                  final cubit = context.read<InvitationCubit>();
-                  // Sync text controller values
-                  if (nameController.text.isNotEmpty) {
-                    cubit.updateEventName(nameController.text);
-                  }
-                  if (descriptionController.text.isNotEmpty) {
-                    cubit.updateEventDescription(descriptionController.text);
-                  }
-                  // Create draft & save details, then proceed
-                  cubit.createDraftAndSaveDetails();
-                }
-              : null,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (!canProceed && missing.isNotEmpty) ...[
+              Container(
+                padding: const EdgeInsets.all(10),
+                margin: const EdgeInsets.only(bottom: 10),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange.shade200),
+                ),
+                child: Row(children: [
+                  Icon(Icons.info_outline,
+                      color: Colors.orange.shade800, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '${l?.translate('wizard_missing_fields') ?? 'الحقول الناقصة'}: ${missing.join('، ')}',
+                      style: TextStyle(
+                          fontSize: context.dynamicWidth(0.032),
+                          color: Colors.orange.shade900),
+                    ),
+                  ),
+                ]),
+              ),
+            ],
+            PrimaryButton(
+              text: l?.translate('wizard_continue_to_guests') ??
+                  'Continue to Guests',
+              icon: Icons.arrow_forward_rounded,
+              isLoading: isLoading,
+              onPressed: canProceed && !isLoading
+                  ? () {
+                      final cubit = context.read<InvitationCubit>();
+                      if (nameController.text.isNotEmpty) {
+                        cubit.updateEventName(nameController.text);
+                      }
+                      if (descriptionController.text.isNotEmpty) {
+                        cubit.updateEventDescription(descriptionController.text);
+                      }
+                      cubit.createDraftAndSaveDetails();
+                    }
+                  : null,
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  List<String> _missingFields(InvitationState state, AppLocalizations? l) {
+    final missing = <String>[];
+    if (state.selectedEventType == null) {
+      missing.add(l?.translate('invitation_event_type') ?? 'نوع المناسبة');
+    } else {
+      if (state.selectedEventType!.isCustom &&
+          (state.customEventTypeName?.isEmpty ?? true)) {
+        missing.add(l?.translate('invitation_custom_event_type_name') ??
+            'اسم نوع المناسبة');
+      }
+      final hasCover = (state.generatedImageUrl?.isNotEmpty ?? false) ||
+          state.uploadedTemplateFile != null ||
+          (state.uploadedTemplateDescription?.isNotEmpty ?? false);
+      if (!hasCover) {
+        missing.add(l?.translate('invitation_cover_image') ?? 'صورة الدعوة');
+      }
+    }
+    if (state.eventName == null || state.eventName!.isEmpty) {
+      missing.add(l?.translate('invitation_event_name_required')
+              ?.replaceAll(' *', '') ?? 'اسم المناسبة');
+    }
+    if (state.eventDate == null) {
+      missing.add(l?.translate('invitation_date_required')
+              ?.replaceAll(' *', '') ?? 'التاريخ');
+    }
+    if (state.eventTime == null) {
+      missing.add(l?.translate('invitation_time_required')
+              ?.replaceAll(' *', '') ?? 'الوقت');
+    }
+    return missing;
   }
 }

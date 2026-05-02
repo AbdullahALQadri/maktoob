@@ -180,6 +180,79 @@ class EventWizardApiService {
   }
 
   // ============================================================
+  // AI DESIGN STUDIO — Two-step generation
+  // ============================================================
+
+  /// Gallery: get completed AI images filtered by event type
+  Future<Map<String, dynamic>> getAiGalleryImages({int? eventTypeId}) async {
+    final response = await _apiConsumer.get(
+      Endpoints.wizardAiImages,
+      queryParameters: eventTypeId != null ? {'event_type_id': eventTypeId} : null,
+    );
+    return response as Map<String, dynamic>;
+  }
+
+  /// Get dynamic AI form fields for an event type
+  Future<Map<String, dynamic>> getAiFormFields(int eventTypeId) async {
+    final response = await _apiConsumer.get(
+      Endpoints.wizardAiFormFields(eventTypeId),
+    );
+    return response as Map<String, dynamic>;
+  }
+
+  /// Step 1: Generate Arabic prompt text (no image yet)
+  /// Returns { image_id, status: "processing" } — poll generation-status next
+  Future<Map<String, dynamic>> generatePrompt(
+    int eventId, {
+    String? basePrompt,    // Tab 1: from selected gallery image (internal)
+    String? freeformPrompt, // Tab 2: user typed prompt
+    required int eventTypeId,
+    required Map<String, String> formValues,
+    String? customPrompt,
+  }) async {
+    final response = await _apiConsumer.post(
+      Endpoints.wizardGeneratePrompt(eventId),
+      body: {
+        if (basePrompt != null && basePrompt.isNotEmpty) 'base_prompt': basePrompt,
+        if (freeformPrompt != null && freeformPrompt.isNotEmpty) 'prompt': freeformPrompt,
+        'event_type_id': eventTypeId,
+        if (formValues.isNotEmpty) 'form_values': formValues,
+        if (customPrompt != null && customPrompt.isNotEmpty) 'custom_prompt': customPrompt,
+      },
+    );
+    return response as Map<String, dynamic>;
+  }
+
+  /// Step 2: Confirm reviewed prompt and generate the actual image
+  /// Returns { image_id, status: "processing" } — poll generation-status next
+  Future<Map<String, dynamic>> confirmGenerate(
+    int eventId, {
+    required int imageId,
+    required String promptText,
+  }) async {
+    final response = await _apiConsumer.post(
+      Endpoints.wizardConfirmGenerate(eventId),
+      body: {
+        'image_id': imageId,
+        'prompt_text': promptText,
+      },
+    );
+    return response as Map<String, dynamic>;
+  }
+
+  /// Save the generated AI image as the event cover
+  Future<Map<String, dynamic>> saveAiImageToEvent(
+    int eventId, {
+    required int imageId,
+  }) async {
+    final response = await _apiConsumer.post(
+      Endpoints.wizardSaveAiImage(eventId),
+      body: {'ai_generated_image_id': imageId},
+    );
+    return response as Map<String, dynamic>;
+  }
+
+  // ============================================================
   // PAGE 4: Guest Management
   // ============================================================
 

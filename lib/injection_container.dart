@@ -71,6 +71,12 @@ import 'features/payment/presentation/cubit/payment_cubit.dart';
 import 'features/settings/presentation/cubit/settings_cubit.dart';
 import 'features/settings/presentation/cubit/profile_cubit.dart';
 
+// AI Design Studio
+import 'features/ai_design/data/repositories/ai_design_repository.dart';
+
+// Push Notifications (FCM)
+import 'core/services/fcm_service.dart';
+
 // Invitation Feature (Golden Scenario)
 import 'core/api/event_wizard_api_service.dart';
 import 'features/invitation/data/repositories/invitation_repository_impl.dart';
@@ -107,7 +113,10 @@ Future<void> init() async {
   // Dio & API Consumer
   sl.registerLazySingleton(() => Dio());
   sl.registerLazySingleton(() => AppIntercepters());
-  sl.registerLazySingleton(() => AuthInterceptor(secureStorage: sl()));
+  sl.registerLazySingleton(() => AuthInterceptor(
+        secureStorage: sl(),
+        onUnauthenticated: () => sl<AuthCubit>().forceLogout(),
+      ));
   sl.registerLazySingleton(() => LogInterceptor(
         request: true,
         requestBody: true,
@@ -139,7 +148,7 @@ Future<void> init() async {
 
   // Cubit
   sl.registerFactory(
-    () => AuthCubit(authRepository: sl()),
+    () => AuthCubit(authRepository: sl(), fcmService: sl<FcmService>()),
   );
 
   //! ========== HOME FEATURE ==========
@@ -304,6 +313,17 @@ Future<void> init() async {
   sl.registerFactory(
     () => ProfileCubit(authRepository: sl()),
   );
+
+  //! ========== PUSH NOTIFICATIONS (FCM) ==========
+  // Singleton — initialize() is called from main.dart after Firebase.initializeApp
+  sl.registerLazySingleton<FcmService>(() => FcmService());
+
+  //! ========== AI DESIGN STUDIO ==========
+  sl.registerLazySingleton<AiDesignRepository>(
+    () => AiDesignRepository(sl<EventWizardApiService>()),
+  );
+  // AiDesignCubit is registered per-page (needs eventId + eventTypeId at runtime)
+  // — instantiated directly in AppRoutes with GetIt.I<AiDesignRepository>()
 
   //! ========== INVITATION FEATURE (Golden Scenario) ==========
   // API Service

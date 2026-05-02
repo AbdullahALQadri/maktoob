@@ -11,14 +11,21 @@ import 'end_points.dart';
 /// - Injects the Bearer token from secure storage into every request.
 /// - On 401 responses, attempts to refresh the token before forcing re-login.
 /// - Uses a lock to prevent concurrent refresh attempts.
+/// - Calls [onUnauthenticated] when refresh fails so the app can navigate to login.
 class AuthInterceptor extends Interceptor {
   final SecureStorageService _secureStorage;
+
+  /// Called after credentials are cleared due to a failed refresh.
+  /// Wire this to `AuthCubit` to navigate the user back to the login screen.
+  final VoidCallback? onUnauthenticated;
 
   bool _isRefreshing = false;
   final _pendingRequests = <({ErrorInterceptorHandler handler, DioException err})>[];
 
-  AuthInterceptor({required SecureStorageService secureStorage})
-      : _secureStorage = secureStorage;
+  AuthInterceptor({
+    required SecureStorageService secureStorage,
+    this.onUnauthenticated,
+  }) : _secureStorage = secureStorage;
 
   @override
   void onRequest(
@@ -51,6 +58,7 @@ class AuthInterceptor extends Interceptor {
         debugPrint('AuthInterceptor: 401 on auth endpoint, clearing credentials');
       }
       await _secureStorage.clearSecureData();
+      onUnauthenticated?.call();
       return handler.next(err);
     }
 
@@ -90,6 +98,7 @@ class AuthInterceptor extends Interceptor {
         debugPrint('AuthInterceptor: refresh failed, clearing credentials');
       }
       await _secureStorage.clearSecureData();
+      onUnauthenticated?.call();
       handler.next(err);
 
       final queued = List.of(_pendingRequests);

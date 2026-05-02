@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
+import '../../core/services/fcm_service.dart';
 import '../../core/utils/app_strings.dart';
+import '../../features/ai_design/data/repositories/ai_design_repository.dart';
+import '../../features/ai_design/presentation/cubit/ai_design_cubit.dart';
+import '../../features/ai_design/presentation/pages/ai_design_page.dart';
 import '../../features/authentication/presentation/screens/login_screen.dart';
 import '../../features/authentication/presentation/screens/register_screen.dart';
 import '../../features/authentication/presentation/screens/splash_screen.dart';
@@ -13,16 +19,17 @@ import '../screens/main_shell.dart';
 
 /// Route names used across the app to avoid typos and ensure maintainability.
 class Routes {
-  static const String initial = '/';
-  static const String splash = '/splash';
-  static const String login = '/login';
-  static const String register = '/register';
-  static const String main = '/main';
-  static const String home = '/home';
+  static const String initial     = '/';
+  static const String splash      = '/splash';
+  static const String login       = '/login';
+  static const String register    = '/register';
+  static const String main        = '/main';
+  static const String home        = '/home';
   static const String eventDetails = '/event-details';
-  static const String venue = '/venue';
-  static const String scanner = '/scanner';
-  static const String payment = '/payment';
+  static const String venue       = '/venue';
+  static const String scanner     = '/scanner';
+  static const String payment     = '/payment';
+  static const String aiDesign    = '/ai-design';
 }
 
 /// Main AppRoutes class to manage routing logic.
@@ -97,6 +104,27 @@ class AppRoutes {
           PaymentUploadScreen(
             eventId: args?['eventId'],
             onComplete: args?['onComplete'] ?? () {},
+          ),
+          settings,
+        );
+
+      // AI Design Studio — 3-page generation flow
+      case Routes.aiDesign:
+        final args        = settings.arguments as Map<String, dynamic>?;
+        final eventId     = (args?['eventId']     as int?) ?? 0;
+        final eventTypeId = (args?['eventTypeId'] as int?) ?? 0;
+        if (eventId == 0 || eventTypeId == 0) {
+          return _undefinedRoute(settings.name);
+        }
+        return _buildRoute(
+          BlocProvider(
+            create: (_) => AiDesignCubit(
+              repository:  GetIt.I<AiDesignRepository>(),
+              fcmService:  GetIt.I<FcmService>(),
+              eventId:     eventId,
+              eventTypeId: eventTypeId,
+            ),
+            child: AiDesignPage(eventId: eventId, eventTypeId: eventTypeId),
           ),
           settings,
         );

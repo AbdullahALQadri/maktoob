@@ -34,6 +34,9 @@ class _Page3ReviewSubmitScreenState extends State<Page3ReviewSubmitScreen> {
   bool _packageExpanded = true;
   bool _invoiceExpanded = false;
 
+  // Prevent auto-expand from firing repeatedly on rebuild
+  bool _invoiceAutoExpanded = false;
+
   @override
   void initState() {
     super.initState();
@@ -76,8 +79,7 @@ class _Page3ReviewSubmitScreenState extends State<Page3ReviewSubmitScreen> {
           if (state.isSaveAsDraft) {
             AppSnackBar.showSuccess(
               context,
-              message: l?.translate('invitation_draft_saved_success') ??
-                  'Draft saved successfully',
+              message: l?.translate('invitation_draft_saved_success') ?? '',
               duration: const Duration(seconds: 2),
             );
             if (widget.onComplete != null) {
@@ -95,12 +97,12 @@ class _Page3ReviewSubmitScreenState extends State<Page3ReviewSubmitScreen> {
         }
       },
       builder: (context, state) {
-        // Auto-expand invoice when package is selected
-        if (state.selectedPackage != null && !_invoiceExpanded) {
+        // Auto-expand invoice the first time a package is selected
+        if (state.selectedPackage != null && !_invoiceAutoExpanded) {
+          _invoiceAutoExpanded = true;
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
               setState(() => _invoiceExpanded = true);
-              // Load invoice when package is selected
               context.read<InvitationCubit>().loadInvoice();
             }
           });

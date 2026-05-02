@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'config/locale/app_localizations_setup.dart';
+import 'config/routes/app_routes.dart';
 import 'config/themes/app_theme.dart';
 import 'core/utils/app_strings.dart';
 import 'core/widgets/network/offline_wrapper.dart';
@@ -142,6 +143,7 @@ class Maktoob extends StatelessWidget {
               );
             },
             home: const AuthWrapper(),
+            onGenerateRoute: AppRoutes.onGenerateRoute,
           );
         },
       ),

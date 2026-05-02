@@ -1,7 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/locale/app_localizations.dart';
+import '../../../../config/routes/app_routes.dart';
 import '../../../../core/core.dart';
 import '../cubit/invitation_cubit.dart';
 import '../cubit/invitation_state.dart';
@@ -20,6 +22,7 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
+  String? _aiImageUrl; // set when user selects an AI-generated cover
 
   @override
   void initState() {
@@ -27,6 +30,21 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
     final state = context.read<InvitationCubit>().state;
     _nameController.text = state.eventName ?? '';
     _descriptionController.text = state.eventDescription ?? '';
+  }
+
+  Future<void> _openAiDesign(BuildContext ctx, InvitationState state) async {
+    final eventId     = state.draftEventId;
+    final eventTypeId = state.selectedEventType?.id;
+    if (eventId == null || eventTypeId == null) return;
+
+    final result = await Navigator.of(ctx).pushNamed(
+      Routes.aiDesign,
+      arguments: {'eventId': eventId, 'eventTypeId': eventTypeId},
+    );
+
+    if (result is String && result.isNotEmpty && mounted) {
+      setState(() => _aiImageUrl = result);
+    }
   }
 
   @override
@@ -62,6 +80,8 @@ class _Page2EventDetailsScreenState extends State<Page2EventDetailsScreen> {
                       state: state,
                       nameController: _nameController,
                       descriptionController: _descriptionController,
+                      aiImageUrl: _aiImageUrl,
+                      onOpenAiDesign: () => _openAiDesign(context, state),
                     ),
                   ),
                 ),
@@ -92,11 +112,15 @@ class _Page2Content extends StatelessWidget {
   final InvitationState state;
   final TextEditingController nameController;
   final TextEditingController descriptionController;
+  final String? aiImageUrl;
+  final VoidCallback onOpenAiDesign;
 
   const _Page2Content({
     required this.state,
     required this.nameController,
     required this.descriptionController,
+    this.aiImageUrl,
+    required this.onOpenAiDesign,
   });
 
   @override
@@ -159,6 +183,8 @@ class _Page2Content extends StatelessWidget {
         SizedBox(height: context.dynamicHeight(0.01)),
         EventLocationSection(state: state),
         SizedBox(height: context.dynamicHeight(0.025)),
+        _AiDesignSection(imageUrl: aiImageUrl, onTap: onOpenAiDesign),
+        SizedBox(height: context.dynamicHeight(0.025)),
         CompanionsSection(state: state),
         SizedBox(height: context.dynamicHeight(0.119)),
       ],
@@ -183,6 +209,110 @@ class _SectionTitle extends StatelessWidget {
     );
   }
 }
+
+// ─────────────────────────────────────────────────────────────────
+// AI Design Section
+// ─────────────────────────────────────────────────────────────────
+
+class _AiDesignSection extends StatelessWidget {
+  final String? imageUrl;
+  final VoidCallback onTap;
+
+  const _AiDesignSection({this.imageUrl, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final l       = AppLocalizations.of(context);
+    final primary = Theme.of(context).colorScheme.primary;
+
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      _SectionTitle(
+        text: l?.translate('invitation_cover_image') ?? 'صورة الدعوة',
+      ),
+      SizedBox(height: context.dynamicHeight(0.012)),
+
+      // If an AI image has been selected → show preview
+      if (imageUrl != null && imageUrl!.isNotEmpty) ...[
+        ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: CachedNetworkImage(
+            imageUrl: imageUrl!,
+            height: 200,
+            width: double.infinity,
+            fit: BoxFit.cover,
+            errorWidget: (_, __, ___) => Container(
+              height: 200,
+              color: Colors.grey[200],
+              child: const Icon(Icons.broken_image_outlined, color: Colors.grey),
+            ),
+          ),
+        ),
+        SizedBox(height: context.dynamicHeight(0.012)),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: onTap,
+            icon: const Icon(Icons.auto_awesome),
+            label: Text(l?.translate('ai_regenerate_image') ?? 'تغيير الصورة'),
+          ),
+        ),
+      ] else ...[
+        // No image yet → show invitation card
+        InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: primary.withOpacity(0.3)),
+              gradient: LinearGradient(
+                colors: [primary.withOpacity(0.05), primary.withOpacity(0.12)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Row(children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: primary.withOpacity(0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.auto_awesome, color: primary, size: 28),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(
+                    l?.translate('ai_design_title') ?? 'تصميم الدعوة بالذكاء الاصطناعي',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: context.dynamicWidth(0.038),
+                      color: primary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    l?.translate('ai_design_subtitle') ??
+                        'اختر من التصاميم أو أنشئ تصميماً فريداً',
+                    style: TextStyle(
+                      fontSize: context.dynamicWidth(0.032),
+                      color: context.textSecondary,
+                    ),
+                  ),
+                ]),
+              ),
+              Icon(Icons.arrow_forward_ios_rounded, color: primary, size: 18),
+            ]),
+          ),
+        ),
+      ],
+    ]);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
 
 class _EventTypeFormFields extends StatelessWidget {
   final InvitationState state;
