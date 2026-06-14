@@ -55,6 +55,8 @@ export 'widgets/images/app_image.dart';
 // =============================================================================
 
 export 'widgets/scaffold/app_scaffold.dart';
+export 'widgets/app_bars/maktoob_app_bar.dart';
+export 'widgets/tabs/pill_tabs.dart';
 
 // =============================================================================
 // WIDGETS - DIALOGS

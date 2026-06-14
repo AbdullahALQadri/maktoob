@@ -74,7 +74,4 @@ abstract class AuthRepository {
 
   /// Check if user is logged in
   Future<bool> isLoggedIn();
-
-  /// Get stored token
-  String? getToken();
 }

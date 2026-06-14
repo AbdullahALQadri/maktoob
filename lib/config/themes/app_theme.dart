@@ -23,13 +23,13 @@ class AppTheme {
 
     // Colors
     primaryColor: AppColors.primaryColor,
-    scaffoldBackgroundColor: AppColors.white,
+    scaffoldBackgroundColor: AppColors.surfaceBg,
 
     // Color Scheme
     colorScheme: const ColorScheme.light(
       primary: AppColors.primaryColor,
       onPrimary: AppColors.white,
-      primaryContainer: AppColors.blue50,
+      primaryContainer: AppColors.amber50,
       onPrimaryContainer: AppColors.tertiaryColor,
       secondary: AppColors.secondaryColor,
       onSecondary: AppColors.tertiaryColor,
@@ -37,8 +37,8 @@ class AppTheme {
       onSecondaryContainer: AppColors.gray900,
       tertiary: AppColors.tertiaryColor,
       onTertiary: AppColors.white,
-      tertiaryContainer: AppColors.purple50,
-      onTertiaryContainer: AppColors.purple600,
+      tertiaryContainer: AppColors.emerald50,
+      onTertiaryContainer: AppColors.tertiaryColor,
       error: AppColors.red500,
       onError: AppColors.white,
       errorContainer: AppColors.red100,
@@ -53,7 +53,7 @@ class AppTheme {
       scrim: AppColors.black,
       inverseSurface: AppColors.gray900,
       onInverseSurface: AppColors.white,
-      inversePrimary: AppColors.blue500,
+      inversePrimary: AppColors.amber500,
     ),
 
     // AppBar Theme
@@ -61,7 +61,7 @@ class AppTheme {
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: true,
-      backgroundColor: AppColors.white,
+      backgroundColor: AppColors.surfaceBg,
       foregroundColor: AppColors.gray900,
       surfaceTintColor: AppColors.transparent,
       iconTheme: IconThemeData(color: AppColors.gray900, size: 24),

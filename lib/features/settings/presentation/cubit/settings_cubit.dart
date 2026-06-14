@@ -73,9 +73,4 @@ class SettingsCubit extends Cubit<SettingsState> {
       emit(state.copyWith(isLoading: false));
     }
   }
-
-  /// Get the current locale
-  ui.Locale get currentLocale {
-    return ui.Locale(_codeFromLanguage(state.language));
-  }
 }

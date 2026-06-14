@@ -30,9 +30,6 @@ abstract class EventsRepository {
     EventStatus? status,
   });
 
-  /// Cache events locally
-  Future<Either<Failure, void>> cacheEvents(List<EventEntity> events);
-
   /// Get cached events
   Future<Either<Failure, List<EventEntity>>> getCachedEvents();
 

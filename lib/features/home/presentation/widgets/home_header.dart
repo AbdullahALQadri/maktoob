@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
 
-/// Header widget for home screen with gradient background.
+/// Editorial dashboard heading.
+///
+/// Large title first, soft welcome subtitle below — matches the mockup's
+/// editorial layout. No badge, no sparkle, no gradient.
 class HomeHeader extends StatelessWidget {
   final Animation<double> fadeAnimation;
 
@@ -12,112 +15,33 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
+    final text = Theme.of(context).textTheme;
 
-    return Container(
-      width: double.infinity,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColors.primaryColor, AppColors.tertiaryColor],
-        ),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: FadeTransition(
-          opacity: fadeAnimation,
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: context.dynamicWidth(0.04),
-              right: context.dynamicWidth(0.04),
-              top: context.dynamicHeight(0.02),
-              bottom: context.dynamicHeight(0.039),
+    return FadeTransition(
+      opacity: fadeAnimation,
+      child: Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(20, 24, 20, 0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              t.translate('home_dashboard'),
+              style: text.headlineLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: context.textPrimary,
+                height: 1.15,
+                letterSpacing: -0.5,
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _WelcomeBadge(text: t.translate('home_welcome')),
-                SizedBox(height: context.dynamicHeight(0.02)),
-                _AnimatedTitle(text: t.translate('home_dashboard')),
-              ],
+            const SizedBox(height: 6),
+            Text(
+              t.translate('home_dashboard_subtitle'),
+              style: text.bodyMedium?.copyWith(
+                color: context.textSecondary,
+              ),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _WelcomeBadge extends StatelessWidget {
-  final String text;
-
-  const _WelcomeBadge({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: const Duration(milliseconds: 600),
-      builder: (context, value, child) {
-        return Transform.scale(
-          scale: value,
-          child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: context.dynamicWidth(0.029),
-              vertical: context.dynamicHeight(0.007),
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.auto_awesome,
-                  color: AppColors.yellow400,
-                  size: context.dynamicWidth(0.04),
-                ),
-                SizedBox(width: context.dynamicWidth(0.016)),
-                Text(
-                  text,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: context.dynamicWidth(0.029),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _AnimatedTitle extends StatelessWidget {
-  final String text;
-
-  const _AnimatedTitle({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return TweenAnimationBuilder<Offset>(
-      tween: Tween(begin: const Offset(0, 20), end: Offset.zero),
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeOut,
-      builder: (context, offset, child) {
-        return Transform.translate(offset: offset, child: child);
-      },
-      child: Text(
-        text,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: context.dynamicWidth(0.069),
-          fontWeight: FontWeight.bold,
-          letterSpacing: -0.5,
+          ],
         ),
       ),
     );

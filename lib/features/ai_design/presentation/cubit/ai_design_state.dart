@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import '../../data/models/ai_form_field_model.dart';
 import '../../data/models/ai_image_model.dart';
+import '../../data/models/generation_status_model.dart';
 
 abstract class AiDesignState extends Equatable {
   const AiDesignState();
@@ -29,6 +30,7 @@ class AiDesignReady extends AiDesignState {
   final int activeTab; // 0 = gallery, 1 = freeform
   final bool isGenerating;
   final String? generationError;
+  final List<String> selectedMoodTags;
 
   const AiDesignReady({
     required this.galleryImages,
@@ -41,6 +43,7 @@ class AiDesignReady extends AiDesignState {
     this.activeTab = 0,
     this.isGenerating = false,
     this.generationError,
+    this.selectedMoodTags = const [],
   });
 
   AiDesignReady copyWith({
@@ -54,6 +57,7 @@ class AiDesignReady extends AiDesignState {
     int? activeTab,
     bool? isGenerating,
     String? generationError,
+    List<String>? selectedMoodTags,
     bool clearSelectedImage = false,
     bool clearFreeformPrompt = false,
     bool clearError = false,
@@ -69,7 +73,18 @@ class AiDesignReady extends AiDesignState {
       activeTab:           activeTab           ?? this.activeTab,
       isGenerating:        isGenerating        ?? this.isGenerating,
       generationError:     clearError          ? null : (generationError    ?? this.generationError),
+      selectedMoodTags:    selectedMoodTags    ?? this.selectedMoodTags,
     );
+  }
+
+  /// Title of the currently-selected gallery image — used as the "style"
+  /// label on the result screen. Null when on freeform tab.
+  String? get selectedImageTitle {
+    if (selectedImageId == null) return null;
+    for (final img in galleryImages) {
+      if (img.id == selectedImageId) return img.title;
+    }
+    return null;
   }
 
   @override
@@ -78,6 +93,7 @@ class AiDesignReady extends AiDesignState {
     selectedImageId, selectedBasePrompt,
     freeformPromptText, formValues, customPrompt,
     activeTab, isGenerating, generationError,
+    selectedMoodTags,
   ];
 }
 
@@ -85,10 +101,21 @@ class AiDesignReady extends AiDesignState {
 class AiPromptReady extends AiDesignState {
   final int imageId;
   final String promptText;
-  const AiPromptReady({required this.imageId, required this.promptText});
+  final String? promptVersion;
+  final List<ImprovementSuggestion> improvementSuggestions;
+  final String? styleTitle;
+
+  const AiPromptReady({
+    required this.imageId,
+    required this.promptText,
+    this.promptVersion,
+    this.improvementSuggestions = const [],
+    this.styleTitle,
+  });
 
   @override
-  List<Object?> get props => [imageId, promptText];
+  List<Object?> get props =>
+      [imageId, promptText, promptVersion, improvementSuggestions.length, styleTitle];
 }
 
 /// Page 2 overlay — image is being generated
@@ -107,15 +134,21 @@ class AiImageCompleted extends AiDesignState {
   final String imageUrl;
   final String? provider;
   final String? model;
+  final int? generationTimeMs;
+  final String? styleTitle;
+
   const AiImageCompleted({
     required this.imageId,
     required this.imageUrl,
     this.provider,
     this.model,
+    this.generationTimeMs,
+    this.styleTitle,
   });
 
   @override
-  List<Object?> get props => [imageId, imageUrl];
+  List<Object?> get props =>
+      [imageId, imageUrl, provider, model, generationTimeMs, styleTitle];
 }
 
 /// Error shown in-page (not a dialog)

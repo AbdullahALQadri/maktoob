@@ -79,11 +79,9 @@ import 'core/services/fcm_service.dart';
 
 // Invitation Feature (Golden Scenario)
 import 'core/api/event_wizard_api_service.dart';
-import 'features/invitation/data/repositories/invitation_repository_impl.dart';
 import 'features/invitation/data/services/excel_parser_service.dart';
 import 'features/invitation/data/services/invoice_generator.dart';
 import 'features/invitation/data/services/whatsapp_service.dart';
-import 'features/invitation/domain/repositories/invitation_repository.dart';
 import 'features/invitation/presentation/cubit/invitation_cubit.dart';
 
 final GetIt sl = GetIt.instance;
@@ -146,8 +144,10 @@ Future<void> init() async {
     ),
   );
 
-  // Cubit
-  sl.registerFactory(
+  // Cubit — singleton so AuthInterceptor.forceLogout() reaches the same
+  // instance the UI is observing (factory would create a throw-away cubit
+  // per resolution and silently drop logout signals).
+  sl.registerLazySingleton(
     () => AuthCubit(authRepository: sl(), fcmService: sl<FcmService>()),
   );
 
@@ -336,15 +336,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => WhatsAppService());
   sl.registerLazySingleton(() => InvoiceGenerator());
 
-  // Repository
-  sl.registerLazySingleton<InvitationRepository>(
-    () => InvitationRepositoryImpl(
-      excelParserService: sl(),
-      wizardApiService: sl(),
-    ),
-  );
-
-  // Cubit - manages the entire 7-page event creation wizard
+  // Cubit - manages the entire event creation wizard
   sl.registerFactory(
     () => InvitationCubit(
       apiService: sl(),

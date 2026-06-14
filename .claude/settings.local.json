@@ -48,7 +48,20 @@
       "Bash(flutter --version:*)",
       "Bash(git -C \"c:/Users/MSI/StudioProjects/maktoob\" status)",
       "Bash(findstr:*)",
-      "Bash(flutter test:*)"
+      "Bash(flutter test:*)",
+      "Bash(gh pr *)",
+      "PowerShell(gh pr list)",
+      "Bash(dart analyze *)",
+      "Bash(grep -rA 8 \"WizardStepHeader\\(\" lib/features/invitation/presentation/screens/page2_event_details_screen.dart lib/features/invitation/presentation/screens/page3_preview_screen.dart lib/features/invitation/presentation/screens/page4_guest_management_screen.dart lib/features/invitation/presentation/screens/page5_extra_services_screen.dart lib/features/invitation/presentation/screens/page6_package_selection_screen.dart lib/features/invitation/presentation/screens/page7_invoice_screen.dart)",
+      "Bash(npx claude-code-templates@latest --skill creative-design/mobile-design --global --yes)",
+      "Bash(npx claude-code-templates@latest --help)",
+      "Bash(npx claude-code-templates@latest --skill creative-design/mobile-design -d \"C:\\\\Users\\\\CYPORG\" --yes)",
+      "Bash(ls \"C:\\\\Users\\\\CYPORG\\\\.claude\\\\skills\\\\mobile-design\")",
+      "Read(//c/Users/CYPORG/.claude/skills/mobile-design/**)",
+      "Bash(echo \"=== c:/flutter/bin ===\" ; ls -1 /c/flutter/bin 2>/dev/null | head -40; echo \"=== c:/flutter ===\" ; ls -1 /c/flutter 2>/dev/null | head -40; echo \"=== c:/ top dirs ===\" ; ls -1 /c/ 2>/dev/null | head -60)",
+      "Read(//c/flutter/bin/**)",
+      "Read(//c/flutter/**)",
+      "Read(//c//**)"
     ]
   }
 }

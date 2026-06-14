@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../config/routes/app_routes.dart';
+import '../../../../core/core.dart';
 import '../cubit/ai_design_cubit.dart';
 import '../cubit/ai_design_state.dart';
 import '../widgets/ai_form_fields_widget.dart';
@@ -24,10 +25,13 @@ class AiDesignPage extends StatefulWidget {
   State<AiDesignPage> createState() => _AiDesignPageState();
 }
 
-class _AiDesignPageState extends State<AiDesignPage> with SingleTickerProviderStateMixin {
+class _AiDesignPageState extends State<AiDesignPage>
+    with SingleTickerProviderStateMixin {
   late final TabController _tabs;
   final _freeformCtrl    = TextEditingController();
   final _customPromptCtrl = TextEditingController();
+
+  static const _moodTagKeys = ['festive', 'formal', 'family'];
 
   @override
   void initState() {
@@ -36,9 +40,7 @@ class _AiDesignPageState extends State<AiDesignPage> with SingleTickerProviderSt
     _tabs.addListener(() {
       if (!_tabs.indexIsChanging) {
         context.read<AiDesignCubit>().switchTab(_tabs.index);
-        // Sync controllers when cubit clears them on tab switch
         if (_tabs.index == 0) _freeformCtrl.clear();
-        if (_tabs.index == 1) {/* gallery selection cleared by cubit */}
       }
     });
     context.read<AiDesignCubit>().load();
@@ -63,15 +65,15 @@ class _AiDesignPageState extends State<AiDesignPage> with SingleTickerProviderSt
               builder: (_) => BlocProvider.value(
                 value: ctx.read<AiDesignCubit>(),
                 child: PromptReviewPage(
-                  imageId:    state.imageId,
+                  imageId: state.imageId,
                   promptText: state.promptText,
+                  promptVersion: state.promptVersion,
+                  improvementSuggestions: state.improvementSuggestions,
                 ),
               ),
             ),
           );
         } else if (state is AiImageSaved) {
-          // Pop all sub-pages (PromptReview + ImageResult) back to AiDesignPage,
-          // then pop AiDesignPage itself and return the image URL to Page 2.
           Navigator.of(ctx).popUntil(
             (route) => route.settings.name == Routes.aiDesign || route.isFirst,
           );
@@ -86,19 +88,26 @@ class _AiDesignPageState extends State<AiDesignPage> with SingleTickerProviderSt
           onPopInvokedWithResult: (didPop, _) {
             if (!didPop) {
               ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
-                content: Text(loc?.translate('ai_generating_wait') ?? 'جاري التوليد...'),
+                content: Text(loc?.translate('ai_generating_wait') ??
+                    'جاري التوليد...'),
               ));
             }
           },
           child: Scaffold(
-            appBar: AppBar(
-              title: Text(loc?.translate('ai_design_title') ?? 'تصميم بالذكاء الاصطناعي'),
+            backgroundColor: AppColors.surfaceBg,
+            appBar: MaktoobAppBar(
+              title: loc?.translate('ai_studio_title') ?? 'استوديو التصميم',
+              onClose: () => Navigator.of(ctx).pop(),
             ),
             body: Stack(
               children: [
                 _buildBody(ctx, state, loc),
                 if (isGenerating) const GenerationOverlay(isPromptPhase: true),
               ],
+            ),
+            bottomNavigationBar: _BottomGenerateBar(
+              state: state,
+              onGenerate: () => ctx.read<AiDesignCubit>().generatePrompt(),
             ),
           ),
         );
@@ -123,23 +132,24 @@ class _AiDesignPageState extends State<AiDesignPage> with SingleTickerProviderSt
       );
     }
 
-    final s = state;
     return Column(
       children: [
-        // Tab bar
-        TabBar(
-          controller: _tabs,
-          tabs: [
-            Tab(text: loc?.translate('ai_tab_gallery') ?? 'من التصاميم'),
-            Tab(text: loc?.translate('ai_tab_freeform') ?? 'كتابة حرة'),
-          ],
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+          child: PillTabs(
+            controller: _tabs,
+            tabs: [
+              loc?.translate('ai_tab_gallery') ?? 'المعرض',
+              loc?.translate('ai_tab_freeform') ?? 'وصف حر',
+            ],
+          ),
         ),
         Expanded(
           child: TabBarView(
             controller: _tabs,
             children: [
-              _buildGalleryTab(ctx, s, loc),
-              _buildFreeformTab(ctx, s, loc),
+              _buildGalleryTab(ctx, state, loc),
+              _buildFreeformTab(ctx, state, loc),
             ],
           ),
         ),
@@ -147,150 +157,335 @@ class _AiDesignPageState extends State<AiDesignPage> with SingleTickerProviderSt
     );
   }
 
-  // ── Tab 1: Gallery ────────────────────────────────────────────
-
-  Widget _buildGalleryTab(BuildContext ctx, AiDesignReady s, AppLocalizations? loc) {
-    final canGenerate = s.selectedImageId != null || s.formValues.values.any((v) => v.isNotEmpty);
+  Widget _buildGalleryTab(
+      BuildContext ctx, AiDesignReady s, AppLocalizations? loc) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        // Gallery label
-        Text(
-          loc?.translate('ai_gallery_label') ?? 'اختر تصميم شبيه بالذي تريده',
-          style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                loc?.translate('ai_select_style') ?? 'اختر النمط',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              ),
+            ),
+            Text(
+              loc?.translate('ai_view_all') ?? 'مشاهدة الكل',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primaryColor,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 12),
-
-        // Image grid
         if (s.galleryImages.isEmpty)
           Center(
-            child: Text(loc?.translate('ai_gallery_empty') ?? 'لا توجد تصاميم متاحة',
-                style: const TextStyle(color: Colors.grey)),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 32),
+              child: Text(
+                loc?.translate('ai_gallery_empty') ?? 'لا توجد تصاميم متاحة',
+                style: const TextStyle(color: Colors.grey),
+              ),
+            ),
           )
         else
           AiImageGrid(
-            images:     s.galleryImages,
+            images: s.galleryImages,
             selectedId: s.selectedImageId,
-            onSelect:   (img) => ctx.read<AiDesignCubit>().selectImage(img),
+            onSelect: (img) => ctx.read<AiDesignCubit>().selectImage(img),
           ),
-
-        const SizedBox(height: 20),
+        const SizedBox(height: 24),
         _buildSharedForm(ctx, s, loc),
-        const SizedBox(height: 80),
+        const SizedBox(height: 24),
       ]),
     );
   }
 
-  // ── Tab 2: Freeform ───────────────────────────────────────────
-
-  Widget _buildFreeformTab(BuildContext ctx, AiDesignReady s, AppLocalizations? loc) {
-    final canGenerate = s.freeformPromptText.trim().isNotEmpty;
+  Widget _buildFreeformTab(
+      BuildContext ctx, AiDesignReady s, AppLocalizations? loc) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(
           loc?.translate('ai_freeform_label') ?? 'صف التصميم الذي تريده',
-          style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 12),
         TextFormField(
           controller: _freeformCtrl,
-          maxLines: 5, minLines: 3,
+          maxLines: 5,
+          minLines: 3,
           textDirection: TextDirection.rtl,
-          onChanged: (v) => ctx.read<AiDesignCubit>().updateFreeformPrompt(v),
+          onChanged: (v) =>
+              ctx.read<AiDesignCubit>().updateFreeformPrompt(v),
           decoration: InputDecoration(
-            hintText: loc?.translate('ai_freeform_hint') ?? 'مثال: دعوة زفاف فاخرة...',
-            border: const OutlineInputBorder(),
+            hintText: loc?.translate('ai_freeform_hint') ??
+                'مثال: دعوة زفاف فاخرة...',
+            filled: true,
+            fillColor: AppColors.gray100,
+            border: OutlineInputBorder(
+              borderSide: BorderSide.none,
+              borderRadius: BorderRadius.circular(14),
+            ),
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 24),
         _buildSharedForm(ctx, s, loc),
-        const SizedBox(height: 80),
+        const SizedBox(height: 24),
       ]),
     );
   }
 
-  // ── Shared form (form fields + custom prompt + button) ────────
-
-  Widget _buildSharedForm(BuildContext ctx, AiDesignReady s, AppLocalizations? loc) {
-    final isGallery  = s.activeTab == 0;
-    final canGenerate = isGallery
-        ? (s.selectedImageId != null || s.formValues.values.any((v) => v.isNotEmpty))
-        : s.freeformPromptText.trim().isNotEmpty;
-
+  Widget _buildSharedForm(
+      BuildContext ctx, AiDesignReady s, AppLocalizations? loc) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      if (s.formFields.isNotEmpty) ...[
-        Text(
-          loc?.translate('ai_form_fields_label') ?? 'أضف تفاصيل مناسبتك',
-          style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+      Text(
+        loc?.translate('ai_extra_details') ?? 'تفاصيل إضافية',
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+      ),
+      const SizedBox(height: 16),
+      Text(
+        loc?.translate('ai_event_title_label') ?? 'ما هو عنوان الحدث؟',
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: AppColors.gray500,
         ),
-        const SizedBox(height: 12),
-        AiFormFieldsWidget(
-          fields:    s.formFields,
-          values:    s.formValues,
-          onChanged: (e) => ctx.read<AiDesignCubit>().updateFormValue(e.key, e.value),
-        ),
-      ],
-
-      // Error
-      if (s.generationError != null)
-        Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.red.shade50,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.red.shade200),
-            ),
-            child: Row(children: [
-              const Icon(Icons.error_outline, color: Colors.red, size: 20),
-              const SizedBox(width: 8),
-              Expanded(child: Text(
-                _localizeError(s.generationError!, loc),
-                style: const TextStyle(color: Colors.red),
-              )),
-            ]),
+      ),
+      const SizedBox(height: 8),
+      TextFormField(
+        onChanged: (v) =>
+            ctx.read<AiDesignCubit>().updateFormValue('event_title', v),
+        decoration: InputDecoration(
+          hintText: loc?.translate('ai_event_title_hint') ?? 'مثال: حفل تخرج 2024',
+          filled: true,
+          fillColor: AppColors.gray100,
+          border: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(14),
           ),
         ),
-
-      // Custom prompt
+      ),
+      const SizedBox(height: 16),
       Text(
-        loc?.translate('ai_custom_prompt_label') ?? 'تعليمات إضافية (اختياري)',
-        style: Theme.of(ctx).textTheme.bodyMedium,
+        loc?.translate('ai_mood_label') ?? 'وصف الأجواء (اختياري)',
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: AppColors.gray500,
+        ),
       ),
       const SizedBox(height: 8),
       TextFormField(
         controller: _customPromptCtrl,
-        maxLines: 3, minLines: 1,
+        maxLines: 4,
+        minLines: 3,
         onChanged: (v) => ctx.read<AiDesignCubit>().updateCustomPrompt(v),
         decoration: InputDecoration(
-          hintText: loc?.translate('ai_custom_prompt_hint') ?? 'مثال: استخدم ألوان ذهبية',
-          border: const OutlineInputBorder(),
-          isDense: true,
-        ),
-      ),
-      const SizedBox(height: 20),
-
-      // Generate button
-      SizedBox(
-        width: double.infinity,
-        child: ElevatedButton.icon(
-          onPressed: canGenerate && !s.isGenerating
-              ? () => ctx.read<AiDesignCubit>().generatePrompt()
-              : null,
-          icon: const Icon(Icons.auto_awesome),
-          label: Text(loc?.translate('ai_generate_btn') ?? 'توليد بالذكاء الاصطناعي'),
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 14),
+          hintText: loc?.translate('ai_mood_hint') ??
+              'اكتب بعض الكلمات التي تصف الحدث...',
+          filled: true,
+          fillColor: AppColors.gray100,
+          border: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(14),
           ),
         ),
       ),
+      const SizedBox(height: 14),
+      _MoodTagsRow(
+        tagKeys: _moodTagKeys,
+        selected: s.selectedMoodTags,
+        loc: loc,
+        onToggle: (tag) => ctx.read<AiDesignCubit>().toggleMoodTag(tag),
+      ),
+      // Dynamic fields (kept for backward compatibility with backend forms)
+      if (s.formFields.isNotEmpty) ...[
+        const SizedBox(height: 16),
+        AiFormFieldsWidget(
+          fields: s.formFields,
+          values: s.formValues,
+          onChanged: (e) =>
+              ctx.read<AiDesignCubit>().updateFormValue(e.key, e.value),
+        ),
+      ],
+      if (s.generationError != null) ...[
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.red.shade50,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.red.shade200),
+          ),
+          child: Row(children: [
+            const Icon(Icons.error_outline, color: Colors.red, size: 20),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                _localizeError(s.generationError!, loc),
+                style: const TextStyle(color: Colors.red),
+              ),
+            ),
+          ]),
+        ),
+      ],
     ]);
   }
 
   String _localizeError(String error, AppLocalizations? loc) {
-    if (error == 'timeout') return loc?.translate('ai_timeout_error') ?? 'انتهت المهلة. يرجى المحاولة مجدداً.';
+    if (error == 'timeout') {
+      return loc?.translate('ai_timeout_error') ??
+          'انتهت المهلة. يرجى المحاولة مجدداً.';
+    }
     return error;
+  }
+}
+
+// =============================================================================
+// Mood tags row
+// =============================================================================
+
+class _MoodTagsRow extends StatelessWidget {
+  final List<String> tagKeys;
+  final List<String> selected;
+  final ValueChanged<String> onToggle;
+  final AppLocalizations? loc;
+
+  const _MoodTagsRow({
+    required this.tagKeys,
+    required this.selected,
+    required this.onToggle,
+    required this.loc,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final key in tagKeys)
+          _MoodChip(
+            label: loc?.translate('ai_mood_tag_$key') ?? key,
+            isSelected: selected.contains(key),
+            onTap: () => onToggle(key),
+          ),
+        _MoodChip(
+          label: loc?.translate('ai_mood_tag_add') ?? '+ إضافة طابع',
+          isSelected: false,
+          onTap: () {},
+        ),
+      ],
+    );
+  }
+}
+
+class _MoodChip extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _MoodChip({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.primaryColor.withValues(alpha: 0.10)
+              : AppColors.gray100,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected
+                ? AppColors.primaryColor.withValues(alpha: 0.40)
+                : Colors.transparent,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: isSelected ? AppColors.primaryColor : AppColors.gray500,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Sticky bottom generate button
+// =============================================================================
+
+class _BottomGenerateBar extends StatelessWidget {
+  final AiDesignState state;
+  final VoidCallback onGenerate;
+
+  const _BottomGenerateBar({required this.state, required this.onGenerate});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    final ready = state is AiDesignReady ? state as AiDesignReady : null;
+    final canGenerate = ready != null &&
+        !ready.isGenerating &&
+        ((ready.activeTab == 0 &&
+                (ready.selectedImageId != null ||
+                    ready.formValues.values.any((v) => v.isNotEmpty))) ||
+            (ready.activeTab == 1 && ready.freeformPromptText.trim().isNotEmpty));
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          width: double.infinity,
+          height: 56,
+          child: ElevatedButton.icon(
+            onPressed: canGenerate ? onGenerate : null,
+            icon: const Icon(Icons.auto_awesome, color: Colors.white),
+            label: Text(
+              loc?.translate('ai_generate_design_btn') ?? 'توليد التصميم',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryColor,
+              disabledBackgroundColor: AppColors.gray300,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              elevation: 0,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

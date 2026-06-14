@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/responsive.dart';
-import '../../../../core/widgets/animations/staggered_slide_fade.dart';
+import '../../../../config/locale/app_localizations.dart';
+import '../../../../core/core.dart';
 import '../../domain/entities/recent_event_entity.dart';
 
+/// Recent event card.
+///
+/// Two variants per the mockup:
+///  - index 0: photo-led card with a 128pt cover area + floating category
+///    chip overlay. The cover is a stylized placeholder (warm parchment
+///    surface) until events ship with real image URLs.
+///  - index 1+: text-led card with the category label above the title.
+///
+/// Both variants share the same content body (location/date + RSVP
+/// progress row with a 1pt hairline bar).
 class RecentEventCardWidget extends StatelessWidget {
   final RecentEventEntity event;
   final int index;
@@ -17,279 +26,288 @@ class RecentEventCardWidget extends StatelessWidget {
     this.onTap,
   });
 
+  bool get _photoLed => index == 0;
+
   @override
   Widget build(BuildContext context) {
     return StaggeredSlideFade(
       index: index,
-      baseDelayMs: 500,
-      staggerMs: 100,
-      slideOffset: 30,
+      baseDelayMs: 400,
+      staggerMs: 80,
+      slideOffset: 24,
       child: Padding(
-        padding: EdgeInsets.only(bottom: context.dynamicHeight(0.015)),
-        child: GestureDetector(
-          onTap: onTap,
-          child: _buildEventCard(context),
+        padding: const EdgeInsetsDirectional.only(bottom: 16),
+        child: Material(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
+                border: Border.all(color: AppColors.gray200),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (_photoLed) _CoverBlock(event: event),
+                  _Body(event: event, photoLed: _photoLed),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildEventCard(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(context.dynamicWidth(0.04)),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.051)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
+class _CoverBlock extends StatelessWidget {
+  final RecentEventEntity event;
+  const _CoverBlock({required this.event});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 128,
+      width: double.infinity,
+      child: Stack(
+        children: [
+          Container(color: AppColors.gray100),
+          Positioned.fill(
+            child: Center(
+              child: Icon(
+                Icons.celebration_outlined,
+                size: 48,
+                color: AppColors.gray300,
+              ),
+            ),
+          ),
+          PositionedDirectional(
+            bottom: 12,
+            start: 16,
+            child: _CategoryChip(
+              category: _inferCategory(context, event.name),
+              onLightSurface: false,
+            ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _Body extends StatelessWidget {
+  final RecentEventEntity event;
+  final bool photoLed;
+  const _Body({required this.event, required this.photoLed});
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final t = AppLocalizations.of(context)!;
+    final rate = (event.responseRate * 100).round();
+    final category = _inferCategory(context, event.name);
+
+    return Padding(
+      padding: const EdgeInsetsDirectional.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Header row
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Gradient icon container
-              Container(
-                width: context.dynamicWidth(0.12),
-                height: context.dynamicWidth(0.12),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: event.gradientColors,
-                  ),
-                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.035)),
-                ),
-                child: Icon(
-                  Icons.celebration,
-                  color: Colors.white,
-                  size: context.dynamicWidth(0.061),
-                ),
-              ),
-              SizedBox(width: context.dynamicWidth(0.029)),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      event.name,
-                      style: TextStyle(
-                        fontSize: context.dynamicWidth(0.04),
-                        fontWeight: FontWeight.bold,
-                        color: context.textPrimary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: context.dynamicHeight(0.002)),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.location_on_outlined,
-                          size: context.dynamicWidth(0.035),
-                          color: context.iconDefault,
-                        ),
-                        SizedBox(width: context.dynamicWidth(0.011)),
-                        Expanded(
-                          child: Text(
-                            event.venue,
-                            style: TextStyle(
-                              fontSize: context.dynamicWidth(0.032),
-                              color: context.iconSecondary,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              // Date badge
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: context.dynamicWidth(0.024),
-                  vertical: context.dynamicHeight(0.007),
-                ),
-                decoration: BoxDecoration(
-                  color: context.overlayBg,
-                  borderRadius: BorderRadius.circular(context.dynamicWidth(0.024)),
-                ),
-                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.calendar_today,
-                      size: context.dynamicWidth(0.029),
-                      color: context.textSecondary,
-                    ),
-                    SizedBox(width: context.dynamicWidth(0.011)),
+                    if (!photoLed) ...[
+                      _SectionEyebrow(label: category),
+                      const SizedBox(height: 6),
+                    ],
                     Text(
-                      _formatDate(event.date),
-                      style: TextStyle(
-                        fontSize: context.dynamicWidth(0.029),
-                        fontWeight: FontWeight.w600,
-                        color: context.textSecondary,
+                      event.name,
+                      style: text.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: context.textPrimary,
+                        height: 1.2,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
+              const SizedBox(width: 8),
+              Icon(
+                Icons.more_vert,
+                size: 22,
+                color: context.textTertiary,
+              ),
             ],
           ),
-          SizedBox(height: context.dynamicHeight(0.02)),
-          // Stats row
+          const SizedBox(height: 10),
+          _MetaRow(
+            icon: photoLed ? Icons.location_on_outlined : Icons.calendar_today_outlined,
+            text: photoLed ? event.venue : _formatDate(event.date),
+          ),
+          const SizedBox(height: 16),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildEventStat(context, 'Invitations', event.invitations.toString(), AppColors.blue500),
-              SizedBox(width: context.dynamicWidth(0.04)),
-              _buildEventStat(context, 'Responses', event.responses.toString(), AppColors.purple500),
-              SizedBox(width: context.dynamicWidth(0.04)),
-              _buildEventStat(context, 'Attending', event.attending.toString(), AppColors.green600),
+              Text(
+                t.translate('home_event_rsvp_progress'),
+                style: text.labelMedium?.copyWith(
+                  color: context.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                '$rate%',
+                style: text.labelMedium?.copyWith(
+                  color: AppColors.primaryColor,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ],
           ),
-          SizedBox(height: context.dynamicHeight(0.02)),
-          // Progress bars
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildProgressBar(
-                context: context,
-                label: 'Response Rate',
-                value: event.responseRate,
-                color: AppColors.purple500,
-              ),
-              SizedBox(height: context.dynamicHeight(0.01)),
-              _buildProgressBar(
-                context: context,
-                label: 'Attending Rate',
-                value: event.attendingRate,
-                color: AppColors.green600,
-              ),
-            ],
+          const SizedBox(height: 6),
+          SizedBox(
+            height: 1,
+            child: Stack(
+              children: [
+                Container(color: AppColors.gray200),
+                FractionallySizedBox(
+                  widthFactor: event.responseRate,
+                  child: Container(color: AppColors.primaryColor),
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildEventStat(BuildContext context, String label, String value, Color color) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: context.dynamicWidth(0.045),
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: context.dynamicWidth(0.029),
-              color: context.iconSecondary,
-            ),
+class _MetaRow extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  const _MetaRow({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context).textTheme;
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: context.textSecondary),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            text,
+            style: t.bodyMedium?.copyWith(color: context.textSecondary),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProgressBar({
-    required BuildContext context,
-    required String label,
-    required double value,
-    required Color color,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: context.dynamicWidth(0.029),
-                color: context.iconSecondary,
-              ),
-            ),
-            Text(
-              '${(value * 100).toInt()}%',
-              style: TextStyle(
-                fontSize: context.dynamicWidth(0.029),
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: context.dynamicHeight(0.005)),
-        TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0.0, end: value),
-          duration: const Duration(milliseconds: 1000),
-          curve: Curves.easeOut,
-          builder: (context, animatedValue, child) {
-            return ClipRRect(
-              borderRadius: BorderRadius.circular(context.dynamicWidth(0.011)),
-              child: SizedBox(
-                height: context.dynamicHeight(0.007),
-                child: Stack(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: context.borderColor,
-                        borderRadius: BorderRadius.circular(context.dynamicWidth(0.011)),
-                      ),
-                    ),
-                    FractionallySizedBox(
-                      widthFactor: animatedValue,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: color,
-                          borderRadius: BorderRadius.circular(context.dynamicWidth(0.011)),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
         ),
       ],
     );
   }
+}
 
-  String _formatDate(String dateString) {
-    final parts = dateString.split('-');
-    final months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec'
-    ];
-    final month = months[int.parse(parts[1]) - 1];
-    final day = int.parse(parts[2]);
-    return '$month $day';
+class _SectionEyebrow extends StatelessWidget {
+  final String label;
+  const _SectionEyebrow({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final isEn = AppLocalizations.of(context)!.isEnLocale;
+    return Text(
+      isEn ? label.toUpperCase() : label,
+      style: TextStyle(
+        fontFamily: 'Tajawal',
+        fontSize: 12,
+        fontWeight: FontWeight.w700,
+        color: context.textSecondary,
+        letterSpacing: isEn ? 1.5 : 0,
+        height: 1.3,
+      ),
+    );
   }
+}
+
+class _CategoryChip extends StatelessWidget {
+  final String category;
+  final bool onLightSurface;
+  const _CategoryChip({required this.category, required this.onLightSurface});
+
+  @override
+  Widget build(BuildContext context) {
+    final isEn = AppLocalizations.of(context)!.isEnLocale;
+    return Container(
+      padding: const EdgeInsetsDirectional.symmetric(
+        horizontal: 10,
+        vertical: 5,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.white.withValues(alpha: onLightSurface ? 1.0 : 0.85),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
+        border: Border.all(color: AppColors.gray200),
+      ),
+      child: Text(
+        isEn ? category.toUpperCase() : category,
+        style: TextStyle(
+          fontFamily: 'Tajawal',
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: AppColors.primaryColor,
+          letterSpacing: isEn ? 1.0 : 0,
+          height: 1.2,
+        ),
+      ),
+    );
+  }
+}
+
+String _inferCategory(BuildContext context, String name) {
+  final t = AppLocalizations.of(context)!;
+  final lower = name.toLowerCase();
+  if (lower.contains('wedding') || lower.contains('زفاف') || lower.contains('düğün')) {
+    return t.translate('home_event_category_wedding');
+  }
+  if (lower.contains('engagement') || lower.contains('خطوبة') || lower.contains('nişan')) {
+    return t.translate('home_event_category_engagement');
+  }
+  if (lower.contains('birthday') || lower.contains('ميلاد') || lower.contains('doğum')) {
+    return t.translate('home_event_category_birthday');
+  }
+  if (lower.contains('conference') ||
+      lower.contains('summit') ||
+      lower.contains('مؤتمر') ||
+      lower.contains('konferans')) {
+    return t.translate('home_event_category_conference');
+  }
+  if (lower.contains('party') || lower.contains('حفلة') || lower.contains('parti')) {
+    return t.translate('home_event_category_party');
+  }
+  return t.translate('home_event_category_event');
+}
+
+String _formatDate(String dateString) {
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December',
+  ];
+  final parts = dateString.split('-');
+  if (parts.length < 3) return dateString;
+  final year = int.tryParse(parts[0]) ?? 0;
+  final monthIdx = (int.tryParse(parts[1]) ?? 1) - 1;
+  final day = int.tryParse(parts[2]) ?? 1;
+  final month = months[monthIdx.clamp(0, 11)];
+  return '$month $day, $year';
 }

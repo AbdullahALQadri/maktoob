@@ -175,25 +175,6 @@ class EventsRepositoryImpl implements EventsRepository {
   }
 
   @override
-  Future<Either<Failure, void>> cacheEvents(List<EventEntity> events) async {
-    try {
-      final eventModels = events
-          .map((e) => e is EventModel
-              ? e
-              : EventModel.fromEntity(
-                  e,
-                  gradient: [],
-                  icon: throw UnimplementedError(),
-                ))
-          .toList();
-      await localDataSource.cacheEvents(eventModels);
-      return const Right(null);
-    } on CacheException catch (e) {
-      return Left(CacheFailure(message: e.message));
-    }
-  }
-
-  @override
   Future<Either<Failure, List<EventEntity>>> getCachedEvents() async {
     try {
       final events = await localDataSource.getCachedEvents();

@@ -6,7 +6,10 @@ import '../../../events/presentation/screens/view_all_events_screen.dart';
 import '../../domain/entities/recent_event_entity.dart';
 import 'recent_event_card_widget.dart';
 
-/// Recent events section for home screen.
+/// Recent events section.
+///
+/// Section header in titleLarge weight per DESIGN.md, with a single text
+/// action — no gradient pills, no decorative icons in the header.
 class HomeRecentEvents extends StatelessWidget {
   final List<RecentEventEntity> events;
   final Function(String)? onViewEvent;
@@ -22,7 +25,7 @@ class HomeRecentEvents extends StatelessWidget {
     final t = AppLocalizations.of(context)!;
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.04)),
+      padding: const EdgeInsetsDirectional.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -32,7 +35,10 @@ class HomeRecentEvents extends StatelessWidget {
             isRtl: !t.isEnLocale,
             onActionTap: () => _navigateToViewAll(context),
           ),
-          _EventsList(events: events, onViewEvent: onViewEvent),
+          if (events.isEmpty)
+            const _EmptyState()
+          else
+            _EventsList(events: events, onViewEvent: onViewEvent),
         ],
       ),
     );
@@ -60,16 +66,17 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
     return Padding(
-      padding: EdgeInsets.only(bottom: context.dynamicHeight(0.02)),
+      padding: const EdgeInsetsDirectional.only(bottom: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             title,
-            style: TextStyle(
-              fontSize: context.dynamicWidth(0.051),
-              fontWeight: FontWeight.bold,
+            style: text.titleLarge?.copyWith(
+              fontWeight: FontWeight.w700,
               color: context.textPrimary,
             ),
           ),
@@ -106,6 +113,50 @@ class _EventsList extends StatelessWidget {
               : null,
         );
       },
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  const _EmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsetsDirectional.symmetric(
+        horizontal: 20,
+        vertical: 32,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        border: Border.all(color: AppColors.gray200),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.event_busy_outlined,
+            size: 32,
+            color: context.textTertiary,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'No recent events',
+            style: text.titleMedium?.copyWith(
+              color: context.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Events you create will appear here.',
+            style: text.bodyMedium?.copyWith(color: context.textSecondary),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }

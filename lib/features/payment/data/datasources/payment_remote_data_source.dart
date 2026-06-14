@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 
 import '../../../../core/api/api_consumer.dart';
 import '../../../../core/api/end_points.dart';
+import '../../../../core/utils/storage/secure_storage_service.dart';
 import '../models/bank_details_model.dart';
 import '../models/payment_model.dart';
 import '../../domain/entities/payment_entity.dart';
@@ -21,6 +23,7 @@ abstract class PaymentRemoteDataSource {
 class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
   final ApiConsumer apiConsumer;
   final Dio dio;
+  final SecureStorageService _secureStorage = SecureStorageService();
 
   final StreamController<double> _progressController =
       StreamController<double>.broadcast();
@@ -45,9 +48,22 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
       ),
     });
 
+    // We use raw dio.post here (not apiConsumer) because we need
+    // onSendProgress for upload progress, which apiConsumer.post does not
+    // expose. The Bearer token must be attached explicitly: AuthInterceptor
+    // sits on the singleton Dio but its public-path detection is fragile
+    // when full URLs are passed, so we add Authorization here directly.
+    final token = await _secureStorage.getToken();
     final response = await dio.post(
       '${Endpoints.baseUrl}${Endpoints.paymentRequests}',
       data: formData,
+      options: Options(
+        headers: {
+          'Accept': 'application/json',
+          if (token != null && token.isNotEmpty)
+            'Authorization': 'Bearer $token',
+        },
+      ),
       onSendProgress: (sent, total) {
         if (total > 0) {
           _progressController.add(sent / total);
@@ -57,7 +73,13 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
 
     _progressController.add(1.0);
 
-    final data = response.data['data'] ?? response.data;
+    // The shared Dio is configured with ResponseType.plain (see DioConsumer),
+    // so response.data is a String — decode before reading.
+    final raw = response.data;
+    final decoded = raw is String ? jsonDecode(raw) : raw;
+    final data = (decoded is Map && decoded['data'] != null)
+        ? decoded['data']
+        : decoded;
     return PaymentModel(
       id: '${data['id'] ?? ''}',
       fileName: file.name,

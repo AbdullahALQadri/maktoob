@@ -38,10 +38,6 @@ class SharedPrefController {
     return await _secureStorage.getToken();
   }
 
-  /// Synchronous token accessor (reads cached value).
-  /// For backward compatibility - prefer [getTokenAsync] for new code.
-  String get token => '';
-
   /// Read login state flag.
   bool get loggedIn =>
       _sharedPreferences.getBool(PrefKeys.loggedIn.name) ?? false;

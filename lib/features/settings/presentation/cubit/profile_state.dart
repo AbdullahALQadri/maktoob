@@ -41,15 +41,6 @@ class ProfileUpdated extends ProfileState {
   List<Object?> get props => [user, message];
 }
 
-class UserTypeChangeRequested extends ProfileState {
-  final UserEntity user;
-
-  const UserTypeChangeRequested({required this.user});
-
-  @override
-  List<Object?> get props => [user];
-}
-
 class UserTypeChanged extends ProfileState {
   final UserEntity user;
   final String message;

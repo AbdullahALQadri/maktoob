@@ -98,6 +98,8 @@ class EventWizardApiService {
     String? descriptionEn,
     required DateTime eventDate,
     String? eventTime,
+    DateTime? eventEndDate,
+    String? eventEndTime,
     int? venueId,
     String? customVenueNameAr,
     String? customVenueNameEn,
@@ -117,6 +119,9 @@ class EventWizardApiService {
         if (descriptionEn != null) 'description_en': descriptionEn,
         'event_date': eventDate.toIso8601String().split('T')[0],
         if (eventTime != null) 'event_time': eventTime,
+        if (eventEndDate != null)
+          'event_end_date': eventEndDate.toIso8601String().split('T')[0],
+        if (eventEndTime != null) 'event_end_time': eventEndTime,
         if (venueId != null) 'venue_id': venueId,
         if (customVenueNameAr != null) 'custom_venue_name_ar': customVenueNameAr,
         if (customVenueNameEn != null) 'custom_venue_name_en': customVenueNameEn,
@@ -209,6 +214,7 @@ class EventWizardApiService {
     required int eventTypeId,
     required Map<String, String> formValues,
     String? customPrompt,
+    List<String>? moodTags,
   }) async {
     final response = await _apiConsumer.post(
       Endpoints.wizardGeneratePrompt(eventId),
@@ -218,6 +224,7 @@ class EventWizardApiService {
         'event_type_id': eventTypeId,
         if (formValues.isNotEmpty) 'form_values': formValues,
         if (customPrompt != null && customPrompt.isNotEmpty) 'custom_prompt': customPrompt,
+        if (moodTags != null && moodTags.isNotEmpty) 'mood_tags': moodTags,
       },
     );
     return response as Map<String, dynamic>;

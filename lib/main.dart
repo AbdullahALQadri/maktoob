@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:device_preview/device_preview.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -61,12 +60,7 @@ void main() {
         return;
       }
 
-      // Run the app (use DevicePreview only in debug mode)
-      runApp(
-        kDebugMode
-            ? DevicePreview(enabled: false, builder: (context) => const Maktoob())
-            : const Maktoob(),
-      );
+      runApp(const Maktoob());
     },
     (error, stackTrace) {
       if (kDebugMode) {

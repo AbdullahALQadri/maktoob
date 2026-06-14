@@ -3,8 +3,9 @@ import 'package:flutter_contacts/flutter_contacts.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
+import '../../../../core/utils/phone_normalizer.dart';
 import '../../../../core/widgets/buttons/primary_button.dart';
-import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/inputs/app_text_field.dart';
 import '../../data/models/invitation_draft_model.dart';
 
 class ContactPickerWidget extends StatefulWidget {
@@ -50,24 +51,7 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
     super.dispose();
   }
 
-  String _normalizePhone(String phone) {
-    // Remove all non-digit characters except +
-    String normalized = phone.replaceAll(RegExp(r'[^\d+]'), '');
-    // Standardize Palestinian numbers
-    if (normalized.startsWith('00972')) {
-      normalized = '+972${normalized.substring(5)}';
-    } else if (normalized.startsWith('00970')) {
-      normalized = '+970${normalized.substring(5)}';
-    } else if (normalized.startsWith('972')) {
-      normalized = '+$normalized';
-    } else if (normalized.startsWith('970')) {
-      normalized = '+$normalized';
-    } else if (normalized.startsWith('0')) {
-      // Assume Palestinian number
-      normalized = '+972${normalized.substring(1)}';
-    }
-    return normalized;
-  }
+  String _normalizePhone(String phone) => PhoneNormalizer.normalize(phone);
 
   bool _isValidPalestinianNumber(String phone) {
     final normalized = _normalizePhone(phone);

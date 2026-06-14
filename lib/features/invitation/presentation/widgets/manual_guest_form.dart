@@ -3,9 +3,10 @@ import 'package:flutter/services.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
+import '../../../../core/utils/phone_normalizer.dart';
 import '../../../../core/widgets/buttons/primary_button.dart';
 import '../../../../core/widgets/snackbar/app_snackbar.dart';
-import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/inputs/app_text_field.dart';
 import '../../data/models/invitation_draft_model.dart';
 
 class ManualGuestForm extends StatefulWidget {
@@ -36,23 +37,7 @@ class _ManualGuestFormState extends State<ManualGuestForm> {
     super.dispose();
   }
 
-  String _normalizePhone(String phone) {
-    String normalized = phone.replaceAll(RegExp(r'[^\d+]'), '');
-    if (normalized.startsWith('00972')) {
-      normalized = '+972${normalized.substring(5)}';
-    } else if (normalized.startsWith('00970')) {
-      normalized = '+970${normalized.substring(5)}';
-    } else if (normalized.startsWith('972')) {
-      normalized = '+$normalized';
-    } else if (normalized.startsWith('970')) {
-      normalized = '+$normalized';
-    } else if (normalized.startsWith('0')) {
-      normalized = '+972${normalized.substring(1)}';
-    } else if (!normalized.startsWith('+')) {
-      normalized = '+972$normalized';
-    }
-    return normalized;
-  }
+  String _normalizePhone(String phone) => PhoneNormalizer.normalize(phone);
 
   bool _isValidPalestinianNumber(String phone) {
     final normalized = _normalizePhone(phone);

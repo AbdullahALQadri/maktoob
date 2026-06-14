@@ -271,6 +271,10 @@ class PackageModel extends Equatable {
 
   bool get hasUnlimitedInvitations => invitationLimit == null || invitationLimit == -1;
 
+  /// Free / freemium package: a non-custom package with no price.
+  /// Such events skip invoicing and are activated immediately.
+  bool get isFree => !isCustom && price <= 0;
+
   factory PackageModel.fromJson(Map<String, dynamic> json) {
     // API returns name_en/name_ar, fallback to name for compatibility
     final nameEn = json['name_en'] as String? ?? json['name'] as String?;
@@ -465,6 +469,8 @@ class InvitationState extends Equatable {
   final String? eventDescription;
   final DateTime? eventDate;
   final TimeOfDay? eventTime;
+  final DateTime? eventEndDate;
+  final TimeOfDay? eventEndTime;
   final List<VenueModel> availableVenues;
   final VenueModel? selectedVenue;
   final LocationModel? customLocation;
@@ -549,6 +555,8 @@ class InvitationState extends Equatable {
     this.eventDescription,
     this.eventDate,
     this.eventTime,
+    this.eventEndDate,
+    this.eventEndTime,
     this.availableVenues = const [],
     this.selectedVenue,
     this.customLocation,
@@ -668,6 +676,8 @@ class InvitationState extends Equatable {
     String? eventDescription,
     DateTime? eventDate,
     TimeOfDay? eventTime,
+    DateTime? eventEndDate,
+    TimeOfDay? eventEndTime,
     List<VenueModel>? availableVenues,
     VenueModel? selectedVenue,
     LocationModel? customLocation,
@@ -766,6 +776,8 @@ class InvitationState extends Equatable {
       eventDescription: eventDescription ?? this.eventDescription,
       eventDate: eventDate ?? this.eventDate,
       eventTime: eventTime ?? this.eventTime,
+      eventEndDate: eventEndDate ?? this.eventEndDate,
+      eventEndTime: eventEndTime ?? this.eventEndTime,
       availableVenues: availableVenues ?? this.availableVenues,
       selectedVenue:
           clearSelectedVenue ? null : (selectedVenue ?? this.selectedVenue),
@@ -1023,6 +1035,8 @@ class InvitationState extends Equatable {
         eventDescription,
         eventDate,
         eventTime,
+        eventEndDate,
+        eventEndTime,
         availableVenues,
         selectedVenue,
         customLocation,

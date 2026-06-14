@@ -34,6 +34,7 @@ class AiDesignRepository {
     required int eventTypeId,
     required Map<String, String> formValues,
     String? customPrompt,
+    List<String>? moodTags,
   }) async {
     final res = await _api.generatePrompt(
       eventId,
@@ -42,11 +43,13 @@ class AiDesignRepository {
       eventTypeId:    eventTypeId,
       formValues:     formValues,
       customPrompt:   customPrompt,
+      moodTags:       moodTags,
     );
-    final data    = res['data'] as Map<String, dynamic>? ?? {};
-    final imageId = data['image_id'];
-    if (imageId == null) throw Exception('generate-prompt returned no image_id');
-    return imageId as int;
+    final imageId = _extractImageId(res);
+    if (imageId == null) {
+      throw Exception('generate-prompt returned no image_id');
+    }
+    return imageId;
   }
 
   Future<GenerationStatusModel> getStatus(int eventId, int imageId) async {
@@ -64,10 +67,23 @@ class AiDesignRepository {
       imageId:    imageId,
       promptText: promptText,
     );
-    final data      = res['data'] as Map<String, dynamic>? ?? {};
-    final returnedId = data['image_id'];
-    if (returnedId == null) throw Exception('confirm-generate returned no image_id');
-    return returnedId as int;
+    // Confirm-generate kicks off image generation for the existing image
+    // record, so the returned id is always the input id. Some backend builds
+    // ack with just `{status: "processing"}` and no echo of the id — fall
+    // back to the input rather than failing the whole flow.
+    return _extractImageId(res) ?? imageId;
+  }
+
+  /// Pulls `image_id` out of either an enveloped (`{data: {image_id}}`) or
+  /// flat (`{image_id}`) response body.
+  int? _extractImageId(Map<String, dynamic> res) {
+    final inner = res['data'];
+    final source = inner is Map<String, dynamic> ? inner : res;
+    final raw = source['image_id'];
+    if (raw is int) return raw;
+    if (raw is num) return raw.toInt();
+    if (raw is String) return int.tryParse(raw);
+    return null;
   }
 
   Future<void> saveImageToEvent(int eventId, int imageId) async {

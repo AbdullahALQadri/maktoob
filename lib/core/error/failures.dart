@@ -34,36 +34,6 @@ abstract class Failure extends Equatable {
 /// ```
 class ServerFailure extends Failure {
   const ServerFailure({super.message, super.code});
-
-  /// Creates a ServerFailure from an HTTP status code.
-  factory ServerFailure.fromStatusCode(int statusCode) {
-    switch (statusCode) {
-      case 400:
-        return const ServerFailure(message: 'Bad Request', code: 400);
-      case 401:
-        return const ServerFailure(message: 'Unauthorized', code: 401);
-      case 403:
-        return const ServerFailure(message: 'Forbidden', code: 403);
-      case 404:
-        return const ServerFailure(message: 'Not Found', code: 404);
-      case 409:
-        return const ServerFailure(message: 'Conflict', code: 409);
-      case 422:
-        return const ServerFailure(
-            message: 'Unprocessable Entity', code: 422);
-      case 500:
-        return const ServerFailure(
-            message: 'Internal Server Error', code: 500);
-      case 502:
-        return const ServerFailure(message: 'Bad Gateway', code: 502);
-      case 503:
-        return const ServerFailure(
-            message: 'Service Unavailable', code: 503);
-      default:
-        return ServerFailure(
-            message: 'Server Error: $statusCode', code: statusCode);
-    }
-  }
 }
 
 /// Represents a failure that occurred while accessing cached data.

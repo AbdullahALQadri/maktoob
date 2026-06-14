@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/responsive.dart';
+import '../../../../config/locale/app_localizations.dart';
+import '../../../../core/core.dart';
 
+/// Hero metric card — editorial dashboard signature.
+///
+/// White surface with 1px warm-sand border, uppercase label, big saffron
+/// percentage, and an italic caption beneath the hairline progress bar.
 class ResponseRateCardWidget extends StatefulWidget {
   final double responseRate;
   final int totalResponded;
@@ -22,6 +26,7 @@ class ResponseRateCardWidget extends StatefulWidget {
 class _ResponseRateCardWidgetState extends State<ResponseRateCardWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _progressController;
+  late Animation<double> _progressAnimation;
 
   @override
   void initState() {
@@ -30,11 +35,12 @@ class _ResponseRateCardWidgetState extends State<ResponseRateCardWidget>
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     );
-
+    _progressAnimation = CurvedAnimation(
+      parent: _progressController,
+      curve: Curves.easeOutCubic,
+    );
     Future.delayed(const Duration(milliseconds: 400), () {
-      if (mounted) {
-        _progressController.forward();
-      }
+      if (mounted) _progressController.forward();
     });
   }
 
@@ -46,162 +52,126 @@ class _ResponseRateCardWidgetState extends State<ResponseRateCardWidget>
 
   @override
   Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final t = AppLocalizations.of(context)!;
+    final percentLabel = '${(widget.responseRate * 100).round()}%';
+    final ratio = '${_format(widget.totalResponded)} / '
+        '${_format(widget.totalGuests)}';
+    final rawLabel = t.translate('home_response_rate');
+    final labelDisplay =
+        t.isEnLocale ? rawLabel.toUpperCase() : rawLabel;
+
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
       duration: const Duration(milliseconds: 600),
       curve: Curves.easeOut,
-      builder: (context, value, child) {
-        return Transform.translate(
-          offset: Offset(0, 20 * (1 - value)),
-          child: Opacity(
-            opacity: value,
-            child: child,
+      builder: (context, value, child) => Transform.translate(
+        offset: Offset(0, 16 * (1 - value)),
+        child: Opacity(opacity: value, child: child),
+      ),
+      child: Padding(
+        padding: const EdgeInsetsDirectional.symmetric(horizontal: 20),
+        child: Container(
+          padding: const EdgeInsetsDirectional.all(20),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+            border: Border.all(color: AppColors.gray200),
           ),
-        );
-      },
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.all(context.dynamicWidth(0.051)),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 20,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: context.dynamicWidth(0.101),
-                      height: context.dynamicWidth(0.101),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [AppColors.emerald500, AppColors.green600],
-                        ),
-                        borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
-                      ),
-                      child: Icon(
-                        Icons.trending_up,
-                        color: Colors.white,
-                        size: context.dynamicWidth(0.051),
-                      ),
-                    ),
-                    SizedBox(width: context.dynamicWidth(0.029)),
-                    Text(
-                      'Response Rate',
-                      style: TextStyle(
-                        fontSize: context.dynamicWidth(0.04),
-                        fontWeight: FontWeight.w600,
-                        color: context.textPrimary,
-                      ),
-                    ),
-                  ],
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: context.dynamicWidth(0.024),
-                    vertical: context.dynamicHeight(0.005),
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.green100,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    '${(widget.responseRate * 100).toInt()}%',
-                    style: TextStyle(
-                      fontSize: context.dynamicWidth(0.035),
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.green600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: context.dynamicHeight(0.02)),
-            // Progress bar with animation
-            AnimatedBuilder(
-              animation: _progressController,
-              builder: (context, child) {
-                return ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: SizedBox(
-                    height: context.dynamicHeight(0.015),
-                    child: Stack(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Background
-                        Container(
-                          decoration: BoxDecoration(
-                            color: context.borderColor,
-                            borderRadius: BorderRadius.circular(8),
+                        Text(
+                          labelDisplay,
+                          style: text.labelMedium?.copyWith(
+                            color: context.textSecondary,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: t.isEnLocale ? 1.5 : 0,
                           ),
                         ),
-                        // Progress
-                        FractionallySizedBox(
-                          widthFactor:
-                              widget.responseRate * _progressController.value,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  AppColors.emerald500,
-                                  AppColors.green600
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(8),
+                        const SizedBox(height: 6),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: AlignmentDirectional.centerStart,
+                          child: Text(
+                            percentLabel,
+                            style: TextStyle(
+                              fontSize: 52,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.primaryColor,
+                              height: 1.0,
+                              letterSpacing: -1.5,
                             ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                );
-              },
-            ),
-            SizedBox(height: context.dynamicHeight(0.015)),
-            Wrap(
-              alignment: WrapAlignment.spaceBetween,
-              runSpacing: context.dynamicHeight(0.01),
-              children: [
-                Text(
-                  '${widget.totalResponded} of ${widget.totalGuests} guests responded',
-                  style: TextStyle(
-                    fontSize: context.dynamicWidth(0.032),
-                    color: context.iconSecondary,
-                  ),
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.access_time,
-                      size: context.dynamicWidth(0.035),
-                      color: context.iconDefault,
-                    ),
-                    SizedBox(width: context.dynamicWidth(0.011)),
-                    Text(
-                      'Updated 2h ago',
-                      style: TextStyle(
-                        fontSize: context.dynamicWidth(0.029),
-                        color: context.iconDefault,
+                  const SizedBox(width: 12),
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(bottom: 6),
+                    child: Text(
+                      ratio,
+                      style: text.bodyMedium?.copyWith(
+                        color: AppColors.primaryColor,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                  ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              AnimatedBuilder(
+                animation: _progressAnimation,
+                builder: (context, _) {
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(1),
+                    child: SizedBox(
+                      height: 2,
+                      child: Stack(
+                        children: [
+                          Container(color: AppColors.gray200),
+                          FractionallySizedBox(
+                            widthFactor:
+                                widget.responseRate * _progressAnimation.value,
+                            child: Container(color: AppColors.primaryColor),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 14),
+              Text(
+                t.translate('home_response_rate_caption'),
+                style: text.bodySmall?.copyWith(
+                  color: context.textSecondary,
+                  fontStyle: FontStyle.italic,
                 ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  String _format(int n) {
+    final s = n.toString();
+    final buf = StringBuffer();
+    for (int i = 0; i < s.length; i++) {
+      if (i > 0 && (s.length - i) % 3 == 0) buf.write(',');
+      buf.write(s[i]);
+    }
+    return buf.toString();
   }
 }

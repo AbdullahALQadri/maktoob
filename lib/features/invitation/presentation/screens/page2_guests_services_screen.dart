@@ -62,46 +62,36 @@ class _Page2GuestsServicesScreenState extends State<Page2GuestsServicesScreen>
       },
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          backgroundColor: AppColors.surfaceBg,
+          appBar: MaktoobAppBar(
+            title: l?.translate('app_name') ?? 'Maktoob',
+            titleFontSize: 20,
+            titleFontWeight: FontWeight.w800,
+            onForward: () => context.read<InvitationCubit>().previousStep(),
+          ),
           body: Column(
             children: [
-              _ModernStepHeader2(
-                stepNumber: 2,
-                title: l?.translate('wizard_step2_guests_title') ??
-                    'Guests & Services',
-                subtitle: l?.translate('wizard_step2_guests_subtitle') ??
-                    'Add guests and select extra services',
+              WizardStepHeader(
+                currentStep: 2,
+                totalSteps: 3,
+                title: l?.translate('wizard_step2_label') ?? 'الضيوف والخدمات',
               ),
-              // Tab bar
-              Container(
-                color: Colors.white,
-                child: TabBar(
+              // Pill-style tabs
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  context.dynamicWidth(0.05),
+                  4,
+                  context.dynamicWidth(0.05),
+                  16,
+                ),
+                child: PillTabs(
                   controller: _tabController,
-                  labelColor: AppColors.primaryColor,
-                  unselectedLabelColor: context.textSecondary,
-                  indicatorColor: AppColors.primaryColor,
-                  indicatorWeight: 3,
-                  labelStyle: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: context.dynamicWidth(0.035),
-                  ),
                   tabs: [
-                    Tab(
-                      icon: Icon(Icons.people_alt_rounded,
-                          size: context.dynamicWidth(0.05)),
-                      text:
-                          '${l?.translate('invitation_guests') ?? 'Guests'} (${state.totalGuestCount})',
-                    ),
-                    Tab(
-                      icon: Icon(Icons.room_service_rounded,
-                          size: context.dynamicWidth(0.05)),
-                      text:
-                          '${l?.translate('invitation_services') ?? 'Services'} (${state.selectedServices.length})',
-                    ),
+                    '${l?.translate('invitation_guests') ?? 'الضيوف'} (${state.totalGuestCount})',
+                    '${l?.translate('invitation_services') ?? 'الخدمات'} (${state.selectedServices.length})',
                   ],
                 ),
               ),
-              // Tab content
               Expanded(
                 child: TabBarView(
                   controller: _tabController,
@@ -117,14 +107,12 @@ class _Page2GuestsServicesScreenState extends State<Page2GuestsServicesScreen>
                   ],
                 ),
               ),
-              // Services summary (if any)
               if (state.selectedServices.isNotEmpty)
                 ServicesSummaryBar(
                   selectedServices: state.selectedServices,
                   isEnglish:
                       Localizations.localeOf(context).languageCode == 'en',
                 ),
-              // Bottom bar
               _BottomBar(state: state),
             ],
           ),
@@ -195,142 +183,6 @@ class _Page2GuestsServicesScreenState extends State<Page2GuestsServicesScreen>
           ),
         ],
       ),
-    );
-  }
-}
-
-// =============================================================================
-// STEP HEADER (reused from page1 pattern)
-// =============================================================================
-
-class _ModernStepHeader2 extends StatelessWidget {
-  final int stepNumber;
-  final String title;
-  final String? subtitle;
-
-  const _ModernStepHeader2({
-    required this.stepNumber,
-    required this.title,
-    this.subtitle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.only(
-        left: context.dynamicWidth(0.05),
-        right: context.dynamicWidth(0.05),
-        top: context.dynamicHeight(0.02),
-        bottom: context.dynamicHeight(0.025),
-      ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.primaryColor,
-            AppColors.tertiaryColor,
-          ],
-        ),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: () =>
-                      context.read<InvitationCubit>().previousStep(),
-                  child: Container(
-                    width: context.dynamicWidth(0.09),
-                    height: context.dynamicWidth(0.09),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.arrow_back_rounded,
-                      color: Colors.white,
-                      size: context.dynamicWidth(0.05),
-                    ),
-                  ),
-                ),
-                SizedBox(width: context.dynamicWidth(0.04)),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: context.dynamicWidth(0.055),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      if (subtitle != null) ...[
-                        SizedBox(height: context.dynamicHeight(0.003)),
-                        Text(
-                          subtitle!,
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.75),
-                            fontSize: context.dynamicWidth(0.032),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: context.dynamicHeight(0.02)),
-            _StepDotsIndicator(currentStep: stepNumber),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _StepDotsIndicator extends StatelessWidget {
-  final int currentStep;
-
-  const _StepDotsIndicator({required this.currentStep});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: List.generate(3, (index) {
-        final step = index + 1;
-        final isActive = step <= currentStep;
-        final isCurrent = step == currentStep;
-
-        return Expanded(
-          child: Container(
-            margin:
-                EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.01)),
-            height: context.dynamicHeight(0.005),
-            decoration: BoxDecoration(
-              color: isActive
-                  ? Colors.white
-                  : Colors.white.withValues(alpha: 0.2),
-              borderRadius:
-                  BorderRadius.circular(context.dynamicWidth(0.01)),
-              boxShadow: isCurrent
-                  ? [
-                      BoxShadow(
-                        color: Colors.white.withValues(alpha: 0.4),
-                        blurRadius: 6,
-                      )
-                    ]
-                  : null,
-            ),
-          ),
-        );
-      }),
     );
   }
 }
@@ -532,31 +384,17 @@ class _BottomBar extends StatelessWidget {
         ],
       ),
       child: SafeArea(
-        child: Row(
-          children: [
-            Expanded(
-              child: SecondaryButton(
-                text: l?.translate('common_back') ?? 'Back',
-                onPressed: () =>
-                    context.read<InvitationCubit>().previousStep(),
-              ),
-            ),
-            SizedBox(width: context.dynamicWidth(0.03)),
-            Expanded(
-              flex: 2,
-              child: PrimaryButton(
-                text: l?.translate('wizard_continue_to_review') ??
-                    'Continue to Review',
-                icon: Icons.arrow_forward_rounded,
-                isLoading: state.isLoading,
-                onPressed: canProceed
-                    ? () => context
-                        .read<InvitationCubit>()
-                        .saveGuestsAndServicesAndProceed()
-                    : null,
-              ),
-            ),
-          ],
+        top: false,
+        child: PrimaryButton(
+          text: l?.translate('wizard_continue_to_review') ??
+              'متابعة إلى المراجعة',
+          icon: Icons.arrow_forward_rounded,
+          isLoading: state.isLoading,
+          onPressed: canProceed
+              ? () => context
+                  .read<InvitationCubit>()
+                  .saveGuestsAndServicesAndProceed()
+              : null,
         ),
       ),
     );

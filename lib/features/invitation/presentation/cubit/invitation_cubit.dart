@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/api/event_wizard_api_service.dart';
+import '../../../../core/utils/phone_normalizer.dart';
 import '../../data/models/extra_service_model.dart';
 import '../../data/models/invitation_draft_model.dart';
 import '../../data/models/invoice_model.dart';
@@ -227,15 +228,19 @@ class InvitationCubit extends Cubit<InvitationState> {
   }
 
   Future<void> _callSaveEventDetails(int eventId) {
+    String? formatTimeOfDay(TimeOfDay? t) => t == null
+        ? null
+        : '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+
     return apiService!.saveEventDetails(
       eventId,
       titleAr: state.eventName ?? '',
       titleEn: state.eventName,
       descriptionAr: state.eventDescription,
       eventDate: state.eventDate ?? DateTime.now().add(const Duration(days: 30)),
-      eventTime: state.eventTime != null
-          ? '${state.eventTime!.hour.toString().padLeft(2, '0')}:${state.eventTime!.minute.toString().padLeft(2, '0')}'
-          : null,
+      eventTime: formatTimeOfDay(state.eventTime),
+      eventEndDate: state.eventEndDate,
+      eventEndTime: formatTimeOfDay(state.eventEndTime),
       venueId: state.selectedVenue?.id,
       customVenueNameAr: state.customLocation?.placeName,
       customVenueAddressAr: state.customLocation?.address,
@@ -594,6 +599,16 @@ class InvitationCubit extends Cubit<InvitationState> {
     emit(state.copyWith(eventTime: time));
   }
 
+  /// Update event end date (optional — null means no explicit end).
+  void updateEndDate(DateTime date) {
+    emit(state.copyWith(eventEndDate: date));
+  }
+
+  /// Update event end time (optional).
+  void updateEndTime(TimeOfDay time) {
+    emit(state.copyWith(eventEndTime: time));
+  }
+
   /// Set available venues from API
   void setAvailableVenues(List<VenueModel> venues) {
     emit(state.copyWith(availableVenues: venues));
@@ -819,13 +834,7 @@ class InvitationCubit extends Cubit<InvitationState> {
     ));
   }
 
-  String _normalizePhone(String phone) {
-    String cleaned = phone.replaceAll(RegExp(r'[^\d+]'), '');
-    if (!cleaned.startsWith('+')) {
-      cleaned = '+$cleaned';
-    }
-    return cleaned;
-  }
+  String _normalizePhone(String phone) => PhoneNormalizer.normalize(phone);
 
   // ============ Page 5: Extra Services ============
 
@@ -1449,13 +1458,88 @@ class InvitationCubit extends Cubit<InvitationState> {
     ));
 
     try {
-      // Save to API
-      // TODO: Call API to save event
-      await Future.delayed(const Duration(milliseconds: 500));
+      // Persist the event to the backend before sharing.
+      if (apiService != null) {
+        int eventId;
+
+        // Step 1: Ensure a draft event exists.
+        if (state.draftEventId == null) {
+          final initResponse = await apiService!.initializeWizard(
+            eventTypeId: state.selectedEventType?.id,
+            customEventTypeName: state.customEventTypeName,
+            templateId: state.selectedTemplate?.id,
+          );
+          eventId = initResponse['data']?['event_id'] as int? ?? 0;
+          emit(state.copyWith(draftEventId: eventId));
+        } else {
+          eventId = state.draftEventId!;
+        }
+
+        // Step 2: Save event details.
+        await _callSaveEventDetails(eventId);
+
+        // Step 3: Add guests.
+        if (state.guests.isNotEmpty) {
+          await apiService!.addManualGuests(
+            eventId,
+            state.guests
+                .map((g) => {'name': g.name, 'phone': g.phone})
+                .toList(),
+          );
+        }
+
+        // Step 4: Save invitation configuration.
+        final hasCompanions =
+            state.partnerWithGuests != null && state.partnerWithGuests! > 0;
+        await apiService!.saveInvitationConfig(
+          eventId,
+          defaultDeliveryMethod: 'whatsapp',
+          allowCompanions: hasCompanions,
+          maxCompanions: hasCompanions ? state.partnerWithGuests! : 0,
+          requireResponse: true,
+        );
+
+        // Step 5: Save extra services.
+        if (state.selectedServices.isNotEmpty) {
+          await apiService!.saveExtraServices(
+            eventId,
+            state.selectedServices.map((s) => s.id).toList(),
+          );
+        }
+
+        // Step 6: Select package.
+        if (state.selectedPackage != null) {
+          await apiService!.selectPackage(
+            eventId,
+            packageId: state.selectedPackage!.isCustom
+                ? null
+                : state.selectedPackage!.id,
+            isCustomPackage: state.selectedPackage!.isCustom,
+            customGuestCount: state.selectedPackage!.isCustom
+                ? state.customPackageLimit
+                : null,
+          );
+        }
+
+        // Step 7: Final save. Always commit as an active event (not a draft)
+        // so the event is activated on submit; freemium events especially
+        // must go live without waiting on an invoice/payment.
+        await apiService!.saveEvent(eventId, isDraft: false);
+
+        emit(state.copyWith(savedEventId: eventId.toString()));
+      } else {
+        // No API service available (offline/fallback) — preserve prior behavior.
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
+
+      // Freemium (free) packages have no invoice — skip sharing it entirely.
+      final isFreemium = state.selectedPackage?.isFree ?? false;
 
       // Try to open WhatsApp if service available (don't fail if WhatsApp fails)
       try {
-        if (whatsAppService != null && state.whatsappNumber != null) {
+        if (!isFreemium &&
+            whatsAppService != null &&
+            state.whatsappNumber != null) {
           final message = whatsAppService!.generateInvoiceMessage(
             eventName: state.eventName ?? '',
             packageName: state.selectedPackage?.nameAr ?? state.selectedPackage?.name ?? '',

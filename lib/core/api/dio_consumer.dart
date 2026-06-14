@@ -46,7 +46,14 @@ class DioConsumer implements ApiConsumer {
       ..connectTimeout = Duration(milliseconds: AppConstants.apiTimeout)
       ..receiveTimeout = Duration(milliseconds: AppConstants.apiTimeout)
       ..sendTimeout = Duration(milliseconds: AppConstants.uploadTimeout)
-      ..validateStatus = (status) => status! < StatusCode.internalServerError;
+      // Only 2xx counts as success. Anything else raises a DioException so
+      // _handleDioError can throw a typed exception and AuthInterceptor can
+      // react to 401s (clear credentials + force re-login). A permissive
+      // threshold here silently passes 4xx bodies through as "success",
+      // which crashes JSON parsing (e.g. fromJson(null)) and defeats the
+      // 401 logout flow entirely.
+      ..validateStatus = (status) =>
+          status != null && status >= StatusCode.ok && status < 300;
 
     client.interceptors.add(di.sl<AppIntercepters>());
     client.interceptors.add(di.sl<AuthInterceptor>());

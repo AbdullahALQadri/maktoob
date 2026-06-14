@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:excel/excel.dart';
 
+import '../../../../core/utils/phone_normalizer.dart';
 import '../models/invitation_draft_model.dart';
 
 /// Service for parsing Excel files containing guest data
@@ -97,20 +98,9 @@ class ExcelParserService {
         normalized.startsWith('0'); // Local format
   }
 
-  /// Normalize phone number to international format
-  String _normalizePhone(String phone) {
-    String cleaned = phone.replaceAll(RegExp(r'[^\d+]'), '');
-
-    // Handle local format (starting with 0)
-    if (cleaned.startsWith('0')) {
-      // Assume +970 for local Gaza numbers
-      cleaned = '+970${cleaned.substring(1)}';
-    } else if (!cleaned.startsWith('+')) {
-      cleaned = '+$cleaned';
-    }
-
-    return cleaned;
-  }
+  /// Normalize phone number to international format.
+  /// Delegates to [PhoneNormalizer] for canonical form across all guest sources.
+  String _normalizePhone(String phone) => PhoneNormalizer.normalize(phone);
 
   /// Get expected format description for user guidance
   String getExpectedFormatDescription() {

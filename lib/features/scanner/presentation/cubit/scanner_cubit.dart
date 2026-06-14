@@ -147,14 +147,6 @@ class ScannerCubit extends Cubit<ScannerState> {
     }
   }
 
-  /// Reset to initial state
-  void resetToInitial() {
-    emit(ScannerInitial(
-      guests: _currentGuests,
-      searchQuery: _currentSearchQuery,
-    ));
-  }
-
   /// Clear scanned guest and return to initial
   void clearScannedGuest() {
     emit(ScannerInitial(

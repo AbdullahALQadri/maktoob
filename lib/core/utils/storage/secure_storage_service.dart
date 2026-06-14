@@ -4,10 +4,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 /// Keys for secure storage items.
 class SecureStorageKeys {
   static const String token = 'auth_token';
-  static const String refreshToken = 'refresh_token';
-  static const String userId = 'user_id';
-  static const String userEmail = 'user_email';
-  static const String userName = 'user_name';
 }
 
 /// Keys for Hive cache boxes.
@@ -56,26 +52,6 @@ class SecureStorageService {
   /// Read authentication token.
   Future<String?> getToken() async {
     return await _secureStorage.read(key: SecureStorageKeys.token);
-  }
-
-  /// Save refresh token securely.
-  Future<void> saveRefreshToken(String token) async {
-    await _secureStorage.write(key: SecureStorageKeys.refreshToken, value: token);
-  }
-
-  /// Read refresh token.
-  Future<String?> getRefreshToken() async {
-    return await _secureStorage.read(key: SecureStorageKeys.refreshToken);
-  }
-
-  /// Save user ID securely.
-  Future<void> saveUserId(String userId) async {
-    await _secureStorage.write(key: SecureStorageKeys.userId, value: userId);
-  }
-
-  /// Read user ID.
-  Future<String?> getUserId() async {
-    return await _secureStorage.read(key: SecureStorageKeys.userId);
   }
 
   /// Check if token exists (user is logged in).

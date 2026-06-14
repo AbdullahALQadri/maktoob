@@ -19,6 +19,11 @@ class AiDesignCubit extends Cubit<AiDesignState> {
   StreamSubscription<Map<String, dynamic>>? _fcmSub;
   int? _trackedImageId; // the imageId the FCM listener should watch for
 
+  // Snapshot taken when the user kicks off generation; used to label the
+  // result screens (style chip, etc.) since the AiDesignReady state is gone
+  // by the time we emit AiImageCompleted.
+  String? _trackedStyleTitle;
+
   AiDesignCubit({
     required AiDesignRepository repository,
     required this.eventId,
@@ -27,8 +32,6 @@ class AiDesignCubit extends Cubit<AiDesignState> {
   })  : _repo = repository,
         _fcm  = fcmService,
         super(const AiDesignInitial()) {
-    // Subscribe once for the lifetime of this cubit. The listener is a no-op
-    // unless _trackedImageId matches the incoming push.
     _fcmSub = _fcm?.messageStream.listen(_onFcmPayload);
   }
 
@@ -43,28 +46,17 @@ class AiDesignCubit extends Cubit<AiDesignState> {
     if (_trackedImageId == null || pushImageId != _trackedImageId) return;
 
     if (type == 'prompt.ready' && _waitingForPrompt) {
-      _cancelPolling();
-      final inlinePrompt = data['prompt_text']?.toString() ?? '';
-      if (inlinePrompt.isNotEmpty) {
-        emit(AiPromptReady(imageId: pushImageId!, promptText: inlinePrompt));
-      } else {
-        // FCM data payload is capped at ~4KB; long Arabic prompts get dropped.
-        // Fetch the full prompt from the status endpoint as a fallback.
-        _fetchPromptThenEmit(pushImageId!);
-      }
+      // FCM data payloads are capped at ~4 KB. The full Arabic prompt plus
+      // improvement_suggestions[] + prompt_version frequently exceed that, so
+      // we trade an extra HTTP round-trip for guaranteed completeness instead
+      // of trying to emit from inline FCM data. The previous version of this
+      // cubit emitted directly when inline data was present, which silently
+      // dropped the new fields when they pushed the payload over 4 KB.
+      _fetchPromptThenEmit(pushImageId!);
     } else if (type == 'image.completed' && !_waitingForPrompt) {
-      _cancelPolling();
-      final inlineUrl = data['image_url']?.toString() ?? '';
-      if (inlineUrl.isNotEmpty) {
-        emit(AiImageCompleted(
-          imageId:  pushImageId!,
-          imageUrl: inlineUrl,
-          provider: data['provider']?.toString(),
-          model:    data['model']?.toString(),
-        ));
-      } else {
-        _fetchImageThenEmit(pushImageId!);
-      }
+      // Same reasoning as prompt.ready — re-fetch so generation_time_ms is
+      // available even if the FCM payload had to drop it.
+      _fetchImageThenEmit(pushImageId!);
     } else if (type == 'image.failed') {
       _cancelPolling();
       _handleError(data['error']?.toString() ?? 'Generation failed');
@@ -75,14 +67,19 @@ class AiDesignCubit extends Cubit<AiDesignState> {
     try {
       final s = await _repo.getStatus(eventId, imageId);
       if (isClosed) return;
-      // Reject the result if the user moved on to a different image in the meantime.
       if (_trackedImageId != null && _trackedImageId != imageId) return;
       if (s.isPromptReady && (s.promptText ?? '').isNotEmpty) {
-        emit(AiPromptReady(imageId: s.imageId, promptText: s.promptText!));
+        _cancelPolling();
+        emit(AiPromptReady(
+          imageId: s.imageId,
+          promptText: s.promptText!,
+          promptVersion: s.promptVersion,
+          improvementSuggestions: s.improvementSuggestions,
+          styleTitle: _trackedStyleTitle,
+        ));
       } else if (s.isFailed) {
         _handleError(s.error ?? 'Generation failed');
       } else {
-        // prompt_ready but empty text, OR still processing — keep waiting
         _startPolling(imageId, waitForPrompt: true);
       }
     } catch (e) {
@@ -97,11 +94,14 @@ class AiDesignCubit extends Cubit<AiDesignState> {
       if (isClosed) return;
       if (_trackedImageId != null && _trackedImageId != imageId) return;
       if (s.isCompleted && (s.imageUrl ?? '').isNotEmpty) {
+        _cancelPolling();
         emit(AiImageCompleted(
           imageId:  s.imageId,
           imageUrl: s.imageUrl!,
           provider: s.provider,
           model:    s.model,
+          generationTimeMs: s.generationTimeMs,
+          styleTitle: _trackedStyleTitle,
         ));
       } else if (s.isFailed) {
         _handleError(s.error ?? 'Generation failed');
@@ -137,7 +137,6 @@ class AiDesignCubit extends Cubit<AiDesignState> {
     final s = _ready;
     if (s == null) return;
     if (s.selectedImageId == image.id) {
-      // Deselect
       emit(s.copyWith(clearSelectedImage: true));
     } else {
       emit(s.copyWith(selectedImageId: image.id, selectedBasePrompt: image.prompt));
@@ -149,8 +148,8 @@ class AiDesignCubit extends Cubit<AiDesignState> {
     if (s == null) return;
     emit(s.copyWith(
       activeTab:          tab,
-      clearSelectedImage: tab == 1, // switching to freeform: clear gallery selection
-      clearFreeformPrompt: tab == 0, // switching to gallery: clear freeform text
+      clearSelectedImage: tab == 1,
+      clearFreeformPrompt: tab == 0,
       clearError:         true,
     ));
   }
@@ -175,6 +174,18 @@ class AiDesignCubit extends Cubit<AiDesignState> {
     emit(s.copyWith(customPrompt: trimmed.isEmpty ? null : trimmed));
   }
 
+  void toggleMoodTag(String tag) {
+    final s = _ready;
+    if (s == null) return;
+    final list = List<String>.from(s.selectedMoodTags);
+    if (list.contains(tag)) {
+      list.remove(tag);
+    } else {
+      list.add(tag);
+    }
+    emit(s.copyWith(selectedMoodTags: list));
+  }
+
   // ──────────────────────────────────────────────────────────────
   // Step 1: Generate Prompt
   // ──────────────────────────────────────────────────────────────
@@ -183,6 +194,7 @@ class AiDesignCubit extends Cubit<AiDesignState> {
     final s = _ready;
     if (s == null) return;
     _cancelPolling();
+    _trackedStyleTitle = s.selectedImageTitle;
     emit(s.copyWith(isGenerating: true, clearError: true));
 
     try {
@@ -193,6 +205,7 @@ class AiDesignCubit extends Cubit<AiDesignState> {
         eventTypeId:    eventTypeId,
         formValues:     s.formValues,
         customPrompt:   s.customPrompt,
+        moodTags:       s.selectedMoodTags,
       );
       _startPolling(imageId, waitForPrompt: true);
     } catch (e) {
@@ -214,7 +227,6 @@ class AiDesignCubit extends Cubit<AiDesignState> {
       );
       _startPolling(confirmedImageId, waitForPrompt: false);
     } catch (e) {
-      // Re-enter Page 2 state with error flag — caller handles display
       emit(AiDesignError(e.toString()));
     }
   }
@@ -240,11 +252,9 @@ class AiDesignCubit extends Cubit<AiDesignState> {
     _cancelPolling();
     _elapsedSeconds   = 0;
     _waitingForPrompt = waitForPrompt;
-    _trackedImageId   = imageId; // tells the FCM listener what to react to
+    _trackedImageId   = imageId;
     final timeoutSeconds = waitForPrompt ? 180 : 300;
 
-    // FCM is the primary mechanism; this Timer is a fallback that runs every
-    // 8 seconds in case the push notification never arrives.
     _isFetching = false;
 
     _pollingTimer = Timer.periodic(const Duration(seconds: 8), (_) {
@@ -254,14 +264,20 @@ class AiDesignCubit extends Cubit<AiDesignState> {
         _handleTimeout();
         return;
       }
-      if (_isFetching) return; // previous request still in flight — skip tick
+      if (_isFetching) return;
       _isFetching = true;
       _repo.getStatus(eventId, imageId).then((status) {
         _isFetching = false;
         if (isClosed) return;
         if (status.isPromptReady && waitForPrompt) {
           _cancelPolling();
-          emit(AiPromptReady(imageId: status.imageId, promptText: status.promptText ?? ''));
+          emit(AiPromptReady(
+            imageId: status.imageId,
+            promptText: status.promptText ?? '',
+            promptVersion: status.promptVersion,
+            improvementSuggestions: status.improvementSuggestions,
+            styleTitle: _trackedStyleTitle,
+          ));
         } else if (status.isCompleted && !waitForPrompt) {
           _cancelPolling();
           emit(AiImageCompleted(
@@ -269,6 +285,8 @@ class AiDesignCubit extends Cubit<AiDesignState> {
             imageUrl: status.imageUrl ?? '',
             provider: status.provider,
             model:    status.model,
+            generationTimeMs: status.generationTimeMs,
+            styleTitle: _trackedStyleTitle,
           ));
         } else if (status.isFailed) {
           _cancelPolling();
@@ -276,7 +294,6 @@ class AiDesignCubit extends Cubit<AiDesignState> {
         }
       }).catchError((e) {
         _isFetching = false;
-        // Network hiccup — log and keep polling; real errors will surface via timeout
         dev.log('AI polling error (will retry): $e', name: 'AiDesignCubit');
       });
     });

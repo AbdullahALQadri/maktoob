@@ -1,11 +1,19 @@
-/// API Endpoints for Maktoob Application
-/// Base URL should be updated based on environment
+/// API Endpoints for Maktoob Application.
+///
+/// The base URL is supplied at build time via `--dart-define`:
+///
+///   flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000/api/v1   # emulator
+///   flutter run --dart-define=API_BASE_URL=http://10.5.50.129:8000/api/v1 # device on LAN
+///   flutter build apk --release   # uses the production default below
+///
+/// Release builds default to HTTPS production. Hardcoding a LAN IP
+/// here used to crash release startup (see DioConsumer's HTTPS guard)
+/// and shipped a plaintext-HTTP base URL through QA. Don't go back.
 class Endpoints {
-  // Base URL - Update this based on your environment
-  // Android emulator  → http://10.0.2.2:8000/api/v1
-  // Physical device   → http://<your-machine-ip>:8000/api/v1  (e.g. 10.5.50.103)
-  // Production        → https://maktoob.social/api/v1
-  static String baseUrl = "http://10.5.50.57:8000/api/v1";
+  static const String baseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'https://maktoob.social/api/v1',
+  );
 
   // ============================================================
   // PUBLIC ENDPOINTS (No Authentication Required)

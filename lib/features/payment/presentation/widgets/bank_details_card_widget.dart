@@ -126,14 +126,44 @@ class BankDetailsCardWidget extends StatelessWidget {
   }
 
   Widget _buildDefaultContent(BuildContext context) {
-    return Column(
-      children: [
-        _buildBankDetailRow(context, 'Bank Name', 'Al Rajhi Bank'),
-        _buildBankDetailRow(context, 'Account Name', 'Maktoob Events LLC'),
-        _buildBankDetailRow(context, 'Account Number', '1234567890123456'),
-        _buildBankDetailRow(context, 'IBAN', 'SA03 8000 0000 1234 5678 9012 3456'),
-        _buildBankDetailRow(context, 'SWIFT Code', 'RJHISARI'),
-      ],
+    // Show an explicit error state — never fabricate bank credentials.
+    // Users could otherwise wire real money to placeholder accounts.
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.red.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.red.shade200),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.error_outline, color: Colors.red.shade700, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Bank details unavailable',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.red.shade800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Please contact support before transferring any funds.',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.red.shade700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 

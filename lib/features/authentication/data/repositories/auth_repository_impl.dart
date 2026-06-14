@@ -311,13 +311,6 @@ class AuthRepositoryImpl implements AuthRepository {
     return token != null && token.isNotEmpty;
   }
 
-  @override
-  String? getToken() {
-    // Synchronous token access is no longer available with secure storage.
-    // Token is read asynchronously via DioConsumer headers.
-    return null;
-  }
-
   /// Parse user entity from auth response
   UserEntity _parseUserFromResponse(AuthResponseModel response) {
     final data = response.data;
