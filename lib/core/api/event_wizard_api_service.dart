@@ -110,18 +110,16 @@ class EventWizardApiService {
     int? partnerCount,
     Map<String, dynamic>? eventTypeFormValues,
   }) async {
-    final response = await _apiConsumer.post(
+    final response = await _apiConsumer.put(
       Endpoints.wizardSaveDetails(eventId),
       body: {
-        'title_ar': titleAr,
-        if (titleEn != null) 'title_en': titleEn,
-        if (descriptionAr != null) 'description_ar': descriptionAr,
-        if (descriptionEn != null) 'description_en': descriptionEn,
+        // Backend unified title_ar/title_en -> title and description_* ->
+        // description (migration 2026_07_01); event_date/end_date are datetimes.
+        'title': titleAr,
+        if (descriptionAr != null) 'description': descriptionAr,
         'event_date': eventDate.toIso8601String().split('T')[0],
-        if (eventTime != null) 'event_time': eventTime,
         if (eventEndDate != null)
-          'event_end_date': eventEndDate.toIso8601String().split('T')[0],
-        if (eventEndTime != null) 'event_end_time': eventEndTime,
+          'end_date': eventEndDate.toIso8601String().split('T')[0],
         if (venueId != null) 'venue_id': venueId,
         if (customVenueNameAr != null) 'custom_venue_name_ar': customVenueNameAr,
         if (customVenueNameEn != null) 'custom_venue_name_en': customVenueNameEn,
@@ -252,7 +250,7 @@ class EventWizardApiService {
     int eventId, {
     required int imageId,
   }) async {
-    final response = await _apiConsumer.post(
+    final response = await _apiConsumer.put(
       Endpoints.wizardSaveAiImage(eventId),
       body: {'ai_generated_image_id': imageId},
     );
@@ -341,7 +339,7 @@ class EventWizardApiService {
     DateTime? responseDeadline,
     bool askReasonEnabled = true,
   }) async {
-    final response = await _apiConsumer.post(
+    final response = await _apiConsumer.put(
       Endpoints.wizardInvitationConfig(eventId),
       body: {
         'default_delivery_method': defaultDeliveryMethod,

@@ -186,15 +186,13 @@ class _HomeContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           HomeHeader(fadeAnimation: fadeAnimation),
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
           ResponseRateCardWidget(
             responseRate: state.responseRate,
             totalResponded: state.totalResponded,
             totalGuests: state.totalGuests,
           ),
-          const SizedBox(height: 24),
-          HomeStatsGrid(stats: state.stats),
-          const SizedBox(height: 32),
+          const SizedBox(height: 28),
           HomeRecentEvents(
             events: state.recentEvents,
             onViewEvent: onViewEvent,

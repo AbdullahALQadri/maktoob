@@ -11,6 +11,12 @@ class RecentEventEntity extends Equatable {
   final int attending;
   final List<Color> gradientColors;
 
+  /// Final AI/cover image URL for the event (null → render gradient fallback).
+  final String? imageUrl;
+
+  /// Backend status string (draft / pending_payment / active / completed / cancelled).
+  final String status;
+
   const RecentEventEntity({
     required this.id,
     required this.name,
@@ -20,10 +26,14 @@ class RecentEventEntity extends Equatable {
     required this.responses,
     required this.attending,
     required this.gradientColors,
+    this.imageUrl,
+    this.status = 'active',
   });
 
   double get responseRate => invitations > 0 ? responses / invitations : 0;
   double get attendingRate => invitations > 0 ? attending / invitations : 0;
+  bool get isActive => status == 'active';
+  bool get hasImage => imageUrl != null && imageUrl!.isNotEmpty;
 
   @override
   List<Object?> get props => [
@@ -35,5 +45,7 @@ class RecentEventEntity extends Equatable {
         responses,
         attending,
         gradientColors,
+        imageUrl,
+        status,
       ];
 }

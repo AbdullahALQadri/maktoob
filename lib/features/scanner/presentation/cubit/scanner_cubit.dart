@@ -19,10 +19,26 @@ class ScannerCubit extends Cubit<ScannerState> {
 
   List<CheckInGuestEntity> _currentGuests = [];
   String _currentSearchQuery = '';
+  int? _venueId;
 
-  /// Load initial guest list
+  /// The scanner scans guests for a specific venue (the selected event's
+  /// venue). Must be set before scanning / loading the list.
+  void setVenue(int? venueId) {
+    _venueId = venueId;
+  }
+
+  /// Load the attendance list for the selected venue.
   Future<void> loadGuestList() async {
-    final result = await getGuestListUseCase(const GetGuestListParams());
+    final venueId = _venueId;
+    if (venueId == null) {
+      // Venue not resolved yet (e.g. event has no venue) — nothing to load.
+      emit(ScannerInitial(guests: _currentGuests, searchQuery: _currentSearchQuery));
+      return;
+    }
+
+    final result = await getGuestListUseCase(
+      GetGuestListParams(venueId: venueId, searchQuery: _currentSearchQuery),
+    );
 
     result.fold(
       (failure) => emit(ScannerError(
@@ -42,70 +58,54 @@ class ScannerCubit extends Cubit<ScannerState> {
 
   /// Process a QR code scanned from the camera
   Future<void> processQRCode(String qrCode) async {
+    final venueId = _venueId;
+    if (venueId == null) {
+      emit(ScannerError(
+        message: 'No venue selected for this scanner session',
+        guests: _currentGuests,
+        searchQuery: _currentSearchQuery,
+      ));
+      return;
+    }
+
     emit(Scanning(
       guests: _currentGuests,
       searchQuery: _currentSearchQuery,
     ));
 
     final scanResult = await scanQrCodeUseCase(
-      ScanQrCodeParams(qrData: qrCode),
+      ScanQrCodeParams(qrData: qrCode, venueId: venueId),
     );
 
-    await scanResult.fold(
-      (failure) async {
-        emit(ScannerError(
-          message: failure.message ?? 'Scan failed',
-          guests: _currentGuests,
-          searchQuery: _currentSearchQuery,
-        ));
-      },
-      (result) async {
-        if (result.guestId != null) {
-          // Refresh guest list and find the scanned guest
-          final guestResult =
-              await getGuestListUseCase(const GetGuestListParams());
-
-          guestResult.fold(
-            (failure) => emit(ScannerError(
-              message: failure.message ?? 'Failed to get guest details',
-              guests: _currentGuests,
-              searchQuery: _currentSearchQuery,
-            )),
-            (guests) {
-              _currentGuests = guests;
-              final foundIndex =
-                  guests.indexWhere((g) => g.id == result.guestId);
-
-              if (foundIndex != -1) {
-                emit(GuestScanned(
-                  guest: guests[foundIndex],
-                  guests: _currentGuests,
-                  searchQuery: _currentSearchQuery,
-                ));
-              } else {
-                emit(ScannerError(
-                  message: 'Guest not found in the system',
-                  guests: _currentGuests,
-                  searchQuery: _currentSearchQuery,
-                ));
-              }
-            },
-          );
-        } else {
-          emit(ScannerError(
-            message: 'Invalid QR code',
-            guests: _currentGuests,
-            searchQuery: _currentSearchQuery,
-          ));
-        }
-      },
+    scanResult.fold(
+      (failure) => emit(ScannerError(
+        message: failure.message ?? 'Scan failed',
+        guests: _currentGuests,
+        searchQuery: _currentSearchQuery,
+      )),
+      // The scan endpoint returns the full invitation, so emit it directly.
+      (guest) => emit(GuestScanned(
+        guest: guest,
+        guests: _currentGuests,
+        searchQuery: _currentSearchQuery,
+      )),
     );
   }
 
-  /// Check in a guest
-  Future<void> checkInGuest(String guestId) async {
+  /// Check in a guest (by invitation id)
+  Future<void> checkInGuest(String invitationId) async {
+    final venueId = _venueId;
+    if (venueId == null) {
+      emit(ScannerError(
+        message: 'No venue selected for this scanner session',
+        guests: _currentGuests,
+        searchQuery: _currentSearchQuery,
+      ));
+      return;
+    }
+
     final result = await checkInGuestUseCase(
-      CheckInGuestParams(guestId: guestId),
+      CheckInGuestParams(invitationId: invitationId, venueId: venueId),
     );
 
     result.fold(
@@ -114,14 +114,14 @@ class ScannerCubit extends Cubit<ScannerState> {
         guests: _currentGuests,
         searchQuery: _currentSearchQuery,
       )),
-      (checkedInGuest) async {
-        // Update local guest list
-        _currentGuests = _currentGuests.map((g) {
-          if (g.id == guestId) {
-            return checkedInGuest;
-          }
-          return g;
-        }).toList();
+      (checkedInGuest) {
+        // Merge into the local attendance list (replace or append).
+        final idx = _currentGuests.indexWhere((g) => g.id == invitationId);
+        if (idx != -1) {
+          _currentGuests = List.of(_currentGuests)..[idx] = checkedInGuest;
+        } else {
+          _currentGuests = [..._currentGuests, checkedInGuest];
+        }
 
         emit(GuestCheckedIn(
           guest: checkedInGuest,

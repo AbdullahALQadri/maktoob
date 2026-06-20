@@ -12,6 +12,8 @@ class RecentEventModel extends RecentEventEntity {
     required super.responses,
     required super.attending,
     required super.gradientColors,
+    super.imageUrl,
+    super.status,
   });
 
   factory RecentEventModel.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,8 @@ class RecentEventModel extends RecentEventEntity {
       gradientColors: (json['gradientColors'] as List<dynamic>)
           .map((c) => Color(c as int))
           .toList(),
+      imageUrl: json['image_url'] as String?,
+      status: json['status'] as String? ?? 'active',
     );
   }
 
@@ -39,6 +43,8 @@ class RecentEventModel extends RecentEventEntity {
       'responses': responses,
       'attending': attending,
       'gradientColors': gradientColors.map((c) => c.toARGB32()).toList(),
+      'image_url': imageUrl,
+      'status': status,
     };
   }
 
@@ -52,6 +58,8 @@ class RecentEventModel extends RecentEventEntity {
       responses: entity.responses,
       attending: entity.attending,
       gradientColors: entity.gradientColors,
+      imageUrl: entity.imageUrl,
+      status: entity.status,
     );
   }
 }

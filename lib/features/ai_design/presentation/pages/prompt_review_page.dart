@@ -178,67 +178,101 @@ class _PromptReviewPageState extends State<PromptReviewPage> {
         ),
         const SizedBox(height: 20),
 
-        // Action buttons
-        Row(children: [
-          Expanded(
-            child: SizedBox(
-              height: 52,
-              child: OutlinedButton.icon(
-                onPressed: !isGenerating
-                    ? () => Navigator.of(ctx).pop()
-                    : null,
-                icon: Icon(Icons.refresh_rounded,
-                    color: AppColors.primaryColor, size: 18),
-                label: Text(
-                  loc?.translate('ai_regenerate_prompt') ?? 'أعد توليد النص',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.primaryColor,
-                  ),
-                ),
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: AppColors.primaryColor, width: 1.5),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+        // When Hermes returned refinement suggestions the user iterates through
+        // them (below) and we keep a single clean action. When it returned NONE
+        // (a Hermes/connection failure, or the user simply isn't happy) we also
+        // surface a "regenerate prompt" button so they are never stuck.
+        if (widget.improvementSuggestions.isEmpty)
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 52,
+                  child: OutlinedButton.icon(
+                    onPressed: !isGenerating ? () => Navigator.of(ctx).pop() : null,
+                    icon: Icon(Icons.refresh_rounded,
+                        color: AppColors.primaryColor, size: 18),
+                    label: Text(
+                      loc?.translate('ai_regenerate_prompt') ?? 'أعد توليد النص',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primaryColor,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: AppColors.primaryColor, width: 1.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: SizedBox(
-              height: 52,
-              child: ElevatedButton.icon(
-                onPressed: !isGenerating
-                    ? () => ctx.read<AiDesignCubit>().confirmGenerate(
-                          widget.imageId,
-                          _ctrl.text.trim(),
-                        )
-                    : null,
-                icon: const Icon(Icons.auto_awesome,
-                    color: Colors.white, size: 18),
-                label: Text(
-                  loc?.translate('ai_generate_image_btn') ?? 'توليد الصورة',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
+              const SizedBox(width: 12),
+              Expanded(
+                child: SizedBox(
+                  height: 52,
+                  child: ElevatedButton.icon(
+                    onPressed: !isGenerating
+                        ? () => ctx.read<AiDesignCubit>().confirmGenerate(
+                              widget.imageId,
+                              _ctrl.text.trim(),
+                            )
+                        : null,
+                    icon: const Icon(Icons.auto_awesome,
+                        color: Colors.white, size: 18),
+                    label: Text(
+                      loc?.translate('ai_generate_image_btn') ?? 'توليد الصورة',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor,
+                      disabledBackgroundColor: AppColors.gray300,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
                   ),
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
-                  disabledBackgroundColor: AppColors.gray300,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
+              ),
+            ],
+          )
+        else
+          SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: ElevatedButton.icon(
+              onPressed: !isGenerating
+                  ? () => ctx.read<AiDesignCubit>().confirmGenerate(
+                        widget.imageId,
+                        _ctrl.text.trim(),
+                      )
+                  : null,
+              icon: const Icon(Icons.auto_awesome, color: Colors.white, size: 18),
+              label: Text(
+                loc?.translate('ai_generate_image_btn') ?? 'توليد الصورة',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
                 ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryColor,
+                disabledBackgroundColor: AppColors.gray300,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 0,
               ),
             ),
           ),
-        ]),
 
         if (widget.improvementSuggestions.isNotEmpty) ...[
           const SizedBox(height: 28),

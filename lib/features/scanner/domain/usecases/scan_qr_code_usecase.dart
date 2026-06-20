@@ -3,26 +3,27 @@ import 'package:equatable/equatable.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
-import '../entities/scan_result_entity.dart';
+import '../entities/check_in_guest_entity.dart';
 import '../repositories/scanner_repository.dart';
 
 class ScanQrCodeParams extends Equatable {
   final String qrData;
+  final int venueId;
 
-  const ScanQrCodeParams({required this.qrData});
+  const ScanQrCodeParams({required this.qrData, required this.venueId});
 
   @override
-  List<Object?> get props => [qrData];
+  List<Object?> get props => [qrData, venueId];
 }
 
-class ScanQrCodeUseCase extends UseCase<ScanResultEntity, ScanQrCodeParams> {
+class ScanQrCodeUseCase extends UseCase<CheckInGuestEntity, ScanQrCodeParams> {
   final ScannerRepository repository;
 
   ScanQrCodeUseCase(this.repository);
 
   @override
-  Future<Either<Failure, ScanResultEntity>> call(
+  Future<Either<Failure, CheckInGuestEntity>> call(
       ScanQrCodeParams params) async {
-    return await repository.scanQrCode(params.qrData);
+    return await repository.scanQrCode(params.qrData, params.venueId);
   }
 }

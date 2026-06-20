@@ -34,7 +34,9 @@ class _QRScannerScreenState extends State<QRScannerScreen>
   void initState() {
     super.initState();
     _setupAnimations();
-    context.read<ScannerCubit>().loadGuestList();
+    context.read<ScannerCubit>()
+      ..setVenue(widget.event.venueId)
+      ..loadGuestList();
   }
 
   void _setupAnimations() {

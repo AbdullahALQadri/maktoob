@@ -308,10 +308,7 @@ class _PackageOverview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (state.isLoadingPackages) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 16),
-        child: Center(child: CircularProgressIndicator()),
-      );
+      return const PackageListSkeleton();
     }
 
     final selected = state.selectedPackage;
@@ -321,16 +318,26 @@ class _PackageOverview extends StatelessWidget {
       return _PackagePicker(state: state, isEnglish: isEnglish);
     }
 
+    // Custom packages price/limit live on the wizard state, not the package row.
+    final isCustom = selected.isCustom;
+    final price = isCustom
+        ? (state.customPackagePrice ?? selected.price)
+        : selected.price;
+    final int? invites =
+        isCustom ? state.customPackageLimit : selected.invitationLimit;
+    final infoText = selected.hasUnlimitedInvitations && !isCustom
+        ? (l?.translate('invitation_unlimited') ?? 'دعوات غير محدودة')
+        : (invites != null && invites > 0
+            ? '$invites ${l?.translate('invitation_invitation_unit') ?? 'دعوة'}'
+            : (l?.translate('invitation_package_subtitle') ?? 'خدمة شاملة'));
+
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         gradient: LinearGradient(
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
-          colors: [
-            AppColors.primaryColor,
-            AppColors.tertiaryColor,
-          ],
+          colors: [AppColors.primaryColor, AppColors.tertiaryColor],
         ),
         boxShadow: [
           BoxShadow(
@@ -340,13 +347,13 @@ class _PackageOverview extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(1),
+      padding: const EdgeInsets.all(1.5),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(13),
+          borderRadius: BorderRadius.circular(15),
         ),
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             Container(
@@ -360,7 +367,9 @@ class _PackageOverview extends StatelessWidget {
                 ),
               ),
               child: Icon(
-                Icons.workspace_premium_rounded,
+                isCustom
+                    ? Icons.tune_rounded
+                    : Icons.workspace_premium_rounded,
                 color: AppColors.primaryColor,
               ),
             ),
@@ -368,44 +377,88 @@ class _PackageOverview extends StatelessWidget {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    isEnglish ? selected.name : selected.nameAr,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: context.textPrimary,
-                    ),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          isEnglish ? selected.name : selected.nameAr,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: context.textPrimary,
+                          ),
+                        ),
+                      ),
+                      if (isCustom) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsetsDirectional.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color:
+                                AppColors.tertiaryColor.withValues(alpha: 0.12),
+                            borderRadius:
+                                BorderRadius.circular(AppSpacing.radiusFull),
+                          ),
+                          child: Text(
+                            l?.translate('invitation_custom') ?? 'مخصصة',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.tertiaryColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    l?.translate('invitation_package_subtitle') ??
-                        'خدمة شاملة مع تصميم مخصص',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: context.textSecondary,
-                    ),
+                  const SizedBox(height: 5),
+                  Row(
+                    children: [
+                      Icon(Icons.mail_outline_rounded,
+                          size: 14, color: context.textSecondary),
+                      const SizedBox(width: 5),
+                      Flexible(
+                        child: Text(
+                          infoText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: context.textSecondary,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
+            const SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  selected.price.toStringAsFixed(0),
+                  price.toStringAsFixed(0),
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 22,
                     fontWeight: FontWeight.w800,
                     color: AppColors.primaryColor,
+                    height: 1.0,
                   ),
                 ),
+                const SizedBox(height: 2),
                 Text(
-                  l?.translate('currency_ils') ?? 'ر.س',
+                  '₪',
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 12,
                     color: context.textSecondary,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
@@ -425,15 +478,7 @@ class _PackagePicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (state.availablePackages.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.gray200),
-        ),
-        child: const Center(child: CircularProgressIndicator()),
-      );
+      return const PackageListSkeleton();
     }
 
     return Column(
@@ -529,7 +574,7 @@ class _GlassInvoiceCard extends StatelessWidget {
             Container(height: 1, color: AppColors.gray200),
             const SizedBox(height: 16),
             if (isLoading)
-              const Center(child: CircularProgressIndicator())
+              const InvoiceSummarySkeleton()
             else ...[
               _InvoiceRow(
                 label: l?.translate('wizard_invoice_subtotal') ??

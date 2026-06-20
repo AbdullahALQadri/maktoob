@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../injection_container.dart';
 import '../cubit/invitation_cubit.dart';
 import '../cubit/invitation_state.dart';
+import '../widgets/widgets.dart';
 import 'page1_event_setup_screen.dart';
 import 'page2_guests_services_screen.dart';
 import 'page3_review_submit_screen.dart';
@@ -82,7 +83,7 @@ class _InvitationWizardScreenState extends State<InvitationWizardScreen> {
   @override
   Widget build(BuildContext context) {
     if (_cubit == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const WizardFormSkeleton();
     }
 
     if (_ownsOwnCubit) {

@@ -40,13 +40,16 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
   }) async {
     _progressController.add(0.0);
 
-    final formData = FormData.fromMap({
-      'event_id': eventId,
-      'receipt': await MultipartFile.fromFile(
-        file.path!,
-        filename: file.name,
+    // Backend (PaymentRequestController@store) expects `invoice_images[]`
+    // (an array of 1-5 image files), not a single `receipt`. `amount` is
+    // optional — the server derives it from the event's invoice_total.
+    final formData = FormData.fromMap({'event_id': eventId});
+    formData.files.add(
+      MapEntry(
+        'invoice_images[]',
+        await MultipartFile.fromFile(file.path!, filename: file.name),
       ),
-    });
+    );
 
     // We use raw dio.post here (not apiConsumer) because we need
     // onSendProgress for upload progress, which apiConsumer.post does not

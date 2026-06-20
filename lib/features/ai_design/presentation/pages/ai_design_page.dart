@@ -15,10 +15,15 @@ class AiDesignPage extends StatefulWidget {
   final int eventId;
   final int eventTypeId;
 
+  /// Event title carried over from the previous wizard page (pre-fills the
+  /// "event title" field instead of re-asking the user).
+  final String? eventTitle;
+
   const AiDesignPage({
     super.key,
     required this.eventId,
     required this.eventTypeId,
+    this.eventTitle,
   });
 
   @override
@@ -117,7 +122,7 @@ class _AiDesignPageState extends State<AiDesignPage>
 
   Widget _buildBody(BuildContext ctx, AiDesignState state, AppLocalizations? loc) {
     if (state is AiDesignLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: AppLoader(pulsing: true));
     }
     if (state is! AiDesignReady) {
       return Center(
@@ -257,6 +262,7 @@ class _AiDesignPageState extends State<AiDesignPage>
       ),
       const SizedBox(height: 8),
       TextFormField(
+        initialValue: widget.eventTitle,
         onChanged: (v) =>
             ctx.read<AiDesignCubit>().updateFormValue('event_title', v),
         decoration: InputDecoration(

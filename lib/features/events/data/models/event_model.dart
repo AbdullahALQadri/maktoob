@@ -12,6 +12,7 @@ class EventModel extends EventEntity {
     required super.date,
     required super.time,
     required super.venue,
+    super.venueId,
     super.venueAddress,
     super.description,
     required super.invitations,
@@ -44,6 +45,9 @@ class EventModel extends EventEntity {
       date: json['date'] as String? ?? _formatDateFromApi(eventDate),
       time: json['time'] as String? ?? json['event_time'] as String? ?? '',
       venue: json['venue'] as String? ?? json['venue_data']?['name_ar'] as String? ?? json['custom_venue_name_ar'] as String? ?? '',
+      venueId: _parseInt(json['venue_id']) ??
+          _parseInt(json['venue'] is Map ? json['venue']['id'] : null) ??
+          _parseInt(json['venue_data'] is Map ? json['venue_data']['id'] : null),
       venueAddress: json['venue_address'] as String? ?? json['custom_venue_address_ar'] as String?,
       description: json['description'] as String? ?? json['description_ar'] as String?,
       invitations: _parseIntOrListLength(json['invitations']) ?? _parseIntOrListLength(json['max_invitations']) ?? 0,
@@ -67,6 +71,13 @@ class EventModel extends EventEntity {
       gradient: _parseGradient(json['gradient']),
       icon: _parseIcon(json['icon']),
     );
+  }
+
+  /// Parses an int from an int or numeric string; null otherwise.
+  static int? _parseInt(dynamic value) {
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value);
+    return null;
   }
 
   /// Parses a value that could be an int, a List (returns length), or null

@@ -87,6 +87,8 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         responses: json['response_count'] ?? 0,
         attending: json['attending_count'] ?? 0,
         gradientColors: _eventGradients[i % _eventGradients.length],
+        imageUrl: json['image_url'] as String?,
+        status: json['status'] as String? ?? 'active',
       );
     }).toList();
   }

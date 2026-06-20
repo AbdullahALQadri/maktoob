@@ -9,6 +9,7 @@ class EventEntity extends Equatable {
   final String date;
   final String time;
   final String venue;
+  final int? venueId;
   final String? venueAddress;
   final String? description;
   final int invitations;
@@ -33,6 +34,7 @@ class EventEntity extends Equatable {
     required this.date,
     required this.time,
     required this.venue,
+    this.venueId,
     this.venueAddress,
     this.description,
     required this.invitations,
@@ -67,6 +69,7 @@ class EventEntity extends Equatable {
         date,
         time,
         venue,
+        venueId,
         venueAddress,
         description,
         invitations,

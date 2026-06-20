@@ -1,19 +1,17 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
 import '../../domain/entities/recent_event_entity.dart';
 
-/// Recent event card.
+/// Recent event card — premium, image-led.
 ///
-/// Two variants per the mockup:
-///  - index 0: photo-led card with a 128pt cover area + floating category
-///    chip overlay. The cover is a stylized placeholder (warm parchment
-///    surface) until events ship with real image URLs.
-///  - index 1+: text-led card with the category label above the title.
-///
-/// Both variants share the same content body (location/date + RSVP
-/// progress row with a 1pt hairline bar).
+/// Every card leads with the event's real cover/AI image (with a graceful
+/// gradient fallback when none exists). The event title and date sit on a
+/// dark scrim over the image for an editorial hero feel; the body carries the
+/// venue and an RSVP progress hairline. Used on the home screen, which only
+/// lists ACTIVE events.
 class RecentEventCardWidget extends StatelessWidget {
   final RecentEventEntity event;
   final int index;
@@ -26,35 +24,40 @@ class RecentEventCardWidget extends StatelessWidget {
     this.onTap,
   });
 
-  bool get _photoLed => index == 0;
-
   @override
   Widget build(BuildContext context) {
     return StaggeredSlideFade(
       index: index,
-      baseDelayMs: 400,
+      baseDelayMs: 360,
       staggerMs: 80,
       slideOffset: 24,
       child: Padding(
-        padding: const EdgeInsetsDirectional.only(bottom: 16),
+        padding: const EdgeInsetsDirectional.only(bottom: 18),
         child: Material(
           color: AppColors.white,
-          borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
+          borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: onTap,
-            borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
+            borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
                 border: Border.all(color: AppColors.gray200),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (_photoLed) _CoverBlock(event: event),
-                  _Body(event: event, photoLed: _photoLed),
+                  _CoverHero(event: event),
+                  _Body(event: event),
                 ],
               ),
             ),
@@ -65,33 +68,99 @@ class RecentEventCardWidget extends StatelessWidget {
   }
 }
 
-class _CoverBlock extends StatelessWidget {
+/// Image header with scrim + category chip + overlaid title & date.
+class _CoverHero extends StatelessWidget {
   final RecentEventEntity event;
-  const _CoverBlock({required this.event});
+  const _CoverHero({required this.event});
 
   @override
   Widget build(BuildContext context) {
+    final category = _inferCategory(context, event.name);
+    final text = Theme.of(context).textTheme;
+
     return SizedBox(
-      height: 128,
+      height: 172,
       width: double.infinity,
       child: Stack(
+        fit: StackFit.expand,
         children: [
-          Container(color: AppColors.gray100),
-          Positioned.fill(
-            child: Center(
-              child: Icon(
-                Icons.celebration_outlined,
-                size: 48,
-                color: AppColors.gray300,
+          // Real image, or a branded gradient fallback.
+          if (event.hasImage)
+            CachedNetworkImage(
+              imageUrl: event.imageUrl!,
+              fit: BoxFit.cover,
+              placeholder: (_, __) => _GradientFallback(
+                colors: event.gradientColors,
+                showIcon: false,
+              ),
+              errorWidget: (_, __, ___) =>
+                  _GradientFallback(colors: event.gradientColors),
+            )
+          else
+            _GradientFallback(colors: event.gradientColors),
+
+          // Bottom scrim for legible overlaid text.
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                stops: [0.0, 0.55, 1.0],
+                colors: [
+                  Color(0xCC000000),
+                  Color(0x33000000),
+                  Colors.transparent,
+                ],
               ),
             ),
           ),
+
+          // Category chip (top-start).
           PositionedDirectional(
-            bottom: 12,
+            top: 14,
+            start: 14,
+            child: _CategoryChip(category: category),
+          ),
+
+          // Title + date (bottom overlay).
+          PositionedDirectional(
             start: 16,
-            child: _CategoryChip(
-              category: _inferCategory(context, event.name),
-              onLightSurface: false,
+            end: 16,
+            bottom: 14,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  event.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: text.titleLarge?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    height: 1.2,
+                    shadows: const [
+                      Shadow(color: Color(0x99000000), blurRadius: 8),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.calendar_today_outlined,
+                        size: 14, color: Colors.white),
+                    const SizedBox(width: 6),
+                    Text(
+                      _formatDate(event.date),
+                      style: text.bodySmall?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.95),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
@@ -100,63 +169,56 @@ class _CoverBlock extends StatelessWidget {
   }
 }
 
+class _GradientFallback extends StatelessWidget {
+  final List<Color> colors;
+  final bool showIcon;
+  const _GradientFallback({required this.colors, this.showIcon = true});
+
+  @override
+  Widget build(BuildContext context) {
+    final gradient = colors.length >= 2
+        ? colors
+        : [AppColors.primaryColor, AppColors.tertiaryColor];
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: gradient,
+        ),
+      ),
+      child: showIcon
+          ? Center(
+              child: Icon(
+                Icons.celebration_outlined,
+                size: 44,
+                color: Colors.white.withValues(alpha: 0.55),
+              ),
+            )
+          : const SizedBox.shrink(),
+    );
+  }
+}
+
 class _Body extends StatelessWidget {
   final RecentEventEntity event;
-  final bool photoLed;
-  const _Body({required this.event, required this.photoLed});
+  const _Body({required this.event});
 
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     final t = AppLocalizations.of(context)!;
-    final rate = (event.responseRate * 100).round();
-    final category = _inferCategory(context, event.name);
+    final rate = (event.responseRate.clamp(0.0, 1.0) * 100).round();
 
     return Padding(
-      padding: const EdgeInsetsDirectional.all(20),
+      padding: const EdgeInsetsDirectional.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (!photoLed) ...[
-                      _SectionEyebrow(label: category),
-                      const SizedBox(height: 6),
-                    ],
-                    Text(
-                      event.name,
-                      style: text.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: context.textPrimary,
-                        height: 1.2,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Icon(
-                Icons.more_vert,
-                size: 22,
-                color: context.textTertiary,
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          _MetaRow(
-            icon: photoLed ? Icons.location_on_outlined : Icons.calendar_today_outlined,
-            text: photoLed ? event.venue : _formatDate(event.date),
-          ),
-          const SizedBox(height: 16),
+          if (event.venue.isNotEmpty)
+            _MetaRow(icon: Icons.location_on_outlined, text: event.venue),
+          if (event.venue.isNotEmpty) const SizedBox(height: 14),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -176,17 +238,29 @@ class _Body extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 6),
-          SizedBox(
-            height: 1,
-            child: Stack(
-              children: [
-                Container(color: AppColors.gray200),
-                FractionallySizedBox(
-                  widthFactor: event.responseRate,
-                  child: Container(color: AppColors.primaryColor),
-                ),
-              ],
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+            child: SizedBox(
+              height: 6,
+              child: Stack(
+                children: [
+                  Container(color: AppColors.gray200),
+                  FractionallySizedBox(
+                    widthFactor: event.responseRate.clamp(0.0, 1.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            AppColors.primaryColor,
+                            AppColors.tertiaryColor,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -220,31 +294,9 @@ class _MetaRow extends StatelessWidget {
   }
 }
 
-class _SectionEyebrow extends StatelessWidget {
-  final String label;
-  const _SectionEyebrow({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final isEn = AppLocalizations.of(context)!.isEnLocale;
-    return Text(
-      isEn ? label.toUpperCase() : label,
-      style: TextStyle(
-        fontFamily: 'Tajawal',
-        fontSize: 12,
-        fontWeight: FontWeight.w700,
-        color: context.textSecondary,
-        letterSpacing: isEn ? 1.5 : 0,
-        height: 1.3,
-      ),
-    );
-  }
-}
-
 class _CategoryChip extends StatelessWidget {
   final String category;
-  final bool onLightSurface;
-  const _CategoryChip({required this.category, required this.onLightSurface});
+  const _CategoryChip({required this.category});
 
   @override
   Widget build(BuildContext context) {
@@ -255,9 +307,8 @@ class _CategoryChip extends StatelessWidget {
         vertical: 5,
       ),
       decoration: BoxDecoration(
-        color: AppColors.white.withValues(alpha: onLightSurface ? 1.0 : 0.85),
-        borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
-        border: Border.all(color: AppColors.gray200),
+        color: AppColors.white.withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
       ),
       child: Text(
         isEn ? category.toUpperCase() : category,
@@ -280,7 +331,7 @@ String _inferCategory(BuildContext context, String name) {
   if (lower.contains('wedding') || lower.contains('زفاف') || lower.contains('düğün')) {
     return t.translate('home_event_category_wedding');
   }
-  if (lower.contains('engagement') || lower.contains('خطوبة') || lower.contains('nişan')) {
+  if (lower.contains('engagement') || lower.contains('خطوبة') || lower.contains('خطوبه') || lower.contains('nişan')) {
     return t.translate('home_event_category_engagement');
   }
   if (lower.contains('birthday') || lower.contains('ميلاد') || lower.contains('doğum')) {
@@ -292,7 +343,7 @@ String _inferCategory(BuildContext context, String name) {
       lower.contains('konferans')) {
     return t.translate('home_event_category_conference');
   }
-  if (lower.contains('party') || lower.contains('حفلة') || lower.contains('parti')) {
+  if (lower.contains('party') || lower.contains('حفلة') || lower.contains('حفله') || lower.contains('parti')) {
     return t.translate('home_event_category_party');
   }
   return t.translate('home_event_category_event');

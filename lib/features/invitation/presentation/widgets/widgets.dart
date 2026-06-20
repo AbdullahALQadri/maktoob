@@ -38,4 +38,5 @@ export 'template_card.dart';
 export 'template_selector_widget.dart';
 export 'venue_selector_content.dart';
 export 'wizard_bottom_bar.dart';
+export 'wizard_skeletons.dart';
 export 'wizard_step_header.dart';

@@ -245,7 +245,7 @@ class _ServicesTab extends StatelessWidget {
     final isEnglish = Localizations.localeOf(context).languageCode == 'en';
 
     if (state.isLoadingServices) {
-      return const Center(child: CircularProgressIndicator());
+      return const ServicesListSkeleton();
     }
 
     if (state.servicesError != null) {

@@ -21,6 +21,41 @@ class CheckInGuestModel extends CheckInGuestEntity {
     );
   }
 
+  /// Maps the backend `data.invitation` object returned by
+  /// POST /scanner/check-in/scan into a guest row.
+  factory CheckInGuestModel.fromInvitationJson(
+    Map<String, dynamic> json, {
+    String qrCode = '',
+  }) {
+    return CheckInGuestModel(
+      id: '${json['id'] ?? ''}',
+      name: (json['guest_name'] ?? json['guest_name_en'] ?? '') as String,
+      status: (json['response_status'] ?? 'no_response') as String,
+      companions: _toInt(json['expected_companions']),
+      checkedIn: (json['already_checked_in'] as bool?) ?? false,
+      qrCode: qrCode,
+    );
+  }
+
+  /// Maps an item from the backend `data.attendance` list returned by
+  /// GET /scanner/attendance/{venue} (these are already checked in).
+  factory CheckInGuestModel.fromAttendanceJson(Map<String, dynamic> json) {
+    return CheckInGuestModel(
+      id: '${json['invitation_id'] ?? ''}',
+      name: (json['guest_name'] ?? '') as String,
+      status: 'checked_in',
+      companions: _toInt(json['actual_companions']),
+      checkedIn: true,
+      qrCode: '',
+    );
+  }
+
+  static int _toInt(dynamic v) {
+    if (v is int) return v;
+    if (v is String) return int.tryParse(v) ?? 0;
+    return 0;
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,

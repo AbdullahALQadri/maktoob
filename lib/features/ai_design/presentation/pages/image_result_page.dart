@@ -6,7 +6,6 @@ import 'package:shimmer/shimmer.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../../config/locale/app_localizations.dart';
-import '../../../../config/routes/app_routes.dart';
 import '../../../../core/core.dart';
 import '../cubit/ai_design_cubit.dart';
 import '../cubit/ai_design_state.dart';
@@ -120,49 +119,25 @@ class ImageResultPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              Row(children: [
-                _IconActionButton(
-                  icon: Icons.share_outlined,
-                  tooltip: loc?.translate('ai_share_image') ?? 'مشاركة',
-                  onTap: () => _shareImage(context),
-                ),
-                const SizedBox(width: 10),
-                _IconActionButton(
-                  icon: Icons.link_rounded,
-                  tooltip: loc?.translate('ai_copy_image_link') ?? 'نسخ الرابط',
-                  onTap: () => _copyImageLink(context, loc),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: SizedBox(
-                    height: 56,
-                    child: OutlinedButton.icon(
-                      onPressed: () => Navigator.of(ctx).popUntil(
-                        (route) =>
-                            route.settings.name == Routes.aiDesign ||
-                            route.isFirst,
-                      ),
-                      icon: Icon(Icons.refresh_rounded,
-                          color: AppColors.primaryColor, size: 18),
-                      label: Text(
-                        loc?.translate('ai_regenerate_image') ?? 'أعد التوليد',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.primaryColor,
-                        ),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(
-                            color: AppColors.primaryColor, width: 1.5),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                    ),
+              // Regeneration is handled via Hermes refinement (not a blunt
+              // regenerate button), so on a successful image we only offer
+              // share + copy alongside the primary "use this image" action.
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _IconActionButton(
+                    icon: Icons.share_outlined,
+                    tooltip: loc?.translate('ai_share_image') ?? 'مشاركة',
+                    onTap: () => _shareImage(context),
                   ),
-                ),
-              ]),
+                  const SizedBox(width: 12),
+                  _IconActionButton(
+                    icon: Icons.link_rounded,
+                    tooltip: loc?.translate('ai_copy_image_link') ?? 'نسخ الرابط',
+                    onTap: () => _copyImageLink(context, loc),
+                  ),
+                ],
+              ),
             ]),
           ),
         );

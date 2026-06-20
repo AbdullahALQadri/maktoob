@@ -736,52 +736,68 @@ class EventDetailsSkeleton extends StatelessWidget {
                           ),
                           const SizedBox(width: 16),
                           Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ShimmerLoading(
-                                  baseColor: Colors.white.withValues(alpha: 0.2),
-                                  highlightColor: Colors.white.withValues(alpha: 0.4),
-                                  child: Container(
-                                    width: 180,
-                                    height: 24,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.2),
-                                      borderRadius: BorderRadius.circular(6),
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: AlignmentDirectional.centerStart,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ShimmerLoading(
+                                    baseColor:
+                                        Colors.white.withValues(alpha: 0.2),
+                                    highlightColor:
+                                        Colors.white.withValues(alpha: 0.4),
+                                    child: Container(
+                                      width: 180,
+                                      height: 24,
+                                      decoration: BoxDecoration(
+                                        color:
+                                            Colors.white.withValues(alpha: 0.2),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    ShimmerLoading(
-                                      baseColor: Colors.white.withValues(alpha: 0.2),
-                                      highlightColor: Colors.white.withValues(alpha: 0.4),
-                                      child: Container(
-                                        width: 70,
-                                        height: 28,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withValues(alpha: 0.2),
-                                          borderRadius: BorderRadius.circular(20),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      ShimmerLoading(
+                                        baseColor: Colors.white
+                                            .withValues(alpha: 0.2),
+                                        highlightColor: Colors.white
+                                            .withValues(alpha: 0.4),
+                                        child: Container(
+                                          width: 70,
+                                          height: 28,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white
+                                                .withValues(alpha: 0.2),
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    ShimmerLoading(
-                                      baseColor: Colors.white.withValues(alpha: 0.2),
-                                      highlightColor: Colors.white.withValues(alpha: 0.4),
-                                      child: Container(
-                                        width: 60,
-                                        height: 28,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withValues(alpha: 0.2),
-                                          borderRadius: BorderRadius.circular(20),
+                                      const SizedBox(width: 8),
+                                      ShimmerLoading(
+                                        baseColor: Colors.white
+                                            .withValues(alpha: 0.2),
+                                        highlightColor: Colors.white
+                                            .withValues(alpha: 0.4),
+                                        child: Container(
+                                          width: 60,
+                                          height: 28,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white
+                                                .withValues(alpha: 0.2),
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],

@@ -304,6 +304,28 @@ class DioConsumer implements ApiConsumer {
           try {
             final json = jsonDecode(responseData.toString());
             message = json['message'] as String?;
+
+            // Laravel 422 responses carry per-field details under 'errors'
+            // (e.g. {amount: ["The amount field is required."]}). Surface the
+            // first error of each field so the actual validation failure is
+            // visible instead of the generic "The given data was invalid."
+            final errors = json['errors'];
+            if (errors is Map && errors.isNotEmpty) {
+              final parts = <String>[];
+              errors.forEach((_, value) {
+                if (value is List && value.isNotEmpty) {
+                  parts.add(value.first.toString());
+                } else if (value != null) {
+                  parts.add(value.toString());
+                }
+              });
+              if (parts.isNotEmpty) {
+                message = [
+                  if (message != null && message.isNotEmpty) message,
+                  ...parts,
+                ].join('\n');
+              }
+            }
           } catch (_) {}
         }
 

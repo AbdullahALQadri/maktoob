@@ -73,9 +73,20 @@ class _Page1EventSetupScreenState extends State<Page1EventSetupScreen> {
       }
     }
 
+    // Carry the title the user already entered on this page into the AI design
+    // form (pre-filled + editable) instead of asking for it again. Prefer the
+    // live field text, falling back to the committed state value.
+    final eventTitle = _nameController.text.trim().isNotEmpty
+        ? _nameController.text.trim()
+        : (state.eventName ?? '');
+
     final result = await Navigator.of(ctx).pushNamed(
       Routes.aiDesign,
-      arguments: {'eventId': eventId, 'eventTypeId': eventTypeId},
+      arguments: {
+        'eventId': eventId,
+        'eventTypeId': eventTypeId,
+        'eventTitle': eventTitle,
+      },
     );
 
     if (result is String && result.isNotEmpty && mounted) {

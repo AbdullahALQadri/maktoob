@@ -2,7 +2,7 @@
 ///
 /// The base URL is supplied at build time via `--dart-define`:
 ///
-///   flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000/api/v1   # emulator
+///   flutter run --dart-define=API_BASE_URL=http://172.31.176.1:8000/api/v1   # emulator
 ///   flutter run --dart-define=API_BASE_URL=http://10.5.50.129:8000/api/v1 # device on LAN
 ///   flutter build apk --release   # uses the production default below
 ///

@@ -113,18 +113,24 @@ class AppRoutes {
         final args        = settings.arguments as Map<String, dynamic>?;
         final eventId     = (args?['eventId']     as int?) ?? 0;
         final eventTypeId = (args?['eventTypeId'] as int?) ?? 0;
+        final eventTitle  = args?['eventTitle']  as String?;
         if (eventId == 0 || eventTypeId == 0) {
           return _undefinedRoute(settings.name);
         }
         return _buildRoute(
           BlocProvider(
             create: (_) => AiDesignCubit(
-              repository:  GetIt.I<AiDesignRepository>(),
-              fcmService:  GetIt.I<FcmService>(),
-              eventId:     eventId,
-              eventTypeId: eventTypeId,
+              repository:        GetIt.I<AiDesignRepository>(),
+              fcmService:        GetIt.I<FcmService>(),
+              eventId:           eventId,
+              eventTypeId:       eventTypeId,
+              initialEventTitle: eventTitle,
             ),
-            child: AiDesignPage(eventId: eventId, eventTypeId: eventTypeId),
+            child: AiDesignPage(
+              eventId: eventId,
+              eventTypeId: eventTypeId,
+              eventTitle: eventTitle,
+            ),
           ),
           settings,
         );

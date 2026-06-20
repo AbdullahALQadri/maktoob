@@ -12,6 +12,10 @@ class AiDesignCubit extends Cubit<AiDesignState> {
   final int eventId;
   final int eventTypeId;
 
+  /// Event title chosen on the previous wizard page — pre-fills the AI form's
+  /// "event title" field instead of re-asking for it.
+  final String? initialEventTitle;
+
   Timer? _pollingTimer;
   int  _elapsedSeconds   = 0;
   bool _waitingForPrompt = true;
@@ -29,6 +33,7 @@ class AiDesignCubit extends Cubit<AiDesignState> {
     required this.eventId,
     required this.eventTypeId,
     FcmService? fcmService,
+    this.initialEventTitle,
   })  : _repo = repository,
         _fcm  = fcmService,
         super(const AiDesignInitial()) {
@@ -123,7 +128,15 @@ class AiDesignCubit extends Cubit<AiDesignState> {
     try {
       final gallery = await _repo.getGalleryImages(eventTypeId);
       final fields  = await _repo.getFormFields(eventTypeId);
-      emit(AiDesignReady(galleryImages: gallery, formFields: fields));
+      // Pre-fill the event title carried over from the previous wizard page.
+      final values = <String, String>{};
+      final title = (initialEventTitle ?? '').trim();
+      if (title.isNotEmpty) values['event_title'] = title;
+      emit(AiDesignReady(
+        galleryImages: gallery,
+        formFields: fields,
+        formValues: values,
+      ));
     } catch (e) {
       emit(AiDesignError(e.toString()));
     }

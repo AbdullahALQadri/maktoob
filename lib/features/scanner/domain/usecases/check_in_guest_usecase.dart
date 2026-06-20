@@ -13,15 +13,28 @@ class CheckInGuestUseCase extends UseCase<CheckInGuestEntity, CheckInGuestParams
 
   @override
   Future<Either<Failure, CheckInGuestEntity>> call(CheckInGuestParams params) async {
-    return await repository.checkInGuest(params.guestId);
+    return await repository.checkInGuest(
+      params.invitationId,
+      params.venueId,
+      actualCompanions: params.actualCompanions,
+      notes: params.notes,
+    );
   }
 }
 
 class CheckInGuestParams extends Equatable {
-  final String guestId;
+  final String invitationId;
+  final int venueId;
+  final int? actualCompanions;
+  final String? notes;
 
-  const CheckInGuestParams({required this.guestId});
+  const CheckInGuestParams({
+    required this.invitationId,
+    required this.venueId,
+    this.actualCompanions,
+    this.notes,
+  });
 
   @override
-  List<Object?> get props => [guestId];
+  List<Object?> get props => [invitationId, venueId, actualCompanions, notes];
 }

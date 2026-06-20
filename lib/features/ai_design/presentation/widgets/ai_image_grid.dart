@@ -19,10 +19,7 @@ class AiImageGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (images.isEmpty) {
-      return const SizedBox(
-        height: 120,
-        child: Center(child: CircularProgressIndicator()),
-      );
+      return const _AiGridSkeleton();
     }
     return GridView.builder(
       shrinkWrap: true,
@@ -38,6 +35,36 @@ class AiImageGrid extends StatelessWidget {
         image:      images[i],
         isSelected: images[i].id == selectedId,
         onTap:      () => onSelect(images[i]),
+      ),
+    );
+  }
+}
+
+/// Placeholder grid shown while the gallery loads.
+class _AiGridSkeleton extends StatelessWidget {
+  const _AiGridSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 4,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
+          childAspectRatio: 0.7,
+        ),
+        itemBuilder: (_, __) => Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
       ),
     );
   }
