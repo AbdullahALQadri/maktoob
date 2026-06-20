@@ -42,6 +42,14 @@ class AppLocalizations {
     // return _localizedStrings[key] ?? '**';
   }
 
+  /// Translate [key] if it exists, otherwise return [fallback] unchanged.
+  /// Use for values that MIGHT be an i18n key (e.g. the custom-package name,
+  /// which is stored as a key) or might already be display text (a standard
+  /// package name) — avoids rendering raw keys or "** key not found".
+  String translateOr(String key, String fallback) {
+    return _localizedStrings[key] ?? fallback;
+  }
+
   // خاصية لمساعدتك في التمييز بين اللغة الإنجليزية وغيرها
   bool get isEnLocale => locale.languageCode == 'en';
 }

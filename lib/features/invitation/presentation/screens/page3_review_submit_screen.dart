@@ -383,7 +383,11 @@ class _PackageOverview extends StatelessWidget {
                     children: [
                       Flexible(
                         child: Text(
-                          isEnglish ? selected.name : selected.nameAr,
+                          l?.translateOr(
+                                isEnglish ? selected.name : selected.nameAr,
+                                isEnglish ? selected.name : selected.nameAr,
+                              ) ??
+                              (isEnglish ? selected.name : selected.nameAr),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(

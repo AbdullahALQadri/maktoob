@@ -26,6 +26,7 @@ class EventEntity extends Equatable {
   final String? templateName;
   final int maxCompanions;
   final bool allowCompanions;
+  final String? imageUrl;
 
   const EventEntity({
     required this.id,
@@ -51,6 +52,7 @@ class EventEntity extends Equatable {
     this.templateName,
     this.maxCompanions = 2,
     this.allowCompanions = true,
+    this.imageUrl,
   });
 
   double get responseRate =>
@@ -86,5 +88,6 @@ class EventEntity extends Equatable {
         templateName,
         maxCompanions,
         allowCompanions,
+        imageUrl,
       ];
 }

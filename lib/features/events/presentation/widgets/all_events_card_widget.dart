@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/utils/app_colors.dart';
@@ -47,65 +48,101 @@ class AllEventsCardWidget extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Header with gradient accent
-          Container(
-            padding: EdgeInsets.all(context.dynamicWidth(0.04)),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: _getStatusGradient(),
-              ),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(context.dynamicWidth(0.051)),
-                topRight: Radius.circular(context.dynamicWidth(0.051)),
-              ),
+          // Header — event image (lazy + cached) with a gradient fallback.
+          ClipRRect(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(context.dynamicWidth(0.051)),
+              topRight: Radius.circular(context.dynamicWidth(0.051)),
             ),
-            child: Row(
+            child: Stack(
               children: [
-                // Event icon
+                if (_hasImage) ...[
+                  Positioned.fill(
+                    child: CachedNetworkImage(
+                      imageUrl: event.imageUrl!,
+                      fit: BoxFit.cover,
+                      // Fade in once it arrives; show the gradient meanwhile / on error.
+                      fadeInDuration: const Duration(milliseconds: 250),
+                      placeholder: (_, __) => _gradientFill(),
+                      errorWidget: (_, __, ___) => _gradientFill(),
+                    ),
+                  ),
+                  // Scrim so the white text/icon stays legible over photos.
+                  Positioned.fill(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Colors.black.withValues(alpha: 0.45),
+                            Colors.black.withValues(alpha: 0.65),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
                 Container(
-                  width: context.dynamicWidth(0.12),
-                  height: context.dynamicWidth(0.12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
-                  ),
-                  child: Icon(
-                    _getEventIcon(),
-                    color: Colors.white,
-                    size: context.dynamicWidth(0.061),
-                  ),
-                ),
-                SizedBox(width: context.dynamicWidth(0.029)),
-                // Event name and type
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+                  // Only paint the status gradient when there's no image.
+                  decoration: _hasImage
+                      ? null
+                      : BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: _getStatusGradient(),
+                          ),
+                        ),
+                  child: Row(
                     children: [
-                      Text(
-                        event.name,
-                        style: TextStyle(
-                          fontSize: context.dynamicWidth(0.043),
-                          fontWeight: FontWeight.bold,
+                      // Event icon
+                      Container(
+                        width: context.dynamicWidth(0.12),
+                        height: context.dynamicWidth(0.12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
+                        ),
+                        child: Icon(
+                          _getEventIcon(),
                           color: Colors.white,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      SizedBox(height: context.dynamicHeight(0.004)),
-                      Text(
-                        event.type,
-                        style: TextStyle(
-                          fontSize: context.dynamicWidth(0.032),
-                          color: Colors.white.withValues(alpha: 0.85),
+                          size: context.dynamicWidth(0.061),
                         ),
                       ),
+                      SizedBox(width: context.dynamicWidth(0.029)),
+                      // Event name and type
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              event.name,
+                              style: TextStyle(
+                                fontSize: context.dynamicWidth(0.043),
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            SizedBox(height: context.dynamicHeight(0.004)),
+                            Text(
+                              event.type,
+                              style: TextStyle(
+                                fontSize: context.dynamicWidth(0.032),
+                                color: Colors.white.withValues(alpha: 0.85),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Status badge
+                      _buildStatusBadge(context),
                     ],
                   ),
                 ),
-                // Status badge
-                _buildStatusBadge(context),
               ],
             ),
           ),
@@ -369,6 +406,20 @@ class AllEventsCardWidget extends StatelessWidget {
       ],
     );
   }
+
+  bool get _hasImage => event.imageUrl != null && event.imageUrl!.isNotEmpty;
+
+  /// Branded gradient used as the image placeholder / error fallback so the
+  /// header never collapses to a blank box while loading or if a load fails.
+  Widget _gradientFill() => DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: _getStatusGradient(),
+          ),
+        ),
+      );
 
   List<Color> _getStatusGradient() {
     switch (event.status) {

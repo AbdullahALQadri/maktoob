@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../config/locale/app_localizations.dart';
@@ -30,9 +31,15 @@ class EventDetailsHeader extends StatelessWidget {
     return Icons.event;
   }
 
+  // imageUrl lives on EventEntity, so read it directly — the cubit passes an
+  // EventEntity (not EventModel), which is why the image wasn't showing.
+  String? get _imageUrl => event.imageUrl;
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
+    final imageUrl = _imageUrl;
+    final hasImage = imageUrl != null && imageUrl.isNotEmpty;
 
     return Container(
       decoration: BoxDecoration(
@@ -47,6 +54,37 @@ class EventDetailsHeader extends StatelessWidget {
         child: Stack(
           clipBehavior: Clip.none,
           children: [
+            // Event image fills the header behind the content (the gradient on
+            // the parent shows through as a fallback / during load / on error).
+            if (hasImage) ...[
+              Positioned.fill(
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl,
+                  fit: BoxFit.cover,
+                  placeholder: (_, __) => const SizedBox.shrink(),
+                  errorWidget: (_, __, error) {
+                    debugPrint('EventDetailsHeader image FAILED to load: '
+                        '$imageUrl  error=$error');
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ),
+              // Scrim so the white actions / title / badges stay legible.
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withValues(alpha: 0.35),
+                        Colors.black.withValues(alpha: 0.65),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
             // Content first (determines size)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),

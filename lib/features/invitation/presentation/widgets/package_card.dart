@@ -136,6 +136,12 @@ class PackageCard extends StatelessWidget {
   }
 
   Widget _buildNameSection(BuildContext context, AppLocalizations? l) {
+    final primaryName   = isEnglish ? package.name : package.nameAr;
+    final secondaryName = isEnglish ? package.nameAr : package.name;
+    // The custom package stores its name/features as i18n keys; translate when
+    // the value is a known key, otherwise show as-is (standard packages).
+    final displayName      = l?.translateOr(primaryName, primaryName) ?? primaryName;
+    final displaySecondary = l?.translateOr(secondaryName, secondaryName) ?? secondaryName;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -143,7 +149,7 @@ class PackageCard extends StatelessWidget {
           children: [
             Flexible(
               child: Text(
-                isEnglish ? package.name : package.nameAr,
+                displayName,
                 style: TextStyle(
                   fontSize: context.dynamicWidth(0.045),
                   fontWeight: FontWeight.bold,
@@ -176,7 +182,7 @@ class PackageCard extends StatelessWidget {
         ),
         if (package.name != package.nameAr)
           Text(
-            isEnglish ? package.nameAr : package.name,
+            displaySecondary,
             style: TextStyle(
               fontSize: context.dynamicWidth(0.029),
               color: context.textSecondary,
@@ -223,6 +229,7 @@ class PackageCard extends StatelessWidget {
   }
 
   Widget _buildFeatures(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Column(
       children: [
         ...package.features.map((feature) => Padding(
@@ -237,7 +244,7 @@ class PackageCard extends StatelessWidget {
                   SizedBox(width: context.dynamicWidth(0.021)),
                   Expanded(
                     child: Text(
-                      feature,
+                      l?.translateOr(feature, feature) ?? feature,
                       style: TextStyle(
                         fontSize: context.dynamicWidth(0.032),
                         color: context.textTertiary,

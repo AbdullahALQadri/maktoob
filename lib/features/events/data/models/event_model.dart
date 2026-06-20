@@ -29,6 +29,7 @@ class EventModel extends EventEntity {
     super.templateName,
     super.maxCompanions,
     super.allowCompanions,
+    super.imageUrl,
     required this.gradient,
     required this.icon,
   });
@@ -40,11 +41,15 @@ class EventModel extends EventEntity {
 
     return EventModel(
       id: id is int ? id.toString() : (id as String? ?? ''),
-      name: json['name'] as String? ?? json['title_ar'] as String? ?? json['title_en'] as String? ?? '',
-      type: json['type'] as String? ?? json['event_type']?['name_ar'] as String? ?? json['event_type']?['name_en'] as String? ?? '',
+      // `title` is the unified column (title_ar/title_en were merged); keep the
+      // old keys as fallbacks for any cached/legacy payloads.
+      name: json['name'] as String? ?? json['title'] as String? ?? json['title_ar'] as String? ?? json['title_en'] as String? ?? '',
+      type: json['type'] as String? ?? _nameFrom(json['event_type']) ?? '',
       date: json['date'] as String? ?? _formatDateFromApi(eventDate),
       time: json['time'] as String? ?? json['event_time'] as String? ?? '',
-      venue: json['venue'] as String? ?? json['venue_data']?['name_ar'] as String? ?? json['custom_venue_name_ar'] as String? ?? '',
+      // venue may be a plain string OR a loaded relation Map — handle both
+      // (casting a Map `as String?` would throw and fail the whole parse).
+      venue: _nameFrom(json['venue']) ?? _nameFrom(json['venue_data']) ?? json['custom_venue_name_ar'] as String? ?? '',
       venueId: _parseInt(json['venue_id']) ??
           _parseInt(json['venue'] is Map ? json['venue']['id'] : null) ??
           _parseInt(json['venue_data'] is Map ? json['venue_data']['id'] : null),
@@ -68,9 +73,21 @@ class EventModel extends EventEntity {
       templateName: json['template_name'] as String? ?? json['template']?['name_ar'] as String?,
       maxCompanions: _parseIntOrListLength(json['max_companions']) ?? 2,
       allowCompanions: json['allow_companions'] as bool? ?? true,
+      imageUrl: json['image_url'] as String? ??
+          (json['final_ai_image'] is Map ? json['final_ai_image']['image_url'] as String? : null),
       gradient: _parseGradient(json['gradient']),
       icon: _parseIcon(json['icon']),
     );
+  }
+
+  /// Returns a display name from a value that may be a plain String or a
+  /// loaded relation Map ({name_ar / name_en / name}).
+  static String? _nameFrom(dynamic value) {
+    if (value is String) return value;
+    if (value is Map) {
+      return (value['name_ar'] ?? value['name_en'] ?? value['name']) as String?;
+    }
+    return null;
   }
 
   /// Parses an int from an int or numeric string; null otherwise.
@@ -127,6 +144,7 @@ class EventModel extends EventEntity {
       'template_name': templateName,
       'max_companions': maxCompanions,
       'allow_companions': allowCompanions,
+      'image_url': imageUrl,
     };
   }
 
@@ -157,6 +175,7 @@ class EventModel extends EventEntity {
       templateName: entity.templateName,
       maxCompanions: entity.maxCompanions,
       allowCompanions: entity.allowCompanions,
+      imageUrl: entity.imageUrl,
       gradient: gradient,
       icon: icon,
     );
@@ -186,6 +205,7 @@ class EventModel extends EventEntity {
       templateName: templateName,
       maxCompanions: maxCompanions,
       allowCompanions: allowCompanions,
+      imageUrl: imageUrl,
     );
   }
 
@@ -265,6 +285,7 @@ class EventModel extends EventEntity {
     String? templateName,
     int? maxCompanions,
     bool? allowCompanions,
+    String? imageUrl,
     List<Color>? gradient,
     IconData? icon,
   }) {
@@ -291,6 +312,7 @@ class EventModel extends EventEntity {
       templateName: templateName ?? this.templateName,
       maxCompanions: maxCompanions ?? this.maxCompanions,
       allowCompanions: allowCompanions ?? this.allowCompanions,
+      imageUrl: imageUrl ?? this.imageUrl,
       gradient: gradient ?? this.gradient,
       icon: icon ?? this.icon,
     );
