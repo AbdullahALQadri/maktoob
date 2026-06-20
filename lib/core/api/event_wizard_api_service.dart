@@ -245,6 +245,19 @@ class EventWizardApiService {
     return response as Map<String, dynamic>;
   }
 
+  /// Upload a custom (non-AI) image to use as the event design.
+  /// Returns { image_id, status: "completed", image_url, source: "upload" }.
+  Future<Map<String, dynamic>> uploadCustomDesign(
+    int eventId,
+    File image,
+  ) async {
+    final response = await _apiConsumer.postWithImage(
+      Endpoints.wizardUploadDesign(eventId),
+      params: _FileParams(image),
+    );
+    return response as Map<String, dynamic>;
+  }
+
   /// Save the generated AI image as the event cover
   Future<Map<String, dynamic>> saveAiImageToEvent(
     int eventId, {

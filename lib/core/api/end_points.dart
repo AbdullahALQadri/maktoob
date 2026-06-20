@@ -55,6 +55,7 @@ class Endpoints {
   static String wizardAiFormFields(int eventTypeId) => '/event-wizard/ai-form-fields/$eventTypeId';
   static String wizardGeneratePrompt(int eventId) => '/event-wizard/$eventId/generate-prompt';
   static String wizardConfirmGenerate(int eventId) => '/event-wizard/$eventId/confirm-generate';
+  static String wizardUploadDesign(int eventId) => '/event-wizard/$eventId/upload-design';
   static String wizardSaveAiImage(int eventId) => '/event-wizard/$eventId/details';
 
   // Page 4 - Guest Management

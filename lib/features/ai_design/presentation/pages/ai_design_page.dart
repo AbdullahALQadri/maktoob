@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../config/routes/app_routes.dart';
 import '../../../../core/core.dart';
@@ -8,6 +11,7 @@ import '../cubit/ai_design_state.dart';
 import '../widgets/ai_form_fields_widget.dart';
 import '../widgets/ai_image_grid.dart';
 import '../widgets/generation_overlay.dart';
+import 'image_result_page.dart';
 import 'prompt_review_page.dart';
 
 /// Page 1 — Select design style + fill form + generate prompt.
@@ -41,7 +45,7 @@ class _AiDesignPageState extends State<AiDesignPage>
   @override
   void initState() {
     super.initState();
-    _tabs = TabController(length: 2, vsync: this);
+    _tabs = TabController(length: 3, vsync: this);
     _tabs.addListener(() {
       if (!_tabs.indexIsChanging) {
         context.read<AiDesignCubit>().switchTab(_tabs.index);
@@ -78,6 +82,25 @@ class _AiDesignPageState extends State<AiDesignPage>
               ),
             ),
           );
+        } else if (state is AiImageCompleted && state.provider == 'upload') {
+          // Custom-upload path completes straight to the result page. (Guarded
+          // by provider=='upload' so the normal generate flow — handled by
+          // PromptReviewPage — doesn't double-navigate here.)
+          Navigator.of(ctx).push(
+            MaterialPageRoute(
+              builder: (_) => BlocProvider.value(
+                value: ctx.read<AiDesignCubit>(),
+                child: ImageResultPage(
+                  imageId: state.imageId,
+                  imageUrl: state.imageUrl,
+                  provider: state.provider,
+                  model: state.model,
+                  generationTimeMs: state.generationTimeMs,
+                  styleTitle: state.styleTitle,
+                ),
+              ),
+            ),
+          );
         } else if (state is AiImageSaved) {
           Navigator.of(ctx).popUntil(
             (route) => route.settings.name == Routes.aiDesign || route.isFirst,
@@ -110,10 +133,15 @@ class _AiDesignPageState extends State<AiDesignPage>
                 if (isGenerating) const GenerationOverlay(isPromptPhase: true),
               ],
             ),
-            bottomNavigationBar: _BottomGenerateBar(
-              state: state,
-              onGenerate: () => ctx.read<AiDesignCubit>().generatePrompt(),
-            ),
+            // The Generate bar is for AI tabs only — hide it on the Upload tab.
+            bottomNavigationBar:
+                (state is AiDesignReady && state.activeTab == 2)
+                    ? null
+                    : _BottomGenerateBar(
+                        state: state,
+                        onGenerate: () =>
+                            ctx.read<AiDesignCubit>().generatePrompt(),
+                      ),
           ),
         );
       },
@@ -146,6 +174,7 @@ class _AiDesignPageState extends State<AiDesignPage>
             tabs: [
               loc?.translate('ai_tab_gallery') ?? 'المعرض',
               loc?.translate('ai_tab_freeform') ?? 'وصف حر',
+              loc?.translate('ai_tab_upload') ?? 'رفع صورة',
             ],
           ),
         ),
@@ -155,6 +184,7 @@ class _AiDesignPageState extends State<AiDesignPage>
             children: [
               _buildGalleryTab(ctx, state, loc),
               _buildFreeformTab(ctx, state, loc),
+              _buildUploadTab(ctx, state, loc),
             ],
           ),
         ),
@@ -340,6 +370,97 @@ class _AiDesignPageState extends State<AiDesignPage>
         ),
       ],
     ]);
+  }
+
+  /// Tab 3 — upload your own image (a separate option from the AI designs).
+  Widget _buildUploadTab(
+      BuildContext ctx, AiDesignReady s, AppLocalizations? loc) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(
+          loc?.translate('ai_upload_own') ?? 'رفع صورتك الخاصة',
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          loc?.translate('ai_upload_desc') ??
+              'استخدم صورتك الخاصة كتصميم للدعوة بدلاً من توليدها بالذكاء الاصطناعي.',
+          style: TextStyle(fontSize: 13, color: AppColors.gray500),
+        ),
+        const SizedBox(height: 20),
+        GestureDetector(
+          onTap: () => _pickAndUploadImage(ctx),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 44, horizontal: 20),
+            decoration: BoxDecoration(
+              color: AppColors.gray100,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: AppColors.primaryColor.withValues(alpha: 0.35),
+                width: 1.5,
+              ),
+            ),
+            child: Column(children: [
+              Icon(Icons.add_photo_alternate_outlined,
+                  size: 48, color: AppColors.primaryColor),
+              const SizedBox(height: 12),
+              Text(
+                loc?.translate('ai_upload_tap') ?? 'اضغط لاختيار صورة',
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'JPG · PNG · WEBP',
+                style: TextStyle(fontSize: 12, color: AppColors.gray500),
+              ),
+            ]),
+          ),
+        ),
+        if (s.generationError != null) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.red.shade50,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.red.shade200),
+            ),
+            child: Row(children: [
+              const Icon(Icons.error_outline, color: Colors.red, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  _localizeError(s.generationError!, loc),
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
+            ]),
+          ),
+        ],
+      ]),
+    );
+  }
+
+  /// Pick an image from the gallery and upload it as a custom (non-AI) design.
+  Future<void> _pickAndUploadImage(BuildContext ctx) async {
+    final loc = AppLocalizations.of(ctx);
+    try {
+      final picked = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 90,
+        maxWidth: 2200,
+      );
+      if (picked == null || !ctx.mounted) return;
+      await ctx.read<AiDesignCubit>().uploadCustomImage(File(picked.path));
+    } catch (_) {
+      if (!ctx.mounted) return;
+      ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
+        content: Text(loc?.translate('ai_upload_failed') ?? 'فشل رفع الصورة'),
+        backgroundColor: Colors.red,
+      ));
+    }
   }
 
   String _localizeError(String error, AppLocalizations? loc) {

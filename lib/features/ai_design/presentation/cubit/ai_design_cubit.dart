@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer' as dev;
+import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/services/fcm_service.dart';
 import '../../data/models/ai_image_model.dart';
@@ -241,6 +242,37 @@ class AiDesignCubit extends Cubit<AiDesignState> {
       _startPolling(confirmedImageId, waitForPrompt: false);
     } catch (e) {
       emit(AiDesignError(e.toString()));
+    }
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  // Upload a custom (non-AI) image as the design
+  // ──────────────────────────────────────────────────────────────
+
+  /// Uploads the user's own image and jumps straight to the result screen.
+  /// The backend already links it as the event's final design.
+  Future<void> uploadCustomImage(File file) async {
+    final s = _ready;
+    _cancelPolling();
+    if (s != null) emit(s.copyWith(isGenerating: true, clearError: true));
+    try {
+      final image = await _repo.uploadCustomDesign(eventId, file);
+      if (isClosed) return;
+      emit(AiImageCompleted(
+        imageId:  image.id,
+        imageUrl: image.imageUrl,
+        provider: 'upload',
+        model:    'custom',
+        styleTitle: _trackedStyleTitle,
+      ));
+    } catch (e) {
+      if (isClosed) return;
+      final cur = _ready ?? s;
+      if (cur != null) {
+        emit(cur.copyWith(isGenerating: false, generationError: e.toString()));
+      } else {
+        emit(AiDesignError(e.toString()));
+      }
     }
   }
 

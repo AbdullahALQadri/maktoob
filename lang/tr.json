@@ -1,4 +1,9 @@
 {
+  "ai_upload_own": "Kendi resmini yükle",
+  "ai_upload_failed": "Resim yükleme başarısız. Lütfen tekrar deneyin.",
+  "ai_tab_upload": "Yükle",
+  "ai_upload_desc": "Yapay zeka ile oluşturmak yerine kendi resmini davetiye tasarımı olarak kullan.",
+  "ai_upload_tap": "Resim seçmek için dokun",
   "currency_ils": "₪",
   "app_name": "Maktoob",
 

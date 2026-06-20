@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import '../../../../core/api/event_wizard_api_service.dart';
 import '../models/ai_form_field_model.dart';
 import '../models/ai_image_model.dart';
@@ -88,5 +90,18 @@ class AiDesignRepository {
 
   Future<void> saveImageToEvent(int eventId, int imageId) async {
     await _api.saveAiImageToEvent(eventId, imageId: imageId);
+  }
+
+  /// Upload a custom (non-AI) image; the backend stores it, flags it as an
+  /// uploaded/custom design, and sets it as the event's final image.
+  Future<AiImageModel> uploadCustomDesign(int eventId, File file) async {
+    final res  = await _api.uploadCustomDesign(eventId, file);
+    final data = res['data'] as Map<String, dynamic>? ?? {};
+    return AiImageModel(
+      id:       (data['image_id'] as num?)?.toInt() ?? 0,
+      title:    '',
+      imageUrl: (data['image_url'] as String?) ?? '',
+      prompt:   '',
+    );
   }
 }
