@@ -7,6 +7,7 @@ import '../../../../injection_container.dart' as di;
 import '../../../events/domain/entities/event_entity.dart';
 import '../../../events/presentation/cubit/events_list/events_list_cubit.dart';
 import '../../../events/presentation/cubit/events_list/events_list_state.dart';
+import '../../../scanner_auth/presentation/screens/scanner_staff_screen.dart';
 import '../widgets/widgets.dart';
 
 /// Screen that displays ongoing events for scanner selection
@@ -119,7 +120,13 @@ class _AnimatedHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                _IconBadge(t: t),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _IconBadge(t: t),
+                    const _StaffLoginButton(),
+                  ],
+                ),
                 SizedBox(height: context.dynamicHeight(0.015)),
                 _TitleText(t: t),
                 SizedBox(height: context.dynamicHeight(0.007)),
@@ -176,6 +183,33 @@ class _IconBadge extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _StaffLoginButton extends StatelessWidget {
+  const _StaffLoginButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+    return TextButton.icon(
+      onPressed: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const ScannerStaffScreen()),
+      ),
+      icon: const Icon(Icons.badge_outlined, color: Colors.white, size: 18),
+      label: Text(
+        isArabic ? 'دخول موظف' : 'Staff',
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      style: TextButton.styleFrom(
+        backgroundColor: Colors.white.withValues(alpha: 0.15),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../domain/entities/event_entity.dart';
 import '../../../domain/entities/guest_entity.dart';
 import '../../../domain/repositories/events_repository.dart';
 import '../../../domain/usecases/get_event_details_usecase.dart';
@@ -122,6 +123,42 @@ class EventDetailsCubit extends Cubit<EventDetailsState> {
     if (state.event != null) {
       await loadEventDetails(state.event!.id);
     }
+  }
+
+  /// Send invitations for the active event (one-time). Returns true on success.
+  /// The channel defaults to the package's first allowed channel unless an
+  /// explicit [deliveryMethod] is chosen.
+  Future<bool> sendInvitations({String? deliveryMethod}) async {
+    final event = state.event;
+    if (event == null) return false;
+    if (event.status != EventStatus.active || event.invitationsSentAt != null) {
+      return false;
+    }
+
+    final method = deliveryMethod ??
+        (event.allowedChannels.isNotEmpty
+            ? event.allowedChannels.first
+            : 'whatsapp');
+
+    emit(state.copyWith(isSending: true, clearErrorMessage: true));
+
+    final result = await eventsRepository.sendInvitations(
+      event.id,
+      deliveryMethod: method,
+    );
+
+    return await result.fold(
+      (failure) async {
+        emit(state.copyWith(isSending: false, errorMessage: failure.message));
+        return false;
+      },
+      (_) async {
+        emit(state.copyWith(isSending: false));
+        // Refresh so the event carries invitations_sent_at and the button hides.
+        await loadEventDetails(event.id);
+        return true;
+      },
+    );
   }
 
   /// Get status label

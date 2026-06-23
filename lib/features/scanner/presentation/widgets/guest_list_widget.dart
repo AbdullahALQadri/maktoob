@@ -125,23 +125,38 @@ class GuestListWidget extends StatelessWidget {
             ),
           ),
 
-          // Guest Items
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: guests.length,
-            separatorBuilder: (context, index) => Divider(
-              height: 1,
-              color: context.borderColor,
+          // Guest Items (or empty state)
+          if (guests.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 28),
+              child: Column(
+                children: [
+                  Icon(Icons.people_outline, size: 40, color: context.iconSecondary),
+                  const SizedBox(height: 8),
+                  Text(
+                    searchQuery.isNotEmpty ? 'No matching guests' : 'No guests yet',
+                    style: TextStyle(color: context.textSecondary, fontSize: 14),
+                  ),
+                ],
+              ),
+            )
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: guests.length,
+              separatorBuilder: (context, index) => Divider(
+                height: 1,
+                color: context.borderColor,
+              ),
+              itemBuilder: (context, index) {
+                final guest = guests[index];
+                return _GuestItemWidget(
+                  guest: guest,
+                  onCheckIn: () => onCheckIn(guest),
+                );
+              },
             ),
-            itemBuilder: (context, index) {
-              final guest = guests[index];
-              return _GuestItemWidget(
-                guest: guest,
-                onCheckIn: () => onCheckIn(guest),
-              );
-            },
-          ),
         ],
       ),
     );
@@ -187,7 +202,7 @@ class _GuestItemWidget extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                guest.name.split(' ').map((n) => n[0]).take(2).join(),
+                _initialsFor(guest.name),
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -335,4 +350,13 @@ class _GuestItemWidget extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Builds up-to-two-letter initials from a (possibly empty or irregularly
+/// spaced) name without crashing on empty tokens. Falls back to '?'.
+String _initialsFor(String name) {
+  final parts =
+      name.trim().split(RegExp(r'\s+')).where((s) => s.isNotEmpty).toList();
+  if (parts.isEmpty) return '?';
+  return parts.take(2).map((n) => n[0]).join().toUpperCase();
 }

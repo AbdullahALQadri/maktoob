@@ -136,24 +136,26 @@ class GuestInfoModel extends Equatable {
   final GuestStatus status;
   final GuestSource source;
 
+  /// Dialing country code (digits only, e.g. '970'). Defaults to Palestine.
+  final String countryCode;
+
   const GuestInfoModel({
     required this.name,
     this.phone = '',
     this.email = '',
     this.status = GuestStatus.pending,
     this.source = GuestSource.manual,
+    this.countryCode = '970',
   });
 
   bool get isValid => name.isNotEmpty;
 
-  /// Validate phone number format (+972 or +970)
+  /// Validate phone number format. Accepts any international number (the
+  /// contact picker now supports all country codes, not just +970/+972).
   bool get hasValidPhone {
     if (phone.isEmpty) return false;
     final normalized = phone.replaceAll(RegExp(r'[^\d+]'), '');
-    return normalized.startsWith('+972') ||
-        normalized.startsWith('+970') ||
-        normalized.startsWith('972') ||
-        normalized.startsWith('970');
+    return RegExp(r'^\+?\d{8,15}$').hasMatch(normalized);
   }
 
   /// Normalize phone number to +972/+970 format
@@ -171,6 +173,7 @@ class GuestInfoModel extends Equatable {
       name: json['name'] as String? ?? '',
       phone: json['phone'] as String? ?? '',
       email: json['email'] as String? ?? '',
+      countryCode: json['country_code'] as String? ?? '970',
       status: GuestStatus.values.firstWhere(
         (e) => e.name == json['status'],
         orElse: () => GuestStatus.pending,
@@ -187,6 +190,7 @@ class GuestInfoModel extends Equatable {
     return {
       'name': name,
       'phone': normalizedPhone,
+      'country_code': countryCode,
       if (email.isNotEmpty) 'email': email,
       'status': status.name,
       'source': source.name,
@@ -199,6 +203,7 @@ class GuestInfoModel extends Equatable {
     String? email,
     GuestStatus? status,
     GuestSource? source,
+    String? countryCode,
   }) {
     return GuestInfoModel(
       name: name ?? this.name,
@@ -206,11 +211,12 @@ class GuestInfoModel extends Equatable {
       email: email ?? this.email,
       status: status ?? this.status,
       source: source ?? this.source,
+      countryCode: countryCode ?? this.countryCode,
     );
   }
 
   @override
-  List<Object?> get props => [name, phone, email, status, source];
+  List<Object?> get props => [name, phone, email, status, source, countryCode];
 }
 
 enum GuestStatus {

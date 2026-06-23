@@ -30,6 +30,8 @@ class EventModel extends EventEntity {
     super.maxCompanions,
     super.allowCompanions,
     super.imageUrl,
+    super.invitationsSentAt,
+    super.allowedChannels,
     required this.gradient,
     required this.icon,
   });
@@ -75,6 +77,13 @@ class EventModel extends EventEntity {
       allowCompanions: json['allow_companions'] as bool? ?? true,
       imageUrl: json['image_url'] as String? ??
           (json['final_ai_image'] is Map ? json['final_ai_image']['image_url'] as String? : null),
+      invitationsSentAt: json['invitations_sent_at'] != null
+          ? DateTime.tryParse(json['invitations_sent_at'] as String)
+          : null,
+      allowedChannels: (json['allowed_channels'] as List?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const ['whatsapp'],
       gradient: _parseGradient(json['gradient']),
       icon: _parseIcon(json['icon']),
     );
@@ -145,6 +154,8 @@ class EventModel extends EventEntity {
       'max_companions': maxCompanions,
       'allow_companions': allowCompanions,
       'image_url': imageUrl,
+      'invitations_sent_at': invitationsSentAt?.toIso8601String(),
+      'allowed_channels': allowedChannels,
     };
   }
 
@@ -176,6 +187,8 @@ class EventModel extends EventEntity {
       maxCompanions: entity.maxCompanions,
       allowCompanions: entity.allowCompanions,
       imageUrl: entity.imageUrl,
+      invitationsSentAt: entity.invitationsSentAt,
+      allowedChannels: entity.allowedChannels,
       gradient: gradient,
       icon: icon,
     );
@@ -206,6 +219,8 @@ class EventModel extends EventEntity {
       maxCompanions: maxCompanions,
       allowCompanions: allowCompanions,
       imageUrl: imageUrl,
+      invitationsSentAt: invitationsSentAt,
+      allowedChannels: allowedChannels,
     );
   }
 
@@ -286,6 +301,8 @@ class EventModel extends EventEntity {
     int? maxCompanions,
     bool? allowCompanions,
     String? imageUrl,
+    DateTime? invitationsSentAt,
+    List<String>? allowedChannels,
     List<Color>? gradient,
     IconData? icon,
   }) {
@@ -313,6 +330,8 @@ class EventModel extends EventEntity {
       maxCompanions: maxCompanions ?? this.maxCompanions,
       allowCompanions: allowCompanions ?? this.allowCompanions,
       imageUrl: imageUrl ?? this.imageUrl,
+      invitationsSentAt: invitationsSentAt ?? this.invitationsSentAt,
+      allowedChannels: allowedChannels ?? this.allowedChannels,
       gradient: gradient ?? this.gradient,
       icon: icon ?? this.icon,
     );

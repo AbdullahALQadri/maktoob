@@ -40,6 +40,13 @@ abstract class EventsRepository {
   /// Get edit requests for an event
   Future<Either<Failure, List<EditRequestEntity>>> getEditRequests(
       String eventId);
+
+  /// Send invitations for an event (one-time). Returns the server's
+  /// invitations_sent_at timestamp when the send succeeds.
+  Future<Either<Failure, DateTime?>> sendInvitations(
+    String eventId, {
+    required String deliveryMethod,
+  });
 }
 
 class CreateEventParams {

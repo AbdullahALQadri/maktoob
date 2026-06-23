@@ -224,12 +224,177 @@ class _OverviewTab extends StatelessWidget {
       ),
       child: Column(
         children: [
+          _SendInvitationsSection(event: event),
           EventInfoCard(event: event),
           SizedBox(height: context.dynamicHeight(0.02)),
           EventAnalyticsCard(event: event),
         ],
       ),
     );
+  }
+}
+
+/// "Send invitations" action shown on the Overview tab.
+///
+/// - Active event, not yet sent → a send button (channel chooser when the
+///   package allows more than one channel).
+/// - Already sent → a "sent" confirmation chip (one-time rule).
+/// - Otherwise (draft/completed) → hidden.
+class _SendInvitationsSection extends StatelessWidget {
+  final EventEntity event;
+
+  const _SendInvitationsSection({required this.event});
+
+  @override
+  Widget build(BuildContext context) {
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+
+    if (event.invitationsSent) {
+      return Padding(
+        padding: EdgeInsets.only(bottom: context.dynamicHeight(0.02)),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.green.shade50,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.green.shade200),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.check_circle, color: Colors.green.shade600, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                isArabic ? 'تم إرسال الدعوات' : 'Invitations sent',
+                style: TextStyle(
+                  color: Colors.green.shade700,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (!event.canSendInvitations) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: context.dynamicHeight(0.02)),
+      child: BlocBuilder<EventDetailsCubit, EventDetailsState>(
+        buildWhen: (p, c) => p.isSending != c.isSending,
+        builder: (context, state) {
+          return SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: state.isSending ? null : () => _onSend(context, isArabic),
+              icon: state.isSending
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Icon(Icons.send_rounded, size: 18),
+              label: Text(isArabic ? 'إرسال الدعوات' : 'Send Invitations'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _onSend(BuildContext context, bool isArabic) async {
+    final cubit = context.read<EventDetailsCubit>();
+    final channels = event.allowedChannels;
+    String? method;
+    if (channels.length > 1) {
+      method = await _pickChannel(context, channels, isArabic);
+      if (method == null) return; // cancelled
+    } else if (channels.isNotEmpty) {
+      method = channels.first;
+    }
+
+    final ok = await cubit.sendInvitations(deliveryMethod: method);
+    if (ok && context.mounted) {
+      AppSnackBar.showSuccess(
+        context,
+        message: isArabic ? 'تم إرسال الدعوات' : 'Invitations sent',
+      );
+    }
+  }
+
+  Future<String?> _pickChannel(
+    BuildContext context,
+    List<String> channels,
+    bool isArabic,
+  ) {
+    return showModalBottomSheet<String>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                isArabic ? 'اختر قناة الإرسال' : 'Choose delivery channel',
+                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+              ),
+            ),
+            ...channels.map(
+              (c) => ListTile(
+                leading: Icon(_channelIcon(c)),
+                title: Text(_channelLabel(c)),
+                onTap: () => Navigator.of(sheetContext).pop(c),
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  IconData _channelIcon(String c) {
+    switch (c) {
+      case 'whatsapp':
+        return Icons.chat_rounded;
+      case 'email':
+        return Icons.email_outlined;
+      case 'sms':
+        return Icons.sms_outlined;
+      default:
+        return Icons.notifications_outlined;
+    }
+  }
+
+  String _channelLabel(String c) {
+    switch (c) {
+      case 'whatsapp':
+        return 'WhatsApp';
+      case 'email':
+        return 'Email';
+      case 'sms':
+        return 'SMS';
+      case 'app':
+        return 'App';
+      default:
+        return c;
+    }
   }
 }
 

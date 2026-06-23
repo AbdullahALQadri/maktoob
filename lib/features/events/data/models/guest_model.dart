@@ -26,8 +26,9 @@ class GuestModel extends GuestEntity {
       name: json['display_name'] as String? ?? guestData['name'] as String? ?? '',
       email: guestData['email'] as String? ?? '',
       phone: guestData['phone'] as String? ?? '',
-      status: _parseStatus(json['status'] as String? ?? 'pending'),
-      companions: json['companions'] as int? ?? 0,
+      // Prefer the RSVP status (response_status); fall back to legacy `status`.
+      status: _parseStatus((json['response_status'] ?? json['status'] ?? 'pending') as String),
+      companions: json['companions_count'] as int? ?? json['companions'] as int? ?? 0,
       isCheckedIn: json['is_checked_in'] as bool? ?? (json['open_count'] as int? ?? 0) > 0,
       avatarColor: Color(json['avatar_color'] as int? ?? AppColors.primaryColor.toARGB32()),
     );
@@ -76,8 +77,10 @@ class GuestModel extends GuestEntity {
       case 'attending':
         return GuestStatus.attending;
       case 'declined':
+      case 'not_attending':
         return GuestStatus.declined;
       case 'pending':
+      case 'no_response':
       default:
         return GuestStatus.pending;
     }

@@ -14,10 +14,16 @@ class QRScannerScreen extends StatefulWidget {
   final EventEntity event;
   final VoidCallback? onBack;
 
+  /// When set, the screen runs in dedicated-scanner mode against this venue.
+  /// When null (default), it runs in owner mode — the organizer scans their
+  /// own event using the event-scoped check-in endpoints.
+  final int? scannerVenueId;
+
   const QRScannerScreen({
     super.key,
     required this.event,
     this.onBack,
+    this.scannerVenueId,
   });
 
   @override
@@ -34,9 +40,14 @@ class _QRScannerScreenState extends State<QRScannerScreen>
   void initState() {
     super.initState();
     _setupAnimations();
-    context.read<ScannerCubit>()
-      ..setVenue(widget.event.venueId)
-      ..loadGuestList();
+    final cubit = context.read<ScannerCubit>();
+    if (widget.scannerVenueId != null) {
+      cubit.setVenue(widget.scannerVenueId);
+    } else {
+      // Owner mode: scan our own event by id (no venue/scanner role needed).
+      cubit.setEvent(int.tryParse(widget.event.id));
+    }
+    cubit.loadGuestList();
   }
 
   void _setupAnimations() {

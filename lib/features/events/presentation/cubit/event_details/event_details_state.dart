@@ -15,6 +15,7 @@ class EventDetailsState extends Equatable {
   final String guestSearchQuery;
   final String? errorMessage;
   final bool isDeleting;
+  final bool isSending;
 
   const EventDetailsState({
     this.status = EventDetailsStatus.initial,
@@ -25,6 +26,7 @@ class EventDetailsState extends Equatable {
     this.guestSearchQuery = '',
     this.errorMessage,
     this.isDeleting = false,
+    this.isSending = false,
   });
 
   bool get isLoading => status == EventDetailsStatus.loading;
@@ -62,6 +64,7 @@ class EventDetailsState extends Equatable {
     String? errorMessage,
     bool clearErrorMessage = false,
     bool? isDeleting,
+    bool? isSending,
   }) {
     return EventDetailsState(
       status: status ?? this.status,
@@ -72,6 +75,7 @@ class EventDetailsState extends Equatable {
       guestSearchQuery: guestSearchQuery ?? this.guestSearchQuery,
       errorMessage: clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
       isDeleting: isDeleting ?? this.isDeleting,
+      isSending: isSending ?? this.isSending,
     );
   }
 
@@ -85,5 +89,6 @@ class EventDetailsState extends Equatable {
         guestSearchQuery,
         errorMessage,
         isDeleting,
+        isSending,
       ];
 }

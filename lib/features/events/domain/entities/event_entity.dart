@@ -28,6 +28,12 @@ class EventEntity extends Equatable {
   final bool allowCompanions;
   final String? imageUrl;
 
+  /// When invitations were sent for this event (one-time). Null = not sent yet.
+  final DateTime? invitationsSentAt;
+
+  /// Delivery channels permitted by the event's package (e.g. whatsapp/email/sms).
+  final List<String> allowedChannels;
+
   const EventEntity({
     required this.id,
     required this.name,
@@ -53,6 +59,8 @@ class EventEntity extends Equatable {
     this.maxCompanions = 2,
     this.allowCompanions = true,
     this.imageUrl,
+    this.invitationsSentAt,
+    this.allowedChannels = const ['whatsapp'],
   });
 
   double get responseRate =>
@@ -62,6 +70,13 @@ class EventEntity extends Equatable {
 
   bool get isInactive =>
       status == EventStatus.draft || status == EventStatus.completed;
+
+  /// Whether invitations have already been sent (one-time send rule).
+  bool get invitationsSent => invitationsSentAt != null;
+
+  /// Whether the in-app "Send invitations" action should be available.
+  bool get canSendInvitations =>
+      status == EventStatus.active && invitationsSentAt == null;
 
   @override
   List<Object?> get props => [
@@ -89,5 +104,7 @@ class EventEntity extends Equatable {
         maxCompanions,
         allowCompanions,
         imageUrl,
+        invitationsSentAt,
+        allowedChannels,
       ];
 }

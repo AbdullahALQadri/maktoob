@@ -21,6 +21,10 @@ abstract class EventsRemoteDataSource {
   Future<EditRequestModel> submitEditRequest(
       String eventId, UpdateEventParams params);
   Future<List<EditRequestModel>> getEditRequests(String eventId);
+
+  /// Sends invitations for an event (server sends to all pending invitations
+  /// when no ids are given). Returns the server's invitations_sent_at, if set.
+  Future<DateTime?> sendInvitations(String eventId, {required String deliveryMethod});
 }
 
 class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
@@ -221,6 +225,16 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
     );
     final data = response['data'] as List? ?? [];
     return data.map((e) => EditRequestModel.fromJson(e)).toList();
+  }
+
+  @override
+  Future<DateTime?> sendInvitations(String eventId, {required String deliveryMethod}) async {
+    final response = await apiConsumer.post(
+      Endpoints.eventSendInvitations(int.parse(eventId)),
+      body: {'delivery_method': deliveryMethod},
+    );
+    final sentAt = response['invitations_sent_at'];
+    return sentAt is String ? DateTime.tryParse(sentAt) : null;
   }
 
   String _formatTimeForApi(DateTime date) {

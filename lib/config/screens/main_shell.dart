@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../core/services/fcm_service.dart';
 import '../../core/utils/app_colors.dart';
 import '../../core/widgets/adaptive_bottom_navigation_bar.dart';
 import '../locale/app_localizations.dart';
@@ -36,6 +39,53 @@ class _MainShellState extends State<MainShell> {
   // Scanner state
   EventEntity? _selectedScannerEvent;
   bool _showScannerScreen = false;
+
+  // Owner notifications (e.g. a guest replied via WhatsApp) arrive on the
+  // shared FCM message stream; we surface them as an in-app snackbar.
+  StreamSubscription<Map<String, dynamic>>? _fcmSub;
+
+  @override
+  void initState() {
+    super.initState();
+    if (di.sl.isRegistered<FcmService>()) {
+      _fcmSub = di.sl<FcmService>().messageStream.listen(_onFcmMessage);
+    }
+  }
+
+  @override
+  void dispose() {
+    _fcmSub?.cancel();
+    super.dispose();
+  }
+
+  void _onFcmMessage(Map<String, dynamic> data) {
+    if (!mounted) return;
+    if (data['type']?.toString() != 'guest.responded') return;
+
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+    final name = (data['guest_name'] ?? '').toString();
+    final statusText = _rsvpText(data['response_status']?.toString(), isArabic);
+    final msg = isArabic
+        ? 'رد جديد: $name${statusText.isNotEmpty ? ' — $statusText' : ''}'
+        : 'New RSVP: $name${statusText.isNotEmpty ? ' — $statusText' : ''}';
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating),
+    );
+  }
+
+  String _rsvpText(String? status, bool isArabic) {
+    switch (status) {
+      case 'attending':
+        return isArabic ? 'سيحضر' : 'Attending';
+      case 'not_attending':
+        return isArabic ? 'لن يحضر' : 'Not attending';
+      case 'maybe':
+        return isArabic ? 'ربما' : 'Maybe';
+      default:
+        return '';
+    }
+  }
 
   void _onNavigationTap(int index) {
     setState(() {

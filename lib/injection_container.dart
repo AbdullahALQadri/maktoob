@@ -58,6 +58,7 @@ import 'features/scanner/domain/usecases/check_in_guest_usecase.dart';
 import 'features/scanner/domain/usecases/get_guest_list_usecase.dart';
 import 'features/scanner/domain/usecases/scan_qr_code_usecase.dart';
 import 'features/scanner/presentation/cubit/scanner_cubit.dart';
+import 'features/scanner_auth/presentation/cubit/scanner_auth_cubit.dart';
 
 // Payment Feature
 import 'features/payment/data/datasources/payment_remote_data_source.dart';
@@ -280,6 +281,11 @@ Future<void> init() async {
       checkInGuestUseCase: sl(),
       getGuestListUseCase: sl(),
     ),
+  );
+
+  // Dedicated scanner-staff auth (separate token + venue assignments)
+  sl.registerFactory(
+    () => ScannerAuthCubit(api: sl(), storage: sl()),
   );
 
   //! ========== PAYMENT FEATURE ==========

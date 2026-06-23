@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
@@ -36,7 +34,11 @@ class AuthInterceptor extends Interceptor {
       return handler.next(options);
     }
 
-    final token = await _secureStorage.getToken();
+    // Scanner-staff endpoints use their own token; everything else uses the
+    // client token.
+    final token = _isScannerEndpoint(options.path)
+        ? await _secureStorage.getScannerToken()
+        : await _secureStorage.getToken();
     if (token != null && token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
     }
@@ -55,6 +57,13 @@ class AuthInterceptor extends Interceptor {
       return handler.next(err);
     }
 
+    // A scanner-staff 401 must NOT log out the client session — just drop the
+    // scanner token and let the scanner UI prompt a re-login.
+    if (_isScannerEndpoint(err.requestOptions.path)) {
+      await _secureStorage.clearScannerToken();
+      return handler.next(err);
+    }
+
     if (kDebugMode) {
       debugPrint('AuthInterceptor: 401 on ${err.requestOptions.path}, clearing credentials');
     }
@@ -70,6 +79,13 @@ class AuthInterceptor extends Interceptor {
         path == Endpoints.clientRegister ||
         path == Endpoints.clientForgotPassword ||
         path == Endpoints.clientVerifyOtp ||
-        path == Endpoints.clientResetPassword;
+        path == Endpoints.clientResetPassword ||
+        path == Endpoints.scannerLogin;
+  }
+
+  /// Scanner-staff endpoints (use the dedicated scanner token), excluding the
+  /// public scanner login.
+  bool _isScannerEndpoint(String path) {
+    return path.startsWith('/scanner/') && path != Endpoints.scannerLogin;
   }
 }

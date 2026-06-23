@@ -50,6 +50,21 @@ class CheckInGuestModel extends CheckInGuestEntity {
     );
   }
 
+  /// Maps an item from the backend `data.guests` roster list returned by
+  /// GET /events/{event}/guests/check-in-list and GET /scanner/roster/{venue}.
+  /// Unlike attendance, this is the FULL invitee list with per-guest check-in
+  /// status, so guests who have NOT arrived yet are included.
+  factory CheckInGuestModel.fromRosterJson(Map<String, dynamic> json) {
+    return CheckInGuestModel(
+      id: '${json['invitation_id'] ?? json['id'] ?? ''}',
+      name: (json['guest_name'] ?? '') as String,
+      status: (json['status'] ?? json['response_status'] ?? 'pending') as String,
+      companions: _toInt(json['companions']),
+      checkedIn: (json['is_checked_in'] as bool?) ?? false,
+      qrCode: '',
+    );
+  }
+
   static int _toInt(dynamic v) {
     if (v is int) return v;
     if (v is String) return int.tryParse(v) ?? 0;

@@ -11,9 +11,17 @@ class ScannerRepositoryImpl implements ScannerRepository {
   ScannerRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure, CheckInGuestEntity>> scanQrCode(String qrCode, int venueId) async {
+  Future<Either<Failure, CheckInGuestEntity>> scanQrCode(
+    String qrCode, {
+    int? venueId,
+    int? eventId,
+  }) async {
     try {
-      final result = await remoteDataSource.scanQrCode(qrCode, venueId);
+      final result = await remoteDataSource.scanQrCode(
+        qrCode,
+        venueId: venueId,
+        eventId: eventId,
+      );
       return Right(result);
     } catch (e) {
       return Left(ScannerFailure(message: e.toString()));
@@ -22,15 +30,17 @@ class ScannerRepositoryImpl implements ScannerRepository {
 
   @override
   Future<Either<Failure, CheckInGuestEntity>> checkInGuest(
-    String invitationId,
-    int venueId, {
+    String invitationId, {
+    int? venueId,
+    int? eventId,
     int? actualCompanions,
     String? notes,
   }) async {
     try {
       final result = await remoteDataSource.checkInGuest(
         invitationId,
-        venueId,
+        venueId: venueId,
+        eventId: eventId,
         actualCompanions: actualCompanions,
         notes: notes,
       );
@@ -41,12 +51,17 @@ class ScannerRepositoryImpl implements ScannerRepository {
   }
 
   @override
-  Future<Either<Failure, List<CheckInGuestEntity>>> getGuestList(
-    int venueId, {
+  Future<Either<Failure, List<CheckInGuestEntity>>> getGuestList({
+    int? venueId,
+    int? eventId,
     String? searchQuery,
   }) async {
     try {
-      final result = await remoteDataSource.getGuestList(venueId, searchQuery: searchQuery);
+      final result = await remoteDataSource.getGuestList(
+        venueId: venueId,
+        eventId: eventId,
+        searchQuery: searchQuery,
+      );
       return Right(result);
     } catch (e) {
       return Left(ScannerFailure(message: e.toString()));

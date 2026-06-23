@@ -8,7 +8,6 @@ import '../../domain/entities/guest_entity.dart';
 import '../../domain/repositories/events_repository.dart';
 import '../datasources/events_local_data_source.dart';
 import '../datasources/events_remote_data_source.dart';
-import '../models/event_model.dart';
 
 class EventsRepositoryImpl implements EventsRepository {
   final EventsRemoteDataSource remoteDataSource;
@@ -209,6 +208,28 @@ class EventsRepositoryImpl implements EventsRepository {
       try {
         final requests = await remoteDataSource.getEditRequests(eventId);
         return Right(requests.map((r) => r.toEntity()).toList());
+      } on ServerException catch (e) {
+        return Left(ServerFailure(message: e.message));
+      } catch (e) {
+        return Left(ServerFailure(message: e.toString()));
+      }
+    } else {
+      return const Left(NetworkFailure(message: 'No internet connection'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, DateTime?>> sendInvitations(
+    String eventId, {
+    required String deliveryMethod,
+  }) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final sentAt = await remoteDataSource.sendInvitations(
+          eventId,
+          deliveryMethod: deliveryMethod,
+        );
+        return Right(sentAt);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
       } catch (e) {

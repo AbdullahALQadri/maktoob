@@ -140,6 +140,10 @@ class Endpoints {
   static String invitationResend(int id) => '/invitations/$id/resend';
   static String invitationCheckIn(int id) => '/invitations/$id/check-in';
 
+  // Owner self-scan (organizer scans their own event, no scanner role needed)
+  static String eventCheckInScan(int eventId) => '/events/$eventId/check-in/scan';
+  static String eventGuestsCheckInList(int eventId) => '/events/$eventId/guests/check-in-list';
+
   // ============================================================
   // CLIENT - VENUES
   // ============================================================
@@ -216,6 +220,8 @@ class Endpoints {
   static String scannerCheckInVerify(int id) => '/scanner/check-in/$id/verify';
   static const String scannerCheckInHistory = '/scanner/check-in/history';
   static String scannerAttendance(int venueId) => '/scanner/attendance/$venueId';
+  // Full invitee roster for a venue (all invitations + check-in status).
+  static String scannerRoster(int venueId) => '/scanner/roster/$venueId';
 
   // ============================================================
   // ADMIN AUTHENTICATION

@@ -4,6 +4,10 @@ import 'package:hive_flutter/hive_flutter.dart';
 /// Keys for secure storage items.
 class SecureStorageKeys {
   static const String token = 'auth_token';
+
+  /// Dedicated token for the scanner-staff session (kept separate from the
+  /// client token so a scanner login does not clobber the organizer session).
+  static const String scannerToken = 'scanner_auth_token';
 }
 
 /// Keys for Hive cache boxes.
@@ -63,6 +67,22 @@ class SecureStorageService {
   /// Clear all secure storage (on logout).
   Future<void> clearSecureData() async {
     await _secureStorage.deleteAll();
+  }
+
+  // ===========================================================================
+  // SCANNER-STAFF TOKEN (separate session from the client token)
+  // ===========================================================================
+
+  Future<void> saveScannerToken(String token) async {
+    await _secureStorage.write(key: SecureStorageKeys.scannerToken, value: token);
+  }
+
+  Future<String?> getScannerToken() async {
+    return await _secureStorage.read(key: SecureStorageKeys.scannerToken);
+  }
+
+  Future<void> clearScannerToken() async {
+    await _secureStorage.delete(key: SecureStorageKeys.scannerToken);
   }
 
   // ===========================================================================

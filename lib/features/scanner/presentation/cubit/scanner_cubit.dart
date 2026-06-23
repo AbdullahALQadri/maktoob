@@ -20,24 +20,38 @@ class ScannerCubit extends Cubit<ScannerState> {
   List<CheckInGuestEntity> _currentGuests = [];
   String _currentSearchQuery = '';
   int? _venueId;
+  int? _eventId;
 
-  /// The scanner scans guests for a specific venue (the selected event's
-  /// venue). Must be set before scanning / loading the list.
+  /// Scanner mode: scan guests for a specific venue (dedicated scanner role).
   void setVenue(int? venueId) {
     _venueId = venueId;
+    _eventId = null;
   }
 
-  /// Load the attendance list for the selected venue.
+  /// Owner mode: the event organizer scans guests of their OWN event directly,
+  /// without a venue/scanner role. Uses the event-scoped check-in endpoints.
+  void setEvent(int? eventId) {
+    _eventId = eventId;
+    _venueId = null;
+  }
+
+  /// True once a venue (scanner mode) or event (owner mode) is set.
+  bool get _hasContext => _venueId != null || _eventId != null;
+
+  /// Load the full invitee roster for the current context.
   Future<void> loadGuestList() async {
-    final venueId = _venueId;
-    if (venueId == null) {
-      // Venue not resolved yet (e.g. event has no venue) — nothing to load.
+    if (!_hasContext) {
+      // Context not resolved yet — nothing to load.
       emit(ScannerInitial(guests: _currentGuests, searchQuery: _currentSearchQuery));
       return;
     }
 
     final result = await getGuestListUseCase(
-      GetGuestListParams(venueId: venueId, searchQuery: _currentSearchQuery),
+      GetGuestListParams(
+        venueId: _venueId,
+        eventId: _eventId,
+        searchQuery: _currentSearchQuery,
+      ),
     );
 
     result.fold(
@@ -58,10 +72,9 @@ class ScannerCubit extends Cubit<ScannerState> {
 
   /// Process a QR code scanned from the camera
   Future<void> processQRCode(String qrCode) async {
-    final venueId = _venueId;
-    if (venueId == null) {
+    if (!_hasContext) {
       emit(ScannerError(
-        message: 'No venue selected for this scanner session',
+        message: 'No event/venue selected for this scanner session',
         guests: _currentGuests,
         searchQuery: _currentSearchQuery,
       ));
@@ -74,7 +87,7 @@ class ScannerCubit extends Cubit<ScannerState> {
     ));
 
     final scanResult = await scanQrCodeUseCase(
-      ScanQrCodeParams(qrData: qrCode, venueId: venueId),
+      ScanQrCodeParams(qrData: qrCode, venueId: _venueId, eventId: _eventId),
     );
 
     scanResult.fold(
@@ -94,10 +107,9 @@ class ScannerCubit extends Cubit<ScannerState> {
 
   /// Check in a guest (by invitation id)
   Future<void> checkInGuest(String invitationId) async {
-    final venueId = _venueId;
-    if (venueId == null) {
+    if (!_hasContext) {
       emit(ScannerError(
-        message: 'No venue selected for this scanner session',
+        message: 'No event/venue selected for this scanner session',
         guests: _currentGuests,
         searchQuery: _currentSearchQuery,
       ));
@@ -105,7 +117,7 @@ class ScannerCubit extends Cubit<ScannerState> {
     }
 
     final result = await checkInGuestUseCase(
-      CheckInGuestParams(invitationId: invitationId, venueId: venueId),
+      CheckInGuestParams(invitationId: invitationId, venueId: _venueId, eventId: _eventId),
     );
 
     result.fold(
