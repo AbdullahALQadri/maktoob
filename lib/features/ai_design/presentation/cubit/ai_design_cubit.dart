@@ -108,6 +108,7 @@ class AiDesignCubit extends Cubit<AiDesignState> {
           model:    s.model,
           generationTimeMs: s.generationTimeMs,
           styleTitle: _trackedStyleTitle,
+          improvementSuggestions: s.improvementSuggestions,
         ));
       } else if (s.isFailed) {
         _handleError(s.error ?? 'Generation failed');
@@ -246,6 +247,37 @@ class AiDesignCubit extends Cubit<AiDesignState> {
   }
 
   // ──────────────────────────────────────────────────────────────
+  // One-tap refine: regenerate from a completed image + a Hermes suggestion
+  // ──────────────────────────────────────────────────────────────
+
+  /// Kicks off a new generation that folds the chosen suggestion (and any
+  /// extra free-text) into the prompt that produced [sourceImageId]. Shows the
+  /// image-generation overlay, then lands on the new result with fresh chips.
+  Future<void> refine(
+    int sourceImageId, {
+    String? suggestion,
+    String? extraPrompt,
+    String? promptForOverlay,
+  }) async {
+    _cancelPolling();
+    emit(AiImageGenerating(
+      imageId: sourceImageId,
+      promptText: promptForOverlay ?? '',
+    ));
+    try {
+      final newImageId = await _repo.refineGenerate(
+        eventId,
+        imageId:    sourceImageId,
+        suggestion: suggestion,
+        extraPrompt: extraPrompt,
+      );
+      _startPolling(newImageId, waitForPrompt: false);
+    } catch (e) {
+      emit(AiDesignError(e.toString()));
+    }
+  }
+
+  // ──────────────────────────────────────────────────────────────
   // Upload a custom (non-AI) image as the design
   // ──────────────────────────────────────────────────────────────
 
@@ -332,6 +364,7 @@ class AiDesignCubit extends Cubit<AiDesignState> {
             model:    status.model,
             generationTimeMs: status.generationTimeMs,
             styleTitle: _trackedStyleTitle,
+            improvementSuggestions: status.improvementSuggestions,
           ));
         } else if (status.isFailed) {
           _cancelPolling();

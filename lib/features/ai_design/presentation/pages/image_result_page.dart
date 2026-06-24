@@ -7,17 +7,21 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
+import '../../data/models/generation_status_model.dart';
 import '../cubit/ai_design_cubit.dart';
 import '../cubit/ai_design_state.dart';
+import '../widgets/generation_overlay.dart';
 
-/// Page 3 — Display the generated image and let user use it or regenerate.
-class ImageResultPage extends StatelessWidget {
+/// Page 3 — Display the generated image, let the user use it, or refine it
+/// in one tap via Hermes suggestion chips (each tap regenerates a new image).
+class ImageResultPage extends StatefulWidget {
   final int imageId;
   final String imageUrl;
   final String? provider;
   final String? model;
   final int? generationTimeMs;
   final String? styleTitle;
+  final List<ImprovementSuggestion> improvementSuggestions;
 
   const ImageResultPage({
     super.key,
@@ -27,148 +31,241 @@ class ImageResultPage extends StatelessWidget {
     this.model,
     this.generationTimeMs,
     this.styleTitle,
+    this.improvementSuggestions = const [],
   });
 
-  static bool _isSaving(AiDesignState state) => state is AiImageSaved;
+  @override
+  State<ImageResultPage> createState() => _ImageResultPageState();
+}
+
+class _ImageResultPageState extends State<ImageResultPage> {
+  // Current result shown — updated in place each time a refine completes so the
+  // user iterates on the same screen instead of stacking pages.
+  late int _imageId;
+  late String _imageUrl;
+  String? _provider;
+  String? _model;
+  int? _generationTimeMs;
+  String? _styleTitle;
+  late List<ImprovementSuggestion> _suggestions;
+
+  @override
+  void initState() {
+    super.initState();
+    _imageId          = widget.imageId;
+    _imageUrl         = widget.imageUrl;
+    _provider         = widget.provider;
+    _model            = widget.model;
+    _generationTimeMs = widget.generationTimeMs;
+    _styleTitle       = widget.styleTitle;
+    _suggestions      = widget.improvementSuggestions;
+  }
+
+  void _refineWith(BuildContext ctx, ImprovementSuggestion s) {
+    ctx.read<AiDesignCubit>().refine(
+          _imageId,
+          suggestion: s.text,
+        );
+  }
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     return BlocConsumer<AiDesignCubit, AiDesignState>(
       listener: (ctx, state) {
-        if (state is AiDesignError) {
+        if (state is AiImageCompleted) {
+          // A refine finished — swap the result in place with fresh chips.
+          setState(() {
+            _imageId          = state.imageId;
+            _imageUrl         = state.imageUrl;
+            _provider         = state.provider;
+            _model            = state.model;
+            _generationTimeMs = state.generationTimeMs;
+            _styleTitle       = state.styleTitle ?? _styleTitle;
+            _suggestions      = state.improvementSuggestions;
+          });
+        } else if (state is AiDesignError) {
           ScaffoldMessenger.of(ctx).showSnackBar(
             SnackBar(content: Text(state.message), backgroundColor: Colors.red),
           );
         }
       },
       builder: (ctx, state) {
-        return Scaffold(
-          backgroundColor: AppColors.surfaceBg,
-          appBar: MaktoobAppBar(
-            title: loc?.translate('ai_final_result_title') ?? 'النتيجة النهائية',
-            titleColor: Colors.black87,
-            titleLeading: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Center(
-                child: Text(
-                  loc?.translate('app_name') ?? 'Maktoob',
-                  style: const TextStyle(
-                    color: AppColors.primary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ),
-            showCloseButton: false,
-            onClose: () => Navigator.of(ctx).pop(),
-          ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              _ImageCard(
-                imageUrl: imageUrl,
-                provider: provider,
-                model: model,
-              ),
-              const SizedBox(height: 14),
-              Row(children: [
-                Expanded(
-                  child: _MetaCard(
-                    icon: Icons.palette_outlined,
-                    label: loc?.translate('ai_style_label') ?? 'النمط',
-                    value: styleTitle ?? '—',
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _MetaCard(
-                    icon: Icons.speed_rounded,
-                    label: loc?.translate('ai_generation_time_label') ??
-                        'وقت التوليد',
-                    value: _formatTime(loc),
-                  ),
-                ),
-              ]),
-              const SizedBox(height: 18),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton.icon(
-                  onPressed: _isSaving(state)
-                      ? null
-                      : () => ctx.read<AiDesignCubit>().saveImage(imageId, imageUrl),
-                  icon: const Icon(Icons.check_circle_outline,
-                      color: Colors.white),
-                  label: Text(
-                    loc?.translate('ai_use_image_btn') ?? 'استخدم هذه الصورة',
+        final isRefining = state is AiImageGenerating;
+        return PopScope(
+          canPop: !isRefining,
+          onPopInvokedWithResult: (didPop, _) {
+            if (!didPop) {
+              ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
+                content: Text(
+                    loc?.translate('ai_generating_wait') ?? 'جاري التوليد...'),
+              ));
+            }
+          },
+          child: Scaffold(
+            backgroundColor: AppColors.surfaceBg,
+            appBar: MaktoobAppBar(
+              title: loc?.translate('ai_final_result_title') ?? 'النتيجة النهائية',
+              titleColor: Colors.black87,
+              titleLeading: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Center(
+                  child: Text(
+                    loc?.translate('app_name') ?? 'Maktoob',
                     style: const TextStyle(
+                      color: AppColors.primary,
                       fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
                     ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.tertiaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    elevation: 0,
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
-              // Regeneration is handled via Hermes refinement (not a blunt
-              // regenerate button), so on a successful image we only offer
-              // share + copy alongside the primary "use this image" action.
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _IconActionButton(
-                    icon: Icons.share_outlined,
-                    tooltip: loc?.translate('ai_share_image') ?? 'مشاركة',
-                    onTap: () => _shareImage(context),
-                  ),
-                  const SizedBox(width: 12),
-                  _IconActionButton(
-                    icon: Icons.link_rounded,
-                    tooltip: loc?.translate('ai_copy_image_link') ?? 'نسخ الرابط',
-                    onTap: () => _copyImageLink(context, loc),
-                  ),
-                ],
-              ),
-            ]),
+              showCloseButton: false,
+              onClose: () => Navigator.of(ctx).pop(),
+            ),
+            body: Stack(
+              children: [
+                _buildBody(ctx, state, loc),
+                if (isRefining) const GenerationOverlay(isPromptPhase: false),
+              ],
+            ),
           ),
         );
       },
     );
   }
 
+  Widget _buildBody(
+      BuildContext ctx, AiDesignState state, AppLocalizations? loc) {
+    final isBusy = state is AiImageGenerating || state is AiImageSaved;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        _ImageCard(
+          imageUrl: _imageUrl,
+          provider: _provider,
+          model: _model,
+        ),
+        const SizedBox(height: 14),
+        Row(children: [
+          Expanded(
+            child: _MetaCard(
+              icon: Icons.palette_outlined,
+              label: loc?.translate('ai_style_label') ?? 'النمط',
+              value: _styleTitle ?? '—',
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: _MetaCard(
+              icon: Icons.speed_rounded,
+              label: loc?.translate('ai_generation_time_label') ?? 'وقت التوليد',
+              value: _formatTime(loc),
+            ),
+          ),
+        ]),
+        const SizedBox(height: 18),
+        SizedBox(
+          width: double.infinity,
+          height: 56,
+          child: ElevatedButton.icon(
+            onPressed: isBusy
+                ? null
+                : () =>
+                    ctx.read<AiDesignCubit>().saveImage(_imageId, _imageUrl),
+            icon: const Icon(Icons.check_circle_outline, color: Colors.white),
+            label: Text(
+              loc?.translate('ai_use_image_btn') ?? 'استخدم هذه الصورة',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.tertiaryColor,
+              disabledBackgroundColor: AppColors.gray300,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              elevation: 0,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _IconActionButton(
+              icon: Icons.share_outlined,
+              tooltip: loc?.translate('ai_share_image') ?? 'مشاركة',
+              onTap: () => _shareImage(),
+            ),
+            const SizedBox(width: 12),
+            _IconActionButton(
+              icon: Icons.link_rounded,
+              tooltip: loc?.translate('ai_copy_image_link') ?? 'نسخ الرابط',
+              onTap: () => _copyImageLink(ctx, loc),
+            ),
+          ],
+        ),
+
+        // ── One-tap Hermes refinement chips ──────────────────────────────
+        if (_suggestions.isNotEmpty) ...[
+          const SizedBox(height: 28),
+          Row(children: [
+            Icon(Icons.auto_awesome, size: 18, color: AppColors.primaryColor),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                loc?.translate('ai_refine_suggestions_title') ??
+                    'حسّن التصميم بضغطة',
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ]),
+          const SizedBox(height: 4),
+          Text(
+            loc?.translate('ai_refine_suggestions_hint') ??
+                'اضغط على أي اقتراح لإعادة توليد نسخة محسّنة.',
+            style: TextStyle(fontSize: 12, color: AppColors.gray500),
+          ),
+          const SizedBox(height: 12),
+          for (final s in _suggestions) ...[
+            _RefineChip(
+              suggestion: s,
+              enabled: !isBusy,
+              onTap: () => _refineWith(ctx, s),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ],
+      ]),
+    );
+  }
+
   String _formatTime(AppLocalizations? loc) {
-    if (generationTimeMs == null) return '—';
-    final seconds = generationTimeMs! / 1000;
+    if (_generationTimeMs == null) return '—';
+    final seconds = _generationTimeMs! / 1000;
     final unit = loc?.translate('ai_generation_time_unit') ?? 'ث';
     return '${seconds.toStringAsFixed(1)} $unit';
   }
 
-  Future<void> _shareImage(BuildContext context) async {
+  Future<void> _shareImage() async {
     try {
-      await Share.share(imageUrl);
+      await Share.share(_imageUrl);
     } catch (e) {
       debugPrint('Share failed: $e');
     }
   }
 
   /// Copies the Cloudinary URL to the clipboard and confirms via SnackBar.
-  ///
-  /// True "save to gallery" requires an extra plugin (image_gallery_saver
-  /// or gal) that the project doesn't depend on. Surfacing a copyable URL
-  /// lets the user paste it anywhere — Photos, Files, a browser — without
-  /// adding a dependency or lying about what the button does.
   Future<void> _copyImageLink(
       BuildContext context, AppLocalizations? loc) async {
-    await Clipboard.setData(ClipboardData(text: imageUrl));
+    await Clipboard.setData(ClipboardData(text: _imageUrl));
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(loc?.translate('ai_image_link_copied') ?? 'تم نسخ الرابط'),
@@ -295,7 +392,7 @@ class _ImageCard extends StatelessWidget {
                   Icon(Icons.circle, color: Colors.white, size: 8),
                   SizedBox(width: 6),
                   Text(
-                    'جار التحسين',
+                    'جاهزة',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 11,
@@ -391,5 +488,73 @@ class _IconActionButton extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+// =============================================================================
+// One-tap refinement chip
+// =============================================================================
+
+class _RefineChip extends StatelessWidget {
+  final ImprovementSuggestion suggestion;
+  final bool enabled;
+  final VoidCallback onTap;
+
+  const _RefineChip({
+    required this.suggestion,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: enabled ? onTap : null,
+      borderRadius: BorderRadius.circular(14),
+      child: Opacity(
+        opacity: enabled ? 1 : 0.5,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.gray200),
+          ),
+          child: Row(children: [
+            Icon(_iconForName(suggestion.icon),
+                color: AppColors.primaryColor, size: 18),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                suggestion.text,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Icon(Icons.refresh_rounded,
+                color: AppColors.gray500, size: 18),
+          ]),
+        ),
+      ),
+    );
+  }
+
+  IconData _iconForName(String name) {
+    switch (name) {
+      case 'palette':
+        return Icons.palette_outlined;
+      case 'camera':
+      case 'camera_alt':
+        return Icons.camera_alt_outlined;
+      case 'lightbulb':
+        return Icons.lightbulb_outlined;
+      case 'style':
+        return Icons.style_outlined;
+      default:
+        return Icons.auto_awesome;
+    }
   }
 }

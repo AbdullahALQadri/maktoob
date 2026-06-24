@@ -79,6 +79,7 @@ class _PromptReviewPageState extends State<PromptReviewPage> {
                   model: state.model,
                   generationTimeMs: state.generationTimeMs,
                   styleTitle: state.styleTitle,
+                  improvementSuggestions: state.improvementSuggestions,
                 ),
               ),
             ),

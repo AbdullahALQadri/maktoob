@@ -245,6 +245,25 @@ class EventWizardApiService {
     return response as Map<String, dynamic>;
   }
 
+  /// One-tap refine: regenerate a new image from a completed one with a
+  /// Hermes suggestion folded in. Returns { image_id, status: "processing" }.
+  Future<Map<String, dynamic>> refineGenerate(
+    int eventId, {
+    required int imageId,
+    String? suggestion,
+    String? extraPrompt,
+  }) async {
+    final response = await _apiConsumer.post(
+      Endpoints.wizardRefineGenerate(eventId),
+      body: {
+        'image_id': imageId,
+        if (suggestion != null && suggestion.isNotEmpty) 'suggestion': suggestion,
+        if (extraPrompt != null && extraPrompt.isNotEmpty) 'extra_prompt': extraPrompt,
+      },
+    );
+    return response as Map<String, dynamic>;
+  }
+
   /// Upload a custom (non-AI) image to use as the event design.
   /// Returns { image_id, status: "completed", image_url, source: "upload" }.
   Future<Map<String, dynamic>> uploadCustomDesign(

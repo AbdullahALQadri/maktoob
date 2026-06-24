@@ -750,6 +750,8 @@
   "ai_share_image": "Share",
   "ai_copy_image_link": "Copy link",
   "ai_image_link_copied": "Link copied",
+  "ai_refine_suggestions_title": "Refine in one tap",
+  "ai_refine_suggestions_hint": "Tap any suggestion to regenerate an improved version.",
   "wizard_event_setup_app_bar": "Event Setup",
   "wizard_event_type_question": "What type of event?",
   "wizard_event_name_label": "Event name",

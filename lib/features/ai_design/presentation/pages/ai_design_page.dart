@@ -97,6 +97,7 @@ class _AiDesignPageState extends State<AiDesignPage>
                   model: state.model,
                   generationTimeMs: state.generationTimeMs,
                   styleTitle: state.styleTitle,
+                  improvementSuggestions: state.improvementSuggestions,
                 ),
               ),
             ),

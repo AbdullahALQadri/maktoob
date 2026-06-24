@@ -750,6 +750,8 @@
   "ai_share_image": "مشاركة",
   "ai_copy_image_link": "نسخ الرابط",
   "ai_image_link_copied": "تم نسخ الرابط",
+  "ai_refine_suggestions_title": "حسّن التصميم بضغطة",
+  "ai_refine_suggestions_hint": "اضغط على أي اقتراح لإعادة توليد نسخة محسّنة.",
   "wizard_event_setup_app_bar": "إعداد الفعالية",
   "wizard_event_type_question": "ما نوع الفعالية؟",
   "wizard_event_name_label": "اسم الفعالية",

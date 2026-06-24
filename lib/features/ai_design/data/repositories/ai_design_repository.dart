@@ -76,6 +76,28 @@ class AiDesignRepository {
     return _extractImageId(res) ?? imageId;
   }
 
+  /// Refine a completed image: kicks off a new generation with the chosen
+  /// Hermes suggestion (and optional extra text) folded into the prompt.
+  /// Returns the new image id to poll.
+  Future<int> refineGenerate(
+    int eventId, {
+    required int imageId,
+    String? suggestion,
+    String? extraPrompt,
+  }) async {
+    final res = await _api.refineGenerate(
+      eventId,
+      imageId:    imageId,
+      suggestion: suggestion,
+      extraPrompt: extraPrompt,
+    );
+    final newId = _extractImageId(res);
+    if (newId == null) {
+      throw Exception('refine-generate returned no image_id');
+    }
+    return newId;
+  }
+
   /// Pulls `image_id` out of either an enveloped (`{data: {image_id}}`) or
   /// flat (`{image_id}`) response body.
   int? _extractImageId(Map<String, dynamic> res) {

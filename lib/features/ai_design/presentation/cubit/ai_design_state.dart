@@ -137,6 +137,10 @@ class AiImageCompleted extends AiDesignState {
   final int? generationTimeMs;
   final String? styleTitle;
 
+  /// Hermes post-image critique — shown as one-tap refinement chips on the
+  /// result screen. Empty when Hermes produced none (disabled/failed).
+  final List<ImprovementSuggestion> improvementSuggestions;
+
   const AiImageCompleted({
     required this.imageId,
     required this.imageUrl,
@@ -144,11 +148,14 @@ class AiImageCompleted extends AiDesignState {
     this.model,
     this.generationTimeMs,
     this.styleTitle,
+    this.improvementSuggestions = const [],
   });
 
   @override
-  List<Object?> get props =>
-      [imageId, imageUrl, provider, model, generationTimeMs, styleTitle];
+  List<Object?> get props => [
+        imageId, imageUrl, provider, model, generationTimeMs, styleTitle,
+        improvementSuggestions.length,
+      ];
 }
 
 /// Error shown in-page (not a dialog)
