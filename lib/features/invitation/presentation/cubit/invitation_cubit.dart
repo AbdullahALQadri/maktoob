@@ -232,6 +232,14 @@ class InvitationCubit extends Cubit<InvitationState> {
         ? null
         : '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
 
+    // Page 1 fabricates a LocationModel with 0/0 coordinates when the user only
+    // types a location name instead of picking one on the map. The backend
+    // validates custom_venue_lat/lng against the Gaza bounding box, so 0/0 comes
+    // back as a 422. Send coordinates only when they are a real Gaza pick; the
+    // typed name still goes through as custom_venue_name_ar/address.
+    final loc = state.customLocation;
+    final hasCoords = loc != null && loc.isInGaza;
+
     return apiService!.saveEventDetails(
       eventId,
       titleAr: state.eventName ?? '',
@@ -244,8 +252,8 @@ class InvitationCubit extends Cubit<InvitationState> {
       venueId: state.selectedVenue?.id,
       customVenueNameAr: state.customLocation?.placeName,
       customVenueAddressAr: state.customLocation?.address,
-      customVenueLat: state.customLocation?.latitude,
-      customVenueLng: state.customLocation?.longitude,
+      customVenueLat: hasCoords ? loc.latitude : null,
+      customVenueLng: hasCoords ? loc.longitude : null,
       partnerCount: state.partnerWithGuests,
       eventTypeFormValues: state.eventTypeFormData,
     );
