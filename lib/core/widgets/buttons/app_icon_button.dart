@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../utils/app_colors.dart';
 import '../../utils/responsive.dart';
+import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
 /// A unified icon button widget with consistent styling.
 ///
@@ -229,7 +230,7 @@ class AppIconButton extends StatelessWidget {
                   ? SizedBox(
                       width: effectiveIconSize * 0.8,
                       height: effectiveIconSize * 0.8,
-                      child: CircularProgressIndicator(
+                      child: MkSpinner(
                         strokeWidth: 2,
                         valueColor: AlwaysStoppedAnimation<Color>(effectiveIconColor),
                       ),

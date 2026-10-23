@@ -28,10 +28,10 @@ class SkeletonBox extends StatelessWidget {
     required double size,
     this.margin,
     this.color,
-  })  : width = size,
-        height = size,
-        borderRadius = 0,
-        isCircle = true;
+  }) : width = size,
+       height = size,
+       borderRadius = 0,
+       isCircle = true;
 
   @override
   Widget build(BuildContext context) {
@@ -74,23 +74,11 @@ class StatCardSkeleton extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            SkeletonBox(
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-            ),
+            SkeletonBox(width: 36, height: 36, borderRadius: 10),
             const SizedBox(height: 8),
-            SkeletonBox(
-              width: 50,
-              height: 22,
-              borderRadius: 4,
-            ),
+            SkeletonBox(width: 50, height: 22, borderRadius: 4),
             const SizedBox(height: 4),
-            SkeletonBox(
-              width: 70,
-              height: 12,
-              borderRadius: 4,
-            ),
+            SkeletonBox(width: 70, height: 12, borderRadius: 4),
           ],
         ),
       ),
@@ -148,53 +136,29 @@ class RecentEventCardSkeleton extends StatelessWidget {
         child: Row(
           children: [
             // Event icon skeleton
-            SkeletonBox(
-              width: 56,
-              height: 56,
-              borderRadius: 16,
-            ),
+            SkeletonBox(width: 56, height: 56, borderRadius: 16),
             const SizedBox(width: 16),
             // Event details skeleton
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SkeletonBox(
-                    width: 150,
-                    height: 18,
-                    borderRadius: 4,
-                  ),
+                  SkeletonBox(width: 150, height: 18, borderRadius: 4),
                   const SizedBox(height: 8),
-                  SkeletonBox(
-                    width: 100,
-                    height: 14,
-                    borderRadius: 4,
-                  ),
+                  SkeletonBox(width: 100, height: 14, borderRadius: 4),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      SkeletonBox(
-                        width: 60,
-                        height: 20,
-                        borderRadius: 10,
-                      ),
+                      SkeletonBox(width: 60, height: 20, borderRadius: 10),
                       const SizedBox(width: 8),
-                      SkeletonBox(
-                        width: 80,
-                        height: 14,
-                        borderRadius: 4,
-                      ),
+                      SkeletonBox(width: 80, height: 14, borderRadius: 4),
                     ],
                   ),
                 ],
               ),
             ),
             // Arrow skeleton
-            SkeletonBox(
-              width: 32,
-              height: 32,
-              borderRadius: 16,
-            ),
+            SkeletonBox(width: 32, height: 32, borderRadius: 16),
           ],
         ),
       ),
@@ -228,30 +192,14 @@ class ResponseRateCardSkeleton extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                SkeletonBox(
-                  width: 120,
-                  height: 20,
-                  borderRadius: 4,
-                ),
-                SkeletonBox(
-                  width: 60,
-                  height: 28,
-                  borderRadius: 6,
-                ),
+                SkeletonBox(width: 120, height: 20, borderRadius: 4),
+                SkeletonBox(width: 60, height: 28, borderRadius: 6),
               ],
             ),
             const SizedBox(height: 16),
-            SkeletonBox(
-              width: double.infinity,
-              height: 8,
-              borderRadius: 4,
-            ),
+            SkeletonBox(width: double.infinity, height: 8, borderRadius: 4),
             const SizedBox(height: 12),
-            SkeletonBox(
-              width: 180,
-              height: 14,
-              borderRadius: 4,
-            ),
+            SkeletonBox(width: 180, height: 14, borderRadius: 4),
           ],
         ),
       ),
@@ -456,16 +404,8 @@ class EventListItemSkeleton extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      SkeletonBox(
-                        width: 100,
-                        height: 14,
-                        borderRadius: 4,
-                      ),
-                      SkeletonBox(
-                        width: 40,
-                        height: 14,
-                        borderRadius: 4,
-                      ),
+                      SkeletonBox(width: 100, height: 14, borderRadius: 4),
+                      SkeletonBox(width: 40, height: 14, borderRadius: 4),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -479,7 +419,11 @@ class EventListItemSkeleton extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(child: _buildStatSkeleton()),
-                      Container(width: 1, height: 40, color: context.borderColor),
+                      Container(
+                        width: 1,
+                        height: 40,
+                        color: context.borderColor,
+                      ),
                       Expanded(child: _buildStatSkeleton()),
                     ],
                   ),
@@ -513,11 +457,7 @@ class EventListItemSkeleton extends StatelessWidget {
       children: [
         const SkeletonBox.circle(size: 18),
         const SizedBox(width: 10),
-        SkeletonBox(
-          width: 180,
-          height: 14,
-          borderRadius: 4,
-        ),
+        SkeletonBox(width: 180, height: 14, borderRadius: 4),
       ],
     );
   }
@@ -531,17 +471,9 @@ class EventListItemSkeleton extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SkeletonBox(
-              width: 30,
-              height: 18,
-              borderRadius: 4,
-            ),
+            SkeletonBox(width: 30, height: 18, borderRadius: 4),
             const SizedBox(height: 4),
-            SkeletonBox(
-              width: 50,
-              height: 12,
-              borderRadius: 4,
-            ),
+            SkeletonBox(width: 50, height: 12, borderRadius: 4),
           ],
         ),
       ],
@@ -558,7 +490,7 @@ class EventsScreenSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+      padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 24),
       itemCount: itemCount,
       itemBuilder: (context, index) {
         return const EventListItemSkeleton();
@@ -591,41 +523,33 @@ class VenueCardSkeleton extends StatelessWidget {
         child: Row(
           children: [
             // Venue icon skeleton
-            SkeletonBox(
-              width: 60,
-              height: 60,
-              borderRadius: 16,
-            ),
+            SkeletonBox(width: 60, height: 60, borderRadius: 16),
             const SizedBox(width: 16),
             // Venue details skeleton
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SkeletonBox(
-                    width: 140,
-                    height: 18,
-                    borderRadius: 4,
-                  ),
+                  SkeletonBox(width: 140, height: 18, borderRadius: 4),
                   const SizedBox(height: 8),
-                  SkeletonBox(
-                    width: 200,
-                    height: 14,
-                    borderRadius: 4,
-                  ),
+                  SkeletonBox(width: 200, height: 14, borderRadius: 4),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      SkeletonBox(
-                        width: 80,
-                        height: 24,
-                        borderRadius: 12,
+                      Flexible(
+                        child: SkeletonBox(
+                          width: 80,
+                          height: 24,
+                          borderRadius: 12,
+                        ),
                       ),
                       const SizedBox(width: 8),
-                      SkeletonBox(
-                        width: 60,
-                        height: 24,
-                        borderRadius: 12,
+                      Flexible(
+                        child: SkeletonBox(
+                          width: 60,
+                          height: 24,
+                          borderRadius: 12,
+                        ),
                       ),
                     ],
                   ),
@@ -685,7 +609,7 @@ class EventDetailsSkeleton extends StatelessWidget {
             child: SafeArea(
               bottom: false,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -744,16 +668,19 @@ class EventDetailsSkeleton extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   ShimmerLoading(
-                                    baseColor:
-                                        Colors.white.withValues(alpha: 0.2),
-                                    highlightColor:
-                                        Colors.white.withValues(alpha: 0.4),
+                                    baseColor: Colors.white.withValues(
+                                      alpha: 0.2,
+                                    ),
+                                    highlightColor: Colors.white.withValues(
+                                      alpha: 0.4,
+                                    ),
                                     child: Container(
                                       width: 180,
                                       height: 24,
                                       decoration: BoxDecoration(
-                                        color:
-                                            Colors.white.withValues(alpha: 0.2),
+                                        color: Colors.white.withValues(
+                                          alpha: 0.2,
+                                        ),
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                     ),
@@ -762,35 +689,43 @@ class EventDetailsSkeleton extends StatelessWidget {
                                   Row(
                                     children: [
                                       ShimmerLoading(
-                                        baseColor: Colors.white
-                                            .withValues(alpha: 0.2),
-                                        highlightColor: Colors.white
-                                            .withValues(alpha: 0.4),
+                                        baseColor: Colors.white.withValues(
+                                          alpha: 0.2,
+                                        ),
+                                        highlightColor: Colors.white.withValues(
+                                          alpha: 0.4,
+                                        ),
                                         child: Container(
                                           width: 70,
                                           height: 28,
                                           decoration: BoxDecoration(
-                                            color: Colors.white
-                                                .withValues(alpha: 0.2),
-                                            borderRadius:
-                                                BorderRadius.circular(20),
+                                            color: Colors.white.withValues(
+                                              alpha: 0.2,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
                                           ),
                                         ),
                                       ),
                                       const SizedBox(width: 8),
                                       ShimmerLoading(
-                                        baseColor: Colors.white
-                                            .withValues(alpha: 0.2),
-                                        highlightColor: Colors.white
-                                            .withValues(alpha: 0.4),
+                                        baseColor: Colors.white.withValues(
+                                          alpha: 0.2,
+                                        ),
+                                        highlightColor: Colors.white.withValues(
+                                          alpha: 0.4,
+                                        ),
                                         child: Container(
                                           width: 60,
                                           height: 28,
                                           decoration: BoxDecoration(
-                                            color: Colors.white
-                                                .withValues(alpha: 0.2),
-                                            borderRadius:
-                                                BorderRadius.circular(20),
+                                            color: Colors.white.withValues(
+                                              alpha: 0.2,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -848,17 +783,9 @@ class _QuickStatsSkeleton extends StatelessWidget {
                 children: [
                   const SkeletonBox.circle(size: 40),
                   const SizedBox(height: 8),
-                  SkeletonBox(
-                    width: 40,
-                    height: 24,
-                    borderRadius: 6,
-                  ),
+                  SkeletonBox(width: 40, height: 24, borderRadius: 6),
                   const SizedBox(height: 4),
-                  SkeletonBox(
-                    width: 60,
-                    height: 12,
-                    borderRadius: 4,
-                  ),
+                  SkeletonBox(width: 60, height: 12, borderRadius: 4),
                 ],
               ),
             ),
@@ -897,7 +824,9 @@ class _TabBarSkeleton extends StatelessWidget {
                 height: 44,
                 margin: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: index == 0 ? context.borderColor : AppColors.transparent,
+                  color: index == 0
+                      ? context.borderColor
+                      : AppColors.transparent,
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
@@ -938,17 +867,9 @@ class _EventContentSkeleton extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      SkeletonBox(
-                        width: 40,
-                        height: 40,
-                        borderRadius: 12,
-                      ),
+                      SkeletonBox(width: 40, height: 40, borderRadius: 12),
                       const SizedBox(width: 12),
-                      SkeletonBox(
-                        width: 140,
-                        height: 20,
-                        borderRadius: 4,
-                      ),
+                      SkeletonBox(width: 140, height: 20, borderRadius: 4),
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -982,17 +903,9 @@ class _EventContentSkeleton extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      SkeletonBox(
-                        width: 40,
-                        height: 40,
-                        borderRadius: 12,
-                      ),
+                      SkeletonBox(width: 40, height: 40, borderRadius: 12),
                       const SizedBox(width: 12),
-                      SkeletonBox(
-                        width: 150,
-                        height: 20,
-                        borderRadius: 4,
-                      ),
+                      SkeletonBox(width: 150, height: 20, borderRadius: 4),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -1013,27 +926,15 @@ class _EventContentSkeleton extends StatelessWidget {
   Widget _buildInfoRowSkeleton() {
     return Row(
       children: [
-        SkeletonBox(
-          width: 40,
-          height: 40,
-          borderRadius: 10,
-        ),
+        SkeletonBox(width: 40, height: 40, borderRadius: 10),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SkeletonBox(
-                width: 60,
-                height: 12,
-                borderRadius: 4,
-              ),
+              SkeletonBox(width: 60, height: 12, borderRadius: 4),
               const SizedBox(height: 4),
-              SkeletonBox(
-                width: 150,
-                height: 14,
-                borderRadius: 4,
-              ),
+              SkeletonBox(width: 150, height: 14, borderRadius: 4),
             ],
           ),
         ),
@@ -1048,24 +949,12 @@ class _EventContentSkeleton extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SkeletonBox(
-              width: 80,
-              height: 14,
-              borderRadius: 4,
-            ),
-            SkeletonBox(
-              width: 100,
-              height: 12,
-              borderRadius: 4,
-            ),
+            SkeletonBox(width: 80, height: 14, borderRadius: 4),
+            SkeletonBox(width: 100, height: 12, borderRadius: 4),
           ],
         ),
         const SizedBox(height: 8),
-        SkeletonBox(
-          width: double.infinity,
-          height: 10,
-          borderRadius: 5,
-        ),
+        SkeletonBox(width: double.infinity, height: 10, borderRadius: 5),
       ],
     );
   }
@@ -1103,17 +992,9 @@ class ScannerStatsSkeleton extends StatelessWidget {
                 children: [
                   const SkeletonBox.circle(size: 44),
                   const SizedBox(height: 12),
-                  SkeletonBox(
-                    width: 40,
-                    height: 28,
-                    borderRadius: 6,
-                  ),
+                  SkeletonBox(width: 40, height: 28, borderRadius: 6),
                   const SizedBox(height: 4),
-                  SkeletonBox(
-                    width: 60,
-                    height: 12,
-                    borderRadius: 4,
-                  ),
+                  SkeletonBox(width: 60, height: 12, borderRadius: 4),
                 ],
               ),
             ),
@@ -1136,26 +1017,15 @@ class UploadAreaSkeleton extends StatelessWidget {
         decoration: BoxDecoration(
           color: context.cardBg,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: context.borderColor,
-            width: 2,
-          ),
+          border: Border.all(color: context.borderColor, width: 2),
         ),
         child: Column(
           children: [
             const SkeletonBox.circle(size: 64),
             const SizedBox(height: 16),
-            SkeletonBox(
-              width: 160,
-              height: 18,
-              borderRadius: 4,
-            ),
+            SkeletonBox(width: 160, height: 18, borderRadius: 4),
             const SizedBox(height: 8),
-            SkeletonBox(
-              width: 200,
-              height: 14,
-              borderRadius: 4,
-            ),
+            SkeletonBox(width: 200, height: 14, borderRadius: 4),
           ],
         ),
       ),
@@ -1188,17 +1058,9 @@ class BankDetailsCardSkeleton extends StatelessWidget {
           children: [
             Row(
               children: [
-                SkeletonBox(
-                  width: 40,
-                  height: 40,
-                  borderRadius: 12,
-                ),
+                SkeletonBox(width: 40, height: 40, borderRadius: 12),
                 const SizedBox(width: 12),
-                SkeletonBox(
-                  width: 120,
-                  height: 20,
-                  borderRadius: 4,
-                ),
+                SkeletonBox(width: 120, height: 20, borderRadius: 4),
               ],
             ),
             const SizedBox(height: 20),
@@ -1225,16 +1087,8 @@ class BankDetailsCardSkeleton extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SkeletonBox(
-            width: 80,
-            height: 14,
-            borderRadius: 4,
-          ),
-          SkeletonBox(
-            width: 120,
-            height: 14,
-            borderRadius: 4,
-          ),
+          SkeletonBox(width: 80, height: 14, borderRadius: 4),
+          SkeletonBox(width: 120, height: 14, borderRadius: 4),
         ],
       ),
     );

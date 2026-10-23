@@ -1,14 +1,21 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../core/services/fcm_service.dart';
 
 import '../../core/utils/app_colors.dart';
 import '../../core/widgets/adaptive_bottom_navigation_bar.dart';
 import '../locale/app_localizations.dart';
 import '../../features/events/domain/entities/event_entity.dart';
+import '../../features/events/presentation/cubit/events_list/events_list_cubit.dart';
 import '../../features/events/presentation/screens/event_details_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
+import '../../features/home/presentation/utils/refresh_event_lists.dart';
 import '../../features/invitation/presentation/cubit/invitation_cubit.dart';
 import '../../features/invitation/presentation/screens/invitation_wizard_screen.dart';
+import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/payment/presentation/screens/payment_upload_screen.dart';
 import '../../features/scanner/presentation/cubit/scanner_cubit.dart';
 import '../../features/scanner/presentation/screens/qr_scanner_screen.dart';
@@ -37,6 +44,52 @@ class _MainShellState extends State<MainShell> {
   EventEntity? _selectedScannerEvent;
   bool _showScannerScreen = false;
 
+  StreamSubscription<Map<String, dynamic>>? _pushSub;
+  StreamSubscription<Map<String, dynamic>>? _tapSub;
+
+  @override
+  void initState() {
+    super.initState();
+    final fcm = di.sl<FcmService>();
+    _pushSub = fcm.messageStream.listen(_onPush);
+    _tapSub = fcm.tapStream.listen(_onPushTap);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final launch = fcm.takeLaunchTap();
+      if (launch != null) _onPushTap(launch);
+    });
+  }
+
+  @override
+  void dispose() {
+    _pushSub?.cancel();
+    _tapSub?.cancel();
+    super.dispose();
+  }
+
+  /// An event changed on the server (activated by the team, payment
+  /// confirmed/rejected...): refresh the lists so its status is current.
+  void _onPush(Map<String, dynamic> data) {
+    final type = data['type']?.toString() ?? '';
+    if (!mounted) return;
+    if (type.startsWith('event.') || type.startsWith('payment')) {
+      refreshEventLists(context);
+    }
+  }
+
+  /// The user tapped a notification: open the event it is about, otherwise
+  /// the notifications inbox.
+  void _onPushTap(Map<String, dynamic> data) {
+    if (!mounted) return;
+    final type = data['type']?.toString() ?? '';
+    final eventId = data['event_id']?.toString() ?? '';
+    if (type.startsWith('image.') || type.startsWith('prompt.')) return;
+    if (type.startsWith('event.') && eventId.isNotEmpty) {
+      _onViewEvent(eventId);
+      return;
+    }
+    NotificationsScreen.open(context, onOpenEvent: _onViewEvent);
+  }
+
   void _onNavigationTap(int index) {
     setState(() {
       _currentIndex = index;
@@ -51,6 +104,22 @@ class _MainShellState extends State<MainShell> {
   }
 
   void _onViewEvent(String eventId) {
+    // Door staff of an institution may only scan: open the scanner instead of
+    // the details screen (which the backend would refuse with 403).
+    EventEntity? known;
+    try {
+      for (final e in context.read<EventsListCubit>().state.events) {
+        if (e.id == eventId) known = e;
+      }
+    } catch (_) {}
+    if (known != null && known.role.isScannerOnly) {
+      setState(() {
+        _currentIndex = 1;
+        _selectedScannerEvent = known;
+        _showScannerScreen = true;
+      });
+      return;
+    }
     setState(() {
       _selectedEventId = eventId;
       _showEventDetails = true;
@@ -70,6 +139,7 @@ class _MainShellState extends State<MainShell> {
       _selectedEventId = null;
       _currentIndex = 0; // Go back to home
     });
+    refreshEventLists(context);
   }
 
   void _onAddEventTap() {
@@ -84,7 +154,10 @@ class _MainShellState extends State<MainShell> {
           ),
         ),
       ),
-    );
+    ).then((_) {
+      // New event (draft or active) must show on home without manual refresh.
+      if (mounted) refreshEventLists(context);
+    });
   }
 
   void _onScannerEventSelected(EventEntity event) {

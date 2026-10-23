@@ -5,6 +5,7 @@ import '../../utils/app_colors.dart';
 import '../../utils/app_spacing.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/responsive.dart';
+import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
 /// A unified Scaffold widget for consistent screen layouts.
 ///
@@ -410,7 +411,7 @@ class _DefaultLoadingWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: CircularProgressIndicator(
+      child: MkSpinner(
         valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
       ),
     );

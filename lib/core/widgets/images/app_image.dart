@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../utils/app_colors.dart';
 import '../../utils/responsive.dart';
+import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
 /// A unified image widget that handles various image sources.
 ///
@@ -333,7 +334,7 @@ class AppImage extends StatelessWidget {
           child: SizedBox(
             width: context.dynamicWidth(0.06),
             height: context.dynamicWidth(0.06),
-            child: CircularProgressIndicator(
+            child: MkSpinner(
               strokeWidth: 2,
               valueColor: AlwaysStoppedAnimation<Color>(context.iconDefault),
             ),

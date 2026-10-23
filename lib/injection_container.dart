@@ -20,6 +20,13 @@ import 'features/authentication/domain/repositories/auth_repository.dart';
 import 'features/authentication/presentation/cubit/auth_cubit.dart';
 
 // Home Feature
+import 'features/explore/data/datasources/explore_remote_data_source.dart';
+import 'features/explore/data/repositories/explore_repository_impl.dart';
+import 'features/explore/domain/repositories/explore_repository.dart';
+import 'features/explore/domain/usecases/get_occasion_groups_usecase.dart';
+import 'features/explore/domain/usecases/get_public_templates_usecase.dart';
+import 'features/explore/presentation/cubit/explore_cubit.dart';
+import 'core/services/pending_wizard_intent_service.dart';
 import 'features/home/data/datasources/home_local_data_source.dart';
 import 'features/home/data/datasources/home_remote_data_source.dart';
 import 'features/home/data/repositories/home_repository_impl.dart';
@@ -29,15 +36,22 @@ import 'features/home/domain/usecases/get_stats_usecase.dart';
 import 'features/home/presentation/cubit/home_cubit.dart';
 
 // Events Feature
+import 'features/events/data/datasources/event_add_ons_remote_data_source.dart';
 import 'features/events/data/datasources/events_local_data_source.dart';
 import 'features/events/data/datasources/events_remote_data_source.dart';
+import 'features/events/data/repositories/event_add_ons_repository_impl.dart';
 import 'features/events/data/repositories/events_repository_impl.dart';
+import 'features/events/domain/repositories/event_add_ons_repository.dart';
 import 'features/events/domain/repositories/events_repository.dart';
+import 'features/events/domain/usecases/get_event_add_ons_usecase.dart';
+import 'features/events/domain/usecases/request_event_add_on_usecase.dart';
+import 'features/events/domain/usecases/withdraw_event_add_on_usecase.dart';
 import 'features/events/domain/usecases/filter_events_usecase.dart';
 import 'features/events/domain/usecases/get_event_details_usecase.dart';
 import 'features/events/domain/usecases/get_events_usecase.dart';
 import 'features/events/presentation/cubit/events_list/events_list_cubit.dart';
 import 'features/events/presentation/cubit/edit_event/edit_event_cubit.dart';
+import 'features/events/presentation/cubit/event_add_ons/event_add_ons_cubit.dart';
 import 'features/events/presentation/cubit/event_details/event_details_cubit.dart';
 
 // Venues Feature
@@ -83,10 +97,21 @@ import 'features/invitation/data/services/excel_parser_service.dart';
 import 'features/invitation/data/services/invoice_generator.dart';
 import 'features/invitation/data/services/whatsapp_service.dart';
 import 'features/invitation/presentation/cubit/invitation_cubit.dart';
+import 'features/notifications/data/datasources/notifications_remote_data_source.dart';
+import 'features/notifications/data/repositories/notifications_repository_impl.dart';
+import 'features/notifications/domain/repositories/notifications_repository.dart';
+import 'features/notifications/domain/usecases/get_notifications_usecase.dart';
+import 'features/notifications/domain/usecases/mark_notification_read_usecase.dart';
+import 'features/notifications/presentation/cubit/notifications_cubit.dart';
+import 'features/institution/data/datasources/institution_remote_data_source.dart';
+import 'features/institution/data/repositories/institution_repository_impl.dart';
+import 'features/institution/domain/repositories/institution_repository.dart';
+import 'features/institution/presentation/cubit/institution_cubit.dart';
 
 final GetIt sl = GetIt.instance;
 
-Future<void> init() async {
+/// [pushAvailable] is false when Firebase failed to start (see main.dart).
+Future<void> init({bool pushAvailable = true}) async {
   //! ========== External Dependencies ==========
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
@@ -181,6 +206,37 @@ Future<void> init() async {
     ),
   );
 
+  //! ========== NOTIFICATIONS (client in-app inbox) ==========
+  sl.registerLazySingleton<NotificationsRemoteDataSource>(
+    () => NotificationsRemoteDataSourceImpl(apiConsumer: sl()),
+  );
+  sl.registerLazySingleton<NotificationsRepository>(
+    () => NotificationsRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton(() => GetNotificationsUseCase(sl()));
+  sl.registerLazySingleton(() => MarkNotificationReadUseCase(sl()));
+  sl.registerFactory(
+    () => NotificationsCubit(getNotifications: sl(), markReadUseCase: sl()),
+  );
+
+  //! ========== EXPLORE (browse without account) ==========
+  sl.registerLazySingleton<ExploreRemoteDataSource>(
+    () => ExploreRemoteDataSourceImpl(apiConsumer: sl()),
+  );
+  sl.registerLazySingleton<ExploreRepository>(
+    () => ExploreRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton(() => GetOccasionGroupsUseCase(sl()));
+  sl.registerLazySingleton(() => GetPublicTemplatesUseCase(sl()));
+  // Explore → sign-up → wizard hand-off (in memory, consumed once).
+  sl.registerLazySingleton(() => PendingWizardIntentService());
+  sl.registerFactory(
+    () => ExploreCubit(
+      getOccasionGroupsUseCase: sl(),
+      getPublicTemplatesUseCase: sl(),
+    ),
+  );
+
   //! ========== EVENTS FEATURE ==========
   // Data Sources
   sl.registerLazySingleton<EventsRemoteDataSource>(
@@ -222,6 +278,20 @@ Future<void> init() async {
 
   sl.registerFactory(
     () => EditEventCubit(eventsRepository: sl()),
+  );
+
+  // Extra services on a paid event (request → team review → pay only them)
+  sl.registerLazySingleton<EventAddOnsRemoteDataSource>(
+    () => EventAddOnsRemoteDataSourceImpl(apiConsumer: sl()),
+  );
+  sl.registerLazySingleton<EventAddOnsRepository>(
+    () => EventAddOnsRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton(() => GetEventAddOnsUseCase(sl()));
+  sl.registerLazySingleton(() => RequestEventAddOnUseCase(sl()));
+  sl.registerLazySingleton(() => WithdrawEventAddOnUseCase(sl()));
+  sl.registerFactory(
+    () => EventAddOnsCubit(getAddOns: sl(), requestAddOn: sl(), withdrawAddOn: sl()),
   );
 
   //! ========== VENUES FEATURE ==========
@@ -282,6 +352,17 @@ Future<void> init() async {
     ),
   );
 
+  //! ========== INSTITUTION FEATURE ==========
+  sl.registerLazySingleton<InstitutionRemoteDataSource>(
+    () => InstitutionRemoteDataSourceImpl(apiConsumer: sl()),
+  );
+  sl.registerLazySingleton<InstitutionRepository>(
+    () => InstitutionRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerFactory(() => InstitutionCubit(repository: sl()));
+  sl.registerFactory(() => InstitutionTeamCubit(repository: sl()));
+  sl.registerFactory(() => InstitutionCreditsCubit(repository: sl()));
+
   //! ========== PAYMENT FEATURE ==========
   // Data Sources
   sl.registerLazySingleton<PaymentRemoteDataSource>(
@@ -316,7 +397,9 @@ Future<void> init() async {
 
   //! ========== PUSH NOTIFICATIONS (FCM) ==========
   // Singleton — initialize() is called from main.dart after Firebase.initializeApp
-  sl.registerLazySingleton<FcmService>(() => FcmService());
+  sl.registerLazySingleton<FcmService>(
+    () => FcmService(available: pushAvailable),
+  );
 
   //! ========== AI DESIGN STUDIO ==========
   sl.registerLazySingleton<AiDesignRepository>(

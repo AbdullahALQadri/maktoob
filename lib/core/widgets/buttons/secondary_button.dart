@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/responsive.dart';
+import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
 /// A secondary button widget with outlined style and optional gradient border.
 ///
@@ -137,7 +138,7 @@ class SecondaryButton extends StatelessWidget {
                     ? SizedBox(
                         width: context.dynamicWidth(0.061),
                         height: context.dynamicWidth(0.061),
-                        child: CircularProgressIndicator(
+                        child: MkSpinner(
                           strokeWidth: 2.5,
                           valueColor: AlwaysStoppedAnimation<Color>(
                             textColor ?? AppColors.primaryColor,

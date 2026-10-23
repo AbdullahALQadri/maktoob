@@ -3,8 +3,9 @@ import 'package:safe_device/safe_device.dart';
 
 /// Service for device security checks (root/jailbreak detection).
 ///
-/// Checks if the device is compromised before allowing sensitive operations.
-/// In debug mode, checks are skipped to allow development on emulators.
+/// Informational only: the result is logged and exposed via [isDeviceSecure],
+/// but the app is never blocked (store reviewers run on emulators).
+/// In debug mode, checks are skipped.
 class DeviceSecurityService {
   static final DeviceSecurityService _instance = DeviceSecurityService._();
 

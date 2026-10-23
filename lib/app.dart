@@ -6,7 +6,7 @@ import 'config/routes/app_routes.dart';
 import 'config/themes/app_theme.dart';
 import 'core/utils/app_strings.dart';
 import 'core/widgets/network/offline_wrapper.dart';
-import 'core/widgets/screens/compromised_device_screen.dart';
+import 'core/widgets/scaffold/app_content_width.dart';
 import 'features/authentication/presentation/cubit/auth_cubit.dart';
 import 'features/authentication/presentation/widgets/auth_wrapper.dart';
 import 'features/events/presentation/cubit/event_details/event_details_cubit.dart';
@@ -19,32 +19,6 @@ import 'features/settings/presentation/cubit/settings_cubit.dart';
 import 'features/settings/presentation/cubit/settings_state.dart';
 import 'features/venues/presentation/cubit/venues_cubit.dart';
 import 'injection_container.dart' as di;
-
-/// Standalone app shown when the device fails security checks.
-///
-/// Uses the app's theme and localization delegates so the screen
-/// looks consistent and supports Arabic/Turkish/English.
-class CompromisedDeviceApp extends StatelessWidget {
-  const CompromisedDeviceApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: AppStrings.appName,
-      theme: AppTheme.lightTheme,
-      supportedLocales: AppLocalizationsSetup.supportedLocales,
-      localizationsDelegates: AppLocalizationsSetup.localizationsDelegates,
-      localeResolutionCallback: (deviceLocale, supportedLocales) {
-        return AppLocalizationsSetup.localeResolutionCallback(
-          deviceLocale,
-          supportedLocales,
-        );
-      },
-      home: const CompromisedDeviceScreen(),
-    );
-  }
-}
 
 class Maktoob extends StatelessWidget {
   const Maktoob({super.key});
@@ -116,10 +90,19 @@ class Maktoob extends StatelessWidget {
               final result = child ?? const SizedBox.shrink();
 
               // Wrap with OfflineWrapper to show offline banner
-              // Also wrap with Directionality for RTL/LTR support
-              return Directionality(
-                textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
-                child: OfflineWrapper(child: result),
+              // Also wrap with Directionality for RTL/LTR support.
+              // System text size is honoured up to 130%: beyond that long
+              // Arabic labels overflow buttons and cards. Tablets get the
+              // app in a centred column (AppContentWidth).
+              return MediaQuery.withClampedTextScaling(
+                maxScaleFactor: 1.3,
+                child: AppContentWidth(
+                  child: Directionality(
+                    textDirection:
+                        isArabic ? TextDirection.rtl : TextDirection.ltr,
+                    child: OfflineWrapper(child: result),
+                  ),
+                ),
               );
             },
             title: AppStrings.appName,

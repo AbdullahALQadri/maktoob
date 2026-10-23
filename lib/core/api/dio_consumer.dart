@@ -96,11 +96,17 @@ class DioConsumer implements ApiConsumer {
     Map<String, dynamic>? queryParameters,
   }) async {
     try {
+      // A body carrying a MultipartFile (e.g. an institution logo) is sent as
+      // multipart automatically, so callers stay on the ApiConsumer interface.
+      final multipart = formDataIsEnabled ||
+          (body?.values.any((v) => v is MultipartFile) ?? false);
+      final headers = await _getHeaders();
+      if (multipart) headers['Content-Type'] = 'multipart/form-data';
       final response = await client.post(
         path,
         queryParameters: queryParameters,
-        options: Options(headers: await _getHeaders()),
-        data: formDataIsEnabled ? FormData.fromMap(body!) : body,
+        options: Options(headers: headers),
+        data: multipart ? FormData.fromMap(body!) : body,
       );
       return _handleResponseAsJson(response);
     } on DioException catch (error) {
@@ -287,6 +293,21 @@ class DioConsumer implements ApiConsumer {
     return responseJson;
   }
 
+  /// Laravel's `errors` (`{field: [msg, ...]}`) as a typed map; tolerates a
+  /// single string per field and ignores anything else.
+  static Map<String, List<String>> parseValidationErrors(dynamic errors) {
+    if (errors is! Map) return const {};
+    final out = <String, List<String>>{};
+    errors.forEach((key, value) {
+      if (value is List) {
+        out['$key'] = value.map((v) => v.toString()).toList();
+      } else if (value != null) {
+        out['$key'] = [value.toString()];
+      }
+    });
+    return out;
+  }
+
   // ========== HANDLE ERRORS ==========
   dynamic _handleDioError(DioException error) {
     switch (error.type) {
@@ -300,16 +321,25 @@ class DioConsumer implements ApiConsumer {
         final responseData = error.response?.data;
 
         String? message;
+        String? errorCode;
+        var fieldErrors = const <String, List<String>>{};
+        var blockers = const <String>[];
         if (responseData != null) {
           try {
             final json = jsonDecode(responseData.toString());
             message = json['message'] as String?;
+            errorCode = json['code']?.toString();
 
             // Laravel 422 responses carry per-field details under 'errors'
             // (e.g. {amount: ["The amount field is required."]}). Surface the
             // first error of each field so the actual validation failure is
             // visible instead of the generic "The given data was invalid."
             final errors = json['errors'];
+            fieldErrors = parseValidationErrors(errors);
+            final rawBlockers = json['blockers'];
+            if (rawBlockers is List) {
+              blockers = rawBlockers.map((b) => b.toString()).toList();
+            }
             if (errors is Map && errors.isNotEmpty) {
               final parts = <String>[];
               errors.forEach((_, value) {
@@ -332,15 +362,24 @@ class DioConsumer implements ApiConsumer {
         switch (statusCode) {
           case StatusCode.badRequest:
             throw BadRequestException(message: message);
-          case StatusCode.unauthorized:
           case StatusCode.forbidden:
+            if (errorCode == 'institution_not_approved') {
+              throw InstitutionNotApprovedException(message: message);
+            }
+            throw UnauthorizedException(message: message);
+          case StatusCode.unauthorized:
             throw UnauthorizedException(message: message);
           case StatusCode.notFound:
             throw NotFoundException(message: message);
           case StatusCode.conflict:
             throw ConflictException(message: message);
           case StatusCode.unprocessableEntity:
-            throw ValidationException(message: message);
+            throw ValidationException(
+              message: message,
+              code: statusCode,
+              errors: fieldErrors,
+              blockers: blockers,
+            );
           case StatusCode.internalServerError:
             throw InternalServerErrorException(message: message);
           default:

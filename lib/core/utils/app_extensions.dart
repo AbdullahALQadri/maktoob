@@ -313,18 +313,6 @@ extension WidgetExtensions on Widget {
         child: this,
       );
 
-  /// Add only specific sides padding
-  Widget paddingOnly({
-    double left = 0,
-    double top = 0,
-    double right = 0,
-    double bottom = 0,
-  }) =>
-      Padding(
-        padding: EdgeInsets.only(left: left, top: top, right: right, bottom: bottom),
-        child: this,
-      );
-
   /// Center the widget
   Widget centered() => Center(child: this);
 

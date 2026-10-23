@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/responsive.dart';
+import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
 /// A text button widget with consistent styling.
 ///
@@ -100,7 +101,7 @@ class AppTextButton extends StatelessWidget {
                 ? SizedBox(
                     width: effectiveFontSize,
                     height: effectiveFontSize,
-                    child: CircularProgressIndicator(
+                    child: MkSpinner(
                       strokeWidth: 2,
                       valueColor: AlwaysStoppedAnimation<Color>(effectiveColor),
                     ),

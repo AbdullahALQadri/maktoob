@@ -6,6 +6,7 @@ import '../../core/services/fcm_service.dart';
 import '../../core/utils/app_strings.dart';
 import '../../features/ai_design/data/repositories/ai_design_repository.dart';
 import '../../features/ai_design/presentation/cubit/ai_design_cubit.dart';
+import '../../features/ai_design/presentation/widgets/template_invitation_canvas.dart';
 import '../../features/ai_design/presentation/pages/ai_design_page.dart';
 import '../../features/authentication/presentation/screens/login_screen.dart';
 import '../../features/authentication/presentation/screens/register_screen.dart';
@@ -14,6 +15,7 @@ import '../../features/events/presentation/screens/event_details_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/venues/presentation/screens/venue_screen.dart';
 import '../../features/scanner/presentation/screens/scanner_events_screen.dart';
+import '../../features/payment/presentation/cubit/payment_cubit.dart';
 import '../../features/payment/presentation/screens/payment_upload_screen.dart';
 import '../screens/main_shell.dart';
 
@@ -100,10 +102,18 @@ class AppRoutes {
       // Payment Upload Screen
       case Routes.payment:
         final args = settings.arguments as Map<String, dynamic>?;
+        // A fresh cubit per visit: the app-wide one may still hold the last
+        // event's receipt / success state.
         return _buildRoute(
-          PaymentUploadScreen(
-            eventId: args?['eventId'],
+          BlocProvider<PaymentCubit>(
+            create: (_) => GetIt.I<PaymentCubit>(),
+            child: PaymentUploadScreen(
+            eventId: args?['eventId']?.toString(),
             onComplete: args?['onComplete'] ?? () {},
+            amount: (args?['amount'] as num?)?.toDouble(),
+            eventTitle: args?['eventTitle'] as String?,
+            endpoint: args?['endpoint'] as String?,
+          ),
           ),
           settings,
         );
@@ -130,6 +140,11 @@ class AppRoutes {
               eventId: eventId,
               eventTypeId: eventTypeId,
               eventTitle: eventTitle,
+              templateTexts: InvitationTexts(
+                names:    (args?['names']    as String?) ?? '',
+                dateTime: (args?['dateTime'] as String?) ?? '',
+                venue:    (args?['venue']    as String?) ?? '',
+              ),
             ),
           ),
           settings,

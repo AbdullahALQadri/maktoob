@@ -15,6 +15,7 @@ export 'utils/app_text_styles.dart';
 export 'utils/app_spacing.dart';
 export 'utils/app_extensions.dart';
 export 'utils/responsive.dart';
+export 'utils/legal_links.dart';
 
 // =============================================================================
 // WIDGETS - ANIMATIONS
@@ -43,6 +44,7 @@ export 'widgets/inputs/app_text_field.dart';
 // =============================================================================
 
 export 'widgets/cards/app_card.dart';
+export 'widgets/invitation_quota_note.dart';
 
 // =============================================================================
 // WIDGETS - IMAGES

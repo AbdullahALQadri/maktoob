@@ -79,6 +79,13 @@ class UnauthorizedException extends ServerException {
       : super(message: message ?? 'Unauthorized', code: 401);
 }
 
+/// 403 `{code: "institution_not_approved"}`: the event belongs to an
+/// institution that an admin has not approved yet (sending invitations).
+/// Extends [UnauthorizedException] so existing 403 handling still applies.
+class InstitutionNotApprovedException extends UnauthorizedException {
+  const InstitutionNotApprovedException({super.message});
+}
+
 /// Exception thrown when access is forbidden (HTTP 403).
 class ForbiddenException extends ServerException {
   const ForbiddenException({String? message})
@@ -127,6 +134,21 @@ class AuthenticationException extends AppException {
 }
 
 /// Exception thrown when validation fails.
+///
+/// [errors] is Laravel's per-field map (`{field: [messages]}`) and
+/// [blockers] the optional machine codes some endpoints add (e.g.
+/// `free_trial_used` from `/event-wizard/{id}/activate`).
 class ValidationException extends AppException {
-  const ValidationException({super.message, super.code});
+  final Map<String, List<String>> errors;
+  final List<String> blockers;
+
+  const ValidationException({
+    super.message,
+    super.code,
+    this.errors = const {},
+    this.blockers = const [],
+  });
+
+  @override
+  List<Object?> get props => [message, code, errors, blockers];
 }

@@ -27,37 +27,32 @@ void main() {
       WidgetsFlutterBinding.ensureInitialized();
 
       // Initialize Firebase before anything else that might use it
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+      final pushAvailable = await _initFirebase();
 
       // Run orientation lock and DI initialization in parallel for faster startup
       await Future.wait([
-        di.init(),
-        SystemChrome.setPreferredOrientations([
-          DeviceOrientation.portraitUp,
-          DeviceOrientation.portraitDown,
-        ]),
+        di.init(pushAvailable: pushAvailable),
+        SystemChrome.setPreferredOrientations(
+          _isTablet()
+              ? DeviceOrientation.values
+              : const [
+                  DeviceOrientation.portraitUp,
+                  DeviceOrientation.portraitDown,
+                ],
+        ),
       ]);
 
       // Initialize FCM service (requests permission, captures token, wires streams)
       // Run unawaited — token registration happens via tokenStream listeners
       unawaited(di.sl<FcmService>().initialize());
 
-      // Run device security check (root/jailbreak detection)
-      final securityService = di.sl<DeviceSecurityService>();
-      await securityService.checkDeviceSecurity();
+      // Device check is informational only: never blocks the app (store
+      // reviewers use emulators). Fire-and-forget, result is logged.
+      unawaited(di.sl<DeviceSecurityService>().checkDeviceSecurity());
 
       // Set up BLoC Observer only in debug mode to reduce overhead in release
       if (kDebugMode) {
         Bloc.observer = MyBlocObserver();
-      }
-
-      // Block compromised devices in release mode
-      if (!securityService.isDeviceSecure) {
-        runApp(const CompromisedDeviceApp());
-        return;
       }
 
       runApp(const Maktoob());
@@ -68,4 +63,36 @@ void main() {
       }
     },
   );
+}
+
+/// Phones stay portrait; tablets (shortest side >= 600dp) rotate freely.
+bool _isTablet() {
+  final views = WidgetsBinding.instance.platformDispatcher.views;
+  if (views.isEmpty) return false;
+  final view = views.first;
+  final size = view.physicalSize / view.devicePixelRatio;
+  return size.shortestSide >= 600;
+}
+
+/// Starts Firebase; returns false (push off) instead of throwing, so a missing
+/// config can never keep the app from launching.
+///
+/// iOS reads its config from ios/Runner/GoogleService-Info.plist (copied into
+/// the bundle by the "Copy GoogleService-Info.plist" build phase); Android
+/// uses the generated [DefaultFirebaseOptions].
+Future<bool> _initFirebase() async {
+  try {
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      await Firebase.initializeApp();
+    } else {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    return true;
+  } catch (e) {
+    debugPrint('Firebase unavailable, push notifications are off: $e');
+    return false;
+  }
 }

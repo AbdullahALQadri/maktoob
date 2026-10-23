@@ -116,6 +116,11 @@ class ScannerFailure extends Failure {
   const ScannerFailure({super.message, super.code});
 }
 
+/// Check-in refused with 409: the guest is already checked in.
+class AlreadyCheckedInFailure extends ScannerFailure {
+  const AlreadyCheckedInFailure({super.message, super.code});
+}
+
 /// Represents a failure during file picking operations.
 class FilePickerFailure extends Failure {
   const FilePickerFailure({super.message, super.code});

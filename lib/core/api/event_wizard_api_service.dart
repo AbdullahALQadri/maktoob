@@ -20,10 +20,12 @@ class EventWizardApiService {
     return response as Map<String, dynamic>;
   }
 
-  /// Get templates for specific event type
+  /// Ready-made designs for an event type (the public gallery; there is no
+  /// wizard templates route).
   Future<Map<String, dynamic>> getTemplatesForEventType(int eventTypeId) async {
     final response = await _apiConsumer.get(
-      Endpoints.wizardEventTypeTemplates(eventTypeId),
+      Endpoints.publicTemplates,
+      queryParameters: {'event_type_id': eventTypeId},
     );
     return response as Map<String, dynamic>;
   }
@@ -48,31 +50,20 @@ class EventWizardApiService {
     int? eventTypeId,
     String? customEventTypeName,
     int? templateId,
+    int? institutionId,
   }) async {
     final response = await _apiConsumer.post(
       Endpoints.wizardInitialize,
       body: {
+        // Owner / manager creating on behalf of an approved institution.
+        if (institutionId != null) 'institution_id': institutionId,
         if (eventTypeId != null) 'event_type_id': eventTypeId,
         if (customEventTypeName != null)
           'custom_event_type_name': customEventTypeName,
-        if (templateId != null) 'template_id': templateId,
+        // Designs come from the public gallery (ai_generated_images); the
+        // server links a gallery image as the event's design by this key.
+        if (templateId != null) 'ai_generated_image_id': templateId,
       },
-    );
-    return response as Map<String, dynamic>;
-  }
-
-  /// Submit custom template (file upload or description)
-  Future<Map<String, dynamic>> submitCustomTemplate({
-    required int eventId,
-    File? uploadFile,
-    String? description,
-  }) async {
-    final response = await _apiConsumer.postWithImage(
-      Endpoints.wizardCustomTemplate(eventId),
-      body: {
-        if (description != null) 'description': description,
-      },
-      params: uploadFile != null ? _FileParams(uploadFile) : null,
     );
     return response as Map<String, dynamic>;
   }
@@ -87,6 +78,11 @@ class EventWizardApiService {
       Endpoints.wizardFormFields(eventId),
     );
     return response as Map<String, dynamic>;
+  }
+
+  static String _dateTime(DateTime d, String? hhmm) {
+    final day = d.toIso8601String().split('T')[0];
+    return hhmm == null || hhmm.isEmpty ? day : '$day $hhmm';
   }
 
   /// Save event details
@@ -117,9 +113,13 @@ class EventWizardApiService {
         // description (migration 2026_07_01); event_date/end_date are datetimes.
         'title': titleAr,
         if (descriptionAr != null) 'description': descriptionAr,
-        'event_date': eventDate.toIso8601String().split('T')[0],
+        // event_date/end_date are datetimes: send "YYYY-MM-DD HH:MM".
+        'event_date': _dateTime(eventDate, eventTime),
         if (eventEndDate != null)
-          'end_date': eventEndDate.toIso8601String().split('T')[0],
+          'end_date': _dateTime(eventEndDate, eventEndTime ??
+              (eventEndDate.hour != 0 || eventEndDate.minute != 0
+                  ? '${eventEndDate.hour.toString().padLeft(2, '0')}:${eventEndDate.minute.toString().padLeft(2, '0')}'
+                  : null)),
         if (venueId != null) 'venue_id': venueId,
         if (customVenueNameAr != null) 'custom_venue_name_ar': customVenueNameAr,
         if (customVenueNameEn != null) 'custom_venue_name_en': customVenueNameEn,
@@ -145,28 +145,6 @@ class EventWizardApiService {
   Future<Map<String, dynamic>> getInvitationPreview(int eventId) async {
     final response = await _apiConsumer.get(
       Endpoints.wizardPreview(eventId),
-    );
-    return response as Map<String, dynamic>;
-  }
-
-  /// Generate AI template image
-  Future<Map<String, dynamic>> generateTemplate(
-    int eventId, {
-    String? prompt,
-    String? basePrompt,
-    int? eventTypeId,
-    Map<String, dynamic>? formValues,
-    String? customPrompt,
-  }) async {
-    final response = await _apiConsumer.post(
-      Endpoints.wizardGenerateTemplate(eventId),
-      body: {
-        if (prompt != null) 'prompt': prompt,
-        if (basePrompt != null) 'base_prompt': basePrompt,
-        if (eventTypeId != null) 'event_type_id': eventTypeId,
-        if (formValues != null) 'form_values': formValues,
-        if (customPrompt != null) 'custom_prompt': customPrompt,
-      },
     );
     return response as Map<String, dynamic>;
   }
@@ -306,14 +284,16 @@ class EventWizardApiService {
     return response as Map<String, dynamic>;
   }
 
-  /// Add guests manually
+  /// Sync the wizard guest list. The wizard always sends its whole list, so
+  /// `replace` lets the server drop guests the host removed (they would
+  /// otherwise still be invited at save).
   Future<Map<String, dynamic>> addManualGuests(
     int eventId,
     List<Map<String, String>> guests,
   ) async {
     final response = await _apiConsumer.post(
       Endpoints.wizardGuestsManual(eventId),
-      body: {'guests': guests},
+      body: {'guests': guests, 'replace': true},
     );
     return response as Map<String, dynamic>;
   }
@@ -427,6 +407,16 @@ class EventWizardApiService {
         if (customChannels != null) 'custom_channels': customChannels,
         if (customFeatures != null) 'custom_features': customFeatures,
       },
+    );
+    return response as Map<String, dynamic>;
+  }
+
+  /// Server price of a custom package for [guestCount] invitations. The
+  /// same calculation backs the custom package chosen at selectPackage.
+  Future<Map<String, dynamic>> calculateCustomPackage(int guestCount) async {
+    final response = await _apiConsumer.post(
+      Endpoints.customPackageCalculate,
+      body: {'guest_count': guestCount},
     );
     return response as Map<String, dynamic>;
   }

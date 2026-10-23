@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../utils/app_colors.dart';
+import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
 /// A loading indicator widget with gradient styling.
 ///
@@ -183,7 +184,7 @@ class _AppLoaderState extends State<AppLoader>
     Widget loader = SizedBox(
       width: widget.size,
       height: widget.size,
-      child: CircularProgressIndicator(
+      child: MkSpinner(
         strokeWidth: widget.strokeWidth,
         valueColor: AlwaysStoppedAnimation<Color>(_gradientColors.first),
       ),
@@ -233,7 +234,7 @@ class _AppLoaderState extends State<AppLoader>
             ),
             child: widget.progress != null
                 ? FractionallySizedBox(
-                    alignment: Alignment.centerLeft,
+                    alignment: AlignmentDirectional.centerStart,
                     widthFactor: widget.progress!.clamp(0.0, 1.0),
                     child: Container(
                       decoration: BoxDecoration(

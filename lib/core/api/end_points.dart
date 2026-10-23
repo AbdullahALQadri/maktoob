@@ -23,6 +23,7 @@ class Endpoints {
   static const String publicVenues = '/public/venues';
   static const String publicEventTypes = '/public/event-types';
   static const String publicTemplates = '/public/templates';
+  static const String customPackageCalculate = '/custom-package/calculate';
   static const String publicPackages = '/public/packages';
   static const String publicConfig = '/public/config';
   static String publicInvitation(String qrCode) => '/public/invitation/$qrCode';
@@ -34,10 +35,8 @@ class Endpoints {
 
   // Page 1 - Event Type & Template Selection
   static const String wizardEventTypes = '/event-wizard/event-types';
-  static String wizardEventTypeTemplates(int typeId) => '/event-wizard/event-types/$typeId/templates';
   static const String wizardCustomEventType = '/event-wizard/event-types/custom';
   static const String wizardInitialize = '/event-wizard/initialize';
-  static String wizardCustomTemplate(int eventId) => '/event-wizard/$eventId/custom-template';
 
   // Page 2 - Event Details
   static String wizardFormFields(int eventId) => '/event-wizard/$eventId/form-fields';
@@ -47,7 +46,6 @@ class Endpoints {
   static String wizardPreview(int eventId) => '/event-wizard/$eventId/preview';
 
   // AI Template Generation (legacy — kept for backwards compat)
-  static String wizardGenerateTemplate(int eventId) => '/event-wizard/$eventId/generate-template';
   static String wizardGenerationStatus(int eventId, int imageId) => '/event-wizard/$eventId/generation-status/$imageId';
 
   // AI Design Studio — two-step generation
@@ -76,6 +74,12 @@ class Endpoints {
   // Page 5 - Extra Services
   static String wizardServices(int eventId) => '/event-wizard/$eventId/services';
 
+  /// Extra services on a paid event: GET/POST list + request, DELETE withdraw,
+  /// POST pay (multipart, like /payment-requests). Pays only the services.
+  static String eventAddOns(int eventId) => '/events/$eventId/add-ons';
+  static String eventAddOn(int eventId, int serviceId) => '/events/$eventId/add-ons/$serviceId';
+  static String eventAddOnsPay(int eventId) => '/events/$eventId/add-ons/pay';
+
   // Page 6 - Packages
   static String wizardPackages(int eventId) => '/event-wizard/$eventId/packages';
   static String wizardSelectPackage(int eventId) => '/event-wizard/$eventId/package';
@@ -86,8 +90,6 @@ class Endpoints {
   static String wizardState(int eventId) => '/event-wizard/$eventId/state';
   static String wizardActivate(int eventId) => '/event-wizard/$eventId/activate';
 
-  // WhatsApp Configuration
-  static const String whatsappConfig = '/config/whatsapp';
 
   // ============================================================
   // CLIENT AUTHENTICATION
@@ -97,15 +99,17 @@ class Endpoints {
   static const String clientLogout = '/auth/logout';
   static const String clientProfile = '/auth/profile';
   static const String clientUpdateProfile = '/auth/profile';
-  static const String clientChangeUserType = '/auth/change-user-type';
+  /// POST multipart `avatar` to set, DELETE to remove the profile photo.
+  static const String clientProfileAvatar = '/auth/profile/avatar';
   static const String clientForgotPassword = '/auth/forgot-password';
   static const String clientVerifyOtp = '/auth/verify-otp';
   static const String clientResendOtp = '/auth/resend-otp';
   static const String clientResetPassword = '/auth/reset-password';
   static const String clientChangePassword = '/auth/change-password';
   static const String clientFcmToken = '/auth/fcm-token';
+  /// POST `{terms_accepted: true}`: accept the Terms / Privacy version in force.
+  static const String clientAcceptLegal = '/auth/legal/accept';
   static const String clientDeleteAccount = '/auth/account';
-  static const String clientRefreshToken = '/auth/refresh-token';
 
   // ============================================================
   // CLIENT - DASHBOARD
@@ -121,9 +125,7 @@ class Endpoints {
   static String event(int id) => '/events/$id';
   static String eventStatistics(int id) => '/events/$id/statistics';
   static String eventSendInvitations(int id) => '/events/$id/send-invitations';
-  static String eventDuplicate(int id) => '/events/$id/duplicate';
   static String eventEditRequests(int id) => '/events/$id/edit-requests';
-  static String editRequest(int id) => '/edit-requests/$id';
 
   // ============================================================
   // CLIENT - GUESTS
@@ -136,8 +138,14 @@ class Endpoints {
   // CLIENT - INVITATIONS
   // ============================================================
   static String eventInvitations(int eventId) => '/events/$eventId/invitations';
+
+  // In-app notifications (client inbox)
+  static const String notifications = '/notifications';
+  static const String notificationsReadAll = '/notifications/read-all';
+  static String notificationRead(int id) => '/notifications/$id/read';
   static String invitation(int id) => '/invitations/$id';
   static String invitationResend(int id) => '/invitations/$id/resend';
+  static String eventGuestsAdd(int eventId) => '/events/$eventId/guests/add';
   static String invitationCheckIn(int id) => '/invitations/$id/check-in';
 
   // ============================================================
@@ -153,6 +161,20 @@ class Endpoints {
   static const String payments = '/payments';
   static String payment(int id) => '/payments/$id';
   static const String paymentsInitiate = '/payments/initiate';
+
+  // Institutions (companies & associations)
+  static const String institution = '/institution';
+  static const String institutionProfile = '/institution/profile';
+  static const String institutionMembers = '/institution/members';
+  static String institutionMember(int id) => '/institution/members/$id';
+  static String institutionInviteAccept(int id) => '/institution/invites/$id/accept';
+  static String institutionInvite(int id) => '/institution/invites/$id';
+  static const String institutionCredits = '/institution/credits';
+  /// POST multipart {type, file}; DELETE /{id} (only before approval).
+  static const String institutionDocuments = '/institution/documents';
+  static String institutionDocument(int id) => '/institution/documents/$id';
+  /// Read-only manual-payment details (bank / wallet / instructions / contacts).
+  static const String paymentBankDetails = '/payments/bank-details';
   static const String couponsValidate = '/coupons/validate';
 
   // ============================================================
@@ -214,8 +236,11 @@ class Endpoints {
   // ============================================================
   static const String scannerScan = '/scanner/check-in/scan';
   static String scannerCheckInVerify(int id) => '/scanner/check-in/$id/verify';
-  static const String scannerCheckInHistory = '/scanner/check-in/history';
   static String scannerAttendance(int venueId) => '/scanner/attendance/$venueId';
+
+  // Host self-scan (client token). `/scanner/*` above needs a scanner account.
+  static String eventCheckInScan(int eventId) => '/events/$eventId/check-in/scan';
+  static String eventCheckInList(int eventId) => '/events/$eventId/guests/check-in-list';
 
   // ============================================================
   // ADMIN AUTHENTICATION
