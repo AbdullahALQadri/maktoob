@@ -1,6 +1,6 @@
 # Maktoob — Design System
 
-Warm, cultural, event-festive direction for the Maktoob event/invitation app.
+Sky blue + navy identity for the Maktoob event/invitation platform.
 This file is the source of truth for visual decisions. When code and this
 document disagree, fix the code.
 
@@ -9,80 +9,108 @@ document disagree, fix the code.
 ## Direction
 
 Maktoob is an event and invitation product for the MENA market. The visual
-language should feel **like an opened envelope on warm paper**: ivory
-surfaces, refined gold for celebration, deep emerald for grounding, warm
-charcoal type. Not a generic SaaS dashboard. Not a wedding-cliché palette.
+language is **sky and night**: a clear sky blue for every action, a deep
+navy for depth and trust, cool cloud-paper surfaces and slate type. The
+logo (white QR-"M" on sky blue) is the anchor of the palette. Not a generic
+SaaS dashboard: navy carries the ceremony, sky carries the invitation.
 
-**Mood words**: warm, considered, ceremonial-without-loud, premium-paper,
-hospitable.
+**Mood words**: clear, trustworthy, calm, hospitable, ceremonial-without-loud.
 
-**What we are not**: sky-blue startup, purple-gradient AI app,
-glassmorphism, neon, gradient-on-everything, dribbble bento.
+**What we are not**: purple-gradient AI app, glassmorphism, neon,
+gradient-on-everything, dribbble bento.
 
 ---
 
 ## Palette
 
 All tokens live in `lib/core/utils/app_colors.dart`. Use the named constants;
-do not hardcode hex.
+do not hardcode hex. The same values are used by the admin dashboard
+(`maktoob-backend/public/dashboard/css/maktoob-admin.css`, Sneat via
+`scripts/brand-sneat-theme.php`) and the client portal
+(`resources/views/client/layouts/css.blade.php`).
 
 ### Brand
 
 | Role | Token | Hex | Notes |
 |---|---|---|---|
-| Primary accent | `primaryColor` | `#C2884A` | Saffron-gold. CTAs, focus rings, key actions. |
-| On-primary | `secondaryColor` / `white` | `#FFFFFF` | Text/icons sitting on `primaryColor`. |
-| Secondary accent | `tertiaryColor` | `#0E5E4A` | Deep emerald. Success, complementary highlights, secondary CTAs. |
+| Primary | `primaryColor` | `#3AA4DB` | Sky blue. CTAs, focus rings, selection, progress, the logo. |
+| On-primary | `secondaryColor` / `white` | `#FFFFFF` | Text/icons on `primaryColor` (bold, 16px+). |
+| Depth | `tertiaryColor` | `#032855` | Navy. Gradient ends (sky → navy), headers, admin/portal sidebar, info. |
+| Sky as text (light) | `primaryDark` | `#1A73A8` | Sky on white is 2.8:1, so links / text buttons / tab labels use this (5.2:1). Also the pressed state. |
+| Sky as text (dark) | `primaryLight` | `#7DC4EA` | Links, tabs and accents on the navy night. |
 
-The primary–tertiary pair is the only color combination that should
-visually anchor a screen. Reaching for a third hue means the composition
-is doing too much.
+The sky–navy pair is the only color combination that should visually anchor
+a screen. Reaching for a third hue means the composition is doing too much.
+The signature gradient is `[primaryColor, tertiaryColor]`.
 
-### Surfaces
+### Surfaces (light)
 
 | Role | Token | Hex | Notes |
 |---|---|---|---|
-| Scaffold background | `surfaceBg` | `#FBF7F1` | Warm ivory. The defining "paper" surface. |
-| Card / surface | `white` | `#FFFFFF` | Cards lift off the ivory scaffold — a subtle but important hierarchy cue. |
-| Container highest | `gray100` | `#F1ECDF` | Warm parchment. Input fills, chip backgrounds. |
-| AppBar | `surfaceBg` | `#FBF7F1` | Same as scaffold — no visual seam between AppBar and body. |
+| Scaffold background | `surfaceBg` | `#F5F8FC` | Cloud paper. |
+| Card / surface | `white` | `#FFFFFF` | Cards lift off the scaffold with a 1px `gray200` outline. |
+| Container highest | `gray100` | `#EEF2F7` | Input fills, chip backgrounds. |
+| AppBar | `surfaceBg` | `#F5F8FC` | Same as scaffold — no seam between AppBar and body. |
+| Sky wash | `sky50` / `sky100` / `sky200` | `#EAF5FC` / `#D4ECF8` / `#A9D8F0` | Selected chips, primary container, info banners. |
+| Navy wash | `navy50` | `#E6ECF4` | Tertiary container, info pills. |
 
-### Warm neutral ramp (named `gray*` for backward compatibility)
+### Slate ramp (named `gray*` for backward compatibility)
 
 ```
-gray50   #FAF6EE   warm white
-gray100  #F1ECDF   parchment
-gray200  #E5DDCB   sand            (borders, outlineVariant)
-gray300  #CFC1A8   dune            (outline, dividers when stronger)
-gray400  #A8997B   taupe light     (hint text, disabled)
-gray500  #867860   taupe mid       (icons secondary)
-gray600  #6B5C45   taupe dark      (body secondary text)
-gray700  #4C3F2E   bistre          (body)
-gray800  #332921   coffee
-gray900  #1F1B16   warm charcoal   (body primary text)
+gray50   #F7F9FC   mist
+gray100  #EEF2F7   cloud           (input fill, chips)
+gray200  #DFE6EE   line            (borders, outlineVariant)
+gray300  #C5D0DC   strong line     (outline)
+gray400  #94A3B8   hint / disabled
+gray500  #6B7C93   icons secondary
+gray600  #4E5F75   body secondary text
+gray700  #364558   body
+gray800  #1E2B3C
+gray900  #0F1B2B   ink             (body primary text)
 ```
 
-Everywhere the previous code reached for "gray," it now resolves to warm
-taupe. This is intentional — neutrals carry palette temperature, not just
-brightness.
+Neutrals carry a hint of navy so they sit with the brand pair instead of
+reading as flat grey.
 
-### Status colors
+### Dark mode — navy night
+
+Dark mode is not grey: it is the navy brought down to night. Never put navy
+`#032855` text on dark surfaces — use `context.brandInk` (navy in light,
+`primaryLight` in dark) or `context.primaryText`.
 
 | Role | Token | Hex |
 |---|---|---|
-| Success | `tertiaryColor` / `green600` | `#0E5E4A` / `#1B7F4A` |
-| Warning | `amber500` | `#D4A24A` |
-| Error | `red500` | `#C4523A` (warm rust, not cool red) |
-| Info | `amber700` | `#8E6422` |
+| Scaffold / AppBar | `darkBg` | `#07111F` |
+| Cards, sheets, dialogs, bottom bar | `darkSurface` | `#0D1B2E` |
+| Inputs, chips, raised | `darkSurfaceHigh` | `#13243A` |
+| Outline / divider | `darkBorder` | `#1E3350` |
+| Strong outline (unselected controls) | `darkBorderStrong` | `#2A4566` |
+| Text | `darkText` | `#E6EDF5` |
+| Secondary text | `darkTextSecondary` | `#8FA3BC` |
+| Hint / disabled | `darkTextMuted` | `#64799A` |
+| Primary | `primaryColor` | `#3AA4DB` (6.2:1 on `darkSurface`) |
+| Error | `darkError` | `#F87171` |
+
+Web: the admin sidebar is navy `#032855` in light mode and `#050D18` in dark;
+"info" is navy in light and steel blue `#8FB4E0` in dark.
+
+### Status colors
+
+| Role | Token | Hex (light / dark) |
+|---|---|---|
+| Success | `green600` | `#16A34A` / `#4ADE80` |
+| Warning | `amber500` / `amber600` | `#F59E0B` / `#FBBF24` |
+| Error | `red500` | `#DC2626` / `#F87171` |
+| Info | `tertiaryColor` | `#032855` / `#8FB4E0` |
 
 ### Containers (Material 3 ColorScheme)
 
-| Slot | Token | Why |
+| Slot | Light | Dark |
 |---|---|---|
-| `primaryContainer` | `amber50` `#FBF1E0` | Light cream that supports gold without competing. |
-| `onPrimaryContainer` | `tertiaryColor` | Deep emerald text on light cream — high-contrast editorial look. |
-| `tertiaryContainer` | `emerald50` `#E8F1EC` | Soft emerald wash. |
-| `onTertiaryContainer` | `tertiaryColor` | Same emerald, darker tone, on the light wash. |
+| `primaryContainer` | `sky50` | `tertiaryColor` (navy) |
+| `onPrimaryContainer` | `tertiaryColor` | `darkText` |
+| `tertiary` | `tertiaryColor` | `primaryLight` (navy would vanish) |
+| `tertiaryContainer` | `navy50` | `navy700` |
 
 ### Escape hatches
 
@@ -90,7 +118,26 @@ brightness.
 `yellow*` are kept for **non-brand surfaces only** — chart colors,
 illustration accents, the `ai_design` feature's color picker. **Do not use
 them in product chrome.** If a screen needs decoration, reach for the
-warm-neutral ramp or the brand pair first.
+slate ramp or the brand pair first.
+
+Invitation artwork palettes (Hermes / `TemplateNormalizer`, e.g.
+`emerald_gold`) are the guest's design choice, not the product identity,
+and are out of scope for these tokens.
+
+### Hourly banner moods (web)
+
+Hero banners are the one product surface that leaves the sky/navy pair, by
+the owner's decision: the client dashboard hero, the admin "Today" banner
+and the client sign-in panel take a curated **mood** that changes every hour
+(Asia/Gaza; the cycle shifts by a day so the same hour differs tomorrow).
+Moods: olive & gold, Maktoob sky, Gaza sunset, Mediterranean, starry night,
+damask rose, clay & sand, dawn. Source: `App\Support\BannerMood` (the
+palettes), `resources/views/partials/mood.blade.php` (`.mk-mood`), preview
+any one with `?mood=<key>`.
+
+- Banners only. Buttons, links, inputs, statuses and cards stay sky/navy.
+- Every mood keeps white text at 4.5:1 on its lightest stop.
+- On a mood, the primary button is white with the mood's `ink` text.
 
 ---
 
@@ -234,7 +281,9 @@ The app already supports Arabic, Turkish, English with proper RTL via
 Pulled from the design skills installed globally. Any of these in code is a
 regression:
 
-- Cool sky-blue accents (the old `#3AA4DB`).
+- Warm gold / ivory / emerald chrome (the retired 2026 palette).
+- Navy text on dark surfaces (use `context.brandInk`).
+- Sky `#3AA4DB` as small text on white (use `primaryDark`).
 - Purple-to-pink gradients on CTAs.
 - Card-in-card-in-card nesting.
 - Bottom nav with 5+ items.
@@ -252,55 +301,54 @@ For when we redesign screens one by one. Each gets a single visual move.
 
 | Feature | Primary move |
 |---|---|
-| **auth/login** | Editorial display headline + warm full-bleed photographic backdrop (top 40%), form on ivory card lifted off bottom. Single CTA gold. |
-| **auth/register** | Same backdrop language as login, multi-step with subtle progress indicator in gold. |
-| **home** | Ivory scaffold. Section headers in titleLarge weight. Upcoming events as photo-led cards with date in display weight. No widget grid clutter. |
+| **auth/login** | Editorial display headline + full-bleed photographic backdrop with a sky → navy wash (top 40%), form on a white card lifted off bottom. Single sky CTA. |
+| **auth/register** | Same backdrop language as login, multi-step with subtle progress indicator in sky. |
+| **home** | Cloud scaffold. Section headers in titleLarge weight. Upcoming events as photo-led cards with date in display weight. No widget grid clutter. |
 | **events/list** | List with generous row padding (16+ vertical), photo on leading side, event title and date stacked. |
-| **events/detail** | Hero image, gradient-to-ivory mask, title block, then sectioned information (when/where/host/RSVP) — each section separated by 32px+ gap, no card nesting. |
-| **invitation/create** | Wizard with strong step indicator using gold. Sheet-based step entry. Preview on right (or below on phone). |
+| **events/detail** | Hero image, gradient-to-cloud mask (navy night in dark), title block, then sectioned information (when/where/host/RSVP) — each section separated by 32px+ gap, no card nesting. |
+| **invitation/create** | Wizard with strong step indicator using sky. Sheet-based step entry. Preview on right (or below on phone). |
 | **invitation/preview** | Full-bleed preview with the invitation as the hero — chrome reduced to floating actions. |
-| **scanner** | Camera fills the screen, gold reticle, minimal chrome. Success state in emerald. |
-| **payment** | Single column, summary card on top, payment method below, single gold CTA. No promotional banners. |
+| **scanner** | Camera fills the screen, sky reticle, minimal chrome. Success state in green. |
+| **payment** | Single column, summary card on top, payment method below, single sky CTA. No promotional banners. |
 | **settings** | List-led, grouped sections, section titles in `gray700`. No icons-in-colored-tiles pattern next to every row. |
-| **venues** | Map + list combo. Map uses warm/desaturated tiles if possible. List items photo-led like events. |
-| **ai_design** | Allowed to break visual rules — this is the playground feature. Brand chrome (header/back) stays warm; the canvas is freeform. |
+| **venues** | Map + list combo. Map uses cool/desaturated tiles if possible. List items photo-led like events. |
+| **ai_design** | Allowed to break visual rules — this is the playground feature. Brand chrome (header/back) stays sky/navy; the canvas is freeform. |
 
 ---
 
 ## What changes by file
 
-Phase 1 (this redesign — done):
-- `lib/core/utils/app_colors.dart` — full token swap to warm palette
-- `lib/config/themes/app_theme.dart` — scaffold/appbar background, primary
-  & tertiary container slots
+The sky + navy identity (October 2026) replaced the short-lived gold/emerald
+palette across the whole platform:
+- `lib/core/utils/app_colors.dart` — brand, slate ramp, navy-night dark
+  tokens, `context.brandInk` / `primaryText` / `primaryWash`.
+- `lib/config/themes/app_theme.dart` — light theme washes, deep-sky text
+  buttons; dark theme rebuilt on the navy night.
+- Android splash: sky in light, navy in dark (`values-night-v31`).
+- Admin: `scripts/brand-sneat-theme.php` (re-run on original Sneat files),
+  `public/dashboard/css/maktoob-admin.css`, `public/sneat/js/config.js`.
+- Client portal: `resources/views/client/layouts/css.blade.php`
+  (follows `body.dark-theme`).
+- Emails and billing documents use the same hex values.
 
-Phase 2 (per-screen):
+Still open:
 - Each screen under `lib/features/*/presentation/screens/` reviewed
-  against its row in the table above. Structural changes allowed since
-  the user opted in.
-- Shared widgets under `lib/core/widgets/` upgraded when a pattern
-  repeats across 3+ screens.
-
-Phase 3 (polish):
-- Dark theme palette refinement (currently still uses cool dark
-  surfaces — needs a warm-shifted dark like `#18130F`).
+  against its row in the table above.
 - Custom invitation/venue iconography pass.
 - Motion pass with `flutter_animate`.
 
 ---
 
-## How to verify the Phase 1 redesign
+## How to verify
 
-1. `flutter pub get` (no new deps but safe to run).
-2. `flutter run` on a device or emulator.
-3. Open these screens and confirm:
-   - Background is warm ivory, not white.
-   - Primary buttons are gold, not blue.
-   - Text on white cards has warm charcoal color (not the old cool charcoal).
-   - Borders and dividers have a subtle warm tint.
-4. Check Arabic locale — same warm palette, RTL still correct.
-5. Check the `ai_design` feature — its custom color pickers still work
-   (the purple/pink/cyan tokens were preserved as escape hatches).
+1. `flutter analyze` then `flutter run` on a device.
+2. Light mode: cloud background `#F5F8FC`, sky primary buttons, sky → navy
+   headers, links in deep sky.
+3. Dark mode: navy-night background (not grey), cards `#0D1B2E` with a
+   `#1E3350` outline, no navy text anywhere.
+4. Arabic locale — same palette, RTL still correct.
+5. Admin (`/admin`) and portal: toggle dark mode — navy sidebar, navy-night
+   pages, steel-blue info.
 
 If anything looks wrong, the most likely culprit is a screen that
 hardcoded a hex color instead of using a token. Search `0xFF` under

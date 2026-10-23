@@ -80,7 +80,7 @@ What this means in practice:
   hospitable, not blank.
 - Errors apologize for the inconvenience, not for the user. They
   describe what happened in plain language and what to do next.
-- Loading states have texture. Static spinners over warm ivory, not
+- Loading states have texture. Static spinners over cloud paper, not
   generic progress bars.
 - Numbers are restrained. "246 of 282 guests responded" is a fact, not
   a hero metric in a giant gradient panel.
@@ -93,8 +93,9 @@ product helps. That framing is non-negotiable.
 
 Maktoob explicitly should NOT look or feel like:
 
-- **Sky-blue / cool-gray SaaS startup apps.** The old #3AA4DB palette
-  and "modern tech app" aesthetic. Already banned in DESIGN.md.
+- **Generic "modern tech app" SaaS.** Sky blue is our brand, but it
+  is paired with navy depth and ceremony, never flat blue-on-grey
+  dashboards.
 - **AI-product cliches.** Purple-to-pink gradients, neon glows,
   sparkles, "Powered by AI" badges, magic-wand iconography. The
   visible AI tropes signal a different product class.
@@ -127,8 +128,8 @@ These are strategic, not visual rules. Visual decisions live in
    the app reports back. Polish the artifact first.
 
 3. **Cultural specificity over generic celebration.** Lean MENA:
-   Tajawal type, Arabic-first composition, saffron-gold and deep
-   emerald, calligraphy moments, RTL layout discipline. Refuse
+   Tajawal type, Arabic-first composition, the sky blue + navy
+   brand pair, calligraphy moments, RTL layout discipline. Refuse
    Western-wedding vocabulary. Refuse generic-celebration palette.
 
 4. **AI is invisible plumbing.** The host generates beautiful
@@ -159,8 +160,8 @@ specifics emphasized.
   must remain legible at 200% scale. Critical because older relatives
   routinely review invitations with system text scaled up.
 - **WCAG AA color contrast**: text/background ratios verified at
-  4.5:1 minimum (3:1 for large text). The warm palette in DESIGN.md
-  is designed to meet this — confirm per surface as we build.
+  4.5:1 minimum (3:1 for large text). The sky + navy palette in DESIGN.md
+  is designed to meet this (sky as text uses `primaryDark`) — confirm per surface as we build.
 - **Color-blind safe status semantics**: success, warning, error, and
   info states are communicated by more than color alone — icons,
   positions, and labels carry the meaning so red/green deficiency
