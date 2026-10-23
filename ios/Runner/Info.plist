@@ -56,9 +56,16 @@
 		<string>يحتاج التطبيق إلى الوصول إلى مكتبة الصور لاختيار صور الدعوة وإيصالات الدفع</string>
 		<key>NSPhotoLibraryAddUsageDescription</key>
 		<string>يحتاج التطبيق إلى إذن لحفظ الدعوة في مكتبة الصور</string>
-		<!-- Location (venue picker on map) -->
-		<key>NSLocationWhenInUseUsageDescription</key>
-		<string>يحتاج التطبيق إلى موقعك لعرض الأماكن القريبة على الخريطة</string>
+		<!-- Push notifications (FCM) delivered while the app is in the background -->
+		<key>UIBackgroundModes</key>
+		<array>
+			<string>remote-notification</string>
+		</array>
+		<!-- url_launcher canLaunchUrl() for the WhatsApp deep link -->
+		<key>LSApplicationQueriesSchemes</key>
+		<array>
+			<string>whatsapp</string>
+		</array>
 		<key>UIStatusBarHidden</key>
 		<false/>
 	</dict>
