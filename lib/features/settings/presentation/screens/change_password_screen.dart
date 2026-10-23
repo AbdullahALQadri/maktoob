@@ -17,7 +17,11 @@ import '../widgets/change_password_form_card.dart';
 class ChangePasswordScreen extends StatefulWidget {
   final String phone;
 
-  const ChangePasswordScreen({super.key, required this.phone});
+  /// The account was opened by the team with a temporary password: no way
+  /// back, and on success the app refreshes the profile and opens normally.
+  final bool forced;
+
+  const ChangePasswordScreen({super.key, required this.phone, this.forced = false});
 
   @override
   State<ChangePasswordScreen> createState() => _ChangePasswordScreenState();
@@ -115,6 +119,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthPasswordChanged) {
+          if (widget.forced) {
+            // Re-read the profile: the flag is cleared, the wrapper opens the app.
+            context.read<AuthCubit>().refreshProfile();
+            return;
+          }
           _showSuccessDialog();
         } else if (state is AuthError) {
           AppSnackBar.showError(context, message: state.message);
@@ -141,18 +150,22 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                       child: Column(
                         children: [
                           SizedBox(height: context.dynamicHeight(0.02)),
-                          AuthBackHeader(
-                            title: t.translate('profile_change_password'),
-                            onBack: () => Navigator.pop(context),
-                          ),
+                          if (!widget.forced)
+                            AuthBackHeader(
+                              title: t.translate('profile_change_password'),
+                              onBack: () => Navigator.pop(context),
+                            ),
                           SizedBox(height: context.dynamicHeight(0.06)),
                           const AuthScreenIcon(
                               icon: Icons.lock_outline_rounded),
                           SizedBox(height: context.dynamicHeight(0.03)),
                           AuthTitleSection(
-                            title: t.translate('profile_change_password'),
-                            subtitle:
-                                t.translate('auth_change_password_subtitle'),
+                            title: widget.forced
+                                ? t.translate('auth_choose_own_password_title')
+                                : t.translate('profile_change_password'),
+                            subtitle: widget.forced
+                                ? t.translate('auth_choose_own_password_subtitle')
+                                : t.translate('auth_change_password_subtitle'),
                           ),
                           SizedBox(height: context.dynamicHeight(0.039)),
                           BlocBuilder<AuthCubit, AuthState>(

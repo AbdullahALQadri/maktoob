@@ -108,7 +108,7 @@ class _UserInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(
+      padding: EdgeInsetsDirectional.fromSTEB(
         context.dynamicWidth(0.061),
         context.dynamicHeight(0.02),
         context.dynamicWidth(0.061),
@@ -116,6 +116,16 @@ class _UserInfo extends StatelessWidget {
       ),
       child: Column(
         children: [
+          AppAvatar(
+            imageUrl: user.avatar,
+            initials: user.initials,
+            size: 88,
+            backgroundColor: Colors.white.withValues(alpha: 0.2),
+            textColor: Colors.white,
+            borderColor: Colors.white,
+            borderWidth: 2,
+          ),
+          SizedBox(height: context.dynamicHeight(0.015)),
           Text(
             user.name,
             style: TextStyle(
@@ -127,7 +137,8 @@ class _UserInfo extends StatelessWidget {
           ),
           SizedBox(height: context.dynamicHeight(0.005)),
           Text(
-            user.email,
+            user.email.isNotEmpty ? user.email : (user.phone ?? ''),
+            textDirection: TextDirection.ltr,
             style: TextStyle(
               fontSize: context.dynamicWidth(0.035),
               color: Colors.white.withValues(alpha: 0.8),

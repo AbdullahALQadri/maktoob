@@ -41,14 +41,14 @@ class ProfileUpdated extends ProfileState {
   List<Object?> get props => [user, message];
 }
 
-class UserTypeChanged extends ProfileState {
+/// The profile photo was set or removed (the edit screen stays open).
+class ProfileAvatarChanged extends ProfileState {
   final UserEntity user;
-  final String message;
 
-  const UserTypeChanged({required this.user, required this.message});
+  const ProfileAvatarChanged({required this.user});
 
   @override
-  List<Object?> get props => [user, message];
+  List<Object?> get props => [user];
 }
 
 class ProfileError extends ProfileState {

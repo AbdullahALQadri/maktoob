@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer' as dev;
 import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/error/exceptions.dart';
 import '../../../../core/services/fcm_service.dart';
 import '../../data/models/ai_image_model.dart';
 import '../../data/repositories/ai_design_repository.dart';
@@ -16,6 +17,9 @@ class AiDesignCubit extends Cubit<AiDesignState> {
   /// Event title chosen on the previous wizard page — pre-fills the AI form's
   /// "event title" field instead of re-asking for it.
   final String? initialEventTitle;
+
+  /// Error code surfaced when the status endpoint answers 404 while polling.
+  static const notFoundError = 'not_found';
 
   Timer? _pollingTimer;
   int  _elapsedSeconds   = 0;
@@ -161,10 +165,8 @@ class AiDesignCubit extends Cubit<AiDesignState> {
     final s = _ready;
     if (s == null) return;
     emit(s.copyWith(
-      activeTab:          tab,
-      clearSelectedImage: tab == 1,
-      clearFreeformPrompt: tab == 0,
-      clearError:         true,
+      activeTab:  tab,
+      clearError: true,
     ));
   }
 
@@ -214,11 +216,17 @@ class AiDesignCubit extends Cubit<AiDesignState> {
     try {
       final imageId = await _repo.generatePrompt(
         eventId,
-        basePrompt:     s.activeTab == 0 ? s.selectedBasePrompt : null,
-        freeformPrompt: s.activeTab == 1 ? s.freeformPromptText : null,
+        // "Custom design": an optional template picked as inspiration is
+        // the base prompt; the user's own words then ride along as extra
+        // instructions (the backend prefers base_prompt over prompt).
+        basePrompt:     s.selectedBasePrompt,
+        freeformPrompt: s.selectedBasePrompt == null ? s.freeformPromptText : null,
         eventTypeId:    eventTypeId,
         formValues:     s.formValues,
-        customPrompt:   s.customPrompt,
+        customPrompt:   s.selectedBasePrompt != null &&
+                s.freeformPromptText.trim().isNotEmpty
+            ? s.freeformPromptText.trim()
+            : s.customPrompt,
         moodTags:       s.selectedMoodTags,
       );
       _startPolling(imageId, waitForPrompt: true);
@@ -251,25 +259,25 @@ class AiDesignCubit extends Cubit<AiDesignState> {
 
   /// Uploads the user's own image and jumps straight to the result screen.
   /// The backend already links it as the event's final design.
+  /// Save a finished image as the event design — used by both "upload your
+  /// own design" and "ready template" (the template composed with the event
+  /// texts on-device). No prompt, no generation: the backend stores the file
+  /// and marks it as the event's final design, so we go straight back to the
+  /// wizard with its URL.
   Future<void> uploadCustomImage(File file) async {
     final s = _ready;
     _cancelPolling();
-    if (s != null) emit(s.copyWith(isGenerating: true, clearError: true));
+    if (s != null) emit(s.copyWith(isUploading: true, clearError: true));
     try {
       final image = await _repo.uploadCustomDesign(eventId, file);
       if (isClosed) return;
-      emit(AiImageCompleted(
-        imageId:  image.id,
-        imageUrl: image.imageUrl,
-        provider: 'upload',
-        model:    'custom',
-        styleTitle: _trackedStyleTitle,
-      ));
+      if (image.imageUrl.isEmpty) throw Exception('upload returned no image_url');
+      emit(AiImageSaved(image.imageUrl));
     } catch (e) {
       if (isClosed) return;
       final cur = _ready ?? s;
       if (cur != null) {
-        emit(cur.copyWith(isGenerating: false, generationError: e.toString()));
+        emit(cur.copyWith(isUploading: false, generationError: e.toString()));
       } else {
         emit(AiDesignError(e.toString()));
       }
@@ -339,6 +347,17 @@ class AiDesignCubit extends Cubit<AiDesignState> {
         }
       }).catchError((e) {
         _isFetching = false;
+        if (isClosed) return;
+        // A 404 never heals (the image or event is gone, or isn't the
+        // host's): stop polling instead of retrying until the timeout.
+        if (e is NotFoundException) {
+          if (_trackedImageId != imageId) return; // a newer poll took over
+          dev.log('AI polling: image $imageId not found, stopping',
+              name: 'AiDesignCubit');
+          _cancelPolling();
+          _handleError(notFoundError);
+          return;
+        }
         dev.log('AI polling error (will retry): $e', name: 'AiDesignCubit');
       });
     });

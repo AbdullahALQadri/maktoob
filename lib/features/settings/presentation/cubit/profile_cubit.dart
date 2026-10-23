@@ -1,5 +1,7 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/error/failures.dart';
 import '../../../authentication/domain/entities/user_entity.dart';
 import '../../../authentication/domain/repositories/auth_repository.dart';
 import 'profile_state.dart';
@@ -60,27 +62,29 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
   }
 
-  /// Request to change user type
-  Future<void> changeUserType(UserType newType, {String? reason}) async {
+  /// Upload [filePath] as the profile photo.
+  Future<void> uploadAvatar(String filePath) =>
+      _changeAvatar(() => authRepository.uploadAvatar(filePath));
+
+  /// Remove the profile photo.
+  Future<void> removeAvatar() => _changeAvatar(authRepository.removeAvatar);
+
+  Future<void> _changeAvatar(
+      Future<Either<Failure, UserEntity>> Function() call) async {
     if (_currentUser == null) return;
 
     emit(ProfileUpdating(user: _currentUser!));
 
-    final result = await authRepository.updateProfile(
-      name: _currentUser!.name,
-    );
+    final result = await call();
 
     result.fold(
       (failure) => emit(ProfileError(
-        message: failure.message ?? 'Failed to change user type',
+        message: failure.message ?? 'Failed to update photo',
         user: _currentUser,
       )),
       (user) {
-        _currentUser = user.copyWith(userType: newType);
-        emit(UserTypeChanged(
-          user: _currentUser!,
-          message: 'User type changed successfully',
-        ));
+        _currentUser = user;
+        emit(ProfileAvatarChanged(user: user));
       },
     );
   }

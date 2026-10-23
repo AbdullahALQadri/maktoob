@@ -108,7 +108,7 @@ class _UserInfoSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(
+      padding: EdgeInsetsDirectional.fromSTEB(
         context.dynamicWidth(0.061),
         context.dynamicHeight(0.02),
         context.dynamicWidth(0.061),

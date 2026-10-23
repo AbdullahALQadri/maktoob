@@ -70,7 +70,7 @@ class _ScannerEventsContentState extends State<_ScannerEventsContent>
                 }
 
                 final ongoingEvents = state.events
-                    .where((e) => e.status == EventStatus.active)
+                    .where((e) => e.status == EventStatus.active && e.role.canScan)
                     .toList();
 
                 if (ongoingEvents.isEmpty) return const _EmptyState();

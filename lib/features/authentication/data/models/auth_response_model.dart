@@ -1,5 +1,9 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../institution/data/models/institution_models.dart';
+import '../../../institution/domain/entities/institution_entity.dart';
+import '../../domain/entities/user_entity.dart';
+
 /// Base response model for API authentication responses
 class AuthResponseModel extends Equatable {
   final bool success;
@@ -44,6 +48,12 @@ class ClientModel extends Equatable {
   final String? companyName;
   final bool isVerified;
   final String? locale;
+  final String accountType;
+  final InstitutionStatus? institutionStatus;
+  final InstitutionModel? institution;
+  final List<InstitutionMembershipModel> memberships;
+  final bool mustChangePassword;
+  final bool mustAcceptTerms;
 
   const ClientModel({
     required this.id,
@@ -54,19 +64,60 @@ class ClientModel extends Equatable {
     this.companyName,
     this.isVerified = false,
     this.locale,
+    this.accountType = 'individual',
+    this.institutionStatus,
+    this.institution,
+    this.memberships = const [],
+    this.mustChangePassword = false,
+    this.mustAcceptTerms = false,
   });
 
+  /// The auth user, including the institution payload.
+  UserEntity toEntity() => UserEntity(
+        id: id,
+        name: name,
+        email: email ?? '',
+        phone: phone,
+        avatar: avatar,
+        companyName: companyName,
+        isVerified: isVerified,
+        locale: locale,
+        userType: UserType.fromString(accountType),
+        institutionStatus: institutionStatus,
+        institution: institution,
+        memberships: memberships,
+        mustChangePassword: mustChangePassword,
+        mustAcceptTerms: mustAcceptTerms,
+      );
+
   factory ClientModel.fromJson(Map<String, dynamic> json) {
+    final institution = InstitutionModel.tryParse(json['institution']);
     return ClientModel(
+      accountType: json['account_type']?.toString() ?? json['user_type']?.toString() ?? 'individual',
+      institutionStatus: InstitutionStatus.fromString(json['institution_status']?.toString()) ??
+          institution?.status,
+      institution: institution,
+      memberships: InstitutionMembershipModel.listFrom(json['institution_memberships']),
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
       email: json['email'],
       phone: json['phone'] ?? '',
-      avatar: json['avatar'],
+      avatar: _avatarUrl(json),
       companyName: json['company_name'],
-      isVerified: json['is_verified'] ?? false,
+      isVerified: json['is_verified'] == true || json['is_verified'] == 1,
       locale: json['locale'],
+      mustChangePassword: json['must_change_password'] == true || json['must_change_password'] == 1,
+      mustAcceptTerms: json['legal'] is Map && json['legal']['acceptance_required'] == true,
     );
+  }
+
+  /// Loadable photo URL. The backend sends `avatar_url` (absolute); the raw
+  /// `avatar` column is a storage path, so it is only used when it's a URL.
+  static String? _avatarUrl(Map<String, dynamic> json) {
+    final url = json['avatar_url']?.toString();
+    if (url != null && url.isNotEmpty) return url;
+    final raw = json['avatar']?.toString();
+    return (raw != null && raw.startsWith('http')) ? raw : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -76,6 +127,8 @@ class ClientModel extends Equatable {
       'email': email,
       'phone': phone,
       'avatar': avatar,
+      'avatar_url': avatar,
+      'account_type': accountType,
       'company_name': companyName,
       'is_verified': isVerified,
       'locale': locale,

@@ -1,18 +1,20 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:pinput/pinput.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
+import '../../../institution/domain/entities/institution_entity.dart';
 import '../../domain/entities/user_entity.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 import '../widgets/widgets.dart';
-import 'admin_approval_screen.dart';
 
 /// Registration screen for new users and institutions.
 class RegisterScreen extends StatefulWidget {
@@ -35,6 +37,9 @@ class _RegisterScreenState extends State<RegisterScreen>
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _customGovernorateController = TextEditingController();
+  final _contactPersonController = TextEditingController();
+  final _registrationController = TextEditingController();
+  String? _logoPath;
 
   // FocusNodes for smooth keyboard navigation
   final _nameFocusNode = FocusNode();
@@ -52,6 +57,9 @@ class _RegisterScreenState extends State<RegisterScreen>
   int? _selectedInstitutionFieldIndex;
   int? _selectedGovernorateIndex;
   bool _showCustomGovernorate = false;
+
+  /// Institution sign-up: "I may represent this organization, the data is accurate".
+  bool _declaration = false;
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -87,6 +95,8 @@ class _RegisterScreenState extends State<RegisterScreen>
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _customGovernorateController.dispose();
+    _contactPersonController.dispose();
+    _registrationController.dispose();
     _nameFocusNode.dispose();
     _phoneFocusNode.dispose();
     _emailFocusNode.dispose();
@@ -120,6 +130,18 @@ class _RegisterScreenState extends State<RegisterScreen>
             userType: _selectedUserType.apiValue,
             governorate: governorateValue,
             location: _selectedUserType == UserType.institution ? _locationController.text.trim() : null,
+            institutionFields: _selectedUserType == UserType.institution
+                ? InstitutionProfileInput(
+                    nameAr: _nameController.text.trim(),
+                    sector: _selectedInstitutionFieldIndex == null
+                        ? null
+                        : kInstitutionSectors[_selectedInstitutionFieldIndex!],
+                    contactPerson: _contactPersonController.text.trim(),
+                    registrationNumber: _registrationController.text.trim(),
+                    declaration: _declaration,
+                  ).toFields()
+                : null,
+            logoPath: _selectedUserType == UserType.institution ? _logoPath : null,
           );
     }
   }
@@ -175,17 +197,16 @@ class _RegisterScreenState extends State<RegisterScreen>
           value: context.read<AuthCubit>(),
           child: _OtpVerificationDialog(
             phone: phoneNumber,
+            // The verify response already carries the login token, so a
+            // regular user goes straight into the app (no second login).
+            signInAfterVerify: true,
             onVerified: () {
-              Navigator.of(context).pop(); // close dialog
-              if (_selectedUserType == UserType.institution) {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const AdminApprovalWaitingScreen()),
-                );
-              } else {
-                // For regular users, navigate to login screen
-                widget.onLoginTap?.call();
-              }
+              // Close the dialog and any pushed auth screens. The verify
+              // response carries the token, so the user is signed in: the
+              // AuthWrapper shows the app for regular users (resuming a design
+              // picked while browsing) and, for an institution that is still
+              // pending, the AdminApprovalWaitingScreen.
+              Navigator.of(context).popUntil((r) => r.isFirst);
             },
           ),
         ),
@@ -237,6 +258,8 @@ class _RegisterScreenState extends State<RegisterScreen>
                 if (_selectedUserType == UserType.institution) ..._buildInstitutionFields(t),
                 _buildPasswordFields(t),
                 SizedBox(height: context.dynamicHeight(0.025)),
+                const _LegalConsent(),
+                SizedBox(height: context.dynamicHeight(0.015)),
                 _RegisterButton(onRegister: _handleRegister),
                 if (_selectedUserType == UserType.institution) _InstitutionInfoBanner(t: t),
               ],
@@ -357,7 +380,8 @@ class _RegisterScreenState extends State<RegisterScreen>
   }
 
   List<Widget> _buildInstitutionFields(AppLocalizations t) {
-    final fields = _isArabic ? _RegisterData.institutionFieldsAr : _RegisterData.institutionFields;
+    // Sector values match the backend enum (Institution::SECTORS).
+    final fields = [for (final s in kInstitutionSectors) t.translate('institution_sector_$s')];
     final governorates = _isArabic ? _RegisterData.governoratesAr : _RegisterData.governorates;
 
     return [
@@ -369,6 +393,38 @@ class _RegisterScreenState extends State<RegisterScreen>
         value: _selectedInstitutionFieldIndex != null ? fields[_selectedInstitutionFieldIndex!] : null,
         onChanged: (value) => setState(() => _selectedInstitutionFieldIndex = fields.indexOf(value!)),
         validator: (value) => value == null ? t.translate('auth_field_required') : null,
+      ),
+      SizedBox(height: context.dynamicHeight(0.016)),
+      RegisterFormField(
+        controller: _contactPersonController,
+        label: t.translate('institution_contact_person'),
+        hint: t.translate('institution_contact_person'),
+        prefixIcon: Icons.badge_outlined,
+        validator: (value) => value == null || value.trim().isEmpty ? t.translate('auth_field_required') : null,
+      ),
+      SizedBox(height: context.dynamicHeight(0.016)),
+      RegisterFormField(
+        controller: _registrationController,
+        label: t.translate('institution_registration_number_optional'),
+        hint: t.translate('institution_registration_number'),
+        prefixIcon: Icons.numbers_rounded,
+      ),
+      SizedBox(height: context.dynamicHeight(0.016)),
+      Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: OutlinedButton.icon(
+          key: const Key('register_pick_logo'),
+          onPressed: () async {
+            final picked = await ImagePicker().pickImage(
+              source: ImageSource.gallery,
+              maxWidth: 1024,
+              imageQuality: 85,
+            );
+            if (picked != null && mounted) setState(() => _logoPath = picked.path);
+          },
+          icon: Icon(_logoPath == null ? Icons.image_outlined : Icons.check_circle_outline),
+          label: Text(t.translate(_logoPath == null ? 'institution_logo_optional' : 'institution_logo_selected')),
+        ),
       ),
       SizedBox(height: context.dynamicHeight(0.016)),
       RegisterDropdownField(
@@ -415,6 +471,32 @@ class _RegisterScreenState extends State<RegisterScreen>
         hint: t.translate('auth_location_hint'),
         prefixIcon: Icons.location_on_outlined,
         validator: (value) => value == null || value.isEmpty ? t.translate('auth_location_required') : null,
+      ),
+      SizedBox(height: context.dynamicHeight(0.016)),
+      FormField<bool>(
+        key: const Key('register_institution_declaration'),
+        initialValue: _declaration,
+        validator: (_) => _declaration ? null : t.translate('institution_declaration_required'),
+        builder: (field) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CheckboxListTile(
+              value: _declaration,
+              contentPadding: EdgeInsetsDirectional.zero,
+              controlAffinity: ListTileControlAffinity.leading,
+              onChanged: (v) {
+                setState(() => _declaration = v ?? false);
+                field.didChange(_declaration);
+              },
+              title: Text(
+                t.translate('institution_declaration'),
+                style: AppTextStyles.bodySmall.copyWith(color: context.textPrimary),
+              ),
+            ),
+            if (field.hasError)
+              Text(field.errorText!, style: AppTextStyles.bodySmall.copyWith(color: AppColors.red500)),
+          ],
+        ),
       ),
       SizedBox(height: context.dynamicHeight(0.016)),
     ];
@@ -635,6 +717,84 @@ class _RegisterButton extends StatelessWidget {
   }
 }
 
+/// Required "I agree to the Terms and Conditions and the Privacy Policy"
+/// box. Its validator blocks the form, so register only runs once ticked
+/// (the data source then sends `terms_accepted: true`).
+class _LegalConsent extends StatefulWidget {
+  const _LegalConsent();
+
+  @override
+  State<_LegalConsent> createState() => _LegalConsentState();
+}
+
+class _LegalConsentState extends State<_LegalConsent> {
+  bool _agreed = false;
+
+  String get _lang => Localizations.localeOf(context).languageCode == 'en' ? 'en' : 'ar';
+
+  late final TapGestureRecognizer _terms = TapGestureRecognizer()
+    ..onTap = () => LegalLinks.open(LegalLinks.termsOfService, lang: _lang);
+  late final TapGestureRecognizer _privacy = TapGestureRecognizer()
+    ..onTap = () => LegalLinks.open(LegalLinks.privacyPolicy, lang: _lang);
+
+  @override
+  void dispose() {
+    _terms.dispose();
+    _privacy.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final link = AppTextStyles.bodySmall.copyWith(
+      color: AppColors.primaryDark,
+      fontWeight: FontWeight.w700,
+      decoration: TextDecoration.underline,
+    );
+    return FormField<bool>(
+      key: const Key('register_terms_consent'),
+      initialValue: _agreed,
+      validator: (_) => _agreed ? null : t.translate('auth_terms_required'),
+      builder: (field) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Checkbox(
+                key: const Key('register_terms_checkbox'),
+                value: _agreed,
+                onChanged: (v) {
+                  setState(() => _agreed = v ?? false);
+                  field.didChange(_agreed);
+                },
+              ),
+              Expanded(
+                child: Text.rich(
+                  TextSpan(
+                    style: AppTextStyles.bodySmall,
+                    children: [
+                      TextSpan(text: t.translate('auth_terms_checkbox_prefix')),
+                      TextSpan(text: t.translate('legal_terms'), style: link, recognizer: _terms),
+                      TextSpan(text: t.translate('auth_terms_and')),
+                      TextSpan(text: t.translate('legal_privacy'), style: link, recognizer: _privacy),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (field.hasError)
+            Padding(
+              padding: const EdgeInsetsDirectional.only(start: AppSpacing.md),
+              child: Text(field.errorText!, style: AppTextStyles.bodySmall.copyWith(color: AppColors.red500)),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
 class _LoginLink extends StatelessWidget {
   final VoidCallback? onLoginTap;
 
@@ -713,10 +873,12 @@ class _InstitutionInfoBanner extends StatelessWidget {
 class _OtpVerificationDialog extends StatefulWidget {
   final String phone;
   final VoidCallback onVerified;
+  final bool signInAfterVerify;
 
   const _OtpVerificationDialog({
     required this.phone,
     required this.onVerified,
+    this.signInAfterVerify = false,
   });
 
   @override
@@ -761,7 +923,7 @@ class _OtpVerificationDialogState extends State<_OtpVerificationDialog> {
       context.read<AuthCubit>().verifyOtp(
             login: widget.phone,
             otp: _pinController.text,
-            loginAfterVerify: false,
+            loginAfterVerify: widget.signInAfterVerify,
           );
     }
   }
@@ -789,7 +951,7 @@ class _OtpVerificationDialogState extends State<_OtpVerificationDialog> {
 
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
-        if (state is AuthOtpVerified) {
+        if (state is AuthOtpVerified || state is AuthAuthenticated) {
           AppSnackBar.showSuccess(
             context,
             message: t.translate('auth_account_verified'),
@@ -807,7 +969,7 @@ class _OtpVerificationDialogState extends State<_OtpVerificationDialog> {
       child: Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         insetPadding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.06)),
-        child: Padding(
+        child: SingleChildScrollView(
           padding: EdgeInsets.all(context.dynamicWidth(0.06)),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -964,16 +1126,6 @@ class _OtpVerificationDialogState extends State<_OtpVerificationDialog> {
 
 /// Static data for registration form.
 class _RegisterData {
-  static const institutionFields = [
-    'Education', 'Healthcare', 'Technology', 'Finance', 'Non-Profit',
-    'Government', 'Media', 'Hospitality', 'Real Estate', 'Other',
-  ];
-
-  static const institutionFieldsAr = [
-    'تعليم', 'صحة', 'تكنولوجيا', 'مالية', 'منظمة غير ربحية',
-    'حكومة', 'إعلام', 'ضيافة', 'عقارات', 'أخرى',
-  ];
-
   static const governorates = [
     'Gaza', 'North Gaza', 'Deir al-Balah', 'Khan Younis', 'Rafah',
     'Jerusalem', 'Ramallah and al-Bireh', 'Bethlehem', 'Hebron', 'Jericho',

@@ -27,10 +27,13 @@ class AiDesignReady extends AiDesignState {
   final String freeformPromptText;
   final Map<String, String> formValues;
   final String? customPrompt;
-  final int activeTab; // 0 = gallery, 1 = freeform
+  final int activeTab; // 0 = ready template, 1 = custom design, 2 = upload
   final bool isGenerating;
   final String? generationError;
   final List<String> selectedMoodTags;
+
+  /// Saving a template / uploaded design (no generation involved).
+  final bool isUploading;
 
   const AiDesignReady({
     required this.galleryImages,
@@ -44,6 +47,7 @@ class AiDesignReady extends AiDesignState {
     this.isGenerating = false,
     this.generationError,
     this.selectedMoodTags = const [],
+    this.isUploading = false,
   });
 
   AiDesignReady copyWith({
@@ -58,6 +62,7 @@ class AiDesignReady extends AiDesignState {
     bool? isGenerating,
     String? generationError,
     List<String>? selectedMoodTags,
+    bool? isUploading,
     bool clearSelectedImage = false,
     bool clearFreeformPrompt = false,
     bool clearError = false,
@@ -74,6 +79,7 @@ class AiDesignReady extends AiDesignState {
       isGenerating:        isGenerating        ?? this.isGenerating,
       generationError:     clearError          ? null : (generationError    ?? this.generationError),
       selectedMoodTags:    selectedMoodTags    ?? this.selectedMoodTags,
+      isUploading:         isUploading         ?? this.isUploading,
     );
   }
 
@@ -93,7 +99,7 @@ class AiDesignReady extends AiDesignState {
     selectedImageId, selectedBasePrompt,
     freeformPromptText, formValues, customPrompt,
     activeTab, isGenerating, generationError,
-    selectedMoodTags,
+    selectedMoodTags, isUploading,
   ];
 }
 

@@ -12,7 +12,15 @@ class LoginScreen extends StatefulWidget {
   final VoidCallback? onRegisterTap;
   final VoidCallback? onLoginSuccess;
 
-  const LoginScreen({super.key, this.onRegisterTap, this.onLoginSuccess});
+  /// Back to the browse-without-account home ("تصفّح أولاً").
+  final VoidCallback? onBrowseTap;
+
+  const LoginScreen({
+    super.key,
+    this.onRegisterTap,
+    this.onLoginSuccess,
+    this.onBrowseTap,
+  });
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -64,6 +72,7 @@ class _LoginScreenState extends State<LoginScreen>
             slideAnimation: _slideAnimation,
             onRegisterTap: widget.onRegisterTap,
             onLoginSuccess: widget.onLoginSuccess,
+            onBrowseTap: widget.onBrowseTap,
           ),
         ),
       ),
@@ -114,12 +123,14 @@ class _AnimatedContent extends StatelessWidget {
   final Animation<Offset> slideAnimation;
   final VoidCallback? onRegisterTap;
   final VoidCallback? onLoginSuccess;
+  final VoidCallback? onBrowseTap;
 
   const _AnimatedContent({
     required this.fadeAnimation,
     required this.slideAnimation,
     this.onRegisterTap,
     this.onLoginSuccess,
+    this.onBrowseTap,
   });
 
   @override
@@ -154,6 +165,14 @@ class _AnimatedContent extends StatelessWidget {
                     LoginFormCard(onLoginSuccess: onLoginSuccess),
                     SizedBox(height: context.dynamicHeight(0.025)),
                     _RegisterLink(onTap: onRegisterTap),
+                    if (onBrowseTap != null)
+                      TextButton(
+                        onPressed: onBrowseTap,
+                        child: Text(
+                          t.translate('explore_browse_first'),
+                          style: AppTextStyles.labelLarge.white,
+                        ),
+                      ),
                     SizedBox(height: context.dynamicHeight(0.039)),
                   ],
                 ),

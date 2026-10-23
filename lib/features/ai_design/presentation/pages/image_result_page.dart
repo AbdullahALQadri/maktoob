@@ -9,6 +9,7 @@ import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
 import '../cubit/ai_design_cubit.dart';
 import '../cubit/ai_design_state.dart';
+import '../widgets/ai_error_message.dart';
 
 /// Page 3 — Display the generated image and let user use it or regenerate.
 class ImageResultPage extends StatelessWidget {
@@ -38,7 +39,9 @@ class ImageResultPage extends StatelessWidget {
       listener: (ctx, state) {
         if (state is AiDesignError) {
           ScaffoldMessenger.of(ctx).showSnackBar(
-            SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+            SnackBar(
+                content: Text(localizeAiDesignError(state.message, loc)),
+                backgroundColor: Colors.red),
           );
         }
       },
@@ -65,7 +68,7 @@ class ImageResultPage extends StatelessWidget {
             onClose: () => Navigator.of(ctx).pop(),
           ),
           body: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+            padding: const EdgeInsetsDirectional.fromSTEB(20, 16, 20, 24),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               _ImageCard(
                 imageUrl: imageUrl,

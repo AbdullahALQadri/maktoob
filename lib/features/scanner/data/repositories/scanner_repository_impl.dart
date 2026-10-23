@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 
+import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/check_in_guest_entity.dart';
 import '../../domain/repositories/scanner_repository.dart';
@@ -11,9 +12,9 @@ class ScannerRepositoryImpl implements ScannerRepository {
   ScannerRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure, CheckInGuestEntity>> scanQrCode(String qrCode, int venueId) async {
+  Future<Either<Failure, CheckInGuestEntity>> scanQrCode(String qrCode, int eventId) async {
     try {
-      final result = await remoteDataSource.scanQrCode(qrCode, venueId);
+      final result = await remoteDataSource.scanQrCode(qrCode, eventId);
       return Right(result);
     } catch (e) {
       return Left(ScannerFailure(message: e.toString()));
@@ -23,18 +24,20 @@ class ScannerRepositoryImpl implements ScannerRepository {
   @override
   Future<Either<Failure, CheckInGuestEntity>> checkInGuest(
     String invitationId,
-    int venueId, {
+    int eventId, {
     int? actualCompanions,
     String? notes,
   }) async {
     try {
       final result = await remoteDataSource.checkInGuest(
         invitationId,
-        venueId,
+        eventId,
         actualCompanions: actualCompanions,
         notes: notes,
       );
       return Right(result);
+    } on ConflictException catch (e) {
+      return Left(AlreadyCheckedInFailure(message: e.message));
     } catch (e) {
       return Left(ScannerFailure(message: e.toString()));
     }
@@ -42,11 +45,11 @@ class ScannerRepositoryImpl implements ScannerRepository {
 
   @override
   Future<Either<Failure, List<CheckInGuestEntity>>> getGuestList(
-    int venueId, {
+    int eventId, {
     String? searchQuery,
   }) async {
     try {
-      final result = await remoteDataSource.getGuestList(venueId, searchQuery: searchQuery);
+      final result = await remoteDataSource.getGuestList(eventId, searchQuery: searchQuery);
       return Right(result);
     } catch (e) {
       return Left(ScannerFailure(message: e.toString()));

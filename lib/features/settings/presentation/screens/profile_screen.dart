@@ -4,9 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
 import '../../../authentication/domain/entities/user_entity.dart';
+import '../../../authentication/presentation/cubit/auth_cubit.dart';
+import '../../../institution/presentation/screens/institution_screen.dart';
 import '../cubit/profile_cubit.dart';
 import '../cubit/profile_state.dart';
 import '../widgets/widgets.dart';
+import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
 class ProfileScreen extends StatefulWidget {
   final VoidCallback? onBack;
@@ -39,11 +42,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _handleStateChange(BuildContext context, ProfileState state) {
-    if (state is ProfileUpdated || state is UserTypeChanged) {
-      final message = state is ProfileUpdated
-          ? state.message
-          : (state as UserTypeChanged).message;
-      AppSnackBar.showSuccess(context, message: message);
+    if (state is ProfileUpdated) {
+      AppSnackBar.showSuccess(context, message: state.message);
       context.read<ProfileCubit>().resetToLoaded();
     } else if (state is ProfileError && state.user != null) {
       AppSnackBar.showError(context, message: state.message);
@@ -76,7 +76,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ProfileLoaded(:final user) => (user, false),
       ProfileUpdating(:final user) => (user, true),
       ProfileUpdated(:final user) => (user, false),
-      UserTypeChanged(:final user) => (user, false),
+      ProfileAvatarChanged(:final user) => (user, false),
       ProfileError(:final user) => (user, false),
       _ => (null, false),
     };
@@ -186,11 +186,6 @@ class _ProfileSections extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
-    final cubit = context.read<ProfileCubit>();
-    final currentUser = (cubit.state is ProfileLoaded)
-        ? (cubit.state as ProfileLoaded).user
-        : null;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -199,12 +194,21 @@ class _ProfileSections extends StatelessWidget {
         ProfileUserTypeCard(
           user: user,
           isArabic: isArabic,
-          onTypeSelected: (type) => ProfileDialogs.showChangeUserType(
-            context,
-            newType: type,
-            isArabic: isArabic,
-            currentUser: currentUser,
-          ),
+          onTypeSelected: (type) async {
+            if (type == user.userType) return;
+            if (type == UserType.institution) {
+              // Becoming an institution is a real, reviewed request: the
+              // organization profile (name, sector, logo) goes to admin review.
+              await Navigator.of(context).push(InstitutionScreen.route());
+              if (context.mounted) {
+                context.read<ProfileCubit>().loadProfile();
+                context.read<AuthCubit>().refreshProfile();
+              }
+            } else {
+              AppSnackBar.showInfo(context,
+                  message: t.translate('profile_type_downgrade_support'));
+            }
+          },
         ),
         SizedBox(height: context.dynamicHeight(0.03)),
         _SectionTitle(title: t.translate('profile_personal_info')),
@@ -257,7 +261,7 @@ class _LoadingOverlay extends StatelessWidget {
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
           ),
-          child: CircularProgressIndicator(color: AppColors.primaryColor),
+          child: MkSpinner(color: AppColors.primaryColor),
         ),
       ),
     );

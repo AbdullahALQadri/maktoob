@@ -101,6 +101,21 @@ class AccessDeniedDialog extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
+            if (guest.checkedInAt != null) ...[
+              SizedBox(height: context.dynamicHeight(0.007)),
+              Text(
+                t
+                    .translate('scanner_checked_in_at')
+                    .replaceAll('{time}', formatCheckInTime(guest.checkedInAt!)),
+                key: const Key('scanner_checked_in_at'),
+                style: TextStyle(
+                  fontSize: context.dynamicWidth(0.034),
+                  fontWeight: FontWeight.w600,
+                  color: context.textPrimary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
             SizedBox(height: context.dynamicHeight(0.025)),
 
             // Guest Details Card
@@ -325,4 +340,11 @@ class AccessDeniedDialog extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Local "HH:mm  d/M" for a check-in time.
+String formatCheckInTime(DateTime at) {
+  final l = at.toLocal();
+  String two(int n) => n.toString().padLeft(2, '0');
+  return '${two(l.hour)}:${two(l.minute)}  ${l.day}/${l.month}';
 }

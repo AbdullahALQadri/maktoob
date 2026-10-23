@@ -4,6 +4,7 @@ import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/responsive.dart';
 import '../cubit/venues_cubit.dart';
 import '../cubit/venues_state.dart';
+import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
 /// Widget for the add venue form
 class AddVenueFormWidget extends StatefulWidget {
@@ -154,7 +155,7 @@ class _AddVenueFormWidgetState extends State<AddVenueFormWidget> {
           style: TextStyle(
             fontSize: context.dynamicWidth(0.045),
             fontWeight: FontWeight.bold,
-            color: AppColors.tertiaryColor,
+            color: context.brandInk,
           ),
         ),
       ],
@@ -279,7 +280,7 @@ class _AddVenueFormWidgetState extends State<AddVenueFormWidget> {
                         ? SizedBox(
                             height: context.dynamicWidth(0.051),
                             width: context.dynamicWidth(0.051),
-                            child: const CircularProgressIndicator(
+                            child: const MkSpinner(
                               strokeWidth: 2,
                               valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                             ),

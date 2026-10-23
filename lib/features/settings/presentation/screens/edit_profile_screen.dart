@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
 import '../../../authentication/domain/entities/user_entity.dart';
+import '../../../authentication/presentation/cubit/auth_cubit.dart';
 import '../cubit/profile_cubit.dart';
 import '../cubit/profile_state.dart';
+import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final UserEntity user;
@@ -22,9 +25,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _companyNameController;
   final _formKey = GlobalKey<FormState>();
 
+  /// Latest user (the photo changes in place, before Save).
+  late UserEntity _user;
+
+  /// Whether the photo changed, so the caller refreshes on pop.
+  bool _photoChanged = false;
+
   @override
   void initState() {
     super.initState();
+    _user = widget.user;
     _nameController = TextEditingController(text: widget.user.name);
     _emailController = TextEditingController(text: widget.user.email);
     _companyNameController =
@@ -64,7 +74,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     return BlocConsumer<ProfileCubit, ProfileState>(
       listener: (context, state) {
-        if (state is ProfileUpdated) {
+        if (state is ProfileAvatarChanged) {
+          setState(() => _user = state.user);
+          _photoChanged = true;
+          context.read<AuthCubit>().syncUser(state.user);
+          AppSnackBar.showSuccess(context,
+              message: t.translate('edit_profile_photo_saved'));
+        } else if (state is ProfileUpdated) {
+          context.read<AuthCubit>().syncUser(state.user);
           AppSnackBar.showSuccess(context,
               message: t.translate('edit_profile_saved'));
           Navigator.pop(context, true);
@@ -133,7 +150,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           clipBehavior: Clip.none,
           children: [
             Padding(
-              padding: EdgeInsets.fromLTRB(
+              padding: EdgeInsetsDirectional.fromSTEB(
                 context.dynamicWidth(0.04),
                 context.dynamicHeight(0.015),
                 context.dynamicWidth(0.04),
@@ -146,7 +163,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   Row(
                     children: [
                       GestureDetector(
-                        onTap: () => Navigator.pop(context),
+                        onTap: () => Navigator.pop(context, _photoChanged),
                         child: Container(
                           width: 40,
                           height: 40,
@@ -169,18 +186,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   SizedBox(height: context.dynamicHeight(0.025)),
                   Row(
                     children: [
-                      Container(
-                        width: context.dynamicWidth(0.125),
-                        height: context.dynamicWidth(0.125),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(
-                              context.dynamicWidth(0.04)),
-                        ),
-                        child: Icon(Icons.person_outline_rounded,
-                            color: Colors.white,
-                            size: context.dynamicWidth(0.065)),
-                      ),
+                      _buildAvatarPicker(context, t, isUpdating),
                       SizedBox(width: context.dynamicWidth(0.035)),
                       Expanded(
                         child: Column(
@@ -243,6 +249,108 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
+  /// Profile photo with a camera badge; tap to change or remove it.
+  Widget _buildAvatarPicker(
+      BuildContext context, AppLocalizations t, bool isUpdating) {
+    return Semantics(
+      button: true,
+      label: t.translate('edit_profile_change_photo'),
+      child: GestureDetector(
+        onTap: isUpdating ? null : () => _showPhotoOptions(context, t),
+        child: SizedBox(
+          width: 72,
+          height: 72,
+          child: Stack(
+            children: [
+              AppAvatar(
+                imageUrl: _user.avatar,
+                initials: _user.initials,
+                size: 72,
+                backgroundColor: Colors.white.withValues(alpha: 0.2),
+                textColor: Colors.white,
+                borderColor: Colors.white,
+                borderWidth: 2,
+              ),
+              PositionedDirectional(
+                end: 0,
+                bottom: 0,
+                child: Container(
+                  width: 26,
+                  height: 26,
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppColors.primaryColor, width: 1),
+                  ),
+                  child: const Icon(Icons.photo_camera_outlined,
+                      size: 15, color: AppColors.primaryColor),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showPhotoOptions(
+      BuildContext context, AppLocalizations t) async {
+    final cubit = context.read<ProfileCubit>();
+    final hasPhoto = _user.avatar != null && _user.avatar!.isNotEmpty;
+
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsetsDirectional.symmetric(vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library_outlined),
+                title: Text(t.translate('edit_profile_photo_gallery')),
+                onTap: () => Navigator.pop(sheetContext, 'gallery'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_camera_outlined),
+                title: Text(t.translate('edit_profile_photo_camera')),
+                onTap: () => Navigator.pop(sheetContext, 'camera'),
+              ),
+              if (hasPhoto)
+                ListTile(
+                  leading: const Icon(Icons.delete_outline_rounded,
+                      color: AppColors.red500),
+                  title: Text(
+                    t.translate('edit_profile_photo_remove'),
+                    style: const TextStyle(color: AppColors.red500),
+                  ),
+                  onTap: () => Navigator.pop(sheetContext, 'remove'),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    if (choice == null) return;
+    if (choice == 'remove') {
+      await cubit.removeAvatar();
+      return;
+    }
+
+    final picked = await ImagePicker().pickImage(
+      source: choice == 'camera' ? ImageSource.camera : ImageSource.gallery,
+      maxWidth: 1024,
+      maxHeight: 1024,
+      imageQuality: 85,
+      preferredCameraDevice: CameraDevice.front,
+    );
+    if (picked != null) await cubit.uploadAvatar(picked.path);
+  }
+
   Widget _buildSaveButton(
       BuildContext context, AppLocalizations t, bool isUpdating) {
     if (isUpdating) {
@@ -259,7 +367,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
         child: const Padding(
           padding: EdgeInsets.all(10),
-          child: CircularProgressIndicator(
+          child: MkSpinner(
             strokeWidth: 2,
             color: Colors.white,
           ),
@@ -328,9 +436,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       textInputAction: TextInputAction.next,
       onChanged: (_) => setState(() {}),
       validator: (value) {
-        if (value == null || value.trim().isEmpty) {
-          return t.translate('auth_field_required');
-        }
+        // Optional, as at sign-up; validate only when filled in.
+        if (value == null || value.trim().isEmpty) return null;
         final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$');
         if (!emailRegex.hasMatch(value.trim())) {
           return t.translate('auth_email_invalid');
@@ -423,7 +530,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
           ),
-          child: CircularProgressIndicator(color: AppColors.primaryColor),
+          child: MkSpinner(color: AppColors.primaryColor),
         ),
       ),
     );

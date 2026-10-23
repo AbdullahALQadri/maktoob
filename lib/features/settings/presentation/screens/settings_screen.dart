@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
 import '../../../../injection_container.dart' as di;
+import '../../../institution/presentation/screens/institution_screen.dart';
 import '../cubit/profile_cubit.dart';
 import '../cubit/settings_cubit.dart';
 import '../cubit/settings_state.dart';
@@ -58,6 +59,15 @@ class SettingsScreen extends StatelessWidget {
         subtitle: t.translate('settings_profile_desc'),
         onTap: () => _navigateToProfile(context),
       ),
+      SizedBox(height: context.dynamicHeight(0.015)),
+      // Institution profile, team, credits and team invitations.
+      SettingsTile(
+        key: const Key('settings_institution_tile'),
+        icon: Icons.business_outlined,
+        title: t.translate('institution_title'),
+        subtitle: t.translate('institution_settings_desc'),
+        onTap: () => Navigator.of(context).push(InstitutionScreen.route()),
+      ),
       SizedBox(height: context.dynamicHeight(0.03)),
 
       // Support Section
@@ -80,6 +90,20 @@ class SettingsScreen extends StatelessWidget {
 
       // About Section
       SettingsSectionTitle(title: t.translate('settings_about')),
+      SizedBox(height: context.dynamicHeight(0.015)),
+      SettingsTile(
+        icon: Icons.privacy_tip_outlined,
+        title: t.translate('legal_privacy'),
+        subtitle: t.translate('settings_privacy_desc'),
+        onTap: () => LegalLinks.open(LegalLinks.privacyPolicy),
+      ),
+      SizedBox(height: context.dynamicHeight(0.015)),
+      SettingsTile(
+        icon: Icons.description_outlined,
+        title: t.translate('legal_terms'),
+        subtitle: t.translate('settings_terms_desc'),
+        onTap: () => LegalLinks.open(LegalLinks.termsOfService),
+      ),
       SizedBox(height: context.dynamicHeight(0.015)),
       SettingsTile(
         icon: Icons.info_outline,
@@ -149,20 +173,10 @@ class _ContactOptions extends StatelessWidget {
         _ContactTile(
           icon: Icons.email_rounded,
           title: t.translate('settings_email'),
-          value: 'support@maktoob.app',
+          value: 'support@maktoob.social',
         ),
-        SizedBox(height: context.dynamicHeight(0.015)),
-        _ContactTile(
-          icon: Icons.phone_rounded,
-          title: t.translate('settings_phone'),
-          value: '+966 XX XXX XXXX',
-        ),
-        SizedBox(height: context.dynamicHeight(0.015)),
-        _ContactTile(
-          icon: Icons.chat_rounded,
-          title: t.translate('settings_whatsapp'),
-          value: '+966 XX XXX XXXX',
-        ),
+        // Phone / WhatsApp tiles removed: they showed a placeholder
+        // ("+966 XX XXX XXXX"). Add them back with the real support numbers.
       ],
     );
   }

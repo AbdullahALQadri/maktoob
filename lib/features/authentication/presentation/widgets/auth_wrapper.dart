@@ -1,3 +1,4 @@
+import '../../../home/presentation/utils/refresh_event_lists.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -7,24 +8,68 @@ import 'package:pinput/pinput.dart';
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../config/screens/main_shell.dart';
 import '../../../../core/core.dart';
+import '../../../../core/services/pending_wizard_intent_service.dart';
+import '../../../../injection_container.dart' as di;
 import '../../../events/presentation/cubit/events_list/events_list_cubit.dart';
+import '../../../explore/presentation/screens/explore_screen.dart';
 import '../../../home/presentation/cubit/home_cubit.dart';
+import '../../../invitation/presentation/cubit/invitation_cubit.dart';
+import '../../../invitation/presentation/screens/invitation_wizard_screen.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
+import '../screens/admin_approval_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/register_screen.dart';
 import '../screens/splash_screen.dart';
+import '../screens/terms_acceptance_screen.dart';
+import '../../../settings/presentation/screens/change_password_screen.dart';
+import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
 class AuthWrapper extends StatefulWidget {
-  const AuthWrapper({super.key});
+  /// Skips the splash animation (tests).
+  final bool skipSplash;
+
+  /// Explore → sign-up → wizard hand-off. Defaults to the DI singleton.
+  final PendingWizardIntentService? pendingIntents;
+
+  /// Opens the wizard for a consumed intent. Defaults to pushing
+  /// [InvitationWizardScreen] (overridable for tests).
+  final void Function(BuildContext context, PendingWizardIntent intent)?
+      onOpenWizard;
+
+  const AuthWrapper({
+    super.key,
+    this.skipSplash = false,
+    this.pendingIntents,
+    this.onOpenWizard,
+  });
 
   @override
   State<AuthWrapper> createState() => _AuthWrapperState();
 }
 
 class _AuthWrapperState extends State<AuthWrapper> {
-  bool _showSplash = true;
+  late bool _showSplash = !widget.skipSplash;
   bool _showRegister = false;
+
+  /// Signed-out users land on the browse-without-account home first;
+  /// sign-up / sign-in is asked only when they want to create something.
+  bool _showExplore = true;
+
+  /// Login / register was opened from Explore: Android back returns there.
+  bool _cameFromExplore = false;
+
+  /// Set while a team-opened account must replace its temporary password.
+  String? _forcedPasswordPhone;
+
+  /// Set while the client must accept a newly published Terms / Privacy
+  /// version (kept through loading / error until the profile clears it).
+  bool _mustAcceptTerms = false;
+
+  late final PendingWizardIntentService _intents = widget.pendingIntents ??
+      (di.sl.isRegistered<PendingWizardIntentService>()
+          ? di.sl<PendingWizardIntentService>()
+          : PendingWizardIntentService());
 
   void _onSplashFinished() {
     if (!mounted) return;
@@ -32,16 +77,84 @@ class _AuthWrapperState extends State<AuthWrapper> {
   }
 
   void _goToRegister() {
-    setState(() => _showRegister = true);
+    setState(() {
+      if (_showExplore) _cameFromExplore = true;
+      _showExplore = false;
+      _showRegister = true;
+    });
   }
 
   void _goToLogin() {
-    setState(() => _showRegister = false);
+    setState(() {
+      if (_showExplore) _cameFromExplore = true;
+      _showExplore = false;
+      _showRegister = false;
+    });
+  }
+
+  void _goToExplore() {
+    setState(() {
+      _showExplore = true;
+      _showRegister = false;
+      _cameFromExplore = false;
+    });
+  }
+
+  /// A design tapped in Explore: remember it, then ask to sign up.
+  void _onExploreDesignTap(int? eventTypeId, int? templateId) {
+    _intents.set(PendingWizardIntent(
+      eventTypeId: eventTypeId,
+      templateId: templateId,
+    ));
+    _goToRegister();
   }
 
   void _onAuthSuccess() {
     context.read<HomeCubit>().loadHomeData();
     context.read<EventsListCubit>().loadEvents();
+  }
+
+  /// After sign-in, continue into the wizard with what was picked in
+  /// Explore (consumed once).
+  void _continuePendingIntent() {
+    final intent = _intents.consume();
+    if (intent == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final open = widget.onOpenWizard ?? _openWizard;
+      open(context, intent);
+    });
+  }
+
+  static void _openWizard(BuildContext context, PendingWizardIntent intent) {
+    final nav = Navigator.of(context);
+    nav.push(
+      MaterialPageRoute(
+        builder: (_) => BlocProvider(
+          create: (_) => di.sl<InvitationCubit>(),
+          child: InvitationWizardScreen(
+            initialEventTypeId: intent.eventTypeId,
+            initialTemplateId: intent.templateId,
+            onComplete: () => nav.pop(),
+          ),
+        ),
+      ),
+    ).then((_) {
+      if (context.mounted) refreshEventLists(context);
+    });
+  }
+
+  /// Wraps login / register so Android back returns to Explore when the
+  /// user came from there (instead of closing the app).
+  Widget _backToExplore(Widget child) {
+    if (!_cameFromExplore) return child;
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _goToExplore();
+      },
+      child: child,
+    );
   }
 
   void _showUnverifiedAccountDialog(String phone) {
@@ -83,6 +196,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
         if (state is AuthUnauthenticated || state is AuthAccountDeleted) {
           Navigator.of(context).popUntil((route) => route.isFirst);
           setState(() => _showRegister = false);
+          if (state is AuthAccountDeleted) _intents.clear();
         }
         // Handle unverified account - show OTP dialog
         if (state is AuthUnverified) {
@@ -90,15 +204,19 @@ class _AuthWrapperState extends State<AuthWrapper> {
         }
         // Handle successful authentication
         if (state is AuthAuthenticated) {
-          setState(() => _showRegister = false);
+          setState(() {
+            _showRegister = false;
+            _cameFromExplore = false;
+          });
           _onAuthSuccess();
+          if (!state.user.needsInstitutionApproval) _continuePendingIntent();
         }
       },
       builder: (context, state) {
         if (state is AuthInitial) {
           return const Scaffold(
             body: Center(
-              child: CircularProgressIndicator(
+              child: MkSpinner(
                 valueColor: AlwaysStoppedAnimation<Color>(
                   AppColors.primaryColor,
                 ),
@@ -107,21 +225,65 @@ class _AuthWrapperState extends State<AuthWrapper> {
           );
         }
 
-        if (state is AuthAuthenticated) {
-          return const MainShell();
+        // Temporary password from the team: choose your own first. While the
+        // change is in flight the cubit leaves AuthAuthenticated (loading /
+        // changed / error), so the same screen stays until the refreshed
+        // profile comes back without the flag.
+        if (state is AuthAuthenticated && state.user.mustChangePassword) {
+          _forcedPasswordPhone = state.user.phone ?? '';
+        } else if (state is AuthAuthenticated || state is AuthUnauthenticated) {
+          _forcedPasswordPhone = null;
         }
-
-        if (_showRegister) {
-          return RegisterScreen(
-            onLoginTap: _goToLogin,
-            onRegisterSuccess: _onAuthSuccess,
+        if (_forcedPasswordPhone != null) {
+          return PopScope(
+            canPop: false,
+            child: ChangePasswordScreen(phone: _forcedPasswordPhone!, forced: true),
           );
         }
 
-        return LoginScreen(
+        // New Terms / Privacy version from the team: accept it first.
+        if (state is AuthAuthenticated) {
+          _mustAcceptTerms = state.user.mustAcceptTerms;
+        } else if (state is AuthUnauthenticated) {
+          _mustAcceptTerms = false;
+        }
+        if (_mustAcceptTerms) {
+          return const PopScope(canPop: false, child: TermsAcceptanceScreen());
+        }
+
+        if (state is AuthAuthenticated) {
+          // Institution not approved yet (pending / rejected): waiting screen
+          // until GET /auth/profile reports approved.
+          if (state.user.needsInstitutionApproval) {
+            return const AdminApprovalWaitingScreen();
+          }
+          return const MainShell();
+        }
+
+        if (_showExplore) {
+          return ExploreScreen(
+            onStartTap: () {
+              // A plain "start" drops any earlier design pick.
+              _intents.clear();
+              _goToRegister();
+            },
+            onLoginTap: _goToLogin,
+            onDesignTap: _onExploreDesignTap,
+          );
+        }
+
+        if (_showRegister) {
+          return _backToExplore(RegisterScreen(
+            onLoginTap: _goToLogin,
+            onRegisterSuccess: _onAuthSuccess,
+          ));
+        }
+
+        return _backToExplore(LoginScreen(
           onRegisterTap: _goToRegister,
           onLoginSuccess: _onAuthSuccess,
-        );
+          onBrowseTap: _goToExplore,
+        ));
       },
     );
   }

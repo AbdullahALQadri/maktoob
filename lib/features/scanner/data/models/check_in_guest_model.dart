@@ -8,6 +8,12 @@ class CheckInGuestModel extends CheckInGuestEntity {
     required super.companions,
     required super.checkedIn,
     required super.qrCode,
+    super.canCheckIn,
+    super.blockerMessage,
+    super.maxCompanions,
+    super.declinedRsvp,
+    super.warning,
+    super.checkedInAt,
   });
 
   factory CheckInGuestModel.fromJson(Map<String, dynamic> json) {
@@ -34,6 +40,15 @@ class CheckInGuestModel extends CheckInGuestEntity {
       companions: _toInt(json['expected_companions']),
       checkedIn: (json['already_checked_in'] as bool?) ?? false,
       qrCode: qrCode,
+      // Absent on older backends: allow, as before.
+      canCheckIn: json['can_check_in'] is bool ? json['can_check_in'] as bool : true,
+      blockerMessage: _str(json['blocker_message']),
+      maxCompanions: json['max_companions'] == null ? null : _toInt(json['max_companions']),
+      declinedRsvp: json['declined_rsvp'] == true,
+      warning: _str(json['warning']),
+      checkedInAt: json['last_check_in'] is Map
+          ? DateTime.tryParse('${json['last_check_in']['checked_in_at'] ?? ''}')
+          : null,
     );
   }
 
@@ -48,6 +63,26 @@ class CheckInGuestModel extends CheckInGuestEntity {
       checkedIn: true,
       qrCode: '',
     );
+  }
+
+  /// Maps an item from `data.guests` returned by
+  /// GET /events/{event}/guests/check-in-list (every invitee).
+  factory CheckInGuestModel.fromRosterJson(Map<String, dynamic> json) {
+    final checkedIn = json['is_checked_in'] == true;
+    return CheckInGuestModel(
+      id: '${json['invitation_id'] ?? ''}',
+      name: '${json['guest_name'] ?? ''}',
+      status: checkedIn ? 'checked_in' : '${json['response_status'] ?? 'no_response'}',
+      companions: _toInt(json['companions']),
+      checkedIn: checkedIn,
+      qrCode: '',
+      checkedInAt: DateTime.tryParse('${json['checked_in_at'] ?? ''}'),
+    );
+  }
+
+  static String? _str(dynamic v) {
+    final s = v?.toString().trim();
+    return (s == null || s.isEmpty) ? null : s;
   }
 
   static int _toInt(dynamic v) {
@@ -78,22 +113,31 @@ class CheckInGuestModel extends CheckInGuestEntity {
     );
   }
 
-  @override
-  CheckInGuestModel copyWith({
-    String? id,
-    String? name,
-    String? status,
-    int? companions,
-    bool? checkedIn,
-    String? qrCode,
+  /// Maps a successful `POST .../check-in` response.
+  factory CheckInGuestModel.fromCheckInResponse(
+    dynamic response, {
+    required String invitationId,
+    int? requestedCompanions,
   }) {
+    final body = response is Map ? response : const {};
+    final data = body['data'] ?? body;
+    final log = data is Map ? data['attendance_log'] : null;
+    // The owner endpoint returns `invitation` instead of `attendance_log`.
+    final inv = body['invitation'];
     return CheckInGuestModel(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      status: status ?? this.status,
-      companions: companions ?? this.companions,
-      checkedIn: checkedIn ?? this.checkedIn,
-      qrCode: qrCode ?? this.qrCode,
+      id: invitationId,
+      name: (log is Map ? log['guest_name'] as String? : null) ??
+          (inv is Map ? inv['display_name'] as String? : null) ??
+          '',
+      status: 'checked_in',
+      companions: log is Map && log['actual_companions'] != null
+          ? _toInt(log['actual_companions'])
+          : (requestedCompanions ?? 0),
+      checkedIn: true,
+      qrCode: '',
+      declinedRsvp: body['declined_rsvp'] == true,
+      warning: _str(body['warning']),
+      checkedInAt: log is Map ? DateTime.tryParse('${log['checked_in_at'] ?? ''}') : null,
     );
   }
 }

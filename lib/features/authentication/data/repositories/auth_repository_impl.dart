@@ -55,6 +55,8 @@ class AuthRepositoryImpl implements AuthRepository {
     String? userType,
     String? governorate,
     String? location,
+    Map<String, dynamic>? institutionFields,
+    String? logoPath,
   }) async {
     try {
       final response = await remoteDataSource.clientRegister(
@@ -65,6 +67,8 @@ class AuthRepositoryImpl implements AuthRepository {
         userType: userType,
         governorate: governorate,
         location: location,
+        institutionFields: institutionFields,
+        logoPath: logoPath,
       );
 
       // Check for validation errors in the response (e.g., 422 responses)
@@ -97,19 +101,13 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, UserEntity>> getProfile() async {
     try {
       final clientModel = await remoteDataSource.getClientProfile();
-      final user = UserEntity(
-        id: clientModel.id,
-        name: clientModel.name,
-        email: clientModel.email ?? '',
-        phone: clientModel.phone,
-        avatar: clientModel.avatar,
-        companyName: clientModel.companyName,
-        isVerified: clientModel.isVerified,
-        locale: clientModel.locale,
-      );
+      final user = clientModel.toEntity();
       return Right(user);
     } on UnauthorizedException catch (e) {
       return Left(AuthenticationFailure(message: e.message ?? 'Session expired'));
+    } on FetchDataException {
+      // Connect/send/receive timeout: the network is the problem, not the session.
+      return const Left(NetworkFailure(message: 'Connection timeout'));
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message ?? 'Server error'));
     } on NoInternetConnectionException {
@@ -245,6 +243,20 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, void>> acceptLegal() async {
+    try {
+      await remoteDataSource.clientAcceptLegal();
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message ?? 'Server error'));
+    } on NoInternetConnectionException {
+      return const Left(NetworkFailure(message: 'No internet connection'));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, UserEntity>> updateProfile({
     String? name,
     String? email,
@@ -264,6 +276,30 @@ class AuthRepositoryImpl implements AuthRepository {
       } else {
         return Left(ServerFailure(message: response.message));
       }
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(message: e.message ?? 'Validation error'));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message ?? 'Server error'));
+    } on NoInternetConnectionException {
+      return const Left(NetworkFailure(message: 'No internet connection'));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> uploadAvatar(String filePath) =>
+      _avatarCall(() => remoteDataSource.uploadClientAvatar(filePath));
+
+  @override
+  Future<Either<Failure, UserEntity>> removeAvatar() =>
+      _avatarCall(remoteDataSource.deleteClientAvatar);
+
+  Future<Either<Failure, UserEntity>> _avatarCall(
+      Future<AuthResponseModel> Function() call) async {
+    try {
+      final response = await call();
+      return Right(_parseUserFromResponse(response));
     } on ValidationException catch (e) {
       return Left(ValidationFailure(message: e.message ?? 'Validation error'));
     } on ServerException catch (e) {
@@ -317,16 +353,9 @@ class AuthRepositoryImpl implements AuthRepository {
 
     if (data is Map<String, dynamic>) {
       final client = data['client'] ?? data['user'] ?? data;
-      return UserEntity(
-        id: client['id'] ?? 0,
-        name: client['name'] ?? '',
-        email: client['email'] ?? '',
-        phone: client['phone'],
-        avatar: client['avatar'],
-        companyName: client['company_name'],
-        isVerified: client['is_verified'] ?? false,
-        locale: client['locale'],
-      );
+      if (client is Map) {
+        return ClientModel.fromJson(Map<String, dynamic>.from(client)).toEntity();
+      }
     }
 
     // Return default user if parsing fails

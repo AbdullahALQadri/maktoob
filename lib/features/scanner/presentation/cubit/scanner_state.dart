@@ -156,3 +156,44 @@ class ScannerError extends ScannerState {
   @override
   List<Object?> get props => [message, guests, searchQuery];
 }
+
+/// Check-in refused with 409: the guest already came in ("دخل مسبقاً").
+/// Extends [ScannerError] so stats / list rendering stay unchanged.
+class GuestAlreadyCheckedIn extends ScannerError {
+  final CheckInGuestEntity guest;
+
+  const GuestAlreadyCheckedIn({
+    required this.guest,
+    required super.message,
+    super.guests,
+    super.searchQuery,
+  });
+
+  @override
+  List<Object?> get props => [guest, message, guests, searchQuery];
+}
+
+/// Self-service kiosk: the outcome of one scan + automatic check-in.
+/// [admitted] true → green welcome; false → red with [message].
+class KioskResult extends ScannerState {
+  final bool admitted;
+  final String name;
+  final int companions;
+  final String message;
+  final DateTime? checkedInAt;
+
+  /// Increments per scan so two identical results still rebuild.
+  final int seq;
+
+  const KioskResult({
+    required this.admitted,
+    required this.seq,
+    this.name = '',
+    this.companions = 0,
+    this.message = '',
+    this.checkedInAt,
+  });
+
+  @override
+  List<Object?> get props => [admitted, name, companions, message, checkedInAt, seq];
+}

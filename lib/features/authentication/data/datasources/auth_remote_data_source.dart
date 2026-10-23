@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart' show MultipartFile;
 import '../../../../core/api/api_consumer.dart';
 import '../../../../core/api/end_points.dart';
 import '../models/auth_response_model.dart';
@@ -15,6 +16,8 @@ abstract class AuthRemoteDataSource {
     String? userType,
     String? governorate,
     String? location,
+    Map<String, dynamic>? institutionFields,
+    String? logoPath,
   });
   Future<AuthResponseModel> clientVerifyOtp(String login, String otp);
   Future<AuthResponseModel> clientForgotPassword(String login);
@@ -27,12 +30,15 @@ abstract class AuthRemoteDataSource {
       String login, String code, String password);
   Future<void> clientChangePassword(
       String currentPassword, String newPassword);
+  Future<void> clientAcceptLegal();
   Future<AuthResponseModel> updateClientProfile({
     String? name,
     String? email,
     String? phone,
     String? companyName,
   });
+  Future<AuthResponseModel> uploadClientAvatar(String filePath);
+  Future<AuthResponseModel> deleteClientAvatar();
   Future<void> updateFcmToken(String fcmToken);
   Future<void> deleteAccount();
 
@@ -85,6 +91,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     String? userType,
     String? governorate,
     String? location,
+    Map<String, dynamic>? institutionFields,
+    String? logoPath,
   }) async {
     final response = await apiConsumer.post(
       Endpoints.clientRegister,
@@ -93,11 +101,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'phone': phone,
         'password': password,
         'password_confirmation': password,
+        // The register screen only submits once "I agree" is ticked.
+        'terms_accepted': true,
         if (email != null && email.isNotEmpty) 'email': email,
         if (companyName != null) 'company_name': companyName,
         if (userType != null) 'user_type': userType,
         if (governorate != null && governorate.isNotEmpty) 'governorate': governorate,
         if (location != null && location.isNotEmpty) 'location': location,
+        // Institution sign-up: organization_name_ar, sector, contact_person...
+        ...?institutionFields,
+        // A MultipartFile makes DioConsumer send multipart/form-data.
+        if (logoPath != null && logoPath.isNotEmpty)
+          'logo': await MultipartFile.fromFile(logoPath, filename: logoPath.split('/').last),
       },
     );
     return AuthResponseModel.fromJson(response);
@@ -181,6 +196,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
+  Future<void> clientAcceptLegal() async {
+    await apiConsumer.post(
+      Endpoints.clientAcceptLegal,
+      body: {'terms_accepted': true, 'channel': 'app'},
+    );
+  }
+
+  @override
   Future<AuthResponseModel> updateClientProfile({
     String? name,
     String? email,
@@ -205,6 +228,26 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       Endpoints.clientFcmToken,
       body: {'fcm_token': fcmToken},
     );
+  }
+
+  @override
+  Future<AuthResponseModel> uploadClientAvatar(String filePath) async {
+    final response = await apiConsumer.post(
+      Endpoints.clientProfileAvatar,
+      body: {
+        'avatar': await MultipartFile.fromFile(
+          filePath,
+          filename: filePath.split(RegExp(r'[\\/]')).last,
+        ),
+      },
+    );
+    return AuthResponseModel.fromJson(response);
+  }
+
+  @override
+  Future<AuthResponseModel> deleteClientAvatar() async {
+    final response = await apiConsumer.delete(Endpoints.clientProfileAvatar);
+    return AuthResponseModel.fromJson(response);
   }
 
   @override

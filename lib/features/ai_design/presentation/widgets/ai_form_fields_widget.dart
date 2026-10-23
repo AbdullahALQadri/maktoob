@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../config/locale/app_localizations.dart';
 import '../../data/models/ai_form_field_model.dart';
 
 /// Renders dynamic AI form fields returned by /ai-form-fields/{eventTypeId}.
@@ -132,7 +131,7 @@ class _SelectField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => DropdownButtonFormField<String>(
-    value: value,
+    initialValue: value,
     decoration: InputDecoration(labelText: label, border: const OutlineInputBorder(), isDense: true),
     items: options.map((o) => DropdownMenuItem(value: o, child: Text(o))).toList(),
     onChanged: onChanged,

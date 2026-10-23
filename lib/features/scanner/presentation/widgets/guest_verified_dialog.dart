@@ -2,13 +2,21 @@ import 'package:flutter/material.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/responsive.dart';
+import '../../../../core/utils/app_spacing.dart';
 import '../../domain/entities/check_in_guest_entity.dart';
 
-class GuestVerifiedDialog extends StatelessWidget {
+/// Result of a scan.
+///
+/// When the backend says the guest cannot be checked in (`can_check_in:
+/// false`) it shows the blocker message and offers no confirm button. A
+/// declined RSVP shows the warning but still allows the check-in. The
+/// companions picker is limited to `max_companions`.
+class GuestVerifiedDialog extends StatefulWidget {
   final CheckInGuestEntity guest;
   final VoidCallback onClose;
-  final VoidCallback onCheckIn;
+
+  /// Confirms the check-in with the chosen number of companions.
+  final ValueChanged<int> onCheckIn;
 
   const GuestVerifiedDialog({
     super.key,
@@ -18,274 +26,123 @@ class GuestVerifiedDialog extends StatelessWidget {
   });
 
   @override
+  State<GuestVerifiedDialog> createState() => _GuestVerifiedDialogState();
+}
+
+class _GuestVerifiedDialogState extends State<GuestVerifiedDialog> {
+  late int _companions = widget.guest.defaultCompanions;
+
+  @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
+    final guest = widget.guest;
+    final blocked = !guest.canCheckIn;
+    final accent = blocked ? AppColors.red500 : AppColors.green600;
 
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-      ),
-      elevation: 20,
-      child: Container(
-        width: context.dynamicWidth(0.851),
-        padding: EdgeInsets.all(context.dynamicWidth(0.061)),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppColors.green600.withValues(alpha: 0.1),
-              Colors.white,
-            ],
-          ),
-        ),
+      shape: const RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusXl),
+      child: SingleChildScrollView(
+        padding: const EdgeInsetsDirectional.all(AppSpacing.lg),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Success Icon with animation
-            TweenAnimationBuilder<double>(
-              tween: Tween(begin: 0.0, end: 1.0),
-              duration: const Duration(milliseconds: 600),
-              curve: Curves.elasticOut,
-              builder: (context, value, child) {
-                return Transform.scale(
-                  scale: value,
-                  child: Container(
-                    width: context.dynamicWidth(0.221),
-                    height: context.dynamicWidth(0.221),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          AppColors.green600,
-                          AppColors.green600.withValues(alpha: 0.8),
-                        ],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.green600.withValues(alpha: 0.4),
-                          blurRadius: 20,
-                          spreadRadius: 5,
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.check_rounded,
-                      color: Colors.white,
-                      size: context.dynamicWidth(0.12),
-                    ),
-                  ),
-                );
-              },
+            Icon(
+              blocked ? Icons.block_rounded : Icons.check_circle_outline_rounded,
+              color: accent,
+              size: 56,
             ),
-            SizedBox(height: context.dynamicHeight(0.025)),
-
-            // Status Text
+            AppSpacing.verticalSpace12,
             Text(
-              t.translate('scanner_verified'),
-              style: TextStyle(
-                fontSize: context.dynamicWidth(0.061),
-                fontWeight: FontWeight.bold,
-                color: AppColors.green600,
-                letterSpacing: 1.5,
-              ),
+              t.translate(blocked ? 'scanner_cannot_check_in' : 'scanner_verified'),
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: accent),
             ),
-            SizedBox(height: context.dynamicHeight(0.007)),
-            Text(
-              t.translate('scanner_guest_registered'),
-              style: TextStyle(
-                fontSize: context.dynamicWidth(0.032),
-                color: context.iconSecondary,
-              ),
-            ),
-            SizedBox(height: context.dynamicHeight(0.025)),
-
-            // Guest Details Card
+            AppSpacing.verticalSpace16,
             Container(
-              padding: EdgeInsets.all(context.dynamicWidth(0.04)),
+              padding: const EdgeInsetsDirectional.all(AppSpacing.md),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
+                color: AppColors.white,
+                borderRadius: AppSpacing.borderRadiusLg,
+                border: Border.all(color: AppColors.gray200),
               ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Guest Avatar and Name
-                  Row(
-                    children: [
-                      Container(
-                        width: context.dynamicWidth(0.141),
-                        height: context.dynamicWidth(0.141),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              AppColors.primaryColor,
-                              AppColors.tertiaryColor,
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Center(
-                          child: Text(
-                            guest.name.isNotEmpty ? guest.name[0].toUpperCase() : '?',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: context.dynamicWidth(0.061),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: context.dynamicWidth(0.035)),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              guest.name,
-                              style: TextStyle(
-                                fontSize: context.dynamicWidth(0.045),
-                                fontWeight: FontWeight.bold,
-                                color: context.textPrimary,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            SizedBox(height: context.dynamicHeight(0.005)),
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: context.dynamicWidth(0.021),
-                                vertical: context.dynamicHeight(0.002),
-                              ),
-                              decoration: BoxDecoration(
-                                color: guest.isVip
-                                    ? AppColors.amber500.withValues(alpha: 0.15)
-                                    : AppColors.blue500.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                guest.status,
-                                style: TextStyle(
-                                  fontSize: context.dynamicWidth(0.029),
-                                  fontWeight: FontWeight.w600,
-                                  color: guest.isVip ? AppColors.amber500 : AppColors.blue500,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                  Text(
+                    guest.name,
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.gray900),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  SizedBox(height: context.dynamicHeight(0.02)),
-                  Container(
-                    height: 1,
-                    color: context.borderColor,
-                  ),
-                  SizedBox(height: context.dynamicHeight(0.015)),
-                  // Details Grid
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildDetailItem(
-                          context,
-                          Icons.group,
-                          t.translate('scanner_companions'),
-                          guest.companions.toString(),
-                        ),
-                      ),
-                      Container(
-                        width: 1,
-                        height: context.dynamicHeight(0.05),
-                        color: context.borderColor,
-                      ),
-                      Expanded(
-                        child: _buildDetailItem(
-                          context,
-                          Icons.qr_code,
-                          t.translate('scanner_qr_code'),
-                          guest.qrCode.length > 8
-                              ? '${guest.qrCode.substring(0, 8)}...'
-                              : guest.qrCode,
-                        ),
-                      ),
-                    ],
+                  AppSpacing.verticalSpace4,
+                  Text(
+                    '${t.translate('scanner_expected_companions')}: ${guest.companions}',
+                    style: const TextStyle(fontSize: 14, color: AppColors.gray600),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: context.dynamicHeight(0.025)),
-
-            // Action Buttons
+            if (blocked) ...[
+              AppSpacing.verticalSpace16,
+              _Notice(
+                key: const Key('scanner_blocker'),
+                icon: Icons.block_rounded,
+                color: AppColors.red500,
+                text: guest.blockerMessage ?? t.translate('scanner_cannot_check_in'),
+              ),
+            ] else ...[
+              if (guest.declinedRsvp) ...[
+                AppSpacing.verticalSpace16,
+                _Notice(
+                  key: const Key('scanner_declined_warning'),
+                  icon: Icons.warning_amber_rounded,
+                  color: AppColors.amber600,
+                  text: guest.warning ?? t.translate('scanner_declined_warning'),
+                ),
+              ],
+              AppSpacing.verticalSpace16,
+              _CompanionsPicker(
+                value: _companions,
+                max: guest.maxCompanions,
+                onChanged: (v) => setState(() => _companions = v),
+              ),
+            ],
+            AppSpacing.verticalSpace24,
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: onClose,
+                    key: const Key('scanner_dialog_close'),
+                    onPressed: widget.onClose,
                     style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                        vertical: context.dynamicHeight(0.018),
-                      ),
-                      side: BorderSide(color: context.iconDefault),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      foregroundColor: AppColors.gray700,
+                      side: const BorderSide(color: AppColors.gray200),
+                      padding: const EdgeInsetsDirectional.symmetric(vertical: AppSpacing.smd),
+                      shape: const RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusMd),
                     ),
-                    child: Text(
-                      t.translate('common_close'),
-                      style: TextStyle(
-                        fontSize: context.dynamicWidth(0.037),
-                        color: context.textSecondary,
+                    child: Text(t.translate('common_close')),
+                  ),
+                ),
+                if (!blocked) ...[
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton.icon(
+                      key: const Key('scanner_confirm_check_in'),
+                      onPressed: () => widget.onCheckIn(_companions),
+                      icon: const Icon(Icons.login_rounded, size: 20),
+                      label: Text(t.translate('scanner_check_in')),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.green600,
+                        foregroundColor: AppColors.white,
+                        elevation: 0,
+                        padding: const EdgeInsetsDirectional.symmetric(vertical: AppSpacing.smd),
+                        shape: const RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusMd),
                       ),
                     ),
                   ),
-                ),
-                SizedBox(width: context.dynamicWidth(0.029)),
-                Expanded(
-                  flex: 2,
-                  child: ElevatedButton(
-                    onPressed: onCheckIn,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.green600,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(
-                        vertical: context.dynamicHeight(0.018),
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 4,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.login_rounded,
-                          size: context.dynamicWidth(0.051),
-                        ),
-                        SizedBox(width: context.dynamicWidth(0.021)),
-                        Text(
-                          t.translate('scanner_check_in'),
-                          style: TextStyle(
-                            fontSize: context.dynamicWidth(0.037),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                ],
               ],
             ),
           ],
@@ -293,38 +150,99 @@ class GuestVerifiedDialog extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildDetailItem(
-    BuildContext context,
-    IconData icon,
-    String label,
-    String value,
-  ) {
-    return Column(
-      children: [
-        Icon(
-          icon,
-          size: context.dynamicWidth(0.051),
-          color: context.iconSecondary,
-        ),
-        SizedBox(height: context.dynamicHeight(0.005)),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: context.dynamicWidth(0.029),
-            color: context.iconSecondary,
+class _Notice extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String text;
+
+  const _Notice({super.key, required this.icon, required this.color, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsetsDirectional.all(AppSpacing.smd),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: AppSpacing.borderRadiusMd,
+        border: Border.all(color: color),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 14, height: 1.5, fontWeight: FontWeight.w600, color: AppColors.gray900),
+            ),
           ),
-        ),
-        SizedBox(height: context.dynamicHeight(0.002)),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: context.dynamicWidth(0.035),
-            fontWeight: FontWeight.bold,
-            color: context.textPrimary,
+        ],
+      ),
+    );
+  }
+}
+
+/// Companions entering now: 0..[max] (no upper bound when [max] is null).
+class _CompanionsPicker extends StatelessWidget {
+  final int value;
+  final int? max;
+  final ValueChanged<int> onChanged;
+
+  const _CompanionsPicker({required this.value, required this.max, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final limit = max;
+    final canAdd = limit == null || value < limit;
+    return Container(
+      padding: const EdgeInsetsDirectional.symmetric(horizontal: AppSpacing.smd, vertical: AppSpacing.xs),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: AppSpacing.borderRadiusMd,
+        border: Border.all(color: AppColors.gray200),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  t.translate('scanner_companions_entering'),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.gray900),
+                ),
+                if (limit != null)
+                  Text(
+                    t.translate('scanner_companions_max').replaceAll('{max}', '$limit'),
+                    key: const Key('scanner_companions_max'),
+                    style: const TextStyle(fontSize: 12, color: AppColors.gray500),
+                  ),
+              ],
+            ),
           ),
-        ),
-      ],
+          IconButton(
+            key: const Key('scanner_companions_minus'),
+            onPressed: value > 0 ? () => onChanged(value - 1) : null,
+            icon: const Icon(Icons.remove_circle_outline),
+            color: AppColors.primaryColor,
+          ),
+          Text(
+            '$value',
+            key: const Key('scanner_companions_value'),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.gray900),
+          ),
+          IconButton(
+            key: const Key('scanner_companions_plus'),
+            onPressed: canAdd ? () => onChanged(value + 1) : null,
+            icon: const Icon(Icons.add_circle_outline),
+            color: AppColors.primaryColor,
+          ),
+        ],
+      ),
     );
   }
 }

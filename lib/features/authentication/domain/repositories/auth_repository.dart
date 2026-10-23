@@ -22,6 +22,8 @@ abstract class AuthRepository {
     String? userType,
     String? governorate,
     String? location,
+    Map<String, dynamic>? institutionFields,
+    String? logoPath,
   });
 
   /// Get current user profile
@@ -58,6 +60,9 @@ abstract class AuthRepository {
     required String newPassword,
   });
 
+  /// Accept the Terms / Privacy version in force (authenticated)
+  Future<Either<Failure, void>> acceptLegal();
+
   /// Update user profile
   Future<Either<Failure, UserEntity>> updateProfile({
     String? name,
@@ -65,6 +70,12 @@ abstract class AuthRepository {
     String? phone,
     String? companyName,
   });
+
+  /// Set the profile photo from a local image file.
+  Future<Either<Failure, UserEntity>> uploadAvatar(String filePath);
+
+  /// Remove the profile photo.
+  Future<Either<Failure, UserEntity>> removeAvatar();
 
   /// Update FCM token for push notifications
   Future<Either<Failure, void>> updateFcmToken(String fcmToken);

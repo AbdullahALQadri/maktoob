@@ -3,19 +3,19 @@ import '../../../../core/api/end_points.dart';
 import '../models/check_in_guest_model.dart';
 
 abstract class ScannerRemoteDataSource {
-  /// Validates a scanned QR code against a venue and returns the invitation.
-  Future<CheckInGuestModel> scanQrCode(String qrCode, int venueId);
+  /// Validates a scanned QR code against one of the host's events and returns the invitation.
+  Future<CheckInGuestModel> scanQrCode(String qrCode, int eventId);
 
-  /// Confirms check-in for an invitation at a venue.
+  /// Confirms check-in for an invitation.
   Future<CheckInGuestModel> checkInGuest(
     String invitationId,
-    int venueId, {
+    int eventId, {
     int? actualCompanions,
     String? notes,
   });
 
-  /// Lists guests already checked in at a venue (attendance).
-  Future<List<CheckInGuestModel>> getGuestList(int venueId, {String? searchQuery});
+  /// The event's full invitee roster with check-in status.
+  Future<List<CheckInGuestModel>> getGuestList(int eventId, {String? searchQuery});
 }
 
 class ScannerRemoteDataSourceImpl implements ScannerRemoteDataSource {
@@ -24,10 +24,10 @@ class ScannerRemoteDataSourceImpl implements ScannerRemoteDataSource {
   ScannerRemoteDataSourceImpl({required this.apiConsumer});
 
   @override
-  Future<CheckInGuestModel> scanQrCode(String qrCode, int venueId) async {
+  Future<CheckInGuestModel> scanQrCode(String qrCode, int eventId) async {
     final response = await apiConsumer.post(
-      Endpoints.scannerScan,
-      body: {'qr_code': qrCode, 'venue_id': venueId},
+      Endpoints.eventCheckInScan(eventId),
+      body: {'qr_code': qrCode},
     );
     final data = response['data'] ?? response;
     final invitation = (data is Map ? data['invitation'] : null) ?? data;
@@ -40,48 +40,40 @@ class ScannerRemoteDataSourceImpl implements ScannerRemoteDataSource {
   @override
   Future<CheckInGuestModel> checkInGuest(
     String invitationId,
-    int venueId, {
+    int eventId, {
     int? actualCompanions,
     String? notes,
   }) async {
     final response = await apiConsumer.post(
-      Endpoints.scannerCheckInVerify(int.parse(invitationId)),
+      Endpoints.invitationCheckIn(int.parse(invitationId)),
       body: {
-        'invitation_id': int.parse(invitationId),
-        'venue_id': venueId,
         if (actualCompanions != null) 'actual_companions': actualCompanions,
         if (notes != null) 'notes': notes,
       },
     );
-    final data = response['data'] ?? response;
-    final log = (data is Map ? data['attendance_log'] : null);
-    final name = (log is Map ? log['guest_name'] : null) as String? ?? '';
-    final companions =
-        (log is Map && log['actual_companions'] is int) ? log['actual_companions'] as int : (actualCompanions ?? 0);
-    return CheckInGuestModel(
-      id: invitationId,
-      name: name,
-      status: 'checked_in',
-      companions: companions,
-      checkedIn: true,
-      qrCode: '',
+    // 422 {message, code: event_not_active|too_many_companions} and
+    // 409 (already checked in) surface as exceptions from ApiConsumer.
+    return CheckInGuestModel.fromCheckInResponse(
+      response,
+      invitationId: invitationId,
+      requestedCompanions: actualCompanions,
     );
   }
 
   @override
-  Future<List<CheckInGuestModel>> getGuestList(int venueId, {String? searchQuery}) async {
+  Future<List<CheckInGuestModel>> getGuestList(int eventId, {String? searchQuery}) async {
     final queryParams = <String, dynamic>{};
     if (searchQuery != null && searchQuery.isNotEmpty) {
       queryParams['search'] = searchQuery;
     }
     final response = await apiConsumer.get(
-      Endpoints.scannerAttendance(venueId),
+      Endpoints.eventCheckInList(eventId),
       queryParameters: queryParams,
     );
     final data = response['data'] ?? response;
-    final list = (data is Map ? data['attendance'] : data) as List? ?? [];
+    final list = (data is Map ? data['guests'] : data) as List? ?? [];
     return list
-        .map((g) => CheckInGuestModel.fromAttendanceJson(Map<String, dynamic>.from(g as Map)))
+        .map((g) => CheckInGuestModel.fromRosterJson(Map<String, dynamic>.from(g as Map)))
         .toList();
   }
 }

@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../institution/domain/entities/institution_entity.dart';
+
 /// User type enum for distinguishing between individual users and institutions
 enum UserType {
   user,
@@ -52,6 +54,23 @@ class UserEntity extends Equatable {
   final String? locale;
   final UserType userType;
 
+  /// Approval status when [userType] is institution (`institution_status`).
+  final InstitutionStatus? institutionStatus;
+
+  /// The institution this client owns (`client.institution`).
+  final InstitutionEntity? institution;
+
+  /// Accepted memberships in other institutions (`institution_memberships`).
+  final List<InstitutionMembershipEntity> memberships;
+
+  /// The Maktoob team opened this account with a temporary password
+  /// (`must_change_password`): the app asks for a new one before anything else.
+  final bool mustChangePassword;
+
+  /// The team published a Terms / Privacy version this client has not
+  /// accepted yet (`legal.acceptance_required`): the app asks for it first.
+  final bool mustAcceptTerms;
+
   const UserEntity({
     required this.id,
     required this.name,
@@ -62,17 +81,48 @@ class UserEntity extends Equatable {
     this.isVerified = false,
     this.locale,
     this.userType = UserType.user,
+    this.institutionStatus,
+    this.institution,
+    this.memberships = const [],
+    this.mustChangePassword = false,
+    this.mustAcceptTerms = false,
   });
 
-  /// Check if user is an institution based on companyName or userType
-  bool get isInstitution => userType == UserType.institution || companyName != null;
+  /// An institution account that an admin has not approved (yet): the app
+  /// shows the approval-waiting screen instead of the normal shell.
+  bool get needsInstitutionApproval =>
+      userType == UserType.institution &&
+      (institutionStatus ?? institution?.status) != InstitutionStatus.approved;
 
-  /// Get initials from name
+  bool get isApprovedInstitutionOwner =>
+      userType == UserType.institution &&
+      (institutionStatus ?? institution?.status) == InstitutionStatus.approved;
+
+  /// Institutions this client may create events for (owner of an approved
+  /// institution, or manager in one) — the wizard's "for whom?" choices.
+  List<EventOwnerChoice> get eventOwnerChoices => [
+        if (isApprovedInstitutionOwner && institution != null)
+          EventOwnerChoice(
+            institutionId: institution!.id,
+            name: institution!.nameAr,
+            credits: institution!.invitationCredits,
+          ),
+        for (final m in memberships)
+          if (m.isApproved && m.role == 'manager')
+            EventOwnerChoice(institutionId: m.institutionId, name: m.institutionName),
+      ];
+
+  /// Institution account per the backend's `account_type`. An individual may
+  /// still fill in a workplace (`companyName`); that does not make them one.
+  bool get isInstitution => userType == UserType.institution;
+
+  /// Up to two initials for the avatar placeholder (first + last word).
   String get initials {
-    final parts = name.trim().split(' ');
-    if (parts.isEmpty) return '?';
-    if (parts.length == 1) return parts[0][0].toUpperCase();
-    return '${parts[0][0]}${parts[parts.length - 1][0]}'.toUpperCase();
+    final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    if (parts.isEmpty) return '';
+    String first(String w) => String.fromCharCode(w.runes.first);
+    if (parts.length == 1) return first(parts.first).toUpperCase();
+    return '${first(parts.first)}${first(parts.last)}'.toUpperCase();
   }
 
   /// Copy with method for updating fields
@@ -86,6 +136,11 @@ class UserEntity extends Equatable {
     bool? isVerified,
     String? locale,
     UserType? userType,
+    InstitutionStatus? institutionStatus,
+    InstitutionEntity? institution,
+    List<InstitutionMembershipEntity>? memberships,
+    bool? mustChangePassword,
+    bool? mustAcceptTerms,
   }) {
     return UserEntity(
       id: id ?? this.id,
@@ -97,6 +152,11 @@ class UserEntity extends Equatable {
       isVerified: isVerified ?? this.isVerified,
       locale: locale ?? this.locale,
       userType: userType ?? this.userType,
+      institutionStatus: institutionStatus ?? this.institutionStatus,
+      institution: institution ?? this.institution,
+      memberships: memberships ?? this.memberships,
+      mustChangePassword: mustChangePassword ?? this.mustChangePassword,
+      mustAcceptTerms: mustAcceptTerms ?? this.mustAcceptTerms,
     );
   }
 
@@ -111,5 +171,24 @@ class UserEntity extends Equatable {
         isVerified,
         locale,
         userType,
+        institutionStatus,
+        institution,
+        memberships,
+        mustChangePassword,
+        mustAcceptTerms,
       ];
+}
+
+/// One "for whom is this event?" option in the wizard.
+class EventOwnerChoice extends Equatable {
+  final int institutionId;
+  final String name;
+
+  /// Prepaid balance when known (owner only).
+  final int? credits;
+
+  const EventOwnerChoice({required this.institutionId, required this.name, this.credits});
+
+  @override
+  List<Object?> get props => [institutionId, name, credits];
 }

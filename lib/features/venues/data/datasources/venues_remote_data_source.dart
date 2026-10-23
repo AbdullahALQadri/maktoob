@@ -1,5 +1,6 @@
 import '../../../../core/api/api_consumer.dart';
 import '../../../../core/api/end_points.dart';
+import '../../../../core/api/paginated_fetch.dart';
 import '../models/venue_model.dart';
 
 /// Abstract interface for remote data source
@@ -18,10 +19,19 @@ class VenuesRemoteDataSourceImpl implements VenuesRemoteDataSource {
   VenuesRemoteDataSourceImpl({required this.apiConsumer});
 
   @override
-  Future<List<VenueModel>> getVenues() async {
-    final response = await apiConsumer.get(Endpoints.venues);
-    final data = response['data'] as List? ?? [];
-    return data.map((v) => VenueModel.fromJson(v)).toList();
+  Future<List<VenueModel>> getVenues() => _fetchAll(const {});
+
+  /// GET /venues returns the raw Laravel paginator (15 per page by default,
+  /// at most 100). Walk every page so hosts with many venues see them all.
+  Future<List<VenueModel>> _fetchAll(Map<String, dynamic> query) {
+    return Pagination.fetchAll(
+      apiConsumer,
+      Endpoints.venues,
+      query: query,
+      perPage: 100,
+      maxPages: 20,
+      parse: VenueModel.fromJson,
+    );
   }
 
   @override
@@ -34,14 +44,8 @@ class VenuesRemoteDataSourceImpl implements VenuesRemoteDataSource {
   }
 
   @override
-  Future<List<VenueModel>> searchVenues(String query) async {
-    final response = await apiConsumer.get(
-      Endpoints.venues,
-      queryParameters: {'search': query},
-    );
-    final data = response['data'] as List? ?? [];
-    return data.map((v) => VenueModel.fromJson(v)).toList();
-  }
+  Future<List<VenueModel>> searchVenues(String query) =>
+      _fetchAll({'search': query});
 
   @override
   Future<VenueModel> getVenueById(String id) async {

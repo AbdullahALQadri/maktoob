@@ -3,7 +3,9 @@ import 'dart:developer' as dev;
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/error/failures.dart';
 import '../../../../core/services/fcm_service.dart';
+import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import 'auth_state.dart';
 
@@ -11,6 +13,7 @@ class AuthCubit extends Cubit<AuthState> {
   final AuthRepository authRepository;
   final FcmService? fcmService;
   StreamSubscription<String>? _tokenSub;
+  StreamSubscription<Map<String, dynamic>>? _pushSub;
   String? _pendingFcmToken; // most recent token captured before user was authenticated
 
   AuthCubit({required this.authRepository, this.fcmService})
@@ -19,6 +22,8 @@ class AuthCubit extends Cubit<AuthState> {
       _pendingFcmToken = t;
       _registerFcmToken(t);
     });
+    // institution.approved / institution.rejected → re-fetch the profile.
+    _pushSub = fcmService?.messageStream.listen((data) => onPushType(data['type']?.toString()));
   }
 
   Future<void> _registerFcmToken(String token) async {
@@ -35,7 +40,9 @@ class AuthCubit extends Cubit<AuthState> {
 
   @override
   Future<void> close() {
+    _retryTimer?.cancel();
     _tokenSub?.cancel();
+    _pushSub?.cancel();
     return super.close();
   }
 
@@ -48,8 +55,22 @@ class AuthCubit extends Cubit<AuthState> {
       final result = await authRepository.getProfile();
       result.fold(
         (failure) {
-          // Token might be expired, logout
-          emit(const AuthUnauthenticated());
+          if (failure is AuthenticationFailure) {
+            // 401/403: the token is no longer valid.
+            emit(const AuthUnauthenticated());
+          } else {
+            // Offline, timeout or a server hiccup: keep the stored token and
+            // open the app; the profile is re-fetched once we are back online.
+            dev.log('Profile fetch failed, staying signed in: ${failure.message}',
+                name: 'AuthCubit');
+            emit(const AuthAuthenticated(UserEntity(
+              id: 0,
+              name: '',
+              email: '',
+              isVerified: true,
+            )));
+            _scheduleProfileRetry();
+          }
         },
         (user) {
           emit(AuthAuthenticated(user));
@@ -58,6 +79,59 @@ class AuthCubit extends Cubit<AuthState> {
       );
     } else {
       emit(const AuthUnauthenticated());
+    }
+  }
+
+  Timer? _retryTimer;
+
+  /// Retries the profile fetch until it succeeds (or the session is invalid).
+  void _scheduleProfileRetry() {
+    _retryTimer?.cancel();
+    _retryTimer = Timer(const Duration(seconds: 15), () async {
+      if (isClosed) return;
+      final result = await authRepository.getProfile();
+      if (isClosed) return;
+      result.fold(
+        (failure) {
+          if (failure is AuthenticationFailure) {
+            emit(const AuthUnauthenticated());
+          } else {
+            _scheduleProfileRetry();
+          }
+        },
+        (user) {
+          emit(AuthAuthenticated(user));
+          _pushCurrentFcmToken();
+        },
+      );
+    });
+  }
+
+  /// Re-fetch `GET /auth/profile` silently (institution approval status,
+  /// memberships). Emits [AuthAuthenticated] with the fresh user; the
+  /// AuthWrapper then swaps the waiting screen for the app once approved.
+  Future<void> refreshProfile() async {
+    final result = await authRepository.getProfile();
+    result.fold(
+      (f) => dev.log('Profile refresh failed: ${f.message}', name: 'AuthCubit'),
+      (user) => emit(AuthAuthenticated(user)),
+    );
+  }
+
+  /// Push types that change the account's institution status.
+  static const institutionPushTypes = {
+    'institution.approved',
+    'institution.rejected',
+    'institution.suspended',
+    'institution.reinstated',
+    'institution.changes_approved',
+    'institution.changes_rejected',
+  };
+
+  /// Called by the FCM handler for every push; refreshes on institution ones.
+  Future<void> onPushType(String? type) async {
+    if (type != null && institutionPushTypes.contains(type) && state is AuthAuthenticated) {
+      await refreshProfile();
     }
   }
 
@@ -107,6 +181,8 @@ class AuthCubit extends Cubit<AuthState> {
     required String userType,
     String? governorate,
     String? location,
+    Map<String, dynamic>? institutionFields,
+    String? logoPath,
   }) async {
     emit(const AuthLoading());
 
@@ -118,6 +194,8 @@ class AuthCubit extends Cubit<AuthState> {
       userType: userType,
       governorate: governorate,
       location: location,
+      institutionFields: institutionFields,
+      logoPath: logoPath,
     );
 
     result.fold(
@@ -251,6 +329,22 @@ class AuthCubit extends Cubit<AuthState> {
     );
   }
 
+  /// Accept the Terms / Privacy version in force, then reload the profile
+  /// so the AuthWrapper drops the acceptance screen.
+  Future<void> acceptLegal() async {
+    emit(const AuthLoading());
+    final accepted = await authRepository.acceptLegal();
+    if (accepted.isLeft()) {
+      accepted.fold((f) => emit(AuthError(f.message ?? 'Failed to record acceptance')), (_) {});
+      return;
+    }
+    final profile = await authRepository.getProfile();
+    profile.fold(
+      (f) => emit(AuthError(f.message ?? 'Failed to load profile')),
+      (user) => emit(AuthAuthenticated(user)),
+    );
+  }
+
   /// Update user profile
   Future<void> updateProfile({
     String? name,
@@ -272,6 +366,13 @@ class AuthCubit extends Cubit<AuthState> {
           emit(AuthError(failure.message ?? 'Failed to update profile')),
       (user) => emit(AuthProfileUpdated(user)),
     );
+  }
+
+  /// Adopt a user returned by a profile edit (name, photo) so every screen
+  /// reading [AuthAuthenticated] updates without a re-fetch. No-op when
+  /// signed out.
+  void syncUser(UserEntity user) {
+    if (state is AuthAuthenticated) emit(AuthAuthenticated(user));
   }
 
   /// Update FCM token (silent — no state change on failure)

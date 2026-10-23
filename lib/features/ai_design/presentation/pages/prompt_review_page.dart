@@ -5,6 +5,7 @@ import '../../../../core/core.dart';
 import '../../data/models/generation_status_model.dart';
 import '../cubit/ai_design_cubit.dart';
 import '../cubit/ai_design_state.dart';
+import '../widgets/ai_error_message.dart';
 import '../widgets/generation_overlay.dart';
 import 'image_result_page.dart';
 
@@ -85,7 +86,9 @@ class _PromptReviewPageState extends State<PromptReviewPage> {
           );
         } else if (state is AiDesignError) {
           ScaffoldMessenger.of(ctx).showSnackBar(
-            SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+            SnackBar(
+                content: Text(localizeAiDesignError(state.message, loc)),
+                backgroundColor: Colors.red),
           );
         }
       },
@@ -124,7 +127,7 @@ class _PromptReviewPageState extends State<PromptReviewPage> {
   Widget _buildBody(BuildContext ctx, AiDesignState state, AppLocalizations? loc) {
     final isGenerating = state is AiImageGenerating;
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+      padding: const EdgeInsetsDirectional.fromSTEB(20, 16, 20, 24),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         // AI enhancement info banner
         Container(
@@ -146,7 +149,7 @@ class _PromptReviewPageState extends State<PromptReviewPage> {
                 children: [
                   Text(
                     loc?.translate('ai_enhancement_banner_title') ??
-                        'تحسين الذكاء الاصطناعي',
+                        'تم تحسين الوصف',
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
@@ -159,7 +162,7 @@ class _PromptReviewPageState extends State<PromptReviewPage> {
                         'لقد قمنا بتحويل أفكارك إلى وصف تفصيلي. يمكنك التعديل عليه للحصول على أدق النتائج الممكنة.',
                     style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.tertiaryColor.withValues(alpha: 0.85),
+                      color: context.brandInk.withValues(alpha: 0.85),
                     ),
                   ),
                 ],

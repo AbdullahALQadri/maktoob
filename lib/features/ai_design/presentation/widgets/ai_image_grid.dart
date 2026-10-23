@@ -95,7 +95,7 @@ class _ImageCard extends StatelessWidget {
             width: 3,
           ),
           boxShadow: isSelected
-              ? [BoxShadow(color: primary.withOpacity(0.3), blurRadius: 8)]
+              ? [BoxShadow(color: primary.withValues(alpha: 0.3), blurRadius: 8)]
               : [],
         ),
         child: ClipRRect(
@@ -122,7 +122,7 @@ class _ImageCard extends StatelessWidget {
                 right: 0,
                 bottom: 0,
                 child: Container(
-                  padding: const EdgeInsets.fromLTRB(8, 14, 8, 8),
+                  padding: const EdgeInsetsDirectional.fromSTEB(8, 14, 8, 8),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.bottomCenter,

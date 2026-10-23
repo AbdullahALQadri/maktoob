@@ -38,7 +38,7 @@ class VenueCardWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildHeader(),
+                _buildHeader(context),
                 const SizedBox(height: 16),
                 _buildContactInfo(),
                 const SizedBox(height: 16),
@@ -51,7 +51,7 @@ class VenueCardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Row(
       children: [
         // Gradient icon container
@@ -88,7 +88,7 @@ class VenueCardWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.tertiaryColor,
+                  color: context.brandInk,
                 ),
               ),
               const SizedBox(height: 4),

@@ -22,7 +22,7 @@ class SettingsHeader extends StatelessWidget {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: EdgeInsets.fromLTRB(
+          padding: EdgeInsetsDirectional.fromSTEB(
             context.dynamicWidth(0.061),
             context.dynamicHeight(0.03),
             context.dynamicWidth(0.061),
