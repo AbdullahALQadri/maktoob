@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
+import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
 /// Submit button for payment upload.
 class PaymentSubmitButton extends StatelessWidget {
@@ -57,7 +59,7 @@ class PaymentSubmitButton extends StatelessWidget {
                 SizedBox(
                   width: context.dynamicWidth(0.051),
                   height: context.dynamicWidth(0.051),
-                  child: const CircularProgressIndicator(
+                  child: const MkSpinner(
                     strokeWidth: 2,
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
@@ -70,7 +72,7 @@ class PaymentSubmitButton extends StatelessWidget {
                 ),
               SizedBox(width: context.dynamicWidth(0.029)),
               Text(
-                uploadSuccess ? 'Continue' : 'Submit Payment',
+                AppLocalizations.of(context)!.translate(uploadSuccess ? 'payment_continue' : 'payment_submit'),
                 style: TextStyle(
                   fontSize: context.dynamicWidth(0.04),
                   fontWeight: FontWeight.bold,

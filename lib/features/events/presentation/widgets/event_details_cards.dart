@@ -44,7 +44,7 @@ class EventPackageCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '${t.translate('event_details_up_to')} ${event.invitations} ${t.translate('event_details_invitations')}',
+                    '${t.translate('event_details_up_to')} ${event.invitationLimit ?? event.invitations} ${t.translate('event_details_invitations')}',
                     style: AppTextStyles.bodySmall,
                   ),
                 ],

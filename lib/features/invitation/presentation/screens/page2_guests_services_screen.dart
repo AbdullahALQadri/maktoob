@@ -62,7 +62,7 @@ class _Page2GuestsServicesScreenState extends State<Page2GuestsServicesScreen>
       },
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: AppColors.surfaceBg,
+          backgroundColor: context.scaffoldBg,
           appBar: MaktoobAppBar(
             title: l?.translate('app_name') ?? 'Maktoob',
             titleFontSize: 20,
@@ -78,7 +78,7 @@ class _Page2GuestsServicesScreenState extends State<Page2GuestsServicesScreen>
               ),
               // Pill-style tabs
               Padding(
-                padding: EdgeInsets.fromLTRB(
+                padding: EdgeInsetsDirectional.fromSTEB(
                   context.dynamicWidth(0.05),
                   4,
                   context.dynamicWidth(0.05),
@@ -135,7 +135,7 @@ class _Page2GuestsServicesScreenState extends State<Page2GuestsServicesScreen>
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
-            Icon(Icons.warning_amber_rounded, color: Colors.orange.shade700),
+            Icon(Icons.warning_amber_rounded, color: AppColors.orange500),
             const SizedBox(width: 8),
             Text(l?.translate('invitation_duplicates_found') ??
                 'Duplicates Found'),
@@ -202,6 +202,15 @@ class _GuestsTab extends StatelessWidget {
     required this.onToggleManualForm,
   });
 
+  /// The selected package's invitation allowance; null when none is picked
+  /// yet or the package is unlimited.
+  static int? _packageLimit(InvitationState state) {
+    final pkg = state.selectedPackage;
+    if (pkg == null) return null;
+    if (pkg.isCustom) return state.customPackageLimit;
+    return pkg.hasUnlimitedInvitations ? null : pkg.invitationLimit;
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -223,7 +232,19 @@ class _GuestsTab extends StatelessWidget {
             ),
             SizedBox(height: context.dynamicHeight(0.02)),
           ],
+          // Once a package is picked (back from review), show what's left of
+          // its allowance; it follows every add / import / delete.
+          InvitationQuotaNote(
+            limit: _packageLimit(state),
+            remaining: (_packageLimit(state) ?? 0) - state.totalGuestCount,
+          ),
           GuestListSection(state: state),
+          SizedBox(height: context.dynamicHeight(0.02)),
+          // Host decides how many companions each guest may bring
+          // (sent as allow_companions / max_companions in invitation-config).
+          CompanionsSection(state: state),
+          SizedBox(height: context.dynamicHeight(0.02)),
+          RsvpSettingsSection(state: state),
         ],
       ),
     );
@@ -254,7 +275,7 @@ class _ServicesTab extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.error_outline,
-                size: context.dynamicWidth(0.12), color: Colors.red.shade300),
+                size: context.dynamicWidth(0.12), color: AppColors.red500),
             SizedBox(height: context.dynamicHeight(0.02)),
             Text(
               l?.translate('invitation_services_error') ??
@@ -306,15 +327,15 @@ class _ServicesTab extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(context.dynamicWidth(0.03)),
             decoration: BoxDecoration(
-              color: Colors.amber.shade50,
+              color: AppColors.amber50,
               borderRadius:
                   BorderRadius.circular(context.dynamicWidth(0.03)),
-              border: Border.all(color: Colors.amber.shade200),
+              border: Border.all(color: AppColors.amber200),
             ),
             child: Row(
               children: [
                 Icon(Icons.monetization_on,
-                    color: Colors.amber.shade700,
+                    color: AppColors.amber600,
                     size: context.dynamicWidth(0.05)),
                 SizedBox(width: context.dynamicWidth(0.02)),
                 Expanded(
@@ -323,7 +344,7 @@ class _ServicesTab extends StatelessWidget {
                         'These are paid services added to the final invoice',
                     style: TextStyle(
                       fontSize: context.dynamicWidth(0.031),
-                      color: Colors.amber.shade900,
+                      color: AppColors.amber700,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -374,10 +395,10 @@ class _BottomBar extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBg,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: AppColors.black.withValues(alpha: 0.06),
             blurRadius: 16,
             offset: const Offset(0, -4),
           ),

@@ -108,12 +108,12 @@ class _StatusBadge extends StatelessWidget {
         label = t.translate('edit_event_request_pending');
         break;
       case EditRequestStatus.approved:
-        bgColor = const Color(0xFFDCFCE7);
+        bgColor = AppColors.green100;
         textColor = AppColors.green600;
         label = t.translate('edit_event_request_approved');
         break;
       case EditRequestStatus.rejected:
-        bgColor = const Color(0xFFFEE2E2);
+        bgColor = AppColors.red100;
         textColor = AppColors.red500;
         label = t.translate('edit_event_request_rejected');
         break;

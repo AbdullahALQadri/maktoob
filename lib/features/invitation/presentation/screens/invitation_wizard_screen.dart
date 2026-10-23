@@ -1,8 +1,12 @@
 // ignore_for_file: deprecated_member_use_from_same_package
+import '../../../home/presentation/utils/refresh_event_lists.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../injection_container.dart';
+import '../../../authentication/presentation/cubit/auth_cubit.dart';
+import '../../../authentication/presentation/cubit/auth_state.dart';
+import '../../../institution/presentation/widgets/event_owner_sheet.dart';
 import '../cubit/invitation_cubit.dart';
 import '../cubit/invitation_state.dart';
 import '../widgets/widgets.dart';
@@ -22,11 +26,18 @@ class InvitationWizardScreen extends StatefulWidget {
   /// Callback when user completes the wizard (optional)
   final VoidCallback? onComplete;
 
+  /// Occasion type / starter design to preselect (e.g. what the visitor
+  /// tapped in Explore before signing up). Ignored when resuming a draft.
+  final int? initialEventTypeId;
+  final int? initialTemplateId;
+
   const InvitationWizardScreen({
     super.key,
     this.draftEventId,
     this.onLogin,
     this.onComplete,
+    this.initialEventTypeId,
+    this.initialTemplateId,
   });
 
   @override
@@ -60,16 +71,53 @@ class _InvitationWizardScreenState extends State<InvitationWizardScreen> {
       _ownsOwnCubit = false;
       // Initialize wizard after frame is built
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          _cubit!.initializeWizard(draftEventId: widget.draftEventId);
-        }
+        if (mounted) _start();
       });
     } catch (_) {
       // No cubit in context, create one
       _cubit = sl<InvitationCubit>();
       _ownsOwnCubit = true;
-      _cubit!.initializeWizard(draftEventId: widget.draftEventId);
+      _start();
     }
+  }
+
+  Future<void> _start() async {
+    final cubit = _cubit!;
+    if (widget.draftEventId == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _askEventOwner());
+    }
+    await cubit.initializeWizard(draftEventId: widget.draftEventId);
+    if (widget.draftEventId == null &&
+        (widget.initialEventTypeId != null || widget.initialTemplateId != null) &&
+        !cubit.isClosed) {
+      await cubit.applyPreselection(
+        eventTypeId: widget.initialEventTypeId,
+        templateId: widget.initialTemplateId,
+      );
+    }
+  }
+
+  /// Owner / manager of an approved institution: ask once whom the new
+  /// event is for. The draft is created later with that `institution_id`.
+  Future<void> _askEventOwner() async {
+    if (!mounted) return;
+    AuthState? auth;
+    try {
+      auth = context.read<AuthCubit>().state;
+    } catch (_) {
+      return; // no AuthCubit above (tests / standalone)
+    }
+    if (auth is! AuthAuthenticated) return;
+    final choices = auth.user.eventOwnerChoices;
+    if (choices.isEmpty) return;
+    final picked = await showEventOwnerSheet(context, choices);
+    final cubit = _cubit;
+    if (cubit == null || cubit.isClosed) return;
+    cubit.setEventOwner(
+      institutionId: picked?.institutionId,
+      institutionName: picked?.name,
+      credits: picked?.credits,
+    );
   }
 
   @override
@@ -201,7 +249,9 @@ extension InvitationWizardNavigation on BuildContext {
       MaterialPageRoute(
         builder: (_) => const InvitationWizardScreen(),
       ),
-    );
+    ).then((_) {
+      if (mounted) refreshEventLists(this);
+    });
   }
 
   /// Opens the invitation wizard to continue editing a draft event
@@ -210,6 +260,8 @@ extension InvitationWizardNavigation on BuildContext {
       MaterialPageRoute(
         builder: (_) => InvitationWizardScreen(draftEventId: draftEventId),
       ),
-    );
+    ).then((_) {
+      if (mounted) refreshEventLists(this);
+    });
   }
 }

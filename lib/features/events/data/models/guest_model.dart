@@ -13,8 +13,20 @@ class GuestModel extends GuestEntity {
     required super.status,
     super.companions,
     super.isCheckedIn,
+    super.invitationUrl,
+    super.invitationStatus,
+    super.sentAt,
+    super.openedAt,
+    super.respondedAt,
+    super.checkedInAt,
     required this.avatarColor,
   });
+
+  static DateTime? _date(dynamic v) =>
+      v is String && v.isNotEmpty ? DateTime.tryParse(v)?.toLocal() : null;
+
+  static int _int(dynamic v) =>
+      v is int ? v : (v is num ? v.toInt() : int.tryParse('${v ?? ''}') ?? 0);
 
   factory GuestModel.fromJson(Map<String, dynamic> json) {
     // Handle both frontend format and backend API format (invitation with nested guest)
@@ -26,9 +38,22 @@ class GuestModel extends GuestEntity {
       name: json['display_name'] as String? ?? guestData['name'] as String? ?? '',
       email: guestData['email'] as String? ?? '',
       phone: guestData['phone'] as String? ?? '',
-      status: _parseStatus(json['status'] as String? ?? 'pending'),
-      companions: json['companions'] as int? ?? 0,
-      isCheckedIn: json['is_checked_in'] as bool? ?? (json['open_count'] as int? ?? 0) > 0,
+      // The guest's answer lives in `response_status` (attending /
+      // not_attending / maybe / no_response); `status` is the invitation
+      // delivery status (sent/opened/...). Reading `status` here showed every
+      // guest as "pending".
+      status: _parseStatus(
+          (json['response_status'] ?? json['status']) as String? ?? 'pending'),
+      companions: _int(json['companions_count'] ?? json['companions']),
+      isCheckedIn: json['is_checked_in'] as bool? ?? false,
+      invitationUrl: json['invitation_url'] as String?,
+      invitationStatus: json.containsKey('response_status')
+          ? json['status'] as String?
+          : null,
+      sentAt: _date(json['sent_at']),
+      openedAt: _date(json['opened_at']),
+      respondedAt: _date(json['responded_at']),
+      checkedInAt: _date(json['checked_in_at']),
       avatarColor: Color(json['avatar_color'] as int? ?? AppColors.primaryColor.toARGB32()),
     );
   }
@@ -76,6 +101,7 @@ class GuestModel extends GuestEntity {
       case 'attending':
         return GuestStatus.attending;
       case 'declined':
+      case 'not_attending':
         return GuestStatus.declined;
       case 'pending':
       default:

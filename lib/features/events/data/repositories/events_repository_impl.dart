@@ -8,7 +8,6 @@ import '../../domain/entities/guest_entity.dart';
 import '../../domain/repositories/events_repository.dart';
 import '../datasources/events_local_data_source.dart';
 import '../datasources/events_remote_data_source.dart';
-import '../models/event_model.dart';
 
 class EventsRepositoryImpl implements EventsRepository {
   final EventsRemoteDataSource remoteDataSource;
@@ -203,6 +202,16 @@ class EventsRepositoryImpl implements EventsRepository {
   }
 
   @override
+  Future<bool> hasPendingPaymentRequest(String eventId) async {
+    try {
+      return await remoteDataSource.hasPendingPaymentRequest(eventId);
+    } catch (_) {
+      // Unknown: show the pay action; the backend 422s a duplicate anyway.
+      return false;
+    }
+  }
+
+  @override
   Future<Either<Failure, List<EditRequestEntity>>> getEditRequests(
       String eventId) async {
     if (await networkInfo.isConnected) {
@@ -216,6 +225,36 @@ class EventsRepositoryImpl implements EventsRepository {
       }
     } else {
       return const Left(NetworkFailure(message: 'No internet connection'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> sendInvitations(String eventId, String method) =>
+      _guard(() => remoteDataSource.sendInvitations(eventId, method));
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addGuests(
+          String eventId, List<Map<String, String>> guests) =>
+      _guard(() => remoteDataSource.addGuests(eventId, guests));
+
+  @override
+  Future<Either<Failure, void>> resendInvitation(String invitationId) =>
+      _guard(() => remoteDataSource.resendInvitation(invitationId));
+
+  @override
+  Future<Either<Failure, void>> removeInvitation(String invitationId) =>
+      _guard(() => remoteDataSource.removeInvitation(invitationId));
+
+  Future<Either<Failure, T>> _guard<T>(Future<T> Function() call) async {
+    if (!await networkInfo.isConnected) {
+      return const Left(NetworkFailure(message: 'No internet connection'));
+    }
+    try {
+      return Right(await call());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
     }
   }
 }

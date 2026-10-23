@@ -1,10 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
+import '../../../../core/utils/app_spacing.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/animations/staggered_slide_fade.dart';
 import '../../domain/entities/event_entity.dart';
+import 'pending_payment_banner.dart' show openEventPayment;
 
 /// Card widget for displaying events in the View All Events screen
 class AllEventsCardWidget extends StatelessWidget {
@@ -12,11 +15,16 @@ class AllEventsCardWidget extends StatelessWidget {
   final int index;
   final VoidCallback? onTap;
 
+  /// Called after the payment screen (opened from a pending-payment card)
+  /// closes, so the list can refresh.
+  final VoidCallback? onPaid;
+
   const AllEventsCardWidget({
     super.key,
     required this.event,
     required this.index,
     this.onTap,
+    this.onPaid,
   });
 
   @override
@@ -186,6 +194,10 @@ class AllEventsCardWidget extends StatelessWidget {
                 SizedBox(height: context.dynamicHeight(0.015)),
                 // Response rate progress
                 _buildProgressBar(context),
+                if (event.isPendingPayment) ...[
+                  AppSpacing.verticalSpace12,
+                  _buildPayAction(context),
+                ],
               ],
             ),
           ),
@@ -194,28 +206,42 @@ class AllEventsCardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusBadge(BuildContext context) {
-    String label;
-    Color bgColor;
-    Color textColor;
+  /// "Pay" action on a saved-but-unpaid event: opens the payment screen
+  /// with the event id, its invoice total and title.
+  Widget _buildPayAction(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        key: Key('event_card_pay_${event.id}'),
+        onPressed: () => openEventPayment(context, event, onPaid: onPaid),
+        icon: const Icon(Icons.payments_outlined, size: 18),
+        label: Text(l.translate('event_pay_to_activate')),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.primaryColor,
+          side: const BorderSide(color: AppColors.primaryColor),
+          shape: const RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusMd),
+          padding: const EdgeInsetsDirectional.symmetric(vertical: AppSpacing.smd),
+        ),
+      ),
+    );
+  }
 
-    switch (event.status) {
-      case EventStatus.active:
-        label = 'Ongoing';
-        bgColor = Colors.white.withValues(alpha: 0.25);
-        textColor = Colors.white;
-        break;
-      case EventStatus.completed:
-        label = 'Completed';
-        bgColor = Colors.white.withValues(alpha: 0.25);
-        textColor = Colors.white;
-        break;
-      case EventStatus.draft:
-        label = 'Draft';
-        bgColor = Colors.white.withValues(alpha: 0.25);
-        textColor = Colors.white;
-        break;
-    }
+  static String statusLabelKey(EventStatus status) => switch (status) {
+        EventStatus.active => 'events_active',
+        EventStatus.draft => 'events_draft',
+        EventStatus.pendingPayment => 'event_status_pending_payment',
+        EventStatus.completed => 'events_completed',
+        EventStatus.cancelled => 'event_status_cancelled',
+      };
+
+  Widget _buildStatusBadge(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final status =
+        event.isPendingPayment ? EventStatus.pendingPayment : event.status;
+    final label = l.translate(statusLabelKey(status));
+    final bgColor = Colors.white.withValues(alpha: 0.25);
+    const textColor = Colors.white;
 
     return Container(
       padding: EdgeInsets.symmetric(
@@ -232,6 +258,7 @@ class AllEventsCardWidget extends StatelessWidget {
       ),
       child: Text(
         label,
+        key: Key('event_status_badge_${event.id}'),
         style: TextStyle(
           fontSize: context.dynamicWidth(0.029),
           fontWeight: FontWeight.w600,
@@ -428,7 +455,10 @@ class AllEventsCardWidget extends StatelessWidget {
       case EventStatus.completed:
         return [AppColors.blue500, AppColors.cyan500];
       case EventStatus.draft:
+      case EventStatus.pendingPayment:
         return [AppColors.amber500, AppColors.orange500];
+      case EventStatus.cancelled:
+        return [AppColors.gray500, AppColors.gray600];
     }
   }
 
@@ -439,7 +469,10 @@ class AllEventsCardWidget extends StatelessWidget {
       case EventStatus.completed:
         return AppColors.blue500;
       case EventStatus.draft:
+      case EventStatus.pendingPayment:
         return AppColors.amber500;
+      case EventStatus.cancelled:
+        return AppColors.gray500;
     }
   }
 

@@ -30,6 +30,15 @@ class EventModel extends EventEntity {
     super.maxCompanions,
     super.allowCompanions,
     super.imageUrl,
+    super.rawStatus,
+    super.invoiceTotal,
+    super.checkedInCompanions,
+    super.attendees,
+    super.myRole,
+    super.allowedChannels,
+    super.invitationsSentAt,
+    super.invitationLimit,
+    super.remainingInvitations,
     required this.gradient,
     required this.icon,
   });
@@ -60,7 +69,9 @@ class EventModel extends EventEntity {
       attending: _parseIntOrListLength(json['attending']) ?? 0,
       declined: _parseIntOrListLength(json['declined']) ?? 0,
       pending: _parseIntOrListLength(json['pending']) ?? 0,
-      checkedIn: _parseIntOrListLength(json['checked_in']) ?? _parseIntOrListLength(json['invitations_used']) ?? 0,
+      // `invitations_used` is the capacity ledger (invitations created), not
+      // door check-ins — never fall back to it here.
+      checkedIn: _parseIntOrListLength(json['checked_in']) ?? 0,
       status: _parseStatus(json['status'] as String? ?? 'draft'),
       eventDate: eventDate != null
           ? (eventDate is String ? DateTime.tryParse(eventDate) : null)
@@ -69,15 +80,57 @@ class EventModel extends EventEntity {
           ? DateTime.tryParse(json['rsvp_deadline'] as String? ?? json['response_deadline'] as String? ?? '')
           : null,
       packageName: json['package_name'] as String? ?? json['package']?['name_ar'] as String?,
-      packagePrice: json['package_price'] as String? ?? (json['price'] != null ? '\$${json['price']}' : null),
+      packagePrice: json['package_price'] as String? ?? (json['price'] != null ? '₪${json['price']}' : null),
       templateName: json['template_name'] as String? ?? json['template']?['name_ar'] as String?,
       maxCompanions: _parseIntOrListLength(json['max_companions']) ?? 2,
       allowCompanions: json['allow_companions'] as bool? ?? true,
       imageUrl: json['image_url'] as String? ??
           (json['final_ai_image'] is Map ? json['final_ai_image']['image_url'] as String? : null),
+      rawStatus: json['status']?.toString(),
+      invoiceTotal: double.tryParse('${json['invoice_total'] ?? ''}'),
+      checkedInCompanions: _parseIntOrListLength(json['checked_in_companions']) ?? 0,
+      attendees: _parseIntOrListLength(json['attendees']) ?? 0,
+      myRole: json['my_role']?.toString(),
+      allowedChannels: json['allowed_channels'] is List && (json['allowed_channels'] as List).isNotEmpty
+          ? (json['allowed_channels'] as List).map((e) => '$e').toList()
+          : const ['whatsapp'],
+      invitationsSentAt: DateTime.tryParse('${json['invitations_sent_at'] ?? ''}'),
+      invitationLimit: _parseInvitationLimit(json),
+      remainingInvitations: _parseRemaining(json),
       gradient: _parseGradient(json['gradient']),
       icon: _parseIcon(json['icon']),
     );
+  }
+
+  /// Mirrors Event::getEffectiveInvitationsLimit(): the attached packages'
+  /// `pivot.invitations_included` total, else `max_invitations`.
+  /// Null (or 0) means no limit.
+  static int? _parseInvitationLimit(Map<String, dynamic> json) {
+    final explicit = _parseInt(json['invitation_limit']);
+    if (explicit != null) return explicit > 0 ? explicit : null;
+    final packages = json['packages'];
+    if (packages is List) {
+      var total = 0;
+      for (final p in packages) {
+        if (p is Map && p['pivot'] is Map) {
+          total += _parseInt(p['pivot']['invitations_included']) ?? 0;
+        }
+      }
+      if (total > 0) return total;
+    }
+    final max = _parseInt(json['max_invitations']);
+    return (max != null && max > 0) ? max : null;
+  }
+
+  /// Mirrors Event::getRemainingInvitationsAttribute(). Null = unlimited.
+  static int? _parseRemaining(Map<String, dynamic> json) {
+    if (json.containsKey('remaining_invitations')) {
+      return _parseInt(json['remaining_invitations']);
+    }
+    final limit = _parseInvitationLimit(json);
+    if (limit == null) return null;
+    final used = _parseInt(json['invitations_used']) ?? 0;
+    return (limit - used).clamp(0, limit);
   }
 
   /// Returns a display name from a value that may be a plain String or a
@@ -176,8 +229,18 @@ class EventModel extends EventEntity {
       maxCompanions: entity.maxCompanions,
       allowCompanions: entity.allowCompanions,
       imageUrl: entity.imageUrl,
+      rawStatus: entity.rawStatus,
+      invoiceTotal: entity.invoiceTotal,
+      checkedInCompanions: entity.checkedInCompanions,
+      attendees: entity.attendees,
+      myRole: entity.myRole,
       gradient: gradient,
       icon: icon,
+      allowedChannels: entity.allowedChannels,
+      invitationsSentAt: entity.invitationsSentAt,
+      venueId: entity.venueId,
+      invitationLimit: entity.invitationLimit,
+      remainingInvitations: entity.remainingInvitations,
     );
   }
 
@@ -206,32 +269,22 @@ class EventModel extends EventEntity {
       maxCompanions: maxCompanions,
       allowCompanions: allowCompanions,
       imageUrl: imageUrl,
+      rawStatus: rawStatus,
+      invoiceTotal: invoiceTotal,
+      checkedInCompanions: checkedInCompanions,
+      attendees: attendees,
+      myRole: myRole,
+      allowedChannels: allowedChannels,
+      invitationsSentAt: invitationsSentAt,
+      venueId: venueId,
+      invitationLimit: invitationLimit,
+      remainingInvitations: remainingInvitations,
     );
   }
 
-  static EventStatus _parseStatus(String status) {
-    switch (status.toLowerCase()) {
-      case 'active':
-        return EventStatus.active;
-      case 'draft':
-        return EventStatus.draft;
-      case 'completed':
-        return EventStatus.completed;
-      default:
-        return EventStatus.draft;
-    }
-  }
+  static EventStatus _parseStatus(String status) => EventStatusApi.parse(status);
 
-  static String _statusToString(EventStatus status) {
-    switch (status) {
-      case EventStatus.active:
-        return 'active';
-      case EventStatus.draft:
-        return 'draft';
-      case EventStatus.completed:
-        return 'completed';
-    }
-  }
+  static String _statusToString(EventStatus status) => status.apiValue;
 
   static List<Color> _parseGradient(dynamic gradient) {
     if (gradient is List) {
@@ -313,6 +366,16 @@ class EventModel extends EventEntity {
       maxCompanions: maxCompanions ?? this.maxCompanions,
       allowCompanions: allowCompanions ?? this.allowCompanions,
       imageUrl: imageUrl ?? this.imageUrl,
+      rawStatus: rawStatus,
+      invoiceTotal: invoiceTotal,
+      checkedInCompanions: checkedInCompanions,
+      attendees: attendees,
+      myRole: myRole,
+      allowedChannels: allowedChannels,
+      invitationsSentAt: invitationsSentAt,
+      venueId: venueId,
+      invitationLimit: invitationLimit,
+      remainingInvitations: remainingInvitations,
       gradient: gradient ?? this.gradient,
       icon: icon ?? this.icon,
     );

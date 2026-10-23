@@ -6,6 +6,7 @@ import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
 import '../cubit/invitation_cubit.dart';
 import '../cubit/invitation_state.dart';
+import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
 /// Package card widget for displaying package options.
 class PackageCard extends StatelessWidget {
@@ -157,6 +158,25 @@ class PackageCard extends StatelessWidget {
                 ),
               ),
             ),
+            if (package.isPrivate) ...[
+              SizedBox(width: context.dynamicWidth(0.021)),
+              Container(
+                key: const Key('package_private_badge'),
+                padding: const EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.primary),
+                ),
+                child: Text(
+                  l?.translate('package_private_badge') ?? '',
+                  style: TextStyle(
+                    fontSize: context.dynamicWidth(0.024),
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
             if (isCustom) ...[
               SizedBox(width: context.dynamicWidth(0.021)),
               Container(
@@ -188,6 +208,45 @@ class PackageCard extends StatelessWidget {
               color: context.textSecondary,
             ),
           ),
+        // Volume pricing: what one invitation costs, and the saving on
+        // bigger packages (no tax, prices are final).
+        if (!isCustom && package.pricePerInvitation != null) ...[
+          SizedBox(height: context.dynamicHeight(0.006)),
+          Wrap(
+            spacing: context.dynamicWidth(0.016),
+            runSpacing: 4,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(
+                '${package.pricePerInvitation!.toStringAsFixed(2)} ₪ ${l?.translate('package_per_invitation') ?? ''}',
+                key: const Key('package_per_invitation'),
+                style: TextStyle(
+                  fontSize: context.dynamicWidth(0.029),
+                  color: context.textSecondary,
+                ),
+              ),
+              if (package.volumeSavingPercent > 0)
+                Container(
+                  key: const Key('package_volume_saving'),
+                  padding: const EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppColors.green50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.green100),
+                  ),
+                  child: Text(
+                    (l?.translate('package_volume_saving') ?? '%s%')
+                        .replaceAll('%s', '${package.volumeSavingPercent}'),
+                    style: TextStyle(
+                      fontSize: context.dynamicWidth(0.026),
+                      color: AppColors.green600,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
       ],
     );
   }
@@ -207,18 +266,29 @@ class PackageCard extends StatelessWidget {
           Text(
             isCustom && customPrice != null
                 ? '${customPrice!.toStringAsFixed(0)} ₪'
-                : '${package.price.toStringAsFixed(0)} ₪',
+                : '${package.effectivePrice.toStringAsFixed(0)} ₪',
             style: TextStyle(
               fontSize: context.dynamicWidth(0.045),
               fontWeight: FontWeight.bold,
               color: isSelected ? Colors.white : context.textPrimary,
             ),
           ),
+          // Institution discount: show the original price struck through.
+          if (!isCustom && package.hasDiscount)
+            Text(
+              '${package.price.toStringAsFixed(0)} ₪',
+              key: const Key('package_original_price'),
+              style: TextStyle(
+                fontSize: context.dynamicWidth(0.029),
+                decoration: TextDecoration.lineThrough,
+                color: isSelected ? Colors.white70 : context.textSecondary,
+              ),
+            ),
           if (isLoadingPrice && isCustom && isSelected)
             SizedBox(
               width: context.dynamicWidth(0.04),
               height: context.dynamicWidth(0.04),
-              child: const CircularProgressIndicator(
+              child: const MkSpinner(
                 strokeWidth: 2,
                 color: Colors.white,
               ),

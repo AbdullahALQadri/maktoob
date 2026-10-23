@@ -16,6 +16,17 @@ class EventDetailsState extends Equatable {
   final String? errorMessage;
   final bool isDeleting;
 
+  /// A payment request for this event is awaiting admin review.
+  final bool hasPendingPayment;
+
+  /// A guest action (send / add / resend / remove / cancel) is in flight.
+  final bool isBusy;
+
+  /// Translation key of the last successful action, shown once as a snack.
+  /// [noticeArgs] fills its `{count}` placeholder.
+  final String? notice;
+  final int noticeCount;
+
   const EventDetailsState({
     this.status = EventDetailsStatus.initial,
     this.event,
@@ -25,6 +36,10 @@ class EventDetailsState extends Equatable {
     this.guestSearchQuery = '',
     this.errorMessage,
     this.isDeleting = false,
+    this.hasPendingPayment = false,
+    this.isBusy = false,
+    this.notice,
+    this.noticeCount = 0,
   });
 
   bool get isLoading => status == EventDetailsStatus.loading;
@@ -36,6 +51,11 @@ class EventDetailsState extends Equatable {
   int get pendingCount => guests.where((g) => g.status == GuestStatus.pending).length;
   int get declinedCount => guests.where((g) => g.status == GuestStatus.declined).length;
   int get checkedInCount => guests.where((g) => g.isCheckedIn).length;
+
+  /// Invitations that haven't gone out yet (new, or a failed send).
+  int get unsentCount => guests
+      .where((g) => g.invitationStatus == 'pending' || g.invitationStatus == 'failed')
+      .length;
 
   double get responseRate {
     if (event == null || event!.invitations == 0) return 0;
@@ -62,6 +82,11 @@ class EventDetailsState extends Equatable {
     String? errorMessage,
     bool clearErrorMessage = false,
     bool? isDeleting,
+    bool? hasPendingPayment,
+    bool? isBusy,
+    String? notice,
+    int? noticeCount,
+    bool clearNotice = false,
   }) {
     return EventDetailsState(
       status: status ?? this.status,
@@ -72,6 +97,10 @@ class EventDetailsState extends Equatable {
       guestSearchQuery: guestSearchQuery ?? this.guestSearchQuery,
       errorMessage: clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
       isDeleting: isDeleting ?? this.isDeleting,
+      hasPendingPayment: hasPendingPayment ?? this.hasPendingPayment,
+      isBusy: isBusy ?? this.isBusy,
+      notice: clearNotice ? null : (notice ?? this.notice),
+      noticeCount: noticeCount ?? this.noticeCount,
     );
   }
 
@@ -85,5 +114,9 @@ class EventDetailsState extends Equatable {
         guestSearchQuery,
         errorMessage,
         isDeleting,
+        hasPendingPayment,
+        isBusy,
+        notice,
+        noticeCount,
       ];
 }

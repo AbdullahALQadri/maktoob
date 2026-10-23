@@ -10,15 +10,18 @@ import '../../domain/entities/event_entity.dart';
 class EventDetailsHeader extends StatelessWidget {
   final EventEntity event;
   final VoidCallback onBack;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
+  /// Null hides the action (role without that permission).
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+  final VoidCallback? onCancel;
 
   const EventDetailsHeader({
     super.key,
     required this.event,
     required this.onBack,
-    required this.onEdit,
-    required this.onDelete,
+    this.onEdit,
+    this.onDelete,
+    this.onCancel,
   });
 
   List<Color> get _gradient {
@@ -87,7 +90,7 @@ class EventDetailsHeader extends StatelessWidget {
             ],
             // Content first (determines size)
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 24),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,6 +99,7 @@ class EventDetailsHeader extends StatelessWidget {
                     onBack: onBack,
                     onEdit: onEdit,
                     onDelete: onDelete,
+                    onCancel: onCancel,
                     isCompleted: event.status == EventStatus.completed,
                     t: t,
                   ),
@@ -142,15 +146,18 @@ class EventDetailsHeader extends StatelessWidget {
 
 class _HeaderActions extends StatelessWidget {
   final VoidCallback onBack;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
+  /// Null hides the action (role without that permission).
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+  final VoidCallback? onCancel;
   final bool isCompleted;
   final AppLocalizations t;
 
   const _HeaderActions({
     required this.onBack,
-    required this.onEdit,
-    required this.onDelete,
+    this.onEdit,
+    this.onDelete,
+    this.onCancel,
     this.isCompleted = false,
     required this.t,
   });
@@ -161,7 +168,14 @@ class _HeaderActions extends StatelessWidget {
       children: [
         _CircleButton(icon: Icons.arrow_back_rounded, onTap: onBack),
         const Spacer(),
-        _MoreOptionsMenu(onEdit: onEdit, onDelete: onDelete, isCompleted: isCompleted, t: t),
+        if (onEdit != null || onDelete != null || onCancel != null)
+          _MoreOptionsMenu(
+            onEdit: onEdit,
+            onDelete: onDelete,
+            onCancel: onCancel,
+            isCompleted: isCompleted,
+            t: t,
+          ),
       ],
     );
   }
@@ -192,14 +206,17 @@ class _CircleButton extends StatelessWidget {
 }
 
 class _MoreOptionsMenu extends StatelessWidget {
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
+  /// Null hides the action (role without that permission).
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+  final VoidCallback? onCancel;
   final bool isCompleted;
   final AppLocalizations t;
 
   const _MoreOptionsMenu({
-    required this.onEdit,
-    required this.onDelete,
+    this.onEdit,
+    this.onDelete,
+    this.onCancel,
     this.isCompleted = false,
     required this.t,
   });
@@ -208,16 +225,20 @@ class _MoreOptionsMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopupMenuButton<String>(
       onSelected: (value) {
-        if (value == 'edit') onEdit();
-        if (value == 'delete') onDelete();
+        if (value == 'edit') onEdit?.call();
+        if (value == 'delete') onDelete?.call();
+        if (value == 'cancel') onCancel?.call();
       },
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       color: Colors.white,
       offset: const Offset(0, 50),
       itemBuilder: (context) => [
-        if (!isCompleted)
+        if (!isCompleted && onEdit != null)
           _buildMenuItem('edit', Icons.edit_outlined, t.translate('event_details_edit'), AppColors.primaryColor),
-        _buildMenuItem('delete', Icons.delete_outline, t.translate('event_details_delete'), AppColors.red500),
+        if (onCancel != null)
+          _buildMenuItem('cancel', Icons.event_busy_outlined, t.translate('event_cancel_action'), AppColors.orange500),
+        if (onDelete != null)
+          _buildMenuItem('delete', Icons.delete_outline, t.translate('event_details_delete'), AppColors.red500),
       ],
       child: Container(
         width: 40,
@@ -301,8 +322,12 @@ class _EventInfo extends StatelessWidget {
         return t.translate('events_active');
       case EventStatus.draft:
         return t.translate('events_draft');
+      case EventStatus.pendingPayment:
+        return t.translate('event_status_pending_payment');
       case EventStatus.completed:
         return t.translate('events_completed');
+      case EventStatus.cancelled:
+        return t.translate('event_status_cancelled');
     }
   }
 }

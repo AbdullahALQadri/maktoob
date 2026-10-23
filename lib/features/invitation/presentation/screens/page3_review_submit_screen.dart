@@ -10,10 +10,13 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../../config/locale/app_localizations.dart';
+import '../../../../config/routes/app_routes.dart';
 import '../../../../core/core.dart';
+import '../../../../core/error/institution_errors.dart';
 import '../cubit/invitation_cubit.dart';
 import '../cubit/invitation_state.dart';
 import '../widgets/widgets.dart';
+import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
 /// Page 3 (of 3): Review & Submit
 class Page3ReviewSubmitScreen extends StatefulWidget {
@@ -26,8 +29,82 @@ class Page3ReviewSubmitScreen extends StatefulWidget {
       _Page3ReviewSubmitScreenState();
 }
 
+/// The invoice total exactly as the review page shows it (subtotal + extras
+/// + 15% VAT). Also what the payment screen displays.
+double wizardInvoiceTotal(InvitationState state) {
+  final subtotal =
+      state.invoiceSummary?.basePrice ?? state.selectedPackage?.effectivePrice ?? 0.0;
+  final extras =
+      state.invoiceSummary?.servicesTotal ??
+      state.selectedServices.fold<double>(0, (sum, s) => sum + s.price);
+  // The backend invoice (subtotal + its own tax) is authoritative; the
+  // on-device sum is only a fallback before it loads. No local tax.
+  final summary = state.invoiceSummary;
+  if (summary != null && summary.totalPrice > 0) return summary.totalPrice;
+  return subtotal + extras;
+}
+
 class _Page3ReviewSubmitScreenState extends State<Page3ReviewSubmitScreen> {
   final GlobalKey _invoiceKey = GlobalKey();
+  final ScrollController _scrollController = ScrollController();
+
+  /// Paid event saved (status pending_payment): continue to payment.
+  void _openPayment(BuildContext context, InvitationState state) {
+    final nav = Navigator.of(context);
+    final eventId = state.savedEventId ?? state.draftEventId?.toString();
+    nav.pushNamed(
+      Routes.payment,
+      arguments: {
+        'eventId': eventId,
+        // The backend's figure wins; the on-device estimate is a fallback.
+        'amount': state.savedInvoiceTotal ?? wizardInvoiceTotal(state),
+        'eventTitle': state.eventName,
+        'onComplete': () {
+          nav.pop(); // payment screen
+          if (widget.onComplete != null) {
+            widget.onComplete!();
+          } else if (nav.canPop()) {
+            nav.pop(); // wizard
+          }
+        },
+      },
+    );
+  }
+
+  /// The backend refused the free trial (one per phone): explain with the
+  /// server's own message and send the user back to the packages above.
+  void _showFreeTrialRefused(
+    BuildContext context,
+    AppLocalizations? l,
+    String message,
+  ) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        key: const Key('free_trial_refused'),
+        content: Text(
+          message,
+          style: const TextStyle(fontSize: 15, height: 1.6),
+        ),
+        actions: [
+          PrimaryButton(
+            text: l?.translate('wizard_choose_package') ?? '',
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              if (_scrollController.hasClients) {
+                _scrollController.animateTo(
+                  0,
+                  duration: const Duration(milliseconds: 400),
+                  curve: Curves.easeOut,
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   final TextEditingController _customLimitController = TextEditingController();
 
   // Tracks the package id we last triggered a `loadInvoice` for. The listener
@@ -51,6 +128,7 @@ class _Page3ReviewSubmitScreenState extends State<Page3ReviewSubmitScreen> {
   @override
   void dispose() {
     _customLimitController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -67,7 +145,8 @@ class _Page3ReviewSubmitScreenState extends State<Page3ReviewSubmitScreen> {
           previous.selectedPackage?.id != current.selectedPackage?.id,
       listener: (context, state) {
         if (state.customPackageLimit != null &&
-            _customLimitController.text != state.customPackageLimit.toString()) {
+            _customLimitController.text !=
+                state.customPackageLimit.toString()) {
           _customLimitController.text = state.customPackageLimit.toString();
         }
 
@@ -93,13 +172,28 @@ class _Page3ReviewSubmitScreenState extends State<Page3ReviewSubmitScreen> {
             } else if (Navigator.of(context).canPop()) {
               Navigator.of(context).pop();
             }
-          } else {
+          } else if ((state.selectedPackage?.isFree ?? false) || state.paidByCredits) {
             _showSuccessDialog(context, l);
+          } else {
+            _openPayment(context, state);
           }
         }
 
         if (state.saveError != null) {
-          AppSnackBar.showError(context, message: state.saveError!);
+          // Only the backend's "free trial already used" 422 (detected in the
+          // cubit from errors.status / blockers) offers "choose a package";
+          // anything else (network, invalid transition...) is a normal error
+          // and the submit button stays available to retry.
+          if (state.saveErrorIsFreeTrial && !state.isSaveAsDraft) {
+            _showFreeTrialRefused(context, l, state.saveError!);
+          } else {
+            AppSnackBar.showError(
+              context,
+              message: state.saveError == kInstitutionNotApprovedMessageKey
+                  ? (l?.translate(kInstitutionNotApprovedMessageKey) ?? state.saveError!)
+                  : state.saveError!,
+            );
+          }
         }
       },
       builder: (context, state) {
@@ -116,10 +210,12 @@ class _Page3ReviewSubmitScreenState extends State<Page3ReviewSubmitScreen> {
               WizardStepHeader(
                 currentStep: 3,
                 totalSteps: 3,
-                title: l?.translate('wizard_step3_label') ?? 'المراجعة والإرسال',
+                title:
+                    l?.translate('wizard_step3_label') ?? 'المراجعة والإرسال',
               ),
               Expanded(
                 child: SingleChildScrollView(
+                  controller: _scrollController,
                   padding: EdgeInsets.symmetric(
                     horizontal: context.dynamicWidth(0.05),
                     vertical: context.dynamicHeight(0.018),
@@ -128,14 +224,17 @@ class _Page3ReviewSubmitScreenState extends State<Page3ReviewSubmitScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       _PageHeader(
-                        title: l?.translate('wizard_review_request_title') ??
+                        title:
+                            l?.translate('wizard_review_request_title') ??
                             'مراجعة طلبك',
-                        subtitle: l?.translate('wizard_review_request_subtitle') ??
+                        subtitle:
+                            l?.translate('wizard_review_request_subtitle') ??
                             'يرجى مراجعة تفاصيل دعوتك قبل الإرسال النهائي.',
                       ),
                       const SizedBox(height: 20),
                       _SectionLabel(
-                        text: l?.translate('wizard_selected_package') ??
+                        text:
+                            l?.translate('wizard_selected_package') ??
                             'الباقة المختارة',
                       ),
                       const SizedBox(height: 10),
@@ -172,6 +271,14 @@ class _Page3ReviewSubmitScreenState extends State<Page3ReviewSubmitScreen> {
   }
 
   void _showSuccessDialog(BuildContext context, AppLocalizations? l) {
+    // Only claim the invoice went out on WhatsApp when there was a number to
+    // send it to. Without a configured Maktoob number the save still
+    // succeeded; the user is told how to proceed instead.
+    final invitationState = context.read<InvitationCubit>().state;
+    final isFree = invitationState.selectedPackage?.isFree ?? false;
+    final whatsappUnavailable =
+        !isFree && invitationState.whatsappNumber == null;
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -205,8 +312,15 @@ class _Page3ReviewSubmitScreenState extends State<Page3ReviewSubmitScreen> {
             ),
             SizedBox(height: context.dynamicHeight(0.01)),
             Text(
-              l?.translate('invitation_sent_via_whatsapp') ??
-                  'Invoice sent via WhatsApp',
+              whatsappUnavailable
+                  ? (l?.translate('invitation_whatsapp_unavailable') ?? '')
+                  : (l?.translate('invitation_sent_via_whatsapp') ??
+                        'Invoice sent via WhatsApp'),
+              key: Key(
+                whatsappUnavailable
+                    ? 'invitation_whatsapp_unavailable'
+                    : 'invitation_sent_via_whatsapp',
+              ),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.035),
@@ -258,10 +372,7 @@ class _PageHeader extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           subtitle,
-          style: TextStyle(
-            fontSize: 14,
-            color: context.textSecondary,
-          ),
+          style: TextStyle(fontSize: 14, color: context.textSecondary),
         ),
       ],
     );
@@ -294,12 +405,122 @@ class _SectionLabel extends StatelessWidget {
 // Selected package overview (single-row card with gradient border)
 // =============================================================================
 
+/// Package step: picker when nothing is chosen; otherwise the chosen
+/// package, a guests-vs-limit warning, and a way to change it (allowed
+/// until payment — the backend replaces the previous choice).
 class _PackageOverview extends StatelessWidget {
   final InvitationState state;
   final bool isEnglish;
   final TextEditingController customLimitController;
 
   const _PackageOverview({
+    required this.state,
+    required this.isEnglish,
+    required this.customLimitController,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final selected = state.selectedPackage;
+    if (state.isLoadingPackages || selected == null) {
+      return _SelectedPackageCard(
+        state: state,
+        isEnglish: isEnglish,
+        customLimitController: customLimitController,
+      );
+    }
+    final l = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _SelectedPackageCard(
+          state: state,
+          isEnglish: isEnglish,
+          customLimitController: customLimitController,
+        ),
+        _PackageLimitNotice(state: state, isEnglish: isEnglish),
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton.icon(
+            onPressed: state.isSaving
+                ? null
+                : () => context.read<InvitationCubit>().clearPackage(),
+            icon: const Icon(Icons.swap_horiz_rounded, size: 18),
+            label: Text(
+              l?.translate('wizard_change_package') ?? 'تغيير الباقة',
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Warns when the host added more guests than the chosen package allows and
+/// suggests the backend's best-fitting package.
+class _PackageLimitNotice extends StatelessWidget {
+  final InvitationState state;
+  final bool isEnglish;
+  const _PackageLimitNotice({required this.state, required this.isEnglish});
+
+  @override
+  Widget build(BuildContext context) {
+    final selected = state.selectedPackage;
+    final guests = state.allGuests.length;
+    final limit = selected?.isCustom == true
+        ? state.customPackageLimit
+        : selected?.invitationLimit;
+    if (selected == null ||
+        limit == null ||
+        limit <= 0 ||
+        selected.hasUnlimitedInvitations && !selected.isCustom ||
+        guests <= limit) {
+      return const SizedBox.shrink();
+    }
+    final l = AppLocalizations.of(context);
+    PackageModel? suggested;
+    for (final p in state.availablePackages) {
+      if (p.id == state.suggestedPackageId) suggested = p;
+    }
+    var text = (l?.translate('wizard_guests_over_limit') ??
+            'أضفت {guests} ضيفاً والباقة تسمح بـ {limit} دعوة فقط.')
+        .replaceAll('{guests}', '$guests')
+        .replaceAll('{limit}', '$limit');
+    if (suggested != null && suggested.id != selected.id) {
+      text += ' ${(l?.translate('wizard_suggest_package') ?? 'ننصحك بباقة {name}.').replaceAll('{name}', isEnglish ? suggested.name : suggested.nameAr)}';
+    }
+    return Container(
+      margin: const EdgeInsetsDirectional.only(top: AppSpacing.sm),
+      padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.amber50,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        border: Border.all(color: AppColors.amber200),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.info_outline_rounded, size: 18, color: AppColors.amber700),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(fontSize: 12, color: context.textPrimary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SelectedPackageCard extends StatelessWidget {
+  final InvitationState state;
+  final bool isEnglish;
+  final TextEditingController customLimitController;
+
+  const _SelectedPackageCard({
     required this.state,
     required this.isEnglish,
     required this.customLimitController,
@@ -322,14 +543,15 @@ class _PackageOverview extends StatelessWidget {
     final isCustom = selected.isCustom;
     final price = isCustom
         ? (state.customPackagePrice ?? selected.price)
-        : selected.price;
-    final int? invites =
-        isCustom ? state.customPackageLimit : selected.invitationLimit;
+        : selected.effectivePrice;
+    final int? invites = isCustom
+        ? state.customPackageLimit
+        : selected.invitationLimit;
     final infoText = selected.hasUnlimitedInvitations && !isCustom
         ? (l?.translate('invitation_unlimited') ?? 'دعوات غير محدودة')
         : (invites != null && invites > 0
-            ? '$invites ${l?.translate('invitation_invitation_unit') ?? 'دعوة'}'
-            : (l?.translate('invitation_package_subtitle') ?? 'خدمة شاملة'));
+              ? '$invites ${l?.translate('invitation_invitation_unit') ?? 'دعوة'}'
+              : (l?.translate('invitation_package_subtitle') ?? 'خدمة شاملة'));
 
     return Container(
       decoration: BoxDecoration(
@@ -367,9 +589,7 @@ class _PackageOverview extends StatelessWidget {
                 ),
               ),
               child: Icon(
-                isCustom
-                    ? Icons.tune_rounded
-                    : Icons.workspace_premium_rounded,
+                isCustom ? Icons.tune_rounded : Icons.workspace_premium_rounded,
                 color: AppColors.primaryColor,
               ),
             ),
@@ -401,19 +621,23 @@ class _PackageOverview extends StatelessWidget {
                         const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsetsDirectional.symmetric(
-                              horizontal: 8, vertical: 3),
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
                           decoration: BoxDecoration(
-                            color:
-                                AppColors.tertiaryColor.withValues(alpha: 0.12),
-                            borderRadius:
-                                BorderRadius.circular(AppSpacing.radiusFull),
+                            color: context.brandInk.withValues(
+                              alpha: 0.12,
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              AppSpacing.radiusFull,
+                            ),
                           ),
                           child: Text(
                             l?.translate('invitation_custom') ?? 'مخصصة',
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.tertiaryColor,
+                              color: context.brandInk,
                             ),
                           ),
                         ),
@@ -423,8 +647,11 @@ class _PackageOverview extends StatelessWidget {
                   const SizedBox(height: 5),
                   Row(
                     children: [
-                      Icon(Icons.mail_outline_rounded,
-                          size: 14, color: context.textSecondary),
+                      Icon(
+                        Icons.mail_outline_rounded,
+                        size: 14,
+                        color: context.textSecondary,
+                      ),
                       const SizedBox(width: 5),
                       Flexible(
                         child: Text(
@@ -485,12 +712,29 @@ class _PackagePicker extends StatelessWidget {
       return const PackageListSkeleton();
     }
 
+    final l = AppLocalizations.of(context);
+    final hasFree = state.availablePackages.any((p) => p.isFree);
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (final package in state.availablePackages) ...[
+        if (hasFree)
+          Padding(
+            padding: const EdgeInsetsDirectional.only(bottom: AppSpacing.sm),
+            child: Text(
+              state.freeTrialAvailable
+                  ? (l?.translate('wizard_free_trial_explainer') ??
+                        'تجربة مجانية: دعوة واحدة لتجرّب كيف تصل الدعوة')
+                  : (l?.translate('wizard_free_trial_used_note') ??
+                        'استخدمت تجربتك المجانية على هذا الرقم، اختر باقة للمتابعة.'),
+              style: TextStyle(fontSize: 12, color: context.textSecondary),
+            ),
+          ),
+        for (final package in state.availablePackages.where(
+          (p) => p.isAvailable,
+        )) ...[
           PackageCard(
             package: package,
-            isSelected: false,
+            isSelected: state.selectedPackage?.id == package.id,
             guestCount: state.allGuests.length,
             customPrice: state.customPackagePrice,
             isLoadingPrice: state.isLoadingCustomPrice,
@@ -526,19 +770,16 @@ class _GlassInvoiceCard extends StatelessWidget {
     final isLoading = state.isLoadingInvoice;
     final selected = state.selectedPackage;
 
-    final subtotal = summary?.basePrice ?? selected?.price ?? 0.0;
-    final extras = summary?.servicesTotal ??
-        state.selectedServices.fold<double>(
-            0, (sum, s) => sum + s.price);
+    final subtotal = summary?.basePrice ?? selected?.effectivePrice ?? 0.0;
+    final extras =
+        summary?.servicesTotal ??
+        state.selectedServices.fold<double>(0, (sum, s) => sum + s.price);
     final extrasCount = state.selectedServices.length;
-    // The API's InvoiceSummaryModel doesn't return a separate tax field, so
-    // VAT and total are both computed client-side. Computing total locally
-    // (rather than reading summary.totalPrice) guarantees the displayed rows
-    // always sum to the displayed total — no rounding mismatch with the
-    // server. If the server later returns a discount, surface it as a row
-    // here so reconciliation stays visible.
-    final vat = (subtotal + extras) * 0.15;
-    final total = subtotal + extras + vat;
+    // Tax and total come from the backend invoice (GET {id}/invoice);
+    // the app never computes its own tax.
+    final vat = summary?.taxAmount ?? 0.0;
+    final taxRate = summary?.taxRate ?? 0.0;
+    final total = wizardInvoiceTotal(state);
 
     return RepaintBoundary(
       key: invoiceKey,
@@ -561,8 +802,11 @@ class _GlassInvoiceCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.receipt_long_rounded,
-                    color: AppColors.primaryColor, size: 20),
+                Icon(
+                  Icons.receipt_long_rounded,
+                  color: AppColors.primaryColor,
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   l?.translate('wizard_invoice_summary') ?? 'ملخص الفاتورة',
@@ -581,23 +825,30 @@ class _GlassInvoiceCard extends StatelessWidget {
               const InvoiceSummarySkeleton()
             else ...[
               _InvoiceRow(
-                label: l?.translate('wizard_invoice_subtotal') ??
+                label:
+                    l?.translate('wizard_invoice_subtotal') ??
                     'المجموع الفرعي (الباقة)',
-                value: '${subtotal.toStringAsFixed(2)} ${l?.translate('currency_ils') ?? 'ر.س'}',
+                value:
+                    '${subtotal.toStringAsFixed(2)} ${l?.translate('currency_ils') ?? '₪'}',
               ),
               const SizedBox(height: 14),
               _InvoiceRow(
                 label: l?.translate('wizard_invoice_extras') ?? 'خدمات إضافية',
-                value: '${extras.toStringAsFixed(2)} ${l?.translate('currency_ils') ?? 'ر.س'}',
+                value:
+                    '${extras.toStringAsFixed(2)} ${l?.translate('currency_ils') ?? '₪'}',
                 badge: extrasCount > 0 ? '$extrasCount' : null,
               ),
               const SizedBox(height: 14),
-              _InvoiceRow(
-                label: l?.translate('wizard_invoice_vat') ??
-                    'ضريبة القيمة المضافة (15%)',
-                value: '${vat.toStringAsFixed(2)} ${l?.translate('currency_ils') ?? 'ر.س'}',
-              ),
-              const SizedBox(height: 16),
+              if (vat > 0) ...[
+                _InvoiceRow(
+                  label:
+                      '${l?.translate('wizard_invoice_tax') ?? 'الضريبة'} (${taxRate.toStringAsFixed(taxRate % 1 == 0 ? 0 : 1)}%)',
+                  value:
+                      '${vat.toStringAsFixed(2)} ${l?.translate('currency_ils') ?? '₪'}',
+                ),
+                const SizedBox(height: 16),
+              ] else
+                const SizedBox(height: 2),
               CustomPaint(
                 painter: _DashedLinePainter(color: AppColors.gray200),
                 child: const SizedBox(height: 1, width: double.infinity),
@@ -629,7 +880,7 @@ class _GlassInvoiceCard extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 4),
                         child: Text(
-                          l?.translate('currency_ils') ?? 'ر.س',
+                          l?.translate('currency_ils') ?? '₪',
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
@@ -681,17 +932,16 @@ class _InvoiceRow extends StatelessWidget {
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: context.textSecondary,
-                  ),
+                  style: TextStyle(fontSize: 14, color: context.textSecondary),
                 ),
               ),
               if (badge != null) ...[
                 const SizedBox(width: 6),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.primaryColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(10),
@@ -789,7 +1039,9 @@ class _LiveStatusBannerState extends State<_LiveStatusBanner>
       decoration: BoxDecoration(
         color: AppColors.primaryColor.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primaryColor.withValues(alpha: 0.15)),
+        border: Border.all(
+          color: AppColors.primaryColor.withValues(alpha: 0.15),
+        ),
       ),
       child: Row(
         children: [
@@ -808,7 +1060,9 @@ class _LiveStatusBannerState extends State<_LiveStatusBanner>
                       height: 16 * t,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppColors.primaryColor.withValues(alpha: (1 - t) * 0.5),
+                        color: AppColors.primaryColor.withValues(
+                          alpha: (1 - t) * 0.5,
+                        ),
                       ),
                     ),
                     Container(
@@ -831,7 +1085,7 @@ class _LiveStatusBannerState extends State<_LiveStatusBanner>
                   'هذا الطلب سيتم تنفيذه بشكل فوري عند التأكيد.',
               style: TextStyle(
                 fontSize: 13,
-                color: AppColors.tertiaryColor.withValues(alpha: 0.85),
+                color: context.brandInk.withValues(alpha: 0.85),
               ),
             ),
           ),
@@ -882,8 +1136,11 @@ class _FinalPreviewCard extends StatelessWidget {
                   ),
                 ),
                 child: Center(
-                  child: Icon(Icons.image_outlined,
-                      color: Colors.white.withValues(alpha: 0.6), size: 48),
+                  child: Icon(
+                    Icons.image_outlined,
+                    color: Colors.white.withValues(alpha: 0.6),
+                    size: 48,
+                  ),
                 ),
               ),
             Container(
@@ -904,8 +1161,11 @@ class _FinalPreviewCard extends StatelessWidget {
               bottom: 14,
               child: Row(
                 children: [
-                  const Icon(Icons.visibility_outlined,
-                      color: Colors.white, size: 18),
+                  const Icon(
+                    Icons.visibility_outlined,
+                    color: Colors.white,
+                    size: 18,
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     l?.translate('wizard_final_preview_label') ??
@@ -946,7 +1206,7 @@ class _ActionBar extends StatelessWidget {
     final l = AppLocalizations.of(context);
 
     return Container(
-      padding: EdgeInsets.fromLTRB(
+      padding: EdgeInsetsDirectional.fromSTEB(
         context.dynamicWidth(0.05),
         14,
         context.dynamicWidth(0.05),
@@ -964,47 +1224,92 @@ class _ActionBar extends StatelessWidget {
       ),
       child: SafeArea(
         top: false,
-        child: Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              flex: 5,
-              child: PrimaryButton(
-                text: l?.translate('wizard_send_and_finish') ?? 'إرسال وإنهاء',
-                icon: Icons.send_rounded,
-                isLoading: state.isSaving && !state.isSaveAsDraft,
-                onPressed: state.isSaving || !state.canProceedFromPackage
-                    ? null
-                    : () async {
-                        final cubit = context.read<InvitationCubit>();
-                        // Freemium package: activate the event without an
-                        // invoice — skip capture and the share sheet.
-                        if (state.selectedPackage?.isFree ?? false) {
-                          await cubit.saveAndSend(invoiceImage: null);
-                          return;
-                        }
-                        final image = await _captureInvoice(invoiceKey);
-                        if (context.mounted && image != null) {
-                          await _saveAndShareInvoice(context, image, state, l);
-                        } else if (context.mounted) {
-                          await cubit.saveAndSend(invoiceImage: image);
-                        }
-                      },
+            if (state.creditsCoverSelectedPackage)
+              Padding(
+                key: const Key('wizard_credits_cover_notice'),
+                padding: const EdgeInsetsDirectional.only(bottom: AppSpacing.sm),
+                child: Row(
+                  children: [
+                    const Icon(Icons.account_balance_wallet_outlined,
+                        size: 18, color: AppColors.primaryColor),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        l?.translate('wizard_credits_will_be_deducted') ?? '',
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.primaryColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+            Row(
+              children: [
+                Expanded(
+                  flex: 5,
+                  child: PrimaryButton(
+                    text:
+                        l?.translate('wizard_send_and_finish') ??
+                        'إرسال وإنهاء',
+                    icon: Icons.send_rounded,
+                    isLoading: state.isSaving && !state.isSaveAsDraft,
+                    onPressed: state.isSaving || !state.canProceedFromPackage
+                        ? null
+                        : () async {
+                            final cubit = context.read<InvitationCubit>();
+                            // Freemium: activated immediately, no invoice.
+                            // Paid: save (pending_payment), then the listener
+                            // opens the payment screen. Sharing the invoice is a
+                            // secondary action below.
+                            final isFree =
+                                state.selectedPackage?.isFree ?? false;
+                            await cubit.saveAndSend(
+                              invoiceImage: null,
+                              openWhatsApp: isFree,
+                            );
+                          },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  flex: 3,
+                  child: _OutlinedDraftButton(
+                    label: l?.translate('wizard_save_as_draft') ?? 'حفظ كمسودة',
+                    isLoading: state.isSaving && state.isSaveAsDraft,
+                    onPressed: state.isSaving
+                        ? null
+                        : () => context.read<InvitationCubit>().saveDraft(),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              flex: 3,
-              child: _OutlinedDraftButton(
-                label: l?.translate('wizard_save_as_draft') ?? 'حفظ كمسودة',
-                isLoading: state.isSaving && state.isSaveAsDraft,
-                onPressed: state.isSaving
-                    ? null
-                    : () => context.read<InvitationCubit>().saveDraft(),
-              ),
-            ),
+            ?shareAction(context, l),
           ],
         ),
       ),
+    );
+  }
+
+  /// Secondary action for paid packages: share the invoice image.
+  Widget? shareAction(BuildContext context, AppLocalizations? l) {
+    if (state.selectedPackage?.isFree ?? true) return null;
+    return TextButton.icon(
+      key: const Key('wizard_share_invoice'),
+      onPressed: state.isSaving
+          ? null
+          : () async {
+              final image = await _captureInvoice(invoiceKey);
+              if (context.mounted && image != null) {
+                await _shareInvoice(context, image, state, l);
+              }
+            },
+      icon: const Icon(Icons.ios_share, size: 18),
+      label: Text(l?.translate('wizard_share_invoice') ?? ''),
     );
   }
 
@@ -1023,26 +1328,18 @@ class _ActionBar extends StatelessWidget {
     }
   }
 
-  Future<void> _saveAndShareInvoice(
+  Future<void> _shareInvoice(
     BuildContext context,
     Uint8List imageBytes,
     InvitationState state,
     AppLocalizations? l,
   ) async {
-    final cubit = context.read<InvitationCubit>();
-
     try {
       final tempDir = await getTemporaryDirectory();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final filePath = '${tempDir.path}/invoice_$timestamp.png';
       final file = File(filePath);
       await file.writeAsBytes(imageBytes);
-
-      if (!context.mounted) return;
-
-      await cubit.saveAndSend(invoiceImage: imageBytes);
-
-      if (!context.mounted) return;
 
       final eventName = state.eventName ?? 'Event';
       final packageName = l?.isEnLocale == true
@@ -1054,23 +1351,23 @@ class _ActionBar extends StatelessWidget {
       final isArabic = l?.isEnLocale == false;
       final shareText = isArabic
           ? 'مرحباً! هذه فاتورة حجز دعوة من تطبيق مكتوب\n\n'
-            'المناسبة: $eventName\n'
-            'الباقة: $packageName\n'
-            'عدد الضيوف: $guestCount\n'
-            'المبلغ الإجمالي: $totalPrice شيكل\n\n'
-            'أرفقت صورة الفاتورة.\n'
-            'شكراً لكم!\n\n'
-            '---\n'
-            'Maktoob Events'
+                'المناسبة: $eventName\n'
+                'الباقة: $packageName\n'
+                'عدد الضيوف: $guestCount\n'
+                'المبلغ الإجمالي: $totalPrice شيكل\n\n'
+                'أرفقت صورة الفاتورة.\n'
+                'شكراً لكم!\n\n'
+                '---\n'
+                'Maktoob Events'
           : 'Hello! This is an invoice from Maktoob App\n\n'
-            'Event: $eventName\n'
-            'Package: $packageName\n'
-            'Number of Guests: $guestCount\n'
-            'Total Amount: $totalPrice ILS\n\n'
-            'Invoice image attached.\n'
-            'Thank you!\n\n'
-            '---\n'
-            'Maktoob Events';
+                'Event: $eventName\n'
+                'Package: $packageName\n'
+                'Number of Guests: $guestCount\n'
+                'Total Amount: $totalPrice ILS\n\n'
+                'Invoice image attached.\n'
+                'Thank you!\n\n'
+                '---\n'
+                'Maktoob Events';
 
       await Share.shareXFiles([XFile(filePath)], text: shareText);
     } catch (e) {
@@ -1079,7 +1376,8 @@ class _ActionBar extends StatelessWidget {
 
       AppSnackBar.showError(
         context,
-        message: l?.translate('invitation_share_error') ??
+        message:
+            l?.translate('invitation_share_error') ??
             'Error sharing invoice. Please try again.',
       );
     }
@@ -1104,8 +1402,8 @@ class _OutlinedDraftButton extends StatelessWidget {
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.tertiaryColor,
-          side: BorderSide(color: AppColors.tertiaryColor, width: 1.5),
+          foregroundColor: context.brandInk,
+          side: BorderSide(color: context.brandInk, width: 1.5),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -1114,9 +1412,9 @@ class _OutlinedDraftButton extends StatelessWidget {
             ? SizedBox(
                 width: 20,
                 height: 20,
-                child: CircularProgressIndicator(
+                child: MkSpinner(
                   strokeWidth: 2,
-                  color: AppColors.tertiaryColor,
+                  color: context.brandInk,
                 ),
               )
             : Text(

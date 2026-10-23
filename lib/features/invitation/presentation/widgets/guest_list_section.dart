@@ -36,7 +36,7 @@ class _EmptyGuestList extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(context.dynamicWidth(0.101)),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBg,
         borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
         border: Border.all(color: context.borderColor),
       ),
@@ -80,11 +80,11 @@ class _PopulatedGuestList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBg,
         borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: AppColors.black.withValues(alpha: 0.05),
             blurRadius: context.dynamicWidth(0.024),
             offset: Offset(0, context.dynamicHeight(0.005)),
           ),
@@ -127,7 +127,7 @@ class _GuestListHeader extends StatelessWidget {
             style: TextStyle(
               fontSize: context.dynamicWidth(0.04),
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: context.textPrimary,
             ),
           ),
           if (guestCount > 1)
@@ -135,7 +135,7 @@ class _GuestListHeader extends StatelessWidget {
               onPressed: () => _showClearAllDialog(context),
               icon: Icon(Icons.delete_sweep, size: context.dynamicWidth(0.045)),
               label: Text(l?.translate('invitation_clear_all') ?? 'Clear All'),
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              style: TextButton.styleFrom(foregroundColor: AppColors.red500),
             ),
         ],
       ),
@@ -161,7 +161,7 @@ class _GuestListHeader extends StatelessWidget {
               cubit.clearAllGuests();
               Navigator.of(dialogContext).pop();
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: AppColors.red500),
             child: Text(l?.translate('invitation_clear_all') ?? 'Clear All'),
           ),
         ],
@@ -191,7 +191,7 @@ class _GuestListItem extends StatelessWidget {
         style: TextStyle(
           fontWeight: FontWeight.w500,
           fontSize: context.dynamicWidth(0.037),
-          color: Colors.black,
+          color: context.textPrimary,
         ),
       ),
       subtitle: Row(
@@ -227,7 +227,7 @@ class _GuestListItem extends StatelessWidget {
       trailing: IconButton(
         icon: Icon(Icons.remove_circle_outline,
             size: context.dynamicWidth(0.061)),
-        color: Colors.red.shade400,
+        color: AppColors.red500,
         onPressed: () {
           context.read<InvitationCubit>().removeGuestByModel(guest);
         },
@@ -240,19 +240,19 @@ class _GuestListItem extends StatelessWidget {
       case GuestSource.contacts:
         return (
           Icons.contacts,
-          Colors.blue,
+          AppColors.blue500,
           l?.translate('invitation_contacts') ?? 'Contacts'
         );
       case GuestSource.excel:
         return (
           Icons.table_chart,
-          Colors.green,
+          AppColors.green600,
           l?.translate('invitation_excel') ?? 'Excel'
         );
       case GuestSource.manual:
         return (
           Icons.edit,
-          Colors.orange,
+          AppColors.orange500,
           l?.translate('invitation_manual') ?? 'Manual'
         );
     }

@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use_from_same_package
+import 'package:maktoob/core/utils/app_colors.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -69,6 +70,18 @@ class EventTypeModel extends Equatable {
   final String? emoji;
   final List<Color>? gradientColors;
 
+  /// Occasion group this type belongs to (null for client-made custom types).
+  final int? groupId;
+
+  /// Backend `is_custom` flag (a client-created type that has a real id).
+  final bool isClientCustom;
+
+  /// Backend slug (wedding, graduation, opening…); drives the title suggestion.
+  final String? slug;
+
+  /// Business-style types show an end time on the same day.
+  final bool hasEndTime;
+
   const EventTypeModel({
     this.id,
     required this.name,
@@ -76,6 +89,10 @@ class EventTypeModel extends Equatable {
     this.iconUrl,
     this.emoji,
     this.gradientColors,
+    this.groupId,
+    this.isClientCustom = false,
+    this.slug,
+    this.hasEndTime = false,
   });
 
   bool get isCustom => id == null;
@@ -100,6 +117,10 @@ class EventTypeModel extends Equatable {
       nameAr: nameAr.isNotEmpty ? nameAr : nameEn,
       iconUrl: json['icon_url'] as String?,
       emoji: json['emoji'] as String?,
+      groupId: _asInt(json['group_id']),
+      isClientCustom: _asBool(json['is_custom']),
+      slug: _asString(json['slug']),
+      hasEndTime: _asBool(json['has_end_time']),
     );
   }
 
@@ -120,12 +141,117 @@ class EventTypeModel extends Equatable {
       name: name,
       nameAr: name,
       emoji: '➕',
-      gradientColors: const [Color(0xFF9333EA), Color(0xFFDB2777)],
+      gradientColors: const [AppColors.purple600, AppColors.pink600],
     );
   }
 
   @override
-  List<Object?> get props => [id, name, nameAr, iconUrl, emoji, gradientColors];
+  List<Object?> get props =>
+      [
+        id,
+        name,
+        nameAr,
+        iconUrl,
+        emoji,
+        gradientColors,
+        groupId,
+        isClientCustom,
+        slug,
+        hasEndTime,
+      ];
+}
+
+int? _asInt(dynamic v) {
+  if (v is int) return v;
+  if (v is num) return v.toInt();
+  if (v is String) return int.tryParse(v);
+  return null;
+}
+
+bool _asBool(dynamic v) {
+  if (v is bool) return v;
+  if (v is num) return v != 0;
+  if (v is String) return v == '1' || v.toLowerCase() == 'true';
+  return false;
+}
+
+String? _asString(dynamic v) {
+  if (v == null) return null;
+  final s = v.toString();
+  return s.isEmpty ? null : s;
+}
+
+/// Occasion group (أفراح، مواليد، ...) used by the two-step type picker.
+class EventTypeGroupModel extends Equatable {
+  final int id;
+  final String slug;
+  final String nameAr;
+  final String nameEn;
+  final String? icon;
+  final String? color;
+
+  const EventTypeGroupModel({
+    required this.id,
+    required this.slug,
+    required this.nameAr,
+    required this.nameEn,
+    this.icon,
+    this.color,
+  });
+
+  factory EventTypeGroupModel.fromJson(Map<String, dynamic> json) {
+    final nameAr = _asString(json['name_ar']) ?? _asString(json['name']) ?? '';
+    final nameEn = _asString(json['name_en']) ?? nameAr;
+    return EventTypeGroupModel(
+      id: _asInt(json['id']) ?? 0,
+      slug: _asString(json['slug']) ?? '',
+      nameAr: nameAr.isNotEmpty ? nameAr : nameEn,
+      nameEn: nameEn,
+      icon: _asString(json['icon']),
+      color: _asString(json['color']),
+    );
+  }
+
+  bool get isOther => slug == 'other';
+
+  @override
+  List<Object?> get props => [id, slug, nameAr, nameEn, icon, color];
+}
+
+/// One option of a `select` / `radio` form field.
+class FormFieldOption extends Equatable {
+  final String value;
+  final String labelAr;
+  final String labelEn;
+
+  const FormFieldOption({
+    required this.value,
+    required this.labelAr,
+    required this.labelEn,
+  });
+
+  /// Accepts `{value,label_ar,label_en}`, `{value,label}` or a plain string.
+  static FormFieldOption? tryParse(dynamic raw) {
+    if (raw is String || raw is num) {
+      final v = raw.toString();
+      return v.isEmpty ? null : FormFieldOption(value: v, labelAr: v, labelEn: v);
+    }
+    if (raw is Map) {
+      final value = _asString(raw['value']) ??
+          _asString(raw['key']) ??
+          _asString(raw['label_en']) ??
+          _asString(raw['label_ar']) ??
+          _asString(raw['label']);
+      if (value == null) return null;
+      final ar = _asString(raw['label_ar']) ?? _asString(raw['label']) ?? value;
+      final en = _asString(raw['label_en']) ?? _asString(raw['label']) ?? ar;
+      return FormFieldOption(value: value, labelAr: ar, labelEn: en);
+    }
+    return null;
+  }
+
+  @override
+  List<Object?> get props => [value, labelAr, labelEn];
 }
 
 /// Template model from API
@@ -151,7 +277,8 @@ class TemplateModel extends Equatable {
   }) : imageUrl = imageUrl ?? previewUrl;
 
   factory TemplateModel.fromJson(Map<String, dynamic> json) {
-    final name = json['name'] as String? ?? '';
+    // Gallery designs carry `title` instead of `name`.
+    final name = json['name'] as String? ?? json['title'] as String? ?? '';
     // The API may return the image URL under different field names
     final previewUrl = json['preview_url'] as String? ??
         json['image_url'] as String? ??
@@ -256,6 +383,25 @@ class PackageModel extends Equatable {
   final List<String> featuresAr;
   final bool isHighlighted;
 
+  /// False for the free trial when this phone already used it (backend
+  /// `is_available`); such a package is shown but cannot be selected.
+  final bool isAvailable;
+
+  /// Price after the institution discount (backend `final_price`).
+  final double? finalPrice;
+  final double discountPercent;
+
+  /// A private package assigned to this institution only.
+  final bool isPrivate;
+
+  /// Price of one invitation (backend `price_per_invitation`); null for free
+  /// or unlimited packages. Bigger packages cost less per invitation.
+  final double? pricePerInvitation;
+
+  /// Saving vs the dearest per-invitation package (backend
+  /// `volume_saving_percent`); 0 when none.
+  final int volumeSavingPercent;
+
   const PackageModel({
     required this.id,
     required this.name,
@@ -267,7 +413,18 @@ class PackageModel extends Equatable {
     this.features = const [],
     this.featuresAr = const [],
     this.isHighlighted = false,
+    this.isAvailable = true,
+    this.finalPrice,
+    this.discountPercent = 0,
+    this.isPrivate = false,
+    this.pricePerInvitation,
+    this.volumeSavingPercent = 0,
   });
+
+  /// What the client actually pays (discounted when applicable).
+  double get effectivePrice => finalPrice ?? price;
+
+  bool get hasDiscount => finalPrice != null && finalPrice! < price;
 
   bool get hasUnlimitedInvitations => invitationLimit == null || invitationLimit == -1;
 
@@ -321,6 +478,12 @@ class PackageModel extends Equatable {
       features: features,
       featuresAr: featuresAr,
       isHighlighted: json['is_highlighted'] as bool? ?? false,
+      isAvailable: json['is_available'] as bool? ?? true,
+      finalPrice: json['final_price'] == null ? null : parsePrice(json['final_price']),
+      discountPercent: parsePrice(json['discount_percent']),
+      isPrivate: json['is_private'] == true || json['is_private'] == 1,
+      pricePerInvitation: json['price_per_invitation'] == null ? null : parsePrice(json['price_per_invitation']),
+      volumeSavingPercent: parsePrice(json['volume_saving_percent']).round(),
     );
   }
 
@@ -362,6 +525,12 @@ class PackageModel extends Equatable {
       features: features ?? this.features,
       featuresAr: featuresAr ?? this.featuresAr,
       isHighlighted: isHighlighted ?? this.isHighlighted,
+      isAvailable: isAvailable,
+      finalPrice: finalPrice,
+      discountPercent: discountPercent,
+      isPrivate: isPrivate,
+      pricePerInvitation: pricePerInvitation,
+      volumeSavingPercent: volumeSavingPercent,
     );
   }
 
@@ -377,19 +546,23 @@ class PackageModel extends Equatable {
         features,
         featuresAr,
         isHighlighted,
+        pricePerInvitation,
+        volumeSavingPercent,
       ];
 }
 
 /// Form field definition from API
 class EventTypeFormField extends Equatable {
   final String key;
-  final String label;
+  final String label; // English label
   final String labelAr;
-  final String type; // text, number, date, etc.
+  final String type; // text, textarea, number, date, time, select, checkbox, radio
   final bool isRequired;
   final bool required; // Alias for isRequired
-  final String? hint;
+  final String? hint; // English placeholder
   final String? hintAr;
+  final List<FormFieldOption> options;
+  final int sortOrder;
 
   const EventTypeFormField({
     required this.key,
@@ -400,26 +573,60 @@ class EventTypeFormField extends Equatable {
     bool? required,
     this.hint,
     this.hintAr,
+    this.options = const [],
+    this.sortOrder = 0,
   }) : isRequired = required ?? isRequired,
        required = required ?? isRequired;
 
   factory EventTypeFormField.fromJson(Map<String, dynamic> json) {
-    final key = json['key'] as String? ?? '';
-    final label = json['label'] as String? ?? '';
+    final key = _asString(json['field_key']) ?? _asString(json['key']) ?? '';
+    final labelAr = _asString(json['label_ar']) ?? _asString(json['label']) ?? key;
+    final labelEn = _asString(json['label_en']) ?? _asString(json['label']) ?? labelAr;
+    final hintAr = _asString(json['placeholder_ar']) ??
+        _asString(json['hint_ar']) ??
+        _asString(json['placeholder']);
+    final hintEn = _asString(json['placeholder_en']) ??
+        _asString(json['hint']) ??
+        _asString(json['placeholder']);
+
+    var rawOptions = json['options'];
+    if (rawOptions is Map) rawOptions = rawOptions.values.toList();
+    final options = rawOptions is List
+        ? rawOptions.map(FormFieldOption.tryParse).whereType<FormFieldOption>().toList()
+        : const <FormFieldOption>[];
+
     return EventTypeFormField(
       key: key,
-      label: label,
-      labelAr: json['label_ar'] as String? ?? label,
-      type: json['type'] as String? ?? 'text',
-      isRequired: json['is_required'] as bool? ?? false,
-      hint: json['hint'] as String?,
-      hintAr: json['hint_ar'] as String?,
+      label: labelEn,
+      labelAr: labelAr,
+      type: _asString(json['field_type']) ?? _asString(json['type']) ?? 'text',
+      isRequired: _asBool(json['is_required'] ?? json['required']),
+      hint: hintEn,
+      hintAr: hintAr,
+      options: options,
+      sortOrder: _asInt(json['sort_order']) ?? 0,
     );
   }
 
+  /// Parses a list of fields, dropping ones without a key, sorted by sort_order.
+  static List<EventTypeFormField> listFromJson(dynamic raw) {
+    if (raw is! List) return const [];
+    final fields = raw
+        .whereType<Map>()
+        .map((m) => EventTypeFormField.fromJson(Map<String, dynamic>.from(m)))
+        .where((f) => f.key.isNotEmpty)
+        .toList();
+    fields.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    return fields;
+  }
+
+  String localizedLabel(bool isEnglish) => isEnglish ? label : labelAr;
+
+  String? localizedHint(bool isEnglish) => isEnglish ? (hint ?? hintAr) : (hintAr ?? hint);
+
   @override
   List<Object?> get props =>
-      [key, label, labelAr, type, isRequired, hint, hintAr];
+      [key, label, labelAr, type, isRequired, hint, hintAr, options, sortOrder];
 }
 
 /// Main state for the invitation feature
@@ -455,8 +662,24 @@ class InvitationState extends Equatable {
   final String? invoiceError;
   final String? saveError;
 
+  /// True when [saveError] is the backend's "free trial already used"
+  /// refusal (422 errors.status), so the UI offers "choose a package".
+  final bool saveErrorIsFreeTrial;
+
+  /// Institution the event is created for (null = personal account).
+  final int? institutionId;
+  final String? institutionName;
+
+  /// Known prepaid credit balance of that institution (owner only).
+  final int? institutionCredits;
+
+  /// The save response said the institution's credits pay for it, and the
+  /// event was activated without the payment flow.
+  final bool paidByCredits;
+
   // Page 1: Event Type Selection
   final List<EventTypeModel> availableEventTypes;
+  final List<EventTypeGroupModel> availableEventTypeGroups;
   final EventTypeModel? selectedEventType;
   final String? customEventTypeName;
   final List<TemplateModel> availableTemplates;
@@ -475,6 +698,11 @@ class InvitationState extends Equatable {
   final VenueModel? selectedVenue;
   final LocationModel? customLocation;
   final int? partnerWithGuests;
+
+  /// RSVP settings (optional): last day guests can answer, and a personal
+  /// message shown on the invitation page.
+  final DateTime? rsvpDeadline;
+  final String? invitationMessage;
   final List<EventTypeFormField> eventTypeFormFields;
   final Map<String, dynamic> eventTypeFormData;
 
@@ -499,6 +727,13 @@ class InvitationState extends Equatable {
 
   // Page 6: Package Selection
   final List<PackageModel> availablePackages;
+
+  /// Backend `free_trial_available`: this phone has not used its one free
+  /// invitation yet.
+  final bool freeTrialAvailable;
+
+  /// Backend `suggested_package_id`: cheapest package that fits all guests.
+  final int? suggestedPackageId;
   final PackageModel? selectedPackage;
   final int? customPackageLimit;
   final double? customPackagePrice;
@@ -507,6 +742,8 @@ class InvitationState extends Equatable {
   // Page 7: Invoice
   final InvoiceSummaryModel? invoiceSummary;
   final String? savedEventId;
+  /// The backend's own invoice total from the final save (authoritative).
+  final double? savedInvoiceTotal;
   final String? whatsappNumber;
   final File? generatedInvoiceImage;
 
@@ -542,8 +779,14 @@ class InvitationState extends Equatable {
     this.packagesError,
     this.invoiceError,
     this.saveError,
+    this.saveErrorIsFreeTrial = false,
+    this.institutionId,
+    this.institutionName,
+    this.institutionCredits,
+    this.paidByCredits = false,
     // Page 1
     this.availableEventTypes = const [],
+    this.availableEventTypeGroups = const [],
     this.selectedEventType,
     this.customEventTypeName,
     this.availableTemplates = const [],
@@ -561,6 +804,8 @@ class InvitationState extends Equatable {
     this.selectedVenue,
     this.customLocation,
     this.partnerWithGuests,
+    this.rsvpDeadline,
+    this.invitationMessage,
     this.eventTypeFormFields = const [],
     this.eventTypeFormData = const {},
     // Preview & AI Generation
@@ -581,6 +826,8 @@ class InvitationState extends Equatable {
     this.selectedServices = const [],
     // Page 6
     this.availablePackages = const [],
+    this.freeTrialAvailable = true,
+    this.suggestedPackageId,
     this.selectedPackage,
     this.customPackageLimit,
     this.customPackagePrice,
@@ -588,6 +835,7 @@ class InvitationState extends Equatable {
     // Page 7
     this.invoiceSummary,
     this.savedEventId,
+    this.savedInvoiceTotal,
     this.whatsappNumber,
     this.generatedInvoiceImage,
     // Results
@@ -598,6 +846,19 @@ class InvitationState extends Equatable {
 
   /// Initial state
   factory InvitationState.initial() => const InvitationState();
+
+  /// Review step: the institution's prepaid balance covers the chosen paid
+  /// package, so activation deducts credits instead of asking for payment.
+  /// (Backend is authoritative; `credits_cover` on save confirms it.)
+  bool get creditsCoverSelectedPackage {
+    final pkg = selectedPackage;
+    final credits = institutionCredits;
+    if (institutionId == null || credits == null || pkg == null || pkg.isFree) {
+      return false;
+    }
+    final needed = pkg.isCustom ? (customPackageLimit ?? 0) : (pkg.invitationLimit ?? 0);
+    return needed > 0 && credits >= needed;
+  }
 
   /// Check if event type is custom
   bool get isCustomEventType => selectedEventType?.isCustom ?? false;
@@ -663,8 +924,15 @@ class InvitationState extends Equatable {
     String? packagesError,
     String? invoiceError,
     String? saveError,
+    bool saveErrorIsFreeTrial = false,
+    int? institutionId,
+    String? institutionName,
+    int? institutionCredits,
+    bool clearInstitution = false,
+    bool? paidByCredits,
     // Page 1
     List<EventTypeModel>? availableEventTypes,
+    List<EventTypeGroupModel>? availableEventTypeGroups,
     EventTypeModel? selectedEventType,
     String? customEventTypeName,
     List<TemplateModel>? availableTemplates,
@@ -682,6 +950,9 @@ class InvitationState extends Equatable {
     VenueModel? selectedVenue,
     LocationModel? customLocation,
     int? partnerWithGuests,
+    DateTime? rsvpDeadline,
+    bool clearRsvpDeadline = false,
+    String? invitationMessage,
     List<EventTypeFormField>? eventTypeFormFields,
     Map<String, dynamic>? eventTypeFormData,
     // Preview & AI Generation
@@ -704,6 +975,8 @@ class InvitationState extends Equatable {
     List<ExtraServiceModel>? selectedServices,
     // Page 6
     List<PackageModel>? availablePackages,
+    bool? freeTrialAvailable,
+    int? suggestedPackageId,
     PackageModel? selectedPackage,
     int? customPackageLimit,
     double? customPackagePrice,
@@ -711,6 +984,7 @@ class InvitationState extends Equatable {
     // Page 7
     InvoiceSummaryModel? invoiceSummary,
     String? savedEventId,
+    double? savedInvoiceTotal,
     String? whatsappNumber,
     File? generatedInvoiceImage,
     // Results
@@ -755,8 +1029,16 @@ class InvitationState extends Equatable {
       packagesError: packagesError,
       invoiceError: invoiceError,
       saveError: saveError,
+      saveErrorIsFreeTrial: saveError != null && saveErrorIsFreeTrial,
+      institutionId: clearInstitution ? null : (institutionId ?? this.institutionId),
+      institutionName: clearInstitution ? null : (institutionName ?? this.institutionName),
+      institutionCredits:
+          clearInstitution ? null : (institutionCredits ?? this.institutionCredits),
+      paidByCredits: paidByCredits ?? this.paidByCredits,
       // Page 1
       availableEventTypes: availableEventTypes ?? this.availableEventTypes,
+      availableEventTypeGroups:
+          availableEventTypeGroups ?? this.availableEventTypeGroups,
       selectedEventType: clearSelectedEventType
           ? null
           : (selectedEventType ?? this.selectedEventType),
@@ -785,6 +1067,8 @@ class InvitationState extends Equatable {
           clearCustomLocation ? null : (customLocation ?? this.customLocation),
       partnerWithGuests:
           clearPartnerWithGuests ? null : (partnerWithGuests ?? this.partnerWithGuests),
+      rsvpDeadline: clearRsvpDeadline ? null : (rsvpDeadline ?? this.rsvpDeadline),
+      invitationMessage: invitationMessage ?? this.invitationMessage,
       eventTypeFormFields: eventTypeFormFields ?? this.eventTypeFormFields,
       eventTypeFormData: eventTypeFormData ?? this.eventTypeFormData,
       // Preview & AI Generation
@@ -810,6 +1094,8 @@ class InvitationState extends Equatable {
       selectedServices: selectedServices ?? this.selectedServices,
       // Page 6
       availablePackages: availablePackages ?? this.availablePackages,
+      freeTrialAvailable: freeTrialAvailable ?? this.freeTrialAvailable,
+      suggestedPackageId: suggestedPackageId ?? this.suggestedPackageId,
       selectedPackage: clearSelectedPackage
           ? null
           : (selectedPackage ?? this.selectedPackage),
@@ -820,6 +1106,7 @@ class InvitationState extends Equatable {
       // Page 7
       invoiceSummary: invoiceSummary ?? this.invoiceSummary,
       savedEventId: savedEventId ?? this.savedEventId,
+      savedInvoiceTotal: savedInvoiceTotal ?? this.savedInvoiceTotal,
       whatsappNumber: whatsappNumber ?? this.whatsappNumber,
       generatedInvoiceImage:
           generatedInvoiceImage ?? this.generatedInvoiceImage,
@@ -845,11 +1132,29 @@ class InvitationState extends Equatable {
         || (uploadedTemplateDescription?.isNotEmpty ?? false);
   }
 
+  /// Required per-type fields that are still empty.
+  List<EventTypeFormField> get missingRequiredFormFields {
+    return eventTypeFormFields.where((f) {
+      if (!f.isRequired) return false;
+      final v = eventTypeFormData[f.key];
+      if (v == null) return true;
+      if (v is String) return v.trim().isEmpty;
+      if (v is bool) return f.type == 'checkbox' && !v;
+      return false;
+    }).toList();
+  }
+
   /// Check if page 2 is complete
   bool get canProceedFromEventDetails {
-    if (eventName == null || eventName!.isEmpty) return false;
+    // Title is optional: the backend writes one from the occasion's names.
     if (eventDate == null) return false;
     if (eventTime == null) return false;
+    // Business types: an end time, when given, must be after the start.
+    if (selectedEventType?.hasEndTime == true && eventEndTime != null) {
+      final start = eventTime!.hour * 60 + eventTime!.minute;
+      final end = eventEndTime!.hour * 60 + eventEndTime!.minute;
+      if (end <= start) return false;
+    }
     // Location is optional
     return true;
   }
@@ -1022,8 +1327,14 @@ class InvitationState extends Equatable {
         packagesError,
         invoiceError,
         saveError,
+        saveErrorIsFreeTrial,
+        institutionId,
+        institutionName,
+        institutionCredits,
+        paidByCredits,
         // Page 1
         availableEventTypes,
+        availableEventTypeGroups,
         selectedEventType,
         customEventTypeName,
         availableTemplates,
@@ -1041,6 +1352,8 @@ class InvitationState extends Equatable {
         selectedVenue,
         customLocation,
         partnerWithGuests,
+        rsvpDeadline,
+        invitationMessage,
         eventTypeFormFields,
         eventTypeFormData,
         // Preview & AI Generation
@@ -1061,6 +1374,8 @@ class InvitationState extends Equatable {
         selectedServices,
         // Page 6
         availablePackages,
+        freeTrialAvailable,
+        suggestedPackageId,
         selectedPackage,
         customPackageLimit,
         customPackagePrice,
@@ -1068,6 +1383,7 @@ class InvitationState extends Equatable {
         // Page 7
         invoiceSummary,
         savedEventId,
+        savedInvoiceTotal,
         whatsappNumber,
         generatedInvoiceImage,
         // Results

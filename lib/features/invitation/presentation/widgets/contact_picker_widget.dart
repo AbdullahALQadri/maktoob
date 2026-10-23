@@ -7,6 +7,7 @@ import '../../../../core/utils/phone_normalizer.dart';
 import '../../../../core/widgets/buttons/primary_button.dart';
 import '../../../../core/widgets/inputs/app_text_field.dart';
 import '../../data/models/invitation_draft_model.dart';
+import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
 class ContactPickerWidget extends StatefulWidget {
   final List<GuestInfoModel> previouslySelected;
@@ -54,8 +55,7 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
   String _normalizePhone(String phone) => PhoneNormalizer.normalize(phone);
 
   bool _isValidPalestinianNumber(String phone) {
-    final normalized = _normalizePhone(phone);
-    return normalized.startsWith('+972') || normalized.startsWith('+970');
+    return PhoneNormalizer.isValidPalestinian(phone);
   }
 
   Future<void> _loadContacts() async {
@@ -66,8 +66,12 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
     });
 
     try {
-      // Request permission using flutter_contacts built-in method
-      final hasPermission = await FlutterContacts.requestPermission();
+      // readonly: true -> request READ_CONTACTS only. The default
+      // (readonly: false) also asks for WRITE_CONTACTS, which is not in the
+      // manifest, so Android reported "denied" even after the user granted
+      // read access and the list never loaded.
+      final hasPermission =
+          await FlutterContacts.requestPermission(readonly: true);
 
       if (!hasPermission) {
         if (!mounted) return;
@@ -82,6 +86,7 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
       final contacts = await FlutterContacts.getContacts(
         withProperties: true,
         withPhoto: false,
+        withThumbnail: false,
       );
 
       // Filter contacts with valid Palestinian phone numbers
@@ -120,9 +125,12 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
       setState(() {
         _filteredContacts = _contacts.where((contact) {
           final name = contact.displayName.toLowerCase();
-          final phones = contact.phones.map((p) => p.number).join(' ');
+          final digits = query.replaceAll(RegExp(r'[^\d]'), '');
+          final phones = contact.phones
+              .map((p) => p.number.replaceAll(RegExp(r'[^\d]'), ''))
+              .join(' ');
           return name.contains(query.toLowerCase()) ||
-              phones.contains(query);
+              (digits.isNotEmpty && phones.contains(digits));
         }).toList();
       });
     }
@@ -279,7 +287,7 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const CircularProgressIndicator(),
+            const MkSpinner(),
             const SizedBox(height: 16),
             Text(t.translate('contacts_loading')),
           ],

@@ -74,6 +74,16 @@ class EventAnalyticsCard extends StatelessWidget {
             percent: checkedInPercent,
             color: AppColors.primaryColor,
           ),
+          const SizedBox(height: AppSpacing.smd),
+          Text(
+            t
+                .translate('event_details_attendees_line')
+                .replaceAll('{attendees}', '${event.attendees}')
+                .replaceAll('{guests}', '${event.checkedIn}')
+                .replaceAll('{companions}', '${event.checkedInCompanions}'),
+            key: const Key('event_attendees_line'),
+            style: AppTextStyles.bodySmall.copyWith(color: AppColors.gray700),
+          ),
         ],
       ),
     );
@@ -150,7 +160,7 @@ class _ProgressBar extends StatelessWidget {
                 borderRadius: BorderRadius.circular(5),
               ),
               child: Align(
-                alignment: Alignment.centerLeft,
+                alignment: AlignmentDirectional.centerStart,
                 child: FractionallySizedBox(
                   widthFactor: animValue,
                   child: Container(

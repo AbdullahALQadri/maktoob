@@ -63,6 +63,10 @@ class InvoiceSummaryModel extends Equatable {
   final double templateFee;
   final double discount;
   final double totalPrice;
+
+  /// Backend `tax_rate` (%) and `tax_amount`; the app never computes tax.
+  final double taxRate;
+  final double taxAmount;
   final List<InvoiceLineItem> lineItems;
   final DateTime? createdAt;
   final String? eventName;
@@ -76,6 +80,8 @@ class InvoiceSummaryModel extends Equatable {
     this.templateFee = 0,
     this.discount = 0,
     required this.totalPrice,
+    this.taxRate = 0,
+    this.taxAmount = 0,
     required this.lineItems,
     this.createdAt,
     this.eventName,
@@ -106,7 +112,9 @@ class InvoiceSummaryModel extends Equatable {
       servicesTotal: _parseNum(json['services_total']),
       templateFee: _parseNum(json['template_fee']),
       discount: _parseNum(json['discount']),
-      totalPrice: _parseNum(json['total_price']),
+      totalPrice: _parseNum(json['total_price'] ?? json['total']),
+      taxRate: _parseNum(json['tax_rate']),
+      taxAmount: _parseNum(json['tax_amount']),
       lineItems: (json['line_items'] as List<dynamic>?)
               ?.map((e) => InvoiceLineItem.fromJson(e as Map<String, dynamic>))
               .toList() ??

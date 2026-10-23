@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/core.dart';
 import '../cubit/invitation_state.dart';
+import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
 /// Template card widget for displaying template options in a grid.
 class TemplateCard extends StatelessWidget {
@@ -97,7 +98,7 @@ class TemplateCard extends StatelessWidget {
           return Container(
             color: context.overlayBg,
             child: Center(
-              child: CircularProgressIndicator(
+              child: MkSpinner(
                 value: loadingProgress.expectedTotalBytes != null
                     ? loadingProgress.cumulativeBytesLoaded /
                         loadingProgress.expectedTotalBytes!

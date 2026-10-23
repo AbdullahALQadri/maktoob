@@ -7,6 +7,7 @@ import '../cubit/edit_event/edit_event_cubit.dart';
 import '../cubit/edit_event/edit_event_state.dart';
 import '../widgets/edit_request_banner.dart';
 import '../widgets/edit_request_status_card.dart';
+import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
 class EditEventScreen extends StatefulWidget {
   const EditEventScreen({super.key});
@@ -263,7 +264,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
           clipBehavior: Clip.none,
           children: [
             Padding(
-              padding: EdgeInsets.fromLTRB(
+              padding: EdgeInsetsDirectional.fromSTEB(
                 context.dynamicWidth(0.04),
                 context.dynamicHeight(0.015),
                 context.dynamicWidth(0.04),
@@ -390,7 +391,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
         ),
         child: Padding(
           padding: EdgeInsets.all(context.dynamicWidth(0.025)),
-          child: const CircularProgressIndicator(
+          child: const MkSpinner(
             strokeWidth: 2,
             color: Colors.white,
           ),

@@ -7,6 +7,7 @@ import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/widgets/buttons/primary_button.dart';
 import '../../data/models/location_model.dart';
+import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
 class GoogleMapsPickerWidget extends StatefulWidget {
   final LocationModel? initialLocation;
@@ -38,7 +39,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
   static const double _gazaMaxLng = 34.5584;
 
   // Gaza center for initial camera position
-  static final LatLng _gazaCenter = LatLng(31.4167, 34.3333);
+  static final LatLng _gazaCenter = LatLng(31.42, 34.37);
 
   // Camera bounds to restrict map view to Gaza
   static final LatLngBounds _gazaBounds = LatLngBounds(
@@ -157,7 +158,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
             mapController: _mapController,
             options: MapOptions(
               initialCenter: _selectedPosition ?? _gazaCenter,
-              initialZoom: 12,
+              initialZoom: 11,
               minZoom: 3,
               maxZoom: 18,
               cameraConstraint: widget.restrictToGaza
@@ -264,7 +265,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
                               width: 20,
                               height: 20,
                               child:
-                                  CircularProgressIndicator(strokeWidth: 2),
+                                  MkSpinner(strokeWidth: 2),
                             ),
                           )
                         else

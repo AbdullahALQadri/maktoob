@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
 
 /// Gradient header for payment upload screen.
@@ -54,7 +55,7 @@ class PaymentHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Upload Invoice',
+                  AppLocalizations.of(context)!.translate('payment_header_title'),
                   style: TextStyle(
                     fontSize: context.dynamicWidth(0.069),
                     fontWeight: FontWeight.bold,
@@ -63,7 +64,7 @@ class PaymentHeader extends StatelessWidget {
                 ),
                 SizedBox(height: context.dynamicHeight(0.005)),
                 Text(
-                  'Submit your payment receipt',
+                  AppLocalizations.of(context)!.translate('payment_header_subtitle'),
                   style: TextStyle(
                     fontSize: context.dynamicWidth(0.035),
                     color: Colors.white70,

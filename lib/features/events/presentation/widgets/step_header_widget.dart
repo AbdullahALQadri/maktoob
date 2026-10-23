@@ -52,7 +52,7 @@ class StepHeaderWidget extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: EdgeInsets.fromLTRB(
+              padding: EdgeInsetsDirectional.fromSTEB(
                 context.dynamicWidth(0.061),
                 context.dynamicHeight(0.025),
                 context.dynamicWidth(0.061),
@@ -139,7 +139,7 @@ class StepHeaderWidget extends StatelessWidget {
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         return Align(
-                          alignment: Alignment.centerLeft,
+                          alignment: AlignmentDirectional.centerStart,
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 500),
                             width: constraints.maxWidth * progress,

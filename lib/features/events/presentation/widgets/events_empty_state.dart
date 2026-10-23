@@ -67,13 +67,13 @@ class EventsEmptyState extends StatelessWidget {
           icon: Icons.event_available,
           color: AppColors.green600,
         ),
-      EventStatus.completed => _EmptyStateConfig(
+      EventStatus.completed || EventStatus.cancelled => _EmptyStateConfig(
           title: t.translate('events_no_completed'),
           subtitle: t.translate('events_completed_appear'),
           icon: Icons.check_circle_outline,
           color: AppColors.blue500,
         ),
-      EventStatus.draft => _EmptyStateConfig(
+      EventStatus.draft || EventStatus.pendingPayment => _EmptyStateConfig(
           title: t.translate('events_no_drafts'),
           subtitle: t.translate('events_drafts_appear'),
           icon: Icons.edit_note,

@@ -1,10 +1,20 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/core.dart';
+import '../../../../core/services/fcm_service.dart';
+import '../../../../injection_container.dart' as di;
+import '../../../notifications/presentation/cubit/notifications_cubit.dart';
+import '../../../notifications/presentation/cubit/notifications_state.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 import '../widgets/widgets.dart';
+import '../../../../config/locale/app_localizations.dart';
+import '../../../events/presentation/cubit/events_list/events_list_cubit.dart';
+import '../../../notifications/presentation/screens/notifications_screen.dart';
+import '../widgets/event_search_delegate.dart';
 
 /// Home screen — editorial dashboard.
 ///
@@ -48,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surfaceBg,
-      appBar: const _HomeAppBar(),
+      appBar: _HomeAppBar(onViewEvent: widget.onViewEvent),
       // FAB intentionally removed — the create-event "+" is owned by
       // main_shell's AdaptiveBottomNavigationBar (showAddButton: true,
       // onAddTap: _onAddEventTap) so it's available across all tabs.
@@ -91,7 +101,21 @@ class _HomeScreenState extends State<HomeScreen>
 }
 
 class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const _HomeAppBar();
+  final Function(String)? onViewEvent;
+
+  const _HomeAppBar({this.onViewEvent});
+
+  Future<void> _openSearch(BuildContext context) async {
+    final t = AppLocalizations.of(context)!;
+    final id = await showSearch<String?>(
+      context: context,
+      delegate: EventSearchDelegate(
+        cubit: context.read<EventsListCubit>(),
+        hint: t.translate('home_search_hint'),
+      ),
+    );
+    if (id != null) onViewEvent?.call(id);
+  }
 
   @override
   Size get preferredSize => const Size.fromHeight(64);
@@ -128,23 +152,74 @@ class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                 children: [
                   _AppBarIcon(
                     icon: Icons.search,
-                    onTap: () {
-                      // TODO: route to search
-                    },
+                    onTap: () => _openSearch(context),
                   ),
                   const SizedBox(width: 16),
-                  _AppBarIcon(
-                    icon: Icons.notifications_outlined,
-                    onTap: () {
-                      // TODO: route to notifications
-                    },
-                  ),
+                  _NotificationBell(onViewEvent: onViewEvent),
                 ],
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The bell with an unread badge. It re-counts on every push, so a
+/// "your event is active" notification shows up without a manual refresh.
+class _NotificationBell extends StatefulWidget {
+  final Function(String)? onViewEvent;
+
+  const _NotificationBell({this.onViewEvent});
+
+  @override
+  State<_NotificationBell> createState() => _NotificationBellState();
+}
+
+class _NotificationBellState extends State<_NotificationBell> {
+  final NotificationsCubit _cubit = di.sl<NotificationsCubit>();
+  StreamSubscription<Map<String, dynamic>>? _pushSub;
+
+  @override
+  void initState() {
+    super.initState();
+    _cubit.load();
+    _pushSub = di.sl<FcmService>().messageStream.listen((_) => _cubit.load());
+  }
+
+  @override
+  void dispose() {
+    _pushSub?.cancel();
+    _cubit.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<NotificationsCubit, NotificationsState>(
+      bloc: _cubit,
+      builder: (context, state) {
+        final unread = state is NotificationsLoaded ? state.unreadCount : 0;
+        return Badge(
+          isLabelVisible: unread > 0,
+          label: Text(unread > 99 ? '99+' : '$unread'),
+          backgroundColor: AppColors.primaryColor,
+          offset: const Offset(-2, 2),
+          child: _AppBarIcon(
+            icon: unread > 0
+                ? Icons.notifications_active_outlined
+                : Icons.notifications_outlined,
+            onTap: () => NotificationsScreen.open(
+              context,
+              onOpenEvent: widget.onViewEvent,
+              cubit: _cubit,
+            ).then((_) {
+              if (mounted) _cubit.load();
+            }),
+          ),
+        );
+      },
     );
   }
 }

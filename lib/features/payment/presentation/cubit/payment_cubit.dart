@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/usecases/usecase.dart';
 import '../../domain/entities/bank_details_entity.dart';
+import '../../domain/entities/payment_method.dart';
 import '../../domain/usecases/get_bank_details_usecase.dart';
 import '../../domain/usecases/upload_invoice_usecase.dart';
 import 'payment_state.dart';
@@ -22,58 +23,97 @@ class PaymentCubit extends Cubit<PaymentState> {
   }) : super(const PaymentInitial());
 
   /// Loads the bank details for display
+  ///
+  /// `bankDetails == null` means "still loading". A failed request used to
+  /// emit nothing, so the screen showed its loading skeleton forever; it now
+  /// emits [BankDetailsEntity.loadFailed] so the card can say so and offer a
+  /// retry. Receipt upload is unaffected either way.
   Future<void> loadBankDetails() async {
+    if (_bankDetails != null) {
+      _bankDetails = null; // retry: back to the loading state
+      emit(PaymentInitial(selectedFiles: state.selectedFiles));
+    }
+
     final result = await getBankDetailsUseCase(const NoParams());
     result.fold(
       (failure) {
-        // Even if bank details fail to load, we don't emit an error state
-        // The user can still upload files
+        _bankDetails = const BankDetailsEntity.loadFailed();
+        emit(PaymentInitial(
+          bankDetails: _bankDetails,
+          selectedFiles: state.selectedFiles,
+        ));
       },
       (bankDetails) {
         _bankDetails = bankDetails;
         emit(PaymentInitial(
           bankDetails: bankDetails,
-          selectedFile: state.selectedFile,
+          selectedFiles: state.selectedFiles,
         ));
       },
     );
   }
 
-  /// Picks a file using the file picker
+  /// Opens the picker and appends the chosen images (up to
+  /// [kMaxReceiptImages] in total).
   Future<void> pickFile() async {
+    if (!state.canAddMoreFiles) return;
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['pdf', 'png', 'jpg', 'jpeg'],
+        // The backend accepts images only (`invoice_images[]`).
+        allowedExtensions: ['png', 'jpg', 'jpeg'],
+        allowMultiple: true,
       );
 
       if (result != null && result.files.isNotEmpty) {
-        final file = result.files.first;
-        emit(FileSelected(
-          file: file,
-          bankDetails: _bankDetails,
-        ));
+        addFiles(result.files);
       }
     } catch (e) {
       emit(UploadError(
         message: 'Error picking file: $e',
-        selectedFile: state.selectedFile,
+        selectedFiles: state.selectedFiles,
         bankDetails: _bankDetails,
       ));
     }
   }
 
-  /// Removes the currently selected file
-  void removeFile() {
-    emit(PaymentInitial(
-      bankDetails: _bankDetails,
-    ));
+  /// Appends [files] to the selection, skipping duplicates and capping the
+  /// total at [kMaxReceiptImages].
+  void addFiles(List<PlatformFile> files) {
+    final merged = [...state.selectedFiles];
+    for (final f in files) {
+      if (merged.length >= kMaxReceiptImages) break;
+      final dup = merged.any((m) => m.name == f.name && m.size == f.size && m.path == f.path);
+      if (!dup) merged.add(f);
+    }
+    emit(FileSelected(files: List.unmodifiable(merged), bankDetails: _bankDetails));
   }
 
-  /// Uploads the selected invoice file
-  Future<void> uploadInvoice({required String eventId}) async {
-    final currentFile = state.selectedFile;
-    if (currentFile == null) {
+  /// Removes the receipt at [index] (or all receipts when null).
+  void removeFile([int? index]) {
+    final current = state.selectedFiles;
+    if (index == null || current.length <= 1) {
+      emit(PaymentInitial(bankDetails: _bankDetails));
+      return;
+    }
+    if (index < 0 || index >= current.length) return;
+    final next = [...current]..removeAt(index);
+    emit(FileSelected(files: List.unmodifiable(next), bankDetails: _bankDetails));
+  }
+
+  /// Submits the payment request for [eventId].
+  ///
+  /// Cash sends no receipt; bank transfer / wallet need the selected file.
+  /// [walletProvider] is the `provider_name` of the wallet the user picked.
+  Future<void> uploadInvoice({
+    required String eventId,
+    PaymentMethod method = PaymentMethod.bankTransfer,
+    String? walletProvider,
+    String? endpoint,
+  }) async {
+    final currentFiles =
+        method.requiresReceipt ? state.selectedFiles : const <PlatformFile>[];
+    if (method.requiresReceipt && currentFiles.isEmpty) {
       emit(UploadError(
         message: 'No file selected',
         bankDetails: _bankDetails,
@@ -84,7 +124,7 @@ class PaymentCubit extends Cubit<PaymentState> {
     // Start with 0 progress
     emit(Uploading(
       progress: 0.0,
-      file: currentFile,
+      files: currentFiles,
       bankDetails: _bankDetails,
     ));
 
@@ -95,7 +135,7 @@ class PaymentCubit extends Cubit<PaymentState> {
         if (state is Uploading) {
           emit(Uploading(
             progress: progress,
-            file: currentFile,
+            files: currentFiles,
             bankDetails: _bankDetails,
           ));
         }
@@ -105,8 +145,11 @@ class PaymentCubit extends Cubit<PaymentState> {
     // Perform the upload
     final result = await uploadInvoiceUseCase(
       UploadInvoiceParams(
-        file: currentFile,
+        files: currentFiles,
         eventId: eventId,
+        method: method,
+        walletProvider: method == PaymentMethod.wallet ? walletProvider : null,
+        endpoint: endpoint,
       ),
     );
 
@@ -116,14 +159,15 @@ class PaymentCubit extends Cubit<PaymentState> {
       (failure) {
         emit(UploadError(
           message: failure.message ?? 'Upload failed',
-          selectedFile: currentFile,
+          selectedFiles: state.selectedFiles,
           bankDetails: _bankDetails,
         ));
       },
       (payment) {
         emit(UploadSuccess(
           payment: payment,
-          file: currentFile,
+          files: currentFiles,
+          method: method,
           bankDetails: _bankDetails,
         ));
       },

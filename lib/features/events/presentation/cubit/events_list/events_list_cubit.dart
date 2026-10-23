@@ -99,8 +99,12 @@ class EventsListCubit extends Cubit<EventsListState> {
         return 'Active';
       case EventStatus.draft:
         return 'Draft';
+      case EventStatus.pendingPayment:
+        return 'Pending payment';
       case EventStatus.completed:
         return 'Completed';
+      case EventStatus.cancelled:
+        return 'Cancelled';
     }
   }
 }

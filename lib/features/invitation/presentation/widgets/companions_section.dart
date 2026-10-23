@@ -141,7 +141,9 @@ class _CompanionSwitch extends StatelessWidget {
         ),
         child: AnimatedAlign(
           duration: const Duration(milliseconds: 200),
-          alignment: isEnabled ? Alignment.centerRight : Alignment.centerLeft,
+          alignment: isEnabled
+              ? AlignmentDirectional.centerEnd
+              : AlignmentDirectional.centerStart,
           child: Container(
             width: context.dynamicWidth(0.061),
             height: context.dynamicWidth(0.061),

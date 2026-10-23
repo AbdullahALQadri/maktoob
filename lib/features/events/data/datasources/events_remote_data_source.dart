@@ -1,6 +1,7 @@
 import '../../../../core/api/api_consumer.dart';
 import '../../../../core/api/end_points.dart';
 import '../../../../core/api/event_wizard_api_service.dart';
+import '../../../../core/api/paginated_fetch.dart';
 import '../../domain/entities/event_entity.dart';
 import '../../domain/repositories/events_repository.dart';
 import '../models/edit_request_model.dart';
@@ -8,6 +9,7 @@ import '../models/event_model.dart';
 import '../models/guest_model.dart';
 
 abstract class EventsRemoteDataSource {
+  Future<bool> hasPendingPaymentRequest(String eventId);
   Future<List<EventModel>> getEvents();
   Future<EventModel> getEventDetails(String eventId);
   Future<List<GuestModel>> getEventGuests(String eventId);
@@ -21,6 +23,15 @@ abstract class EventsRemoteDataSource {
   Future<EditRequestModel> submitEditRequest(
       String eventId, UpdateEventParams params);
   Future<List<EditRequestModel>> getEditRequests(String eventId);
+
+  /// Sends every pending invitation on [method]. Returns `{dispatched, ...}`.
+  Future<Map<String, dynamic>> sendInvitations(String eventId, String method);
+
+  /// Adds guests to a live event. Returns `{created, sent, duplicates, invalid_phones, over_limit_count}`.
+  Future<Map<String, dynamic>> addGuests(String eventId, List<Map<String, String>> guests);
+
+  Future<void> resendInvitation(String invitationId);
+  Future<void> removeInvitation(String invitationId);
 }
 
 class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
@@ -32,11 +43,39 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
     this.wizardApiService,
   });
 
+  /// `GET /payment-requests?status=pending` → `{payment_requests: [{event_id, ...}]}`.
+  @override
+  Future<bool> hasPendingPaymentRequest(String eventId) async {
+    final response = await apiConsumer.get(
+      Endpoints.paymentRequests,
+      queryParameters: {'status': 'pending', 'per_page': 100},
+    );
+    final list = response is Map
+        ? (response['payment_requests'] ?? response['data'])
+        : null;
+    if (list is! List) return false;
+    return list.any((r) =>
+        r is Map &&
+        '${r['event_id'] ?? (r['event'] is Map ? r['event']['id'] : '')}' == eventId);
+  }
+
   @override
   Future<List<EventModel>> getEvents() async {
-    final response = await apiConsumer.get(Endpoints.events);
-    final eventsData = response['data'] as List? ?? [];
-    return eventsData.map((e) => EventModel.fromJson(e)).toList();
+    return _fetchAllEvents(const {});
+  }
+
+  /// GET /events returns the raw Laravel paginator ({data, current_page,
+  /// last_page, ...}). Walk every page (bounded) so hosts with more events
+  /// than one page don't silently lose the rest.
+  Future<List<EventModel>> _fetchAllEvents(Map<String, dynamic> query) {
+    return Pagination.fetchAll(
+      apiConsumer,
+      Endpoints.events,
+      query: query,
+      perPage: 50,
+      maxPages: 20,
+      parse: EventModel.fromJson,
+    );
   }
 
   @override
@@ -44,15 +83,45 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
     final response =
         await apiConsumer.get(Endpoints.event(int.parse(eventId)));
     // API returns {"event": {...}} for single event details
-    return EventModel.fromJson(response['event'] ?? response['data']);
+    final json = Map<String, dynamic>.from((response['event'] ?? response['data']) as Map);
+    // Door attendance lives in GET /events/{id}/statistics
+    // ({statistics: {checked_in, checked_in_companions, attendees}}).
+    // Best effort: details still load if it fails.
+    try {
+      final stats = await apiConsumer.get(Endpoints.eventStatistics(int.parse(eventId)));
+      final s = stats is Map ? (stats['statistics'] ?? stats['data']) : null;
+      if (s is Map) json.addAll(mergeDoorStatistics(s));
+    } catch (_) {}
+    return EventModel.fromJson(json);
+  }
+
+  /// The statistics fields that override the event payload.
+  /// Also maps the RSVP counts, which the event payload doesn't carry.
+  static Map<String, dynamic> mergeDoorStatistics(Map stats) {
+    int n(String k) => stats[k] is num ? (stats[k] as num).toInt() : int.tryParse('${stats[k]}') ?? 0;
+    return {
+      for (final k in const ['checked_in', 'checked_in_companions', 'attendees'])
+        if (stats[k] != null) k: stats[k],
+      if (stats['responded'] != null) 'responses': n('responded'),
+      if (stats['attending'] != null) 'attending': n('attending'),
+      if (stats['not_attending'] != null) 'declined': n('not_attending'),
+      if (stats['total_invitations'] != null)
+        'pending': (n('total_invitations') - n('responded')).clamp(0, 1 << 30),
+    };
   }
 
   @override
-  Future<List<GuestModel>> getEventGuests(String eventId) async {
-    final response = await apiConsumer
-        .get(Endpoints.eventInvitations(int.parse(eventId)));
-    final guestsData = response['data'] as List? ?? [];
-    return guestsData.map((g) => GuestModel.fromJson(g)).toList();
+  Future<List<GuestModel>> getEventGuests(String eventId) {
+    // GET /events/{id}/invitations is a Resource collection
+    // ({data, links, meta{last_page}}, 15 per page by default). Walk the
+    // pages so hosts with large guest lists see every guest.
+    return Pagination.fetchAll(
+      apiConsumer,
+      Endpoints.eventInvitations(int.parse(eventId)),
+      perPage: 200,
+      maxPages: 50,
+      parse: GuestModel.fromJson,
+    );
   }
 
   @override
@@ -133,20 +202,19 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
     final response = await apiConsumer.put(
       Endpoints.event(int.parse(eventId)),
       body: {
-        if (params.name != null) 'title_ar': params.name,
+        if (params.name != null) 'title': params.name,
         if (params.venueId != null) 'venue_id': params.venueId,
         if (params.venue != null) 'custom_venue_name_ar': params.venue,
         if (params.venueAddress != null)
           'custom_venue_address_ar': params.venueAddress,
-        if (params.description != null)
-          'description_ar': params.description,
+        if (params.description != null) 'description': params.description,
         if (params.eventDate != null)
-          'event_date':
-              params.eventDate!.toIso8601String().split('T')[0],
+          // Date + time; a date-only value reset the time to 00:00.
+          'event_date': _formatDateTimeForApi(params.eventDate!),
         if (params.rsvpDeadline != null)
           'response_deadline':
               params.rsvpDeadline!.toIso8601String().split('T')[0],
-        if (params.status != null) 'status': params.status!.name,
+        if (params.status != null) 'status': params.status!.apiValue,
         if (params.maxCompanions != null)
           'max_companions': params.maxCompanions,
         if (params.allowCompanions != null)
@@ -172,12 +240,9 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
       queryParams['search'] = searchQuery;
     }
     if (status != null) {
-      queryParams['status'] = status.name;
+      queryParams['status'] = status.apiValue;
     }
-    final response =
-        await apiConsumer.get(Endpoints.events, queryParameters: queryParams);
-    final eventsData = response['data'] as List? ?? [];
-    return eventsData.map((e) => EventModel.fromJson(e)).toList();
+    return _fetchAllEvents(queryParams);
   }
 
   @override
@@ -193,8 +258,7 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
       body['description'] = params.description;
     }
     if (params.eventDate != null) {
-      body['event_date'] =
-          params.eventDate!.toIso8601String().split('T')[0];
+      body['event_date'] = _formatDateTimeForApi(params.eventDate!);
     }
     if (params.maxCompanions != null) {
       body['max_companions'] = params.maxCompanions;
@@ -223,7 +287,39 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
     return data.map((e) => EditRequestModel.fromJson(e)).toList();
   }
 
+  String _formatDateTimeForApi(DateTime date) {
+    return '${date.toIso8601String().split('T')[0]} ${_formatTimeForApi(date)}';
+  }
+
   String _formatTimeForApi(DateTime date) {
     return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+  }
+
+  @override
+  Future<Map<String, dynamic>> sendInvitations(String eventId, String method) async {
+    final response = await apiConsumer.post(
+      Endpoints.eventSendInvitations(int.parse(eventId)),
+      body: {'delivery_method': method},
+    );
+    return Map<String, dynamic>.from(response as Map);
+  }
+
+  @override
+  Future<Map<String, dynamic>> addGuests(String eventId, List<Map<String, String>> guests) async {
+    final response = await apiConsumer.post(
+      Endpoints.eventGuestsAdd(int.parse(eventId)),
+      body: {'guests': guests},
+    );
+    return Map<String, dynamic>.from(response as Map);
+  }
+
+  @override
+  Future<void> resendInvitation(String invitationId) async {
+    await apiConsumer.post(Endpoints.invitationResend(int.parse(invitationId)));
+  }
+
+  @override
+  Future<void> removeInvitation(String invitationId) async {
+    await apiConsumer.delete(Endpoints.invitation(int.parse(invitationId)));
   }
 }

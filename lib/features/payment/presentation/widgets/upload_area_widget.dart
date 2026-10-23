@@ -1,400 +1,247 @@
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
+import '../../../../core/utils/app_spacing.dart';
+import '../cubit/payment_state.dart' show kMaxReceiptImages;
 
+/// Receipt picker: up to [maxFiles] images shown as thumbnails, each with a
+/// remove button, plus an "add" tile while there is room.
 class UploadAreaWidget extends StatelessWidget {
-  final PlatformFile? selectedFile;
+  final List<PlatformFile> selectedFiles;
   final bool isUploading;
-  final bool uploadSuccess;
   final double uploadProgress;
   final VoidCallback onPickFile;
-  final VoidCallback onRemoveFile;
-  final Widget? successWidget;
-  final Widget? uploadingWidget;
+  final ValueChanged<int> onRemoveFile;
+  final int maxFiles;
 
   const UploadAreaWidget({
     super.key,
-    this.selectedFile,
+    this.selectedFiles = const [],
     this.isUploading = false,
-    this.uploadSuccess = false,
     this.uploadProgress = 0.0,
     required this.onPickFile,
     required this.onRemoveFile,
-    this.successWidget,
-    this.uploadingWidget,
+    this.maxFiles = kMaxReceiptImages,
   });
 
-  String _formatFileSize(int bytes) {
-    if (bytes < 1024) return '$bytes B';
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-  }
+  static const double _thumbSize = 88;
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-      padding: const EdgeInsets.all(24),
+    final l = AppLocalizations.of(context)!;
+    return Container(
+      padding: const EdgeInsetsDirectional.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: uploadSuccess
-              ? AppColors.green600.withValues(alpha: 0.5)
-              : selectedFile != null
-                  ? AppColors.primaryColor.withValues(alpha: 0.3)
-                  : AppColors.gray200,
-          width: 2,
+        color: AppColors.white,
+        borderRadius: AppSpacing.borderRadiusLg,
+        border: Border.all(color: AppColors.gray200),
+      ),
+      child: selectedFiles.isEmpty
+          ? _EmptyState(onTap: isUploading ? null : onPickFile)
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  l
+                      .translate('payment_receipts_count')
+                      .replaceAll('{count}', '${selectedFiles.length}')
+                      .replaceAll('{max}', '$maxFiles'),
+                  key: const Key('payment_receipts_count'),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.gray900),
+                ),
+                AppSpacing.verticalSpace12,
+                Wrap(
+                  spacing: AppSpacing.sm,
+                  runSpacing: AppSpacing.sm,
+                  children: [
+                    for (var i = 0; i < selectedFiles.length; i++)
+                      _Thumb(
+                        key: Key('payment_receipt_$i'),
+                        file: selectedFiles[i],
+                        size: _thumbSize,
+                        onRemove: isUploading ? null : () => onRemoveFile(i),
+                      ),
+                    if (selectedFiles.length < maxFiles && !isUploading)
+                      _AddTile(
+                        key: const Key('payment_receipt_add'),
+                        size: _thumbSize,
+                        onTap: onPickFile,
+                      ),
+                  ],
+                ),
+                if (isUploading) ...[
+                  AppSpacing.verticalSpace12,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: AppSpacing.borderRadiusSm,
+                          child: LinearProgressIndicator(
+                            value: uploadProgress.clamp(0.0, 1.0),
+                            minHeight: 6,
+                            backgroundColor: AppColors.gray200,
+                            color: AppColors.primaryColor,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Text(
+                        '${(uploadProgress * 100).toInt()}%',
+                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.primaryColor),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  final VoidCallback? onTap;
+
+  const _EmptyState({this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    return InkWell(
+      key: const Key('payment_receipt_pick'),
+      onTap: onTap,
+      borderRadius: AppSpacing.borderRadiusMd,
+      child: Padding(
+        padding: const EdgeInsetsDirectional.symmetric(vertical: AppSpacing.lg),
+        child: Column(
+          children: [
+            const Icon(Icons.cloud_upload_outlined, size: 40, color: AppColors.primaryColor),
+            AppSpacing.verticalSpace12,
+            Text(
+              l.translate('payment_upload_tap'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.gray900),
+            ),
+            AppSpacing.verticalSpace4,
+            Text(
+              l.translate('payment_upload_hint'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 13, color: AppColors.gray500),
+            ),
+            AppSpacing.verticalSpace8,
+            Text(
+              l.translate('payment_upload_formats'),
+              style: const TextStyle(fontSize: 12, color: AppColors.gray500),
+            ),
+          ],
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
+      ),
+    );
+  }
+}
+
+class _Thumb extends StatelessWidget {
+  final PlatformFile file;
+  final double size;
+  final VoidCallback? onRemove;
+
+  const _Thumb({super.key, required this.file, required this.size, this.onRemove});
+
+  @override
+  Widget build(BuildContext context) {
+    final path = file.path;
+    final Widget image;
+    if (file.bytes != null) {
+      image = Image.memory(file.bytes!, fit: BoxFit.cover, errorBuilder: _fallback);
+    } else if (path != null) {
+      image = Image.file(File(path), fit: BoxFit.cover, errorBuilder: _fallback);
+    } else {
+      image = _fallback(context, null, null);
+    }
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: AppSpacing.borderRadiusMd,
+                border: Border.all(color: AppColors.gray200),
+              ),
+              child: ClipRRect(borderRadius: AppSpacing.borderRadiusMd, child: image),
+            ),
           ),
+          if (onRemove != null)
+            PositionedDirectional(
+              top: AppSpacing.xs,
+              end: AppSpacing.xs,
+              child: Semantics(
+                button: true,
+                label: AppLocalizations.of(context)!.translate('payment_receipt_remove'),
+                child: InkWell(
+                  onTap: onRemove,
+                  customBorder: const CircleBorder(),
+                  child: Container(
+                    padding: const EdgeInsetsDirectional.all(AppSpacing.xs),
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.gray200),
+                    ),
+                    child: const Icon(Icons.close, size: 16, color: AppColors.red500),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
-      child: uploadSuccess
-          ? (successWidget ?? _buildSuccessState())
-          : isUploading
-              ? (uploadingWidget ?? _buildUploadingState())
-              : selectedFile != null
-                  ? _buildFileSelectedState()
-                  : _buildEmptyState(),
     );
   }
 
-  Widget _buildEmptyState() {
+  static Widget _fallback(BuildContext context, Object? error, StackTrace? stack) {
+    return const ColoredBox(
+      color: AppColors.gray100,
+      child: Center(child: Icon(Icons.image_outlined, color: AppColors.gray500)),
+    );
+  }
+}
+
+class _AddTile extends StatelessWidget {
+  final double size;
+  final VoidCallback onTap;
+
+  const _AddTile({super.key, required this.size, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return InkWell(
-      onTap: onPickFile,
-      borderRadius: BorderRadius.circular(20),
+      onTap: onTap,
+      borderRadius: AppSpacing.borderRadiusMd,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 32),
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          borderRadius: AppSpacing.borderRadiusMd,
+          border: Border.all(color: AppColors.gray200),
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.blue500.withValues(alpha: 0.1),
-                    AppColors.purple500.withValues(alpha: 0.1),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Icon(
-                Icons.cloud_upload_outlined,
-                size: 48,
-                color: AppColors.primaryColor,
-              ),
-            ),
-            const SizedBox(height: 20),
+            const Icon(Icons.add_photo_alternate_outlined, color: AppColors.primaryColor),
+            AppSpacing.verticalSpace4,
             Text(
-              'Click to select',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.gray900,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'or drag and drop your file here',
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.gray500,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: AppColors.gray100,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                'PDF, PNG, JPG up to 10MB',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppColors.gray500,
-                ),
-              ),
+              l.translate('payment_receipt_add'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.primaryColor),
             ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildFileSelectedState() {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [AppColors.purple500, AppColors.pink500],
-                ),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Icon(
-                Icons.insert_drive_file,
-                color: Colors.white,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    selectedFile?.name ?? 'Unknown file',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.gray900,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _formatFileSize(selectedFile?.size ?? 0),
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.gray500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            IconButton(
-              onPressed: onRemoveFile,
-              icon: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.red500.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  Icons.close,
-                  color: AppColors.red500,
-                  size: 20,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-        InkWell(
-          onTap: onPickFile,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            decoration: BoxDecoration(
-              color: AppColors.gray100,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.swap_horiz,
-                  color: AppColors.gray600,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Choose different file',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.gray600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildUploadingState() {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [AppColors.blue500, AppColors.purple500],
-                ),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Uploading...',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.gray900,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    selectedFile?.name ?? '',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.gray500,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-            Text(
-              '${(uploadProgress * 100).toInt()}%',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primaryColor,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-        // Modern gradient progress bar
-        Stack(
-          children: [
-            Container(
-              height: 10,
-              decoration: BoxDecoration(
-                color: AppColors.gray200,
-                borderRadius: BorderRadius.circular(5),
-              ),
-            ),
-            FractionallySizedBox(
-              widthFactor: uploadProgress.clamp(0.0, 1.0),
-              child: Container(
-                height: 10,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppColors.primaryColor, AppColors.tertiaryColor],
-                  ),
-                  borderRadius: BorderRadius.circular(5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primaryColor.withValues(alpha: 0.4),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        // Upload status text
-        Text(
-          'Please wait while we upload your file...',
-          style: TextStyle(
-            fontSize: 12,
-            color: AppColors.gray500,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSuccessState() {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: AppColors.green100,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            Icons.check_circle,
-            size: 48,
-            color: AppColors.green600,
-          ),
-        ),
-        const SizedBox(height: 20),
-        Text(
-          'Upload Successful!',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: AppColors.gray900,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Your payment receipt has been uploaded',
-          style: TextStyle(
-            fontSize: 14,
-            color: AppColors.gray500,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(
-            color: AppColors.green50,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: AppColors.green600.withValues(alpha: 0.2),
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.insert_drive_file,
-                color: AppColors.green600,
-                size: 18,
-              ),
-              const SizedBox(width: 8),
-              Flexible(
-                child: Text(
-                  selectedFile?.name ?? '',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.green600,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

@@ -10,11 +10,15 @@ import '../../../../core/utils/storage/secure_storage_service.dart';
 import '../models/bank_details_model.dart';
 import '../models/payment_model.dart';
 import '../../domain/entities/payment_entity.dart';
+import '../../domain/entities/payment_method.dart';
 
 abstract class PaymentRemoteDataSource {
   Future<PaymentModel> uploadInvoice({
-    required PlatformFile file,
+    List<PlatformFile> files = const [],
     required String eventId,
+    PaymentMethod method = PaymentMethod.bankTransfer,
+    String? walletProvider,
+    String? endpoint,
   });
   Future<BankDetailsModel> getBankDetails();
   Stream<double> getUploadProgress();
@@ -33,23 +37,52 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
     required this.dio,
   });
 
+  /// Text fields for `POST /payment-requests`. `amount` is omitted — the
+  /// server derives it from the event's invoice_total. `wallet_provider` is
+  /// sent only for wallet payments (where the backend requires it).
+  static Map<String, String> buildPaymentRequestFields({
+    required String eventId,
+    required PaymentMethod method,
+    String? walletProvider,
+  }) {
+    final provider = walletProvider?.trim();
+    return {
+      'event_id': eventId,
+      'payment_method': method.apiValue,
+      if (method == PaymentMethod.wallet && provider != null && provider.isNotEmpty)
+        'wallet_provider': provider,
+    };
+  }
+
   @override
   Future<PaymentModel> uploadInvoice({
-    required PlatformFile file,
+    List<PlatformFile> files = const [],
     required String eventId,
+    PaymentMethod method = PaymentMethod.bankTransfer,
+    String? walletProvider,
+    String? endpoint,
   }) async {
     _progressController.add(0.0);
 
     // Backend (PaymentRequestController@store) expects `invoice_images[]`
-    // (an array of 1-5 image files), not a single `receipt`. `amount` is
-    // optional — the server derives it from the event's invoice_total.
-    final formData = FormData.fromMap({'event_id': eventId});
-    formData.files.add(
-      MapEntry(
-        'invoice_images[]',
-        await MultipartFile.fromFile(file.path!, filename: file.name),
-      ),
-    );
+    // (1-5 images), required unless payment_method=cash.
+    final formData = FormData.fromMap(buildPaymentRequestFields(
+      eventId: eventId,
+      method: method,
+      walletProvider: walletProvider,
+    ));
+    if (method.requiresReceipt) {
+      for (final file in files) {
+        final path = file.path;
+        if (path == null) continue;
+        formData.files.add(
+          MapEntry(
+            'invoice_images[]',
+            await MultipartFile.fromFile(path, filename: file.name),
+          ),
+        );
+      }
+    }
 
     // We use raw dio.post here (not apiConsumer) because we need
     // onSendProgress for upload progress, which apiConsumer.post does not
@@ -58,7 +91,7 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
     // when full URLs are passed, so we add Authorization here directly.
     final token = await _secureStorage.getToken();
     final response = await dio.post(
-      '${Endpoints.baseUrl}${Endpoints.paymentRequests}',
+      '${Endpoints.baseUrl}${endpoint ?? Endpoints.paymentRequests}',
       data: formData,
       options: Options(
         headers: {
@@ -80,15 +113,17 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
     // so response.data is a String — decode before reading.
     final raw = response.data;
     final decoded = raw is String ? jsonDecode(raw) : raw;
-    final data = (decoded is Map && decoded['data'] != null)
-        ? decoded['data']
-        : decoded;
+    // 201 {message, payment_request}; tolerate an ApiResponse `data` too.
+    final data = decoded is Map
+        ? (decoded['payment_request'] ?? decoded['data'] ?? decoded)
+        : const {};
+    final file = files.isEmpty ? null : files.first;
     return PaymentModel(
-      id: '${data['id'] ?? ''}',
-      fileName: file.name,
-      fileSize: file.size,
-      fileExtension: file.extension ?? '',
-      filePath: file.path,
+      id: '${(data is Map ? data['id'] : null) ?? ''}',
+      fileName: file?.name ?? '',
+      fileSize: file?.size ?? 0,
+      fileExtension: file?.extension ?? '',
+      filePath: file?.path,
       uploadedAt: DateTime.now(),
       status: PaymentStatus.uploaded,
     );
@@ -96,9 +131,11 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
 
   @override
   Future<BankDetailsModel> getBankDetails() async {
-    final response = await apiConsumer.get(Endpoints.paymentsInitiate);
-    final data = response['data'] ?? response;
-    return BankDetailsModel.fromJson(data);
+    // `/payments/initiate` is a POST that CREATES a payment; it was never a
+    // bank-details source (a GET there 404s on the `payments/{payment}` route).
+    final response = await apiConsumer.get(Endpoints.paymentBankDetails);
+    final data = response is Map ? (response['data'] ?? response) : const {};
+    return BankDetailsModel.fromJson(Map<String, dynamic>.from(data as Map));
   }
 
   @override

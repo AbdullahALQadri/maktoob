@@ -257,13 +257,13 @@ class InvitationPreviewWidget extends StatelessWidget {
       case 'modern_minimal':
         return const [Color(0xFF6B7280), Color(0xFF4B5563)];
       case 'floral_dream':
-        return const [Color(0xFFF472B6), Color(0xFFEC4899)];
+        return const [Color(0xFFF472B6), AppColors.pink500];
       case 'classic_white':
         return const [Color(0xFFF9FAFB), Color(0xFFF3F4F6)];
       case 'luxury_black':
         return const [Color(0xFF1F2937), Color(0xFF111827)];
       case 'colorful_joy':
-        return const [Color(0xFF9333EA), Color(0xFFDB2777)];
+        return const [AppColors.purple600, AppColors.pink600];
       default:
         // Default to event type colors or brand colors
         return eventType?.gradientColors ??

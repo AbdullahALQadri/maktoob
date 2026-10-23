@@ -125,7 +125,7 @@ class MarketingFooterWidget extends StatelessWidget {
   }
 
   void _openMaktoobWebsite() async {
-    final uri = Uri.parse('https://maktoob.app');
+    final uri = Uri.parse('https://maktoob.social');
     try {
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);

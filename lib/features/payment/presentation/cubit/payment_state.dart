@@ -3,55 +3,42 @@ import 'package:file_picker/file_picker.dart';
 
 import '../../domain/entities/bank_details_entity.dart';
 import '../../domain/entities/payment_entity.dart';
+import '../../domain/entities/payment_method.dart';
+
+/// The app lets the user attach up to this many receipt images
+/// (the backend accepts 1–5 `invoice_images[]`).
+const int kMaxReceiptImages = 3;
 
 abstract class PaymentState extends Equatable {
   final BankDetailsEntity? bankDetails;
-  final PlatformFile? selectedFile;
+  final List<PlatformFile> selectedFiles;
 
   const PaymentState({
     this.bankDetails,
-    this.selectedFile,
+    this.selectedFiles = const [],
   });
 
+  /// First selected receipt, or null.
+  PlatformFile? get selectedFile => selectedFiles.isEmpty ? null : selectedFiles.first;
+
+  bool get canAddMoreFiles => selectedFiles.length < kMaxReceiptImages;
+
   @override
-  List<Object?> get props => [bankDetails, selectedFile];
+  List<Object?> get props => [bankDetails, selectedFiles];
 }
 
 class PaymentInitial extends PaymentState {
   const PaymentInitial({
     super.bankDetails,
-    super.selectedFile,
+    super.selectedFiles,
   });
-
-  PaymentInitial copyWith({
-    BankDetailsEntity? bankDetails,
-    PlatformFile? selectedFile,
-  }) {
-    return PaymentInitial(
-      bankDetails: bankDetails ?? this.bankDetails,
-      selectedFile: selectedFile ?? this.selectedFile,
-    );
-  }
 }
 
 class FileSelected extends PaymentState {
   const FileSelected({
-    required PlatformFile file,
+    required List<PlatformFile> files,
     super.bankDetails,
-  }) : super(selectedFile: file);
-
-  @override
-  List<Object?> get props => [selectedFile, bankDetails];
-
-  FileSelected copyWith({
-    PlatformFile? file,
-    BankDetailsEntity? bankDetails,
-  }) {
-    return FileSelected(
-      file: file ?? selectedFile!,
-      bankDetails: bankDetails ?? this.bankDetails,
-    );
-  }
+  }) : super(selectedFiles: files);
 }
 
 class Uploading extends PaymentState {
@@ -59,37 +46,27 @@ class Uploading extends PaymentState {
 
   const Uploading({
     required this.progress,
-    required PlatformFile file,
+    List<PlatformFile> files = const [],
     super.bankDetails,
-  }) : super(selectedFile: file);
+  }) : super(selectedFiles: files);
 
   @override
-  List<Object?> get props => [progress, selectedFile, bankDetails];
-
-  Uploading copyWith({
-    double? progress,
-    PlatformFile? file,
-    BankDetailsEntity? bankDetails,
-  }) {
-    return Uploading(
-      progress: progress ?? this.progress,
-      file: file ?? selectedFile!,
-      bankDetails: bankDetails ?? this.bankDetails,
-    );
-  }
+  List<Object?> get props => [progress, selectedFiles, bankDetails];
 }
 
 class UploadSuccess extends PaymentState {
   final PaymentEntity payment;
+  final PaymentMethod method;
 
   const UploadSuccess({
     required this.payment,
-    required PlatformFile file,
+    List<PlatformFile> files = const [],
+    this.method = PaymentMethod.bankTransfer,
     super.bankDetails,
-  }) : super(selectedFile: file);
+  }) : super(selectedFiles: files);
 
   @override
-  List<Object?> get props => [payment, selectedFile, bankDetails];
+  List<Object?> get props => [payment, method, selectedFiles, bankDetails];
 }
 
 class UploadError extends PaymentState {
@@ -97,10 +74,10 @@ class UploadError extends PaymentState {
 
   const UploadError({
     required this.message,
-    super.selectedFile,
+    super.selectedFiles,
     super.bankDetails,
   });
 
   @override
-  List<Object?> get props => [message, selectedFile, bankDetails];
+  List<Object?> get props => [message, selectedFiles, bankDetails];
 }

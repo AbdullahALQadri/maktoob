@@ -1,3 +1,4 @@
+import 'package:maktoob/core/utils/app_colors.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
@@ -82,7 +83,7 @@ class GoldenPackageModel extends Equatable {
             'QR آمن (دخول مرة واحدة)',
             'دعم واتساب',
           ],
-          gradientColors: [Color(0xFF9333EA), Color(0xFFDB2777)],
+          gradientColors: [AppColors.purple600, AppColors.pink600],
           isHighlighted: true,
         ),
         const GoldenPackageModel(

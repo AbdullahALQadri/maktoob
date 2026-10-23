@@ -1,3 +1,4 @@
+import 'package:maktoob/core/utils/app_colors.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
@@ -62,13 +63,13 @@ extension GoldenEventTypeExtension on GoldenEventType {
       case GoldenEventType.birthday:
         return const [Color(0xFFF59E0B), Color(0xFFEA580C)];
       case GoldenEventType.wedding:
-        return const [Color(0xFFEC4899), Color(0xFFBE185D)];
+        return const [AppColors.pink500, Color(0xFFBE185D)];
       case GoldenEventType.aqiqah:
         return const [Color(0xFF22C55E), Color(0xFF16A34A)];
       case GoldenEventType.storeOpening:
-        return const [Color(0xFF3B82F6), Color(0xFF1D4ED8)];
+        return const [AppColors.blue500, Color(0xFF1D4ED8)];
       case GoldenEventType.custom:
-        return const [Color(0xFF9333EA), Color(0xFFDB2777)];
+        return const [AppColors.purple600, AppColors.pink600];
     }
   }
 
@@ -259,7 +260,7 @@ class InvitationTemplateModel extends Equatable {
           name: 'Floral Dream',
           nameAr: 'حلم الزهور',
           preview: '🌸',
-          gradientColors: [Color(0xFFF472B6), Color(0xFFEC4899)],
+          gradientColors: [Color(0xFFF472B6), AppColors.pink500],
         ),
         const InvitationTemplateModel(
           id: 'classic_white',
@@ -280,7 +281,7 @@ class InvitationTemplateModel extends Equatable {
           name: 'Colorful Joy',
           nameAr: 'فرح ملون',
           preview: '🎨',
-          gradientColors: [Color(0xFF9333EA), Color(0xFFDB2777)],
+          gradientColors: [AppColors.purple600, AppColors.pink600],
         ),
       ];
 }

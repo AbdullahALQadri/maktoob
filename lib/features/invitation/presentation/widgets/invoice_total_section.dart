@@ -108,7 +108,7 @@ class InvoiceFooter extends StatelessWidget {
           ),
           SizedBox(height: context.dynamicHeight(0.01)),
           Text(
-            '${l?.translate('invitation_support') ?? 'For support'}: support@maktoob.app',
+            '${l?.translate('invitation_support') ?? 'For support'}: support@maktoob.social',
             style: TextStyle(
               fontSize: context.dynamicWidth(0.029),
               color: context.iconSecondary,

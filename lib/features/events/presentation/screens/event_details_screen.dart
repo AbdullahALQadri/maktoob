@@ -5,11 +5,14 @@ import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
 import '../../../../injection_container.dart';
 import '../../domain/entities/event_entity.dart';
+import '../../domain/entities/guest_entity.dart';
 import '../cubit/edit_event/edit_event_cubit.dart';
 import '../cubit/event_details/event_details_cubit.dart';
 import '../cubit/event_details/event_details_state.dart';
 import '../widgets/widgets.dart';
+import '../../../invitation/presentation/screens/invitation_wizard_screen.dart';
 import 'edit_event_screen.dart';
+import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
 /// Event details screen with overview, guests and details tabs.
 class EventDetailsScreen extends StatefulWidget {
@@ -58,10 +61,23 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
 
     return BlocConsumer<EventDetailsCubit, EventDetailsState>(
       listenWhen: (previous, current) =>
-          current.errorMessage != null &&
-          current.errorMessage != previous.errorMessage,
+          (current.errorMessage != null &&
+              current.errorMessage != previous.errorMessage) ||
+          (current.notice != null && current.notice != previous.notice),
       listener: (context, state) {
-        AppSnackBar.showError(context, message: state.errorMessage!);
+        if (state.notice != null) {
+          AppSnackBar.showSuccess(
+            context,
+            message: t.translate(state.notice!).replaceAll('{count}', '${state.noticeCount}'),
+          );
+          return;
+        }
+        // Our own messages are translation keys; server ones are already text.
+        final msg = state.errorMessage!;
+        AppSnackBar.showError(
+          context,
+          message: msg.startsWith('event_') ? t.translate(msg) : msg,
+        );
       },
       builder: (context, state) {
         if (state.isLoading) {
@@ -84,10 +100,43 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                   child: EventDetailsHeader(
                     event: state.event!,
                     onBack: widget.onBack,
-                    onEdit: () => _navigateToEditEvent(state.event!),
-                    onDelete: () => _showDeleteConfirmation(state, t),
+                    // Role gating: manager edits but never deletes; viewer
+                    // and door staff get neither.
+                    onEdit: state.event!.role.canManage
+                        ? () => _navigateToEditEvent(state.event!)
+                        : null,
+                    onDelete: state.event!.role.canOwn
+                        ? () => _showDeleteConfirmation(state, t)
+                        : null,
+                    onCancel: state.event!.canCancel
+                        ? () => _confirmCancel(t)
+                        : null,
                   ),
                 ),
+                if (state.event!.role != EventRole.owner)
+                  SliverToBoxAdapter(child: _RoleBanner(role: state.event!.role, t: t)),
+                // A draft resumes in the wizard where the host left off.
+                if (state.event!.status == EventStatus.draft && state.event!.role.canManage)
+                  SliverToBoxAdapter(
+                    child: _ResumeDraftBanner(
+                      t: t,
+                      onResume: () {
+                        final id = int.tryParse(state.event!.id);
+                        if (id != null) context.openInvitationWizardWithDraft(id);
+                      },
+                    ),
+                  ),
+                // Payments belong to the owner only.
+                if (state.event!.isPendingPayment && state.event!.role.canOwn)
+                  SliverToBoxAdapter(
+                    child: PendingPaymentBanner(
+                      event: state.event!,
+                      underReview: state.hasPendingPayment,
+                      onPaid: () => context
+                          .read<EventDetailsCubit>()
+                          .loadEventDetails(widget.eventId),
+                    ),
+                  ),
                 SliverToBoxAdapter(child: EventQuickStats(event: state.event!)),
                 SliverToBoxAdapter(
                   child: EventTabBar(controller: _tabController),
@@ -122,6 +171,29 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         context.read<EventDetailsCubit>().refreshEventDetails();
       }
     });
+  }
+
+  Future<void> _confirmCancel(AppLocalizations t) async {
+    final cubit = context.read<EventDetailsCubit>();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (d) => AlertDialog(
+        title: Text(t.translate('event_cancel_action')),
+        content: Text(t.translate('event_cancel_confirm')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(d, false),
+            child: Text(t.translate('event_cancel_keep')),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(foregroundColor: AppColors.red500),
+            onPressed: () => Navigator.pop(d, true),
+            child: Text(t.translate('event_cancel_action')),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) await cubit.cancelEvent();
   }
 
   void _showDeleteConfirmation(EventDetailsState state, AppLocalizations t) {
@@ -188,7 +260,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                     ? const SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(
+                        child: MkSpinner(
                           strokeWidth: 2,
                           valueColor: AlwaysStoppedAnimation<Color>(
                             Colors.white,
@@ -225,6 +297,8 @@ class _OverviewTab extends StatelessWidget {
       child: Column(
         children: [
           EventInfoCard(event: event),
+          // Paid event: ask for an extra service, pay only its price.
+          if (event.isActive && event.role.canManage) EventAddOnsCard(event: event),
           SizedBox(height: context.dynamicHeight(0.02)),
           EventAnalyticsCard(event: event),
         ],
@@ -251,16 +325,25 @@ class _GuestsTab extends StatelessWidget {
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.fromLTRB(
+              padding: EdgeInsetsDirectional.fromSTEB(
                 horizontalPadding,
                 context.dynamicHeight(0.02),
                 horizontalPadding,
                 context.dynamicHeight(0.02),
               ),
-              child: _SearchBar(
-                controller: searchController,
-                query: state.guestSearchQuery,
-                t: t,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (state.event!.canManageGuests) ...[
+                    GuestActionsBar(state: state),
+                    const SizedBox(height: AppSpacing.md),
+                  ],
+                  _SearchBar(
+                    controller: searchController,
+                    query: state.guestSearchQuery,
+                    t: t,
+                  ),
+                ],
               ),
             ),
             state.filteredGuests.isEmpty
@@ -282,7 +365,7 @@ class _GuestsTab extends StatelessWidget {
                         index: index,
                         baseDelayMs: 300,
                         staggerMs: 50,
-                        child: GuestCard(guest: state.filteredGuests[index]),
+                        child: _guestCard(context, state.filteredGuests[index]),
                       );
                     },
                   ),
@@ -291,6 +374,16 @@ class _GuestsTab extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget _guestCard(BuildContext context, GuestEntity guest) {
+  final cubit = context.read<EventDetailsCubit>();
+  final canManage = cubit.state.event?.canManageGuests ?? false;
+  return GuestCard(
+    guest: guest,
+    onResend: canManage ? () => cubit.resendInvitation(guest.id) : null,
+    onRemove: canManage ? () => cubit.removeInvitation(guest.id) : null,
+  );
 }
 
 class _DetailsTab extends StatelessWidget {
@@ -474,6 +567,77 @@ class _SearchBar extends StatelessWidget {
             vertical: context.dynamicHeight(0.018),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _ResumeDraftBanner extends StatelessWidget {
+  final AppLocalizations t;
+  final VoidCallback onResume;
+
+  const _ResumeDraftBanner({required this.t, required this.onResume});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      key: const Key('resume_draft_banner'),
+      margin: const EdgeInsetsDirectional.fromSTEB(AppSpacing.md, AppSpacing.sm, AppSpacing.md, 0),
+      padding: const EdgeInsetsDirectional.all(AppSpacing.smd),
+      decoration: BoxDecoration(
+        borderRadius: AppSpacing.borderRadiusMd,
+        border: Border.all(color: context.borderColor),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.edit_note_rounded, color: AppColors.primaryColor, size: AppSpacing.iconMd),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              t.translate('event_draft_resume_body'),
+              style: AppTextStyles.bodySmall.copyWith(color: context.textPrimary),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          FilledButton(
+            onPressed: onResume,
+            child: Text(t.translate('event_draft_resume')),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// "Your role on this event: manager" banner for institution members.
+class _RoleBanner extends StatelessWidget {
+  final EventRole role;
+  final AppLocalizations t;
+
+  const _RoleBanner({required this.role, required this.t});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      key: const Key('event_role_banner'),
+      margin: const EdgeInsetsDirectional.fromSTEB(AppSpacing.md, AppSpacing.sm, AppSpacing.md, 0),
+      padding: const EdgeInsetsDirectional.all(AppSpacing.smd),
+      decoration: BoxDecoration(
+        borderRadius: AppSpacing.borderRadiusMd,
+        border: Border.all(color: context.borderColor),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.badge_outlined, color: AppColors.primaryColor, size: AppSpacing.iconMd),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              '${t.translate('event_your_role')}: ${t.translate(role.labelKey)}'
+              '${role.isReadOnly ? ' · ${t.translate('event_read_only')}' : ''}',
+              style: AppTextStyles.bodySmall.copyWith(color: context.textPrimary),
+            ),
+          ),
+        ],
       ),
     );
   }

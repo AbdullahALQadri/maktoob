@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
+import '../../../authentication/presentation/cubit/auth_cubit.dart';
+import '../../../authentication/presentation/cubit/auth_state.dart';
 
 /// Editorial masthead header for the home screen.
 ///
@@ -34,19 +37,42 @@ class HomeHeader extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Eyebrow — quiet gold greeting (w600 so the title stays dominant).
-            Text(
-              isEn
-                  ? t.translate('home_welcome').toUpperCase()
-                  : t.translate('home_welcome'),
-              style: TextStyle(
-                fontFamily: 'Tajawal',
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                height: 1.2,
-                letterSpacing: eyebrowTracking,
-                color: AppColors.primaryColor,
-              ),
+            // Eyebrow — quiet gold greeting with the host's first name, and
+            // their photo (or initials) at the end of the line.
+            BlocBuilder<AuthCubit, AuthState>(
+              buildWhen: (a, b) => b is AuthAuthenticated,
+              builder: (context, state) {
+                final user = state is AuthAuthenticated ? state.user : null;
+                final firstName = user?.name.trim().split(RegExp(r'\s+')).first ?? '';
+                final greeting = firstName.isEmpty
+                    ? t.translate('home_welcome')
+                    : t.translate('home_welcome_name').replaceAll('{name}', firstName);
+                return Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        isEn ? greeting.toUpperCase() : greeting,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: 'Tajawal',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          height: 1.2,
+                          letterSpacing: eyebrowTracking,
+                          color: AppColors.primaryColor,
+                        ),
+                      ),
+                    ),
+                    if (user != null)
+                      AppAvatar(
+                        imageUrl: user.avatar,
+                        initials: user.initials,
+                        size: 40,
+                      ),
+                  ],
+                );
+              },
             ),
 
             const SizedBox(height: 10),

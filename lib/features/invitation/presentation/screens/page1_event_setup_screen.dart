@@ -5,10 +5,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../config/routes/app_routes.dart';
 import '../../../../core/core.dart';
+import '../../../ai_design/presentation/widgets/template_invitation_canvas.dart';
 import '../../data/models/location_model.dart';
+import '../../domain/utils/event_setup_rules.dart';
 import '../cubit/invitation_cubit.dart';
 import '../cubit/invitation_state.dart';
 import '../widgets/widgets.dart';
+import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
 /// Page 1 (of 3): Event Setup
 ///
@@ -25,6 +28,9 @@ class _Page1EventSetupScreenState extends State<Page1EventSetupScreen> {
   final _nameController = TextEditingController();
   final _locationController = TextEditingController();
 
+  /// Turns on inline "required" messages once the user tries to continue.
+  bool _showFieldErrors = false;
+
   @override
   void initState() {
     super.initState();
@@ -39,6 +45,38 @@ class _Page1EventSetupScreenState extends State<Page1EventSetupScreen> {
     _locationController.dispose();
     super.dispose();
   }
+
+  Future<void> _openMap(BuildContext ctx, InvitationState state) async {
+    final cubit = ctx.read<InvitationCubit>();
+    final l = AppLocalizations.of(ctx);
+    final current = state.customLocation;
+    await Navigator.of(ctx).push(MaterialPageRoute(
+      builder: (routeContext) => GoogleMapsPickerWidget(
+        initialLocation: current != null &&
+                EventSetupRules.isInGaza(current.latitude, current.longitude)
+            ? current
+            : null,
+        onLocationSelected: (picked) {
+          if (!EventSetupRules.isInGaza(picked.latitude, picked.longitude)) {
+            AppSnackBar.showError(routeContext,
+                message: l?.translate('map_gaza_only') ??
+                    'يرجى اختيار موقع داخل قطاع غزة فقط');
+            return;
+          }
+          final typed = _locationController.text.trim();
+          cubit.setCustomLocation(LocationModel(
+            latitude: picked.latitude,
+            longitude: picked.longitude,
+            address: picked.address,
+            placeName: typed.isNotEmpty ? typed : picked.address,
+          ));
+          if (typed.isEmpty) _locationController.text = picked.address;
+          Navigator.of(routeContext).pop();
+        },
+      ),
+    ));
+  }
+
 
   Future<void> _openAiDesign(BuildContext ctx, InvitationState state) async {
     final l = AppLocalizations.of(ctx);
@@ -61,7 +99,7 @@ class _Page1EventSetupScreenState extends State<Page1EventSetupScreen> {
       }
       await cubit.initializeWizardIfNeeded();
 
-      if (!mounted) return;
+      if (!ctx.mounted) return;
       eventId = cubit.state.draftEventId;
       if (eventId == null) {
         ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
@@ -86,10 +124,24 @@ class _Page1EventSetupScreenState extends State<Page1EventSetupScreen> {
         'eventId': eventId,
         'eventTypeId': eventTypeId,
         'eventTitle': eventTitle,
+        // Texts a ready template is filled with (no generation involved).
+        ...() {
+          final t = invitationTextsFromEvent(
+            isArabic: Localizations.localeOf(ctx).languageCode == 'ar',
+            typeFieldValues: state.eventTypeFormData,
+            date: state.eventDate,
+            hour: state.eventTime?.hour,
+            minute: state.eventTime?.minute,
+            venue: state.customLocation?.placeName ??
+                state.selectedVenue?.nameAr ??
+                _locationController.text,
+          );
+          return {'names': t.names, 'dateTime': t.dateTime, 'venue': t.venue};
+        }(),
       },
     );
 
-    if (result is String && result.isNotEmpty && mounted) {
+    if (result is String && result.isNotEmpty && ctx.mounted) {
       ctx.read<InvitationCubit>().setAiGeneratedImage(result);
     }
   }
@@ -125,26 +177,35 @@ class _Page1EventSetupScreenState extends State<Page1EventSetupScreen> {
               ),
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+                  padding: const EdgeInsetsDirectional.fromSTEB(20, 20, 20, 24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       _LabeledInput(
-                        label: l?.translate('wizard_event_name_label') ??
-                            'اسم الفعالية',
-                        child: _RoundedTextField(
-                          controller: _nameController,
-                          hintText: l?.translate('wizard_event_name_hint') ??
-                              'مثلاً: حفل تخرج سارة 2024',
-                          onChanged: (v) =>
-                              context.read<InvitationCubit>().updateEventName(v),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      _LabeledInput(
                         label: l?.translate('wizard_event_type_label') ??
                             'نوع الفعالية',
                         child: _EventTypeDropdownTrigger(state: state),
+                      ),
+                      if (state.isLoadingFormFields ||
+                          state.eventTypeFormFields.isNotEmpty) ...[
+                        const SizedBox(height: AppSpacing.md),
+                        EventTypeFieldsSection(
+                          typeKey: state.selectedEventType?.id,
+                          fields: state.eventTypeFormFields,
+                          values: state.eventTypeFormData,
+                          isLoading: state.isLoadingFormFields,
+                          showErrors: _showFieldErrors,
+                          onChanged: (k, v) => context
+                              .read<InvitationCubit>()
+                              .updateEventTypeFormField(k, v),
+                        ),
+                      ],
+                      const SizedBox(height: 20),
+                      _TitleInput(
+                        controller: _nameController,
+                        state: state,
+                        onChanged: (v) =>
+                            context.read<InvitationCubit>().updateEventName(v),
                       ),
                       const SizedBox(height: 20),
                       _DateTimeCard(state: state),
@@ -174,6 +235,11 @@ class _Page1EventSetupScreenState extends State<Page1EventSetupScreen> {
                           },
                         ),
                       ),
+                      const SizedBox(height: AppSpacing.sm),
+                      _MapPinButton(
+                        state: state,
+                        onPick: () => _openMap(context, state),
+                      ),
                       const SizedBox(height: 20),
                       _AiCoverHero(
                         imageUrl: state.generatedImageUrl,
@@ -184,7 +250,15 @@ class _Page1EventSetupScreenState extends State<Page1EventSetupScreen> {
                   ),
                 ),
               ),
-              _BottomBar(state: state, nameController: _nameController),
+              _BottomBar(
+                state: state,
+                nameController: _nameController,
+                onValidateFields: () {
+                  final ok = state.missingRequiredFormFields.isEmpty;
+                  if (!ok) setState(() => _showFieldErrors = true);
+                  return ok;
+                },
+              ),
             ],
           ),
         );
@@ -341,7 +415,7 @@ class _EventTypeDropdownTrigger extends StatelessWidget {
               SizedBox(
                 width: 16,
                 height: 16,
-                child: CircularProgressIndicator(
+                child: MkSpinner(
                   strokeWidth: 2,
                   valueColor:
                       AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
@@ -506,7 +580,7 @@ class _EventTypeDropdownTrigger extends StatelessWidget {
   }
 }
 
-class _PickerBody extends StatelessWidget {
+class _PickerBody extends StatefulWidget {
   final InvitationState state;
   final bool isEnglish;
   final IconData Function(EventTypeModel?) iconFor;
@@ -524,6 +598,19 @@ class _PickerBody extends StatelessWidget {
   });
 
   @override
+  State<_PickerBody> createState() => _PickerBodyState();
+}
+
+class _PickerBodyState extends State<_PickerBody> {
+  /// Step B when non-null: the group whose types are listed.
+  EventTypeGroupModel? _openGroup;
+
+  InvitationState get state => widget.state;
+  bool get isEnglish => widget.isEnglish;
+  VoidCallback get onTapCustom => widget.onTapCustom;
+  VoidCallback get onRetry => widget.onRetry;
+
+  @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final hasTypes = state.availableEventTypes.isNotEmpty;
@@ -534,7 +621,7 @@ class _PickerBody extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 40),
         child: Center(
-          child: CircularProgressIndicator(
+          child: MkSpinner(
             valueColor:
                 AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
           ),
@@ -571,27 +658,200 @@ class _PickerBody extends StatelessWidget {
       );
     }
 
+    // Older backend without occasion groups: flat list.
+    if (state.availableEventTypeGroups.isEmpty) {
+      return _flatList(context, state.availableEventTypes, l, showCustom: true);
+    }
+
+    final group = _openGroup;
+    if (group == null) {
+      return _GroupGrid(
+        groups: state.availableEventTypeGroups,
+        isEnglish: isEnglish,
+        selectedGroupId: _groupIdOf(state.selectedEventType),
+        onTap: (g) => setState(() => _openGroup = g),
+      );
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        InkWell(
+          onTap: () => setState(() => _openGroup = null),
+          child: Padding(
+            padding: const EdgeInsetsDirectional.symmetric(
+                horizontal: AppSpacing.mdl, vertical: AppSpacing.smd),
+            child: Row(
+              children: [
+                const Icon(Icons.arrow_back_rounded,
+                    color: AppColors.primaryColor, size: 20),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Text(
+                    isEnglish ? group.nameEn : group.nameAr,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: context.textPrimary,
+                    ),
+                  ),
+                ),
+                Text(
+                  l?.translate('wizard_back_to_groups') ?? 'كل الفئات',
+                  style: const TextStyle(
+                      fontSize: 12, color: AppColors.primaryColor),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const Divider(height: 1, color: AppColors.gray200),
+        Flexible(
+          child: _flatList(context, _typesOf(group), l,
+              showCustom: _isOtherGroup(group)),
+        ),
+      ],
+    );
+  }
+
+  int? _groupIdOf(EventTypeModel? type) {
+    if (type == null) return null;
+    if (type.groupId != null) return type.groupId;
+    // Custom types (no group) live under "other".
+    for (final g in state.availableEventTypeGroups) {
+      if (g.isOther) return g.id;
+    }
+    return null;
+  }
+
+  bool _isOtherGroup(EventTypeGroupModel g) {
+    if (g.isOther) return true;
+    // No explicit "other" slug: the custom entry goes in the last group.
+    final groups = state.availableEventTypeGroups;
+    return !groups.any((x) => x.isOther) && groups.last.id == g.id;
+  }
+
+  List<EventTypeModel> _typesOf(EventTypeGroupModel g) {
+    final knownIds = state.availableEventTypeGroups.map((x) => x.id).toSet();
+    return state.availableEventTypes.where((t) {
+      if (t.groupId == g.id) return true;
+      // Ungrouped / unknown-group types fall under "other".
+      return _isOtherGroup(g) &&
+          (t.groupId == null || !knownIds.contains(t.groupId));
+    }).toList();
+  }
+
+  Widget _flatList(BuildContext context, List<EventTypeModel> types,
+      AppLocalizations? l,
+      {required bool showCustom}) {
+    final count = types.length + (showCustom ? 1 : 0);
     return ListView.builder(
       shrinkWrap: true,
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: state.availableEventTypes.length + 1, // +1 for "Custom"
+      padding: const EdgeInsetsDirectional.symmetric(vertical: AppSpacing.sm),
+      itemCount: count,
       itemBuilder: (_, i) {
-        if (i == state.availableEventTypes.length) {
+        if (i == types.length) {
           // Trailing "Custom event type" option.
           return _EventTypePickerRow(
             label: l?.translate('invitation_custom_event_type_option') ??
                 'نوع آخر…',
             icon: Icons.add_circle_outline_rounded,
             isSelected: state.selectedEventType?.isCustom == true,
-            onTap: onTapCustom,
+            onTap: widget.onTapCustom,
           );
         }
-        final type = state.availableEventTypes[i];
+        final type = types[i];
         return _EventTypePickerRow(
           label: isEnglish ? type.name : type.nameAr,
-          icon: iconFor(type),
+          icon: widget.iconFor(type),
           isSelected: state.selectedEventType?.id == type.id,
-          onTap: () => onSelect(type),
+          onTap: () => widget.onSelect(type),
+        );
+      },
+    );
+  }
+}
+
+/// Step A of the type picker: occasion groups in a 2-column grid.
+class _GroupGrid extends StatelessWidget {
+  final List<EventTypeGroupModel> groups;
+  final bool isEnglish;
+  final int? selectedGroupId;
+  final ValueChanged<EventTypeGroupModel> onTap;
+
+  const _GroupGrid({
+    required this.groups,
+    required this.isEnglish,
+    required this.selectedGroupId,
+    required this.onTap,
+  });
+
+  static IconData iconForGroup(EventTypeGroupModel g) {
+    switch (g.slug) {
+      case 'weddings':
+        return Icons.favorite_rounded;
+      case 'births':
+        return Icons.child_friendly_rounded;
+      case 'graduation':
+        return Icons.school_rounded;
+      case 'religious-social':
+        return Icons.mosque_rounded;
+      case 'business':
+        return Icons.business_center_rounded;
+      default:
+        return Icons.more_horiz_rounded;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      shrinkWrap: true,
+      padding: const EdgeInsetsDirectional.fromSTEB(
+          AppSpacing.mdl, AppSpacing.sm, AppSpacing.mdl, AppSpacing.sm),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: AppSpacing.smd,
+        crossAxisSpacing: AppSpacing.smd,
+        childAspectRatio: 1.5,
+      ),
+      itemCount: groups.length,
+      itemBuilder: (_, i) {
+        final g = groups[i];
+        final selected = g.id == selectedGroupId;
+        return InkWell(
+          onTap: () => onTap(g),
+          borderRadius: AppSpacing.borderRadiusLg,
+          child: Container(
+            padding: const EdgeInsetsDirectional.all(AppSpacing.smd),
+            decoration: BoxDecoration(
+              color: selected
+                  ? AppColors.primaryColor.withValues(alpha: 0.08)
+                  : AppColors.white,
+              borderRadius: AppSpacing.borderRadiusLg,
+              border: Border.all(
+                color: selected ? AppColors.primaryColor : AppColors.gray200,
+              ),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(iconForGroup(g), color: AppColors.primaryColor, size: 28),
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  isEnglish ? g.nameEn : g.nameAr,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: context.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
         );
       },
     );
@@ -766,23 +1026,12 @@ class _DateTimeCard extends StatelessWidget {
               cubit.updateTime(t);
             },
           ),
-          const SizedBox(height: 12),
-          _DateTimeField(
-            label: l?.translate('wizard_event_end_label') ?? 'نهاية الفعالية',
-            hint: l?.translate('wizard_event_end_hint') ??
-                'اختر تاريخ ووقت النهاية',
-            icon: Icons.event_available_rounded,
-            iconActive: false,
-            date: state.eventEndDate,
-            time: state.eventEndTime,
-            // Default end pick to start date so the picker opens near a sane month.
-            anchorDate: state.eventEndDate ?? state.eventDate,
-            onPick: (d, t) {
-              final cubit = context.read<InvitationCubit>();
-              cubit.updateEndDate(d);
-              cubit.updateEndTime(t);
-            },
-          ),
+          // Business types only: an end time on the same day. Weddings and
+          // family occasions have no end (the QR is valid all day).
+          if (state.selectedEventType?.hasEndTime == true) ...[
+            const SizedBox(height: AppSpacing.smd),
+            _EndTimeField(state: state),
+          ],
         ],
       ),
     );
@@ -796,7 +1045,6 @@ class _DateTimeField extends StatelessWidget {
   final bool iconActive;
   final DateTime? date;
   final TimeOfDay? time;
-  final DateTime? anchorDate;
   final void Function(DateTime, TimeOfDay) onPick;
 
   const _DateTimeField({
@@ -807,7 +1055,6 @@ class _DateTimeField extends StatelessWidget {
     required this.date,
     required this.time,
     required this.onPick,
-    this.anchorDate,
   });
 
   @override
@@ -870,11 +1117,11 @@ class _DateTimeField extends StatelessWidget {
 
   Future<void> _pick(BuildContext context) async {
     final initial =
-        date ?? anchorDate ?? DateTime.now().add(const Duration(days: 7));
+        date ?? DateTime.now().add(const Duration(days: 7));
     final picked = await showDatePicker(
       context: context,
       initialDate: initial,
-      firstDate: DateTime.now().subtract(const Duration(days: 1)),
+      firstDate: DateUtils.dateOnly(DateTime.now()), // backend: event_date after:today
       lastDate: DateTime.now().add(const Duration(days: 365 * 3)),
     );
     if (picked == null || !context.mounted) return;
@@ -933,24 +1180,6 @@ class _AiCoverHero extends StatelessWidget {
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: context.textPrimary,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryColor.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  l?.translate('wizard_ai_badge') ?? 'ذكاء اصطناعي',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.primaryColor,
-                    letterSpacing: 0.4,
-                  ),
                 ),
               ),
             ],
@@ -1012,8 +1241,8 @@ class _AiCoverHero extends StatelessWidget {
                             children: [
                               Text(
                                 imageUrl != null
-                                    ? (l?.translate('ai_regenerate_image') ??
-                                        'تغيير الصورة')
+                                    ? (l?.translate('ai_change_design') ??
+                                        'تغيير التصميم')
                                     : (l?.translate(
                                             'wizard_ai_cover_compact_title') ??
                                         'تصميم غلاف سحري'),
@@ -1029,7 +1258,7 @@ class _AiCoverHero extends StatelessWidget {
                               Text(
                                 l?.translate(
                                         'wizard_ai_cover_compact_subtitle') ??
-                                    'ابتكر تصميماً فريداً بالذكاء الاصطناعي',
+                                    'ابتكر تصميماً فريداً لمناسبتك',
                                 style: TextStyle(
                                   color:
                                       Colors.white.withValues(alpha: 0.85),
@@ -1077,7 +1306,14 @@ class _BottomBar extends StatelessWidget {
   final InvitationState state;
   final TextEditingController nameController;
 
-  const _BottomBar({required this.state, required this.nameController});
+  /// Returns false (and shows inline errors) when required type fields are empty.
+  final bool Function() onValidateFields;
+
+  const _BottomBar({
+    required this.state,
+    required this.nameController,
+    required this.onValidateFields,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1087,7 +1323,7 @@ class _BottomBar extends StatelessWidget {
     final isLoading = state.isLoading;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
+      padding: const EdgeInsetsDirectional.fromSTEB(20, 14, 20, 14),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -1107,14 +1343,202 @@ class _BottomBar extends StatelessWidget {
           isLoading: isLoading,
           onPressed: canProceed && !isLoading
               ? () {
+                  if (state.isLoadingFormFields || !onValidateFields()) return;
                   final cubit = context.read<InvitationCubit>();
-                  if (nameController.text.isNotEmpty) {
-                    cubit.updateEventName(nameController.text);
-                  }
+                  // Empty is fine: the backend writes the suggested title.
+                  cubit.updateEventName(nameController.text.trim());
                   cubit.createDraftAndSaveDetails();
                 }
               : null,
         ),
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Invitation title (optional) with a live suggestion
+// =============================================================================
+
+class _TitleInput extends StatelessWidget {
+  final TextEditingController controller;
+  final InvitationState state;
+  final ValueChanged<String> onChanged;
+
+  const _TitleInput({
+    required this.controller,
+    required this.state,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final type = state.selectedEventType;
+    final suggestion = EventSetupRules.suggestTitle(
+      slug: type?.slug,
+      typeNameAr: type?.nameAr,
+      values: state.eventTypeFormData,
+    );
+    final typed = (state.eventName ?? '').trim();
+    final prefix = l?.translate('wizard_title_suggestion') ?? 'سيظهر كـ:';
+
+    return _LabeledInput(
+      label: l?.translate('wizard_event_name_label') ?? 'عنوان الدعوة (اختياري)',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _RoundedTextField(
+            controller: controller,
+            hintText: suggestion,
+            onChanged: onChanged,
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            l?.translate('wizard_event_name_hint') ??
+                'نكتبه لك تلقائياً من الأسماء، أو اكتب عنوانك',
+            style: const TextStyle(fontSize: 12, color: AppColors.gray500),
+          ),
+          if (typed.isEmpty && type != null) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Row(
+              children: [
+                const Icon(Icons.auto_awesome_outlined,
+                    size: 16, color: AppColors.primaryColor),
+                const SizedBox(width: AppSpacing.xs),
+                Expanded(
+                  child: Text(
+                    '$prefix $suggestion',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// End time (has_end_time types only) on the same day as the start
+// =============================================================================
+
+class _EndTimeField extends StatelessWidget {
+  final InvitationState state;
+  const _EndTimeField({required this.state});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final end = state.eventEndTime;
+    final start = state.eventTime;
+    final invalid = end != null &&
+        start != null &&
+        !EventSetupRules.isEndAfterStart(start, end);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l?.translate('wizard_event_end_time_label') ?? 'وقت الانتهاء',
+          style: const TextStyle(fontSize: 12, color: AppColors.gray500),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        InkWell(
+          borderRadius: AppSpacing.borderRadiusLg,
+          onTap: () async {
+            final picked = await showTimePicker(
+              context: context,
+              initialTime: end ??
+                  (start != null
+                      ? TimeOfDay(
+                          hour: (start.hour + 2) % 24, minute: start.minute)
+                      : const TimeOfDay(hour: 20, minute: 0)),
+            );
+            if (picked != null && context.mounted) {
+              context.read<InvitationCubit>().updateEndTime(picked);
+            }
+          },
+          child: Container(
+            padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceBg,
+              borderRadius: AppSpacing.borderRadiusLg,
+              border: Border.all(
+                  color: invalid ? AppColors.red500 : AppColors.gray200),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.schedule_rounded,
+                    color: AppColors.gray500, size: 20),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Text(
+                    end != null
+                        ? MaterialLocalizations.of(context).formatTimeOfDay(end)
+                        : (l?.translate('wizard_event_end_time_hint') ??
+                            'اختر وقت الانتهاء (اختياري)'),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color:
+                          end != null ? context.textPrimary : AppColors.gray400,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (invalid) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            l?.translate('wizard_end_before_start') ??
+                'وقت الانتهاء يجب أن يكون بعد وقت البداية',
+            style: const TextStyle(fontSize: 12, color: AppColors.red500),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+// =============================================================================
+// Pick on map: OpenStreetMap pin inside Gaza
+// =============================================================================
+
+class _MapPinButton extends StatelessWidget {
+  final InvitationState state;
+  final VoidCallback onPick;
+  const _MapPinButton({required this.state, required this.onPick});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final loc = state.customLocation;
+    final pinned =
+        loc != null && EventSetupRules.isInGaza(loc.latitude, loc.longitude);
+
+    return OutlinedButton.icon(
+      onPressed: onPick,
+      icon: Icon(pinned ? Icons.check_circle_rounded : Icons.map_outlined,
+          size: 20),
+      label: Text(
+        pinned
+            ? (l?.translate('wizard_location_pinned') ??
+                'تم تحديد الموقع على الخريطة (تعديل)')
+            : (l?.translate('wizard_pick_on_map') ?? 'حدّد الموقع على الخريطة'),
+      ),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.primaryColor,
+        side: const BorderSide(color: AppColors.gray200),
+        padding: const EdgeInsetsDirectional.all(AppSpacing.smd),
+        shape: RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusLg),
       ),
     );
   }

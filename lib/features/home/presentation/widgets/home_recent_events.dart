@@ -14,11 +14,7 @@ class HomeRecentEvents extends StatelessWidget {
   final List<RecentEventEntity> events;
   final Function(String)? onViewEvent;
 
-  const HomeRecentEvents({
-    super.key,
-    required this.events,
-    this.onViewEvent,
-  });
+  const HomeRecentEvents({super.key, required this.events, this.onViewEvent});
 
   @override
   Widget build(BuildContext context) {
@@ -45,9 +41,9 @@ class HomeRecentEvents extends StatelessWidget {
   }
 
   void _navigateToViewAll(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const ViewAllEventsScreen()),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const ViewAllEventsScreen()));
   }
 }
 
@@ -73,11 +69,13 @@ class _SectionHeader extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            title,
-            style: text.titleLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: context.textPrimary,
+          Flexible(
+            child: Text(
+              title,
+              style: text.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: context.textPrimary,
+              ),
             ),
           ),
           AppTextButton(

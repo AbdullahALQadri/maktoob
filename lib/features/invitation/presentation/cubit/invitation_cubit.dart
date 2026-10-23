@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/api/event_wizard_api_service.dart';
+import '../../../../core/error/free_trial_refusal.dart';
+import '../../../../core/error/institution_errors.dart';
 import '../../../../core/utils/phone_normalizer.dart';
 import '../../data/models/extra_service_model.dart';
 import '../../data/models/invitation_draft_model.dart';
@@ -14,6 +16,7 @@ import '../../data/models/location_model.dart';
 import '../../data/services/excel_parser_service.dart';
 import '../../data/services/invoice_generator.dart';
 import '../../data/services/whatsapp_service.dart';
+import '../../domain/utils/event_setup_rules.dart';
 import 'invitation_state.dart';
 
 /// Cubit for managing the 7-page event creation wizard
@@ -33,6 +36,21 @@ class InvitationCubit extends Cubit<InvitationState> {
   // ============ Initialization ============
 
   /// Initialize the wizard, optionally with draft data
+  /// "لمن هذه المناسبة؟": null = personal account, else the institution
+  /// (owner or manager of an approved institution). Asked once, before the
+  /// draft is created.
+  void setEventOwner({int? institutionId, String? institutionName, int? credits}) {
+    if (institutionId == null) {
+      emit(state.copyWith(clearInstitution: true));
+    } else {
+      emit(state.copyWith(
+        institutionId: institutionId,
+        institutionName: institutionName,
+        institutionCredits: credits,
+      ));
+    }
+  }
+
   Future<void> initializeWizard({int? draftEventId}) async {
     emit(state.copyWith(
       isLoading: true,
@@ -41,12 +59,21 @@ class InvitationCubit extends Cubit<InvitationState> {
 
     try {
       List<EventTypeModel> eventTypes;
+      List<EventTypeGroupModel> groups = const [];
 
       if (apiService != null) {
         // Load event types from API
         final response = await apiService!.getEventTypes();
         final eventTypesData = (response['data']?['event_types'] as List?) ?? [];
         eventTypes = eventTypesData.map((e) => EventTypeModel.fromJson(e as Map<String, dynamic>)).toList();
+        // Occasion groups for the two-step picker (absent on older backends).
+        final groupsData = response['data']?['groups'];
+        if (groupsData is List) {
+          groups = groupsData
+              .whereType<Map>()
+              .map((g) => EventTypeGroupModel.fromJson(Map<String, dynamic>.from(g)))
+              .toList();
+        }
       } else {
         eventTypes = [];
       }
@@ -54,6 +81,7 @@ class InvitationCubit extends Cubit<InvitationState> {
       emit(state.copyWith(
         isLoading: false,
         availableEventTypes: eventTypes,
+        availableEventTypeGroups: groups,
       ));
 
       // If draft ID provided, load draft data
@@ -73,17 +101,111 @@ class InvitationCubit extends Cubit<InvitationState> {
 
     try {
       final response = await apiService!.getWizardState(draftEventId);
-      final eventData = response['data']['event'];
-      // Populate state from draft data
-      if (eventData != null) {
-        emit(state.copyWith(
-          draftEventId: eventData['id'],
-          eventName: eventData['title_ar'],
-          // Add more fields as needed
-        ));
+      final data = response['data'];
+      final eventData = data is Map ? data['event'] : null;
+      if (eventData is! Map) return;
+
+      // `title` / `description` are the unified columns (title_ar is legacy).
+      final title = (eventData['title'] ?? eventData['title_ar'])?.toString();
+      final description = eventData['description']?.toString();
+      final date = DateTime.tryParse('${eventData['event_date'] ?? ''}');
+
+      // Event type: prefer the loaded catalogue entry (has group info), fall
+      // back to the eager-loaded `event_type` relation.
+      final typeId = int.tryParse('${eventData['event_type_id'] ?? ''}');
+      EventTypeModel? type;
+      if (typeId != null) {
+        for (final t in state.availableEventTypes) {
+          if (t.id == typeId) {
+            type = t;
+            break;
+          }
+        }
+        final rel = eventData['event_type'];
+        if (type == null && rel is Map) {
+          type = EventTypeModel.fromJson(Map<String, dynamic>.from(rel));
+        }
+      }
+
+      // Saved per-type answers. PHP serialises an empty array as `[]`.
+      final rawValues = eventData['event_type_form_values'];
+      final formValues = rawValues is Map
+          ? rawValues.map((k, v) => MapEntry('$k', v))
+          : <String, dynamic>{};
+
+      // Everything else the host already entered, so resuming a draft
+      // doesn't make them start over.
+      final endDate = DateTime.tryParse('${eventData['end_date'] ?? ''}');
+      final lat = double.tryParse('${eventData['custom_venue_lat'] ?? ''}');
+      final lng = double.tryParse('${eventData['custom_venue_lng'] ?? ''}');
+      final venueName = eventData['custom_venue_name_ar']?.toString();
+      final venueAddress = eventData['custom_venue_address_ar']?.toString();
+      final partners = int.tryParse('${eventData['partner_count'] ?? eventData['max_companions'] ?? ''}');
+      final deadline = DateTime.tryParse('${eventData['response_deadline'] ?? ''}');
+      final message = eventData['message_ar']?.toString();
+      final drafts = eventData['draft_guests'];
+      final guests = <GuestInfoModel>[
+        if (drafts is List)
+          for (final g in drafts.whereType<Map>())
+            if (g['is_duplicate'] != true && g['is_duplicate'] != 1)
+              GuestInfoModel(name: '${g['guest_name'] ?? ''}', phone: '${g['phone'] ?? ''}'),
+      ];
+
+      final rawId = eventData['id'];
+      emit(state.copyWith(
+        draftEventId: rawId is int ? rawId : int.tryParse('$rawId') ?? draftEventId,
+        eventName: title,
+        eventDescription: description,
+        eventDate: date,
+        eventTime: date == null ? null : TimeOfDay.fromDateTime(date.toLocal()),
+        eventEndTime: endDate == null ? null : TimeOfDay.fromDateTime(endDate.toLocal()),
+        customLocation: lat != null && lng != null
+            ? LocationModel(
+                latitude: lat,
+                longitude: lng,
+                address: venueAddress ?? venueName ?? '',
+                placeName: venueName,
+              )
+            : null,
+        partnerWithGuests: partners != null && partners > 0 ? partners : null,
+        rsvpDeadline: deadline,
+        invitationMessage: (message ?? '').isEmpty ? null : message,
+        guests: guests.isEmpty ? null : guests,
+        selectedEventType: type,
+        eventTypeFormData: formValues,
+      ));
+
+      if (type != null) {
+        await loadFormFieldsForType(type);
       }
     } catch (e) {
       emit(state.copyWith(errorMessage: e.toString()));
+    }
+  }
+
+  /// Preselects an occasion type (and optionally a starter design) once the
+  /// event types are loaded — used when a visitor picked a design in Explore
+  /// before signing up. Unknown ids are ignored.
+  Future<void> applyPreselection({int? eventTypeId, int? templateId}) async {
+    if (eventTypeId == null) return;
+    EventTypeModel? type;
+    for (final t in state.availableEventTypes) {
+      if (t.id == eventTypeId) {
+        type = t;
+        break;
+      }
+    }
+    if (type == null) return;
+    selectEventType(type);
+
+    if (templateId == null) return;
+    await loadTemplatesForEventType(eventTypeId);
+    if (isClosed || state.selectedEventType?.id != eventTypeId) return;
+    for (final t in state.availableTemplates) {
+      if (t.id == templateId) {
+        selectTemplate(t);
+        break;
+      }
     }
   }
 
@@ -129,6 +251,7 @@ class InvitationCubit extends Cubit<InvitationState> {
         final response = await apiService!.initializeWizard(
           eventTypeId: state.selectedEventType?.id,
           customEventTypeName: state.customEventTypeName,
+          institutionId: state.institutionId,
         );
         final eventId = response['data']?['event_id'] as int?;
         emit(state.copyWith(
@@ -160,6 +283,7 @@ class InvitationCubit extends Cubit<InvitationState> {
           eventTypeId: state.selectedEventType?.id,
           customEventTypeName: state.customEventTypeName,
           templateId: state.selectedTemplate?.id,
+          institutionId: state.institutionId,
         );
 
         final eventId = response['data']?['event_id'] as int?;
@@ -199,6 +323,7 @@ class InvitationCubit extends Cubit<InvitationState> {
           eventTypeId: state.selectedEventType?.id,
           customEventTypeName: state.customEventTypeName,
           templateId: state.selectedTemplate?.id,
+          institutionId: state.institutionId,
         );
         final eventId = response['data']?['event_id'] as int?;
         if (eventId != null) {
@@ -242,13 +367,20 @@ class InvitationCubit extends Cubit<InvitationState> {
 
     return apiService!.saveEventDetails(
       eventId,
-      titleAr: state.eventName ?? '',
-      titleEn: state.eventName,
+      // Empty title -> the backend writes one from the occasion's names.
+      titleAr: state.eventName?.trim() ?? '',
+      titleEn: null,
       descriptionAr: state.eventDescription,
       eventDate: state.eventDate ?? DateTime.now().add(const Duration(days: 30)),
       eventTime: formatTimeOfDay(state.eventTime),
-      eventEndDate: state.eventEndDate,
-      eventEndTime: formatTimeOfDay(state.eventEndTime),
+      // Only business types (has_end_time) send an end: same day + end time.
+      eventEndDate: EventSetupRules.endDateTimeToSend(
+        hasEndTime: state.selectedEventType?.hasEndTime == true,
+        date: state.eventDate,
+        start: state.eventTime,
+        end: state.eventEndTime,
+      ),
+      eventEndTime: null,
       venueId: state.selectedVenue?.id,
       customVenueNameAr: state.customLocation?.placeName,
       customVenueAddressAr: state.customLocation?.address,
@@ -266,15 +398,14 @@ class InvitationCubit extends Cubit<InvitationState> {
     try {
       if (apiService != null && state.draftEventId != null) {
         // Save guests
-        if (state.guests.isNotEmpty) {
-          await apiService!.addManualGuests(
-            state.draftEventId!,
-            state.guests.map((g) => {
-              'name': g.name,
-              'phone': g.phone,
-            }).toList(),
-          );
-        }
+        // Always sync, so removing every guest clears them server-side too.
+        await apiService!.addManualGuests(
+          state.draftEventId!,
+          state.guests.map((g) => {
+            'name': g.name,
+            'phone': g.phone,
+          }).toList(),
+        );
 
         // Save services
         if (state.selectedServices.isNotEmpty) {
@@ -479,44 +610,40 @@ class InvitationCubit extends Cubit<InvitationState> {
     emit(state.copyWith(availableEventTypes: eventTypes));
   }
 
-  /// Select an event type
+  /// Select an event type, then load its per-type detail fields.
   void selectEventType(EventTypeModel eventType) {
-    // Prepare form fields for marriage/engagement events
-    List<EventTypeFormField> formFields = [];
-    if (eventType.isMarriageOrEngagement) {
-      formFields = const [
-        EventTypeFormField(
-          key: 'groom_name',
-          label: 'invitation_groom_name',
-          labelAr: 'invitation_groom_name',
-          hint: 'invitation_groom_name_hint',
-          hintAr: 'invitation_groom_name_hint',
-          type: 'text',
-          required: true,
-        ),
-        EventTypeFormField(
-          key: 'bride_name',
-          label: 'invitation_bride_name',
-          labelAr: 'invitation_bride_name',
-          hint: 'invitation_bride_name_hint',
-          hintAr: 'invitation_bride_name_hint',
-          type: 'text',
-          required: true,
-        ),
-      ];
-    }
-
     emit(state.copyWith(
       selectedEventType: eventType,
       // Clear template selection when event type changes
       clearSelectedTemplate: true,
       clearUploadedTemplate: true,
       availableTemplates: [],
-      // Set form fields based on event type
-      eventTypeFormFields: formFields,
+      eventTypeFormFields: const [],
+      isLoadingFormFields: false,
       // Clear previous form data when event type changes
       eventTypeFormData: const {},
     ));
+    loadFormFieldsForType(eventType);
+  }
+
+  /// Load the detail fields of [eventType] by type id (works before a draft
+  /// event exists). Client custom types have no fields.
+  Future<void> loadFormFieldsForType(EventTypeModel eventType) async {
+    final typeId = eventType.id;
+    if (apiService == null || typeId == null || eventType.isClientCustom) {
+      return;
+    }
+    emit(state.copyWith(isLoadingFormFields: true));
+    try {
+      final response = await apiService!.getAiFormFields(typeId);
+      final fields = EventTypeFormField.listFromJson(response['data']?['fields']);
+      // Ignore stale responses if the user switched type meanwhile.
+      if (state.selectedEventType?.id != typeId) return;
+      emit(state.copyWith(isLoadingFormFields: false, eventTypeFormFields: fields));
+    } catch (_) {
+      if (state.selectedEventType?.id != typeId) return;
+      emit(state.copyWith(isLoadingFormFields: false, eventTypeFormFields: const []));
+    }
   }
 
   /// Set custom event type name (for custom type)
@@ -524,6 +651,10 @@ class InvitationCubit extends Cubit<InvitationState> {
     emit(state.copyWith(
       customEventTypeName: name,
       selectedEventType: EventTypeModel.custom(name),
+      // Custom types have no per-type detail fields.
+      eventTypeFormFields: const [],
+      eventTypeFormData: const {},
+      isLoadingFormFields: false,
     ));
   }
 
@@ -649,6 +780,16 @@ class InvitationCubit extends Cubit<InvitationState> {
   }
 
   /// Update partner with guests count
+  void updateRsvpDeadline(DateTime? date) {
+    emit(date == null
+        ? state.copyWith(clearRsvpDeadline: true)
+        : state.copyWith(rsvpDeadline: date));
+  }
+
+  void updateInvitationMessage(String message) {
+    emit(state.copyWith(invitationMessage: message));
+  }
+
   void updatePartnerWithGuests(int? count) {
     if (count == null) {
       emit(state.copyWith(clearPartnerWithGuests: true));
@@ -877,18 +1018,42 @@ class InvitationCubit extends Cubit<InvitationState> {
     emit(state.copyWith(availablePackages: packages));
   }
 
-  /// Select a package
+  /// Select a package. Tapping the selected package again deselects it.
+  /// The choice stays changeable until payment: the backend's
+  /// `POST {id}/package` replaces (or clears) the previous selection.
   void selectPackage(PackageModel package) {
+    if (!package.isAvailable) return;
+    if (state.selectedPackage?.id == package.id) {
+      clearPackage();
+      return;
+    }
     emit(state.copyWith(
       selectedPackage: package,
       packageValidationError: false,
     ));
   }
 
+  /// Drop the current package choice (locally and on the draft event) so
+  /// the host can pick another one.
+  Future<void> clearPackage() async {
+    emit(state.copyWith(
+      clearSelectedPackage: true,
+      packageValidationError: false,
+    ));
+    final eventId = state.draftEventId;
+    if (apiService == null || eventId == null) return;
+    try {
+      await apiService!.selectPackage(eventId, packageId: null);
+    } catch (e) {
+      // Best effort: the final submit re-sends the chosen package anyway.
+      debugPrint('clearPackage: $e');
+    }
+  }
+
   /// Set custom package invitation limit
   void setCustomPackageLimit(int limit) {
     emit(state.copyWith(customPackageLimit: limit));
-    // TODO: Call API to get price for custom limit
+    calculateCustomPackagePrice(limit);
   }
 
   /// Set custom package price (from API)
@@ -981,7 +1146,13 @@ class InvitationCubit extends Cubit<InvitationState> {
 
   /// Set WhatsApp number from API
   void setWhatsAppNumber(String number) {
-    emit(state.copyWith(whatsappNumber: number));
+    emit(state.copyWith(whatsappNumber: _nonBlank(number)));
+  }
+
+  /// A blank number from the API (unset setting) is "no number", not "".
+  static String? _nonBlank(dynamic value) {
+    final text = value?.toString().trim() ?? '';
+    return text.isEmpty ? null : text;
   }
 
   /// Save as draft
@@ -995,18 +1166,29 @@ class InvitationCubit extends Cubit<InvitationState> {
 
     try {
       if (apiService != null && state.draftEventId != null) {
-        // Save event as draft
-        final response = await apiService!.saveEvent(
-          state.draftEventId!,
-          isDraft: true,
+        final eventId = state.draftEventId!;
+
+        // Persist what the user has entered so far, so resuming the draft
+        // shows it (the save call alone only flips the status).
+        await _callSaveEventDetails(eventId);
+        // Always sync, so removing every guest clears them server-side too.
+        await apiService!.addManualGuests(
+          eventId,
+          state.guests.map((g) => {'name': g.name, 'phone': g.phone}).toList(),
         );
+
+        final response = await apiService!.saveEvent(eventId, isDraft: true);
+
+        // Backend returns `data` = the event itself (no nested `event` key).
+        final data = response['data'];
+        final savedId = (data is Map ? (data['event']?['id'] ?? data['id']) : null) ?? eventId;
 
         emit(state.copyWith(
           isSaving: false,
           saveSuccess: true,
           isSaveAsDraft: true,
           status: InvitationStatus.success,
-          savedEventId: response['data']['event']['id'].toString(),
+          savedEventId: savedId.toString(),
         ));
       } else {
         // Fallback for when no API service
@@ -1048,6 +1230,7 @@ class InvitationCubit extends Cubit<InvitationState> {
             eventTypeId: state.selectedEventType?.id,
             customEventTypeName: state.customEventTypeName,
             templateId: state.selectedTemplate?.id,
+            institutionId: state.institutionId,
           );
           eventId = initResponse['data']?['event_id'] as int? ?? 0;
           emit(state.copyWith(draftEventId: eventId));
@@ -1059,15 +1242,14 @@ class InvitationCubit extends Cubit<InvitationState> {
         await _callSaveEventDetails(eventId);
 
         // Step 3: Add guests
-        if (state.guests.isNotEmpty) {
-          await apiService!.addManualGuests(
-            eventId,
-            state.guests.map((g) => {
-              'name': g.name,
-              'phone': g.phone,
-            }).toList(),
-          );
-        }
+        // Always sync, so removing every guest clears them server-side too.
+        await apiService!.addManualGuests(
+          eventId,
+          state.guests.map((g) => {
+            'name': g.name,
+            'phone': g.phone,
+          }).toList(),
+        );
 
         // Step 4: Save invitation configuration
         final hasCompanions = state.partnerWithGuests != null && state.partnerWithGuests! > 0;
@@ -1077,6 +1259,11 @@ class InvitationCubit extends Cubit<InvitationState> {
           allowCompanions: hasCompanions,
           maxCompanions: hasCompanions ? state.partnerWithGuests! : 0,
           requireResponse: true,
+          responseDeadline: state.rsvpDeadline,
+          // Sent only when typed; otherwise the saved message is kept.
+          messageAr: (state.invitationMessage ?? '').trim().isEmpty
+              ? null
+              : state.invitationMessage!.trim(),
         );
 
         // Step 5: Save extra services
@@ -1334,11 +1521,16 @@ class InvitationCubit extends Cubit<InvitationState> {
 
     try {
       List<PackageModel> packages;
+      bool freeTrialAvailable = true;
+      int? suggestedPackageId;
 
       if (apiService != null && state.draftEventId != null) {
         final response = await apiService!.getPackages(state.draftEventId!);
-        final packagesData = response['data']['packages'] as List? ?? [];
+        final data = response['data'] is Map ? response['data'] as Map : const {};
+        final packagesData = data['packages'] as List? ?? [];
         packages = packagesData.map((p) => PackageModel.fromJson(p)).toList();
+        freeTrialAvailable = data['free_trial_available'] as bool? ?? true;
+        suggestedPackageId = _parseInt(data['suggested_package_id']);
       } else {
         packages = [];
       }
@@ -1365,9 +1557,19 @@ class InvitationCubit extends Cubit<InvitationState> {
         ));
       }
 
+      // A previously chosen package that is no longer offered (e.g. the free
+      // trial after it was used) must not stay silently selected.
+      final selected = state.selectedPackage;
+      final stillValid = selected == null ||
+          selected.isCustom ||
+          packages.any((p) => p.id == selected.id && p.isAvailable);
+
       emit(state.copyWith(
         isLoadingPackages: false,
         availablePackages: packages,
+        freeTrialAvailable: freeTrialAvailable,
+        suggestedPackageId: suggestedPackageId,
+        clearSelectedPackage: !stillValid,
       ));
     } catch (e) {
       emit(state.copyWith(
@@ -1382,11 +1584,15 @@ class InvitationCubit extends Cubit<InvitationState> {
     emit(state.copyWith(isLoadingCustomPrice: true));
 
     try {
-      // TODO: Call API to calculate price
-      await Future.delayed(const Duration(milliseconds: 300));
-
-      // Mock calculation: 2 ILS per invitation
-      final price = limit * 2.0;
+      if (apiService == null) {
+        emit(state.copyWith(isLoadingCustomPrice: false));
+        return;
+      }
+      final response = await apiService!.calculateCustomPackage(limit);
+      final calc = response['data']?['calculation'];
+      final price = double.tryParse('${calc is Map ? calc['total'] : ''}');
+      // A newer limit may have been typed while this one was in flight.
+      if (isClosed || state.customPackageLimit != limit) return;
 
       emit(state.copyWith(
         isLoadingCustomPrice: false,
@@ -1427,6 +1633,8 @@ class InvitationCubit extends Cubit<InvitationState> {
           servicesTotal: 0,
           templateFee: 0,
           totalPrice: _parseNum(data['total']),
+          taxRate: _parseNum(data['tax_rate']),
+          taxAmount: _parseNum(data['tax_amount']),
           lineItems: items,
           createdAt: DateTime.now(),
           eventName: data['event']?['title'] ?? state.eventName,
@@ -1437,16 +1645,15 @@ class InvitationCubit extends Cubit<InvitationState> {
         emit(state.copyWith(
           isLoadingInvoice: false,
           invoiceSummary: invoice,
-          whatsappNumber: data['whatsapp_number'] ?? '+972599999999',
+          // Never fall back to a made-up number: when Maktoob has not
+          // configured one, WhatsApp sharing is simply unavailable.
+          whatsappNumber: _nonBlank(data['whatsapp_number']),
         ));
       } else {
         // Generate invoice summary locally
         generateInvoiceSummary();
 
-        emit(state.copyWith(
-          isLoadingInvoice: false,
-          whatsappNumber: '+972599999999',
-        ));
+        emit(state.copyWith(isLoadingInvoice: false));
       }
     } catch (e) {
       emit(state.copyWith(
@@ -1457,7 +1664,9 @@ class InvitationCubit extends Cubit<InvitationState> {
   }
 
   /// Save and send invoice via WhatsApp
-  Future<void> saveAndSend({Uint8List? invoiceImage}) async {
+  /// [openWhatsApp] false skips the invoice WhatsApp hand-off: paid events
+  /// now go to the in-app payment screen instead.
+  Future<void> saveAndSend({Uint8List? invoiceImage, bool openWhatsApp = true}) async {
     emit(state.copyWith(
       isSaving: true,
       isSaveAsDraft: false,
@@ -1476,6 +1685,7 @@ class InvitationCubit extends Cubit<InvitationState> {
             eventTypeId: state.selectedEventType?.id,
             customEventTypeName: state.customEventTypeName,
             templateId: state.selectedTemplate?.id,
+            institutionId: state.institutionId,
           );
           eventId = initResponse['data']?['event_id'] as int? ?? 0;
           emit(state.copyWith(draftEventId: eventId));
@@ -1487,14 +1697,13 @@ class InvitationCubit extends Cubit<InvitationState> {
         await _callSaveEventDetails(eventId);
 
         // Step 3: Add guests.
-        if (state.guests.isNotEmpty) {
-          await apiService!.addManualGuests(
-            eventId,
-            state.guests
-                .map((g) => {'name': g.name, 'phone': g.phone})
-                .toList(),
-          );
-        }
+        // Always sync, so removing every guest clears them server-side too.
+        await apiService!.addManualGuests(
+          eventId,
+          state.guests
+              .map((g) => {'name': g.name, 'phone': g.phone})
+              .toList(),
+        );
 
         // Step 4: Save invitation configuration.
         final hasCompanions =
@@ -1505,6 +1714,11 @@ class InvitationCubit extends Cubit<InvitationState> {
           allowCompanions: hasCompanions,
           maxCompanions: hasCompanions ? state.partnerWithGuests! : 0,
           requireResponse: true,
+          responseDeadline: state.rsvpDeadline,
+          // Sent only when typed; otherwise the saved message is kept.
+          messageAr: (state.invitationMessage ?? '').trim().isEmpty
+              ? null
+              : state.invitationMessage!.trim(),
         );
 
         // Step 5: Save extra services.
@@ -1532,9 +1746,26 @@ class InvitationCubit extends Cubit<InvitationState> {
         // Step 7: Final save. Always commit as an active event (not a draft)
         // so the event is activated on submit; freemium events especially
         // must go live without waiting on an invoice/payment.
-        await apiService!.saveEvent(eventId, isDraft: false);
+        final saveResponse = await apiService!.saveEvent(eventId, isDraft: false);
+        final data = saveResponse['data'];
+        final rawTotal = data is Map
+            ? (data['invoice_total'] ??
+                (data['event'] is Map ? data['event']['invoice_total'] : null))
+            : null;
 
-        emit(state.copyWith(savedEventId: eventId.toString()));
+        // Approved institution with enough prepaid credits: activate now
+        // (the backend deducts the balance) instead of the payment flow.
+        final creditsCover = data is Map && data['credits_cover'] == true;
+        if (creditsCover) {
+          await apiService!.activateEvent(eventId);
+        }
+
+        emit(state.copyWith(
+          savedEventId: eventId.toString(),
+          savedInvoiceTotal:
+              rawTotal == null ? null : double.tryParse(rawTotal.toString()),
+          paidByCredits: creditsCover,
+        ));
       } else {
         // No API service available (offline/fallback) — preserve prior behavior.
         await Future.delayed(const Duration(milliseconds: 500));
@@ -1545,7 +1776,9 @@ class InvitationCubit extends Cubit<InvitationState> {
 
       // Try to open WhatsApp if service available (don't fail if WhatsApp fails)
       try {
-        if (!isFreemium &&
+        if (openWhatsApp &&
+            !isFreemium &&
+            !state.paidByCredits &&
             whatsAppService != null &&
             state.whatsappNumber != null) {
           final message = whatsAppService!.generateInvoiceMessage(
@@ -1578,9 +1811,15 @@ class InvitationCubit extends Cubit<InvitationState> {
         saveSuccess: true,
       ));
     } catch (e) {
+      final freeTrial = isFreeTrialRefusal(e);
       emit(state.copyWith(
         isSaving: false,
-        saveError: e.toString(),
+        saveError: freeTrial
+            ? freeTrialRefusalMessage(e) ?? e.toString()
+            : isInstitutionNotApproved(e)
+                ? kInstitutionNotApprovedMessageKey
+                : e.toString(),
+        saveErrorIsFreeTrial: freeTrial,
       ));
     }
   }
@@ -1631,7 +1870,7 @@ class InvitationCubit extends Cubit<InvitationState> {
 
         // Parse form fields
         final fieldsData = data['form_fields'] as List? ?? [];
-        formFields = fieldsData.map((f) => EventTypeFormField.fromJson(f)).toList();
+        formFields = EventTypeFormField.listFromJson(fieldsData);
 
         // Parse venues
         final venuesData = data['venues'] as List? ?? [];

@@ -5,6 +5,9 @@ import '../entities/event_entity.dart';
 import '../entities/guest_entity.dart';
 
 abstract class EventsRepository {
+  /// True when the event already has a payment request awaiting review.
+  Future<bool> hasPendingPaymentRequest(String eventId);
+
   /// Get all events
   Future<Either<Failure, List<EventEntity>>> getEvents();
 
@@ -40,6 +43,13 @@ abstract class EventsRepository {
   /// Get edit requests for an event
   Future<Either<Failure, List<EditRequestEntity>>> getEditRequests(
       String eventId);
+
+  /// Guest actions on a live event (host side).
+  Future<Either<Failure, Map<String, dynamic>>> sendInvitations(String eventId, String method);
+  Future<Either<Failure, Map<String, dynamic>>> addGuests(
+      String eventId, List<Map<String, String>> guests);
+  Future<Either<Failure, void>> resendInvitation(String invitationId);
+  Future<Either<Failure, void>> removeInvitation(String invitationId);
 }
 
 class CreateEventParams {

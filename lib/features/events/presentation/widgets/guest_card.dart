@@ -4,12 +4,15 @@ import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
 import '../../data/models/guest_model.dart';
 import '../../domain/entities/guest_entity.dart';
+import 'guest_invitation_sheet.dart';
 
 /// Guest card with avatar, status and details.
 class GuestCard extends StatelessWidget {
   final GuestEntity guest;
+  final Future<bool> Function()? onResend;
+  final Future<bool> Function()? onRemove;
 
-  const GuestCard({super.key, required this.guest});
+  const GuestCard({super.key, required this.guest, this.onResend, this.onRemove});
 
   Color get _avatarColor {
     if (guest is GuestModel) return (guest as GuestModel).avatarColor;
@@ -20,6 +23,20 @@ class GuestCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
 
+    // Tap → QR, invitation link and status timeline for this guest.
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => GuestInvitationSheet.show(
+        context,
+        guest,
+        onResend: onResend,
+        onRemove: onRemove,
+      ),
+      child: _card(context, t),
+    );
+  }
+
+  Widget _card(BuildContext context, AppLocalizations t) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),

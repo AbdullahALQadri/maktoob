@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
 import '../../../../injection_container.dart' as di;
+import '../../../scanner/presentation/cubit/scanner_cubit.dart';
+import '../../../scanner/presentation/screens/qr_scanner_screen.dart';
 import '../../domain/entities/event_entity.dart';
 import '../cubit/events_list/events_list_cubit.dart';
 import '../cubit/events_list/events_list_state.dart';
@@ -112,13 +114,19 @@ class _ViewAllEventsContentState extends State<_ViewAllEventsContent>
                     ),
                     _EventsList(
                       events: state.events
-                          .where((e) => e.status == EventStatus.completed)
+                          .where((e) =>
+                              e.status == EventStatus.completed ||
+                              e.status == EventStatus.cancelled)
                           .toList(),
                       status: EventStatus.completed,
                     ),
                     _EventsList(
                       events: state.events
-                          .where((e) => e.status == EventStatus.draft)
+                          // Saved but unpaid events sit with drafts and carry
+                          // a "pending payment" badge + pay action.
+                          .where((e) =>
+                              e.status == EventStatus.draft ||
+                              e.status == EventStatus.pendingPayment)
                           .toList(),
                       status: EventStatus.draft,
                     ),
@@ -157,6 +165,7 @@ class _EventsList extends StatelessWidget {
             event: event,
             index: index,
             onTap: () => _navigateToDetails(context, event),
+            onPaid: () => context.read<EventsListCubit>().refreshEvents(),
           );
         },
       ),
@@ -164,6 +173,21 @@ class _EventsList extends StatelessWidget {
   }
 
   void _navigateToDetails(BuildContext context, EventEntity event) {
+    // Door staff: scanner only.
+    if (event.role.isScannerOnly) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (routeContext) => BlocProvider(
+            create: (_) => di.sl<ScannerCubit>(),
+            child: QRScannerScreen(
+              event: event,
+              onBack: () => Navigator.of(routeContext).pop(),
+            ),
+          ),
+        ),
+      );
+      return;
+    }
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => EventDetailsScreen(

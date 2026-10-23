@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
@@ -11,6 +10,7 @@ import '../../data/models/invitation_draft_model.dart';
 import '../cubit/invitation_cubit.dart';
 import '../cubit/invitation_state.dart';
 import 'contact_picker_widget.dart';
+import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
 /// Import options section for adding guests from contacts, excel, or manual entry.
 class GuestImportOptions extends StatelessWidget {
@@ -32,11 +32,11 @@ class GuestImportOptions extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(context.dynamicWidth(0.04)),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBg,
         borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: AppColors.black.withValues(alpha: 0.05),
             blurRadius: context.dynamicWidth(0.024),
             offset: Offset(0, context.dynamicHeight(0.005)),
           ),
@@ -124,34 +124,10 @@ class GuestImportOptions extends StatelessWidget {
         l?.translate('invitation_error_loading_file') ?? 'Error loading file';
 
     try {
-      // Request storage permission for Android
-      if (Platform.isAndroid) {
-        // For Android 13+ (API 33+), use photos and media permissions
-        // For older Android, use storage permission
-        PermissionStatus status;
-
-        // Try to get storage permission first
-        status = await Permission.storage.status;
-        if (!status.isGranted) {
-          status = await Permission.storage.request();
-        }
-
-        // If storage denied, try manage external storage for Android 11+
-        if (!status.isGranted) {
-          status = await Permission.manageExternalStorage.status;
-          if (!status.isGranted) {
-            status = await Permission.manageExternalStorage.request();
-          }
-        }
-
-        // Handle permanently denied
-        if (status.isPermanentlyDenied) {
-          if (!context.mounted) return;
-          _showPermissionDeniedDialog(context, l);
-          return;
-        }
-      }
-
+      // No storage permission: the system file picker (SAF on Android,
+      // document picker on iOS) grants access to the chosen file. Asking for
+      // READ_EXTERNAL_STORAGE / MANAGE_EXTERNAL_STORAGE blocked the import on
+      // Android 13+, where those are always denied.
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['xlsx', 'xls'],
@@ -172,34 +148,6 @@ class GuestImportOptions extends StatelessWidget {
         message: '$errorLabel: $e',
       );
     }
-  }
-
-  void _showPermissionDeniedDialog(BuildContext context, AppLocalizations? l) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(
-          l?.translate('invitation_permission_required') ?? 'Permission Required',
-        ),
-        content: Text(
-          l?.translate('invitation_storage_permission_denied') ??
-              'Storage permission is required to import Excel files. Please enable it in app settings.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(l?.translate('common_cancel') ?? 'Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              openAppSettings();
-            },
-            child: Text(l?.translate('common_settings') ?? 'Settings'),
-          ),
-        ],
-      ),
-    );
   }
 }
 
@@ -245,7 +193,7 @@ class _ImportButton extends StatelessWidget {
               SizedBox(
                 width: context.dynamicWidth(0.069),
                 height: context.dynamicWidth(0.069),
-                child: CircularProgressIndicator(
+                child: MkSpinner(
                   strokeWidth: 2,
                   color: AppColors.primary,
                 ),
@@ -281,7 +229,7 @@ class _ImportButton extends StatelessWidget {
                   count.toString(),
                   style: TextStyle(
                     fontSize: context.dynamicWidth(0.029),
-                    color: Colors.white,
+                    color: AppColors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -304,16 +252,16 @@ class _ExcelFormatNotice extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(context.dynamicWidth(0.029)),
       decoration: BoxDecoration(
-        color: Colors.amber.shade50,
+        color: AppColors.amber50,
         borderRadius: BorderRadius.circular(context.dynamicWidth(0.021)),
-        border: Border.all(color: Colors.amber.shade200),
+        border: Border.all(color: AppColors.amber200),
       ),
       child: Row(
         children: [
           Icon(
             Icons.info_outline,
             size: context.dynamicWidth(0.045),
-            color: Colors.amber.shade800,
+            color: AppColors.amber700,
           ),
           SizedBox(width: context.dynamicWidth(0.021)),
           Expanded(
@@ -322,7 +270,7 @@ class _ExcelFormatNotice extends StatelessWidget {
                   'Excel format: Guest name, Phone number (+972 or +970)',
               style: TextStyle(
                 fontSize: context.dynamicWidth(0.029),
-                color: Colors.amber.shade900,
+                color: AppColors.amber700,
               ),
             ),
           ),
