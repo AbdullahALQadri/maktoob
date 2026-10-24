@@ -4,6 +4,8 @@ import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/app_spacing.dart';
 import '../../domain/entities/check_in_guest_entity.dart';
+import '../../domain/entities/door_entities.dart';
+import 'door_texts.dart';
 
 /// Result of a scan.
 ///
@@ -18,11 +20,18 @@ class GuestVerifiedDialog extends StatefulWidget {
   /// Confirms the check-in with the chosen number of companions.
   final ValueChanged<int> onCheckIn;
 
+  /// This phone's gate (for the "wrong gate" warning) and the event's valid
+  /// day (for "valid on ..."), when known.
+  final DoorGate? gate;
+  final String? validOn;
+
   const GuestVerifiedDialog({
     super.key,
     required this.guest,
     required this.onClose,
     required this.onCheckIn,
+    this.gate,
+    this.validOn,
   });
 
   @override
@@ -36,6 +45,8 @@ class _GuestVerifiedDialogState extends State<GuestVerifiedDialog> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     final guest = widget.guest;
+    final gate = widget.gate;
+    final validOn = widget.validOn;
     final blocked = !guest.canCheckIn;
     final accent = blocked ? AppColors.red500 : AppColors.green600;
 
@@ -70,11 +81,20 @@ class _GuestVerifiedDialogState extends State<GuestVerifiedDialog> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    guest.name,
+                    guest.name.isNotEmpty
+                        ? guest.name
+                        : t.translate('scanner_unlisted_guest').replaceAll('{id}', guest.id),
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.gray900),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  if (guest.phoneTail != null) ...[
+                    AppSpacing.verticalSpace4,
+                    Text(
+                      t.translate('scanner_phone_tail').replaceAll('{digits}', guest.phoneTail!),
+                      style: const TextStyle(fontSize: 13, color: AppColors.gray500),
+                    ),
+                  ],
                   AppSpacing.verticalSpace4,
                   Text(
                     '${t.translate('scanner_expected_companions')}: ${guest.companions}',
@@ -89,7 +109,10 @@ class _GuestVerifiedDialogState extends State<GuestVerifiedDialog> {
                 key: const Key('scanner_blocker'),
                 icon: Icons.block_rounded,
                 color: AppColors.red500,
-                text: guest.blockerMessage ?? t.translate('scanner_cannot_check_in'),
+                text: guest.blockerMessage ??
+                    (guest.blockerCode == null
+                        ? t.translate('scanner_cannot_check_in')
+                        : DoorTexts.reason(t, guest.blockerCode, maxCompanions: guest.maxCompanions, validOn: validOn)),
               ),
             ] else ...[
               if (guest.declinedRsvp) ...[
@@ -99,6 +122,15 @@ class _GuestVerifiedDialogState extends State<GuestVerifiedDialog> {
                   icon: Icons.warning_amber_rounded,
                   color: AppColors.amber600,
                   text: guest.warning ?? t.translate('scanner_declined_warning'),
+                ),
+              ],
+              for (final w in guest.warnings.where((w) => w != 'declined')) ...[
+                AppSpacing.verticalSpace12,
+                _Notice(
+                  key: Key('scanner_warning_$w'),
+                  icon: w == 'unlisted' ? Icons.verified_outlined : Icons.alt_route_rounded,
+                  color: AppColors.amber600,
+                  text: DoorTexts.warning(t, w, gate: gate),
                 ),
               ],
               AppSpacing.verticalSpace16,

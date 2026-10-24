@@ -1,5 +1,7 @@
 import 'package:dartz/dartz.dart';
+import '../../../../core/api/end_points.dart';
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/offline/pending_actions_queue.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/network/network_info.dart';
 import '../../domain/entities/edit_request_entity.dart';
@@ -14,10 +16,14 @@ class EventsRepositoryImpl implements EventsRepository {
   final EventsLocalDataSource localDataSource;
   final NetworkInfo networkInfo;
 
+  /// Guest actions taken with no connection wait here and are sent later.
+  final PendingActionsQueue? pendingActions;
+
   EventsRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
     required this.networkInfo,
+    this.pendingActions,
   });
 
   @override
@@ -238,12 +244,47 @@ class EventsRepositoryImpl implements EventsRepository {
       _guard(() => remoteDataSource.addGuests(eventId, guests));
 
   @override
-  Future<Either<Failure, void>> resendInvitation(String invitationId) =>
-      _guard(() => remoteDataSource.resendInvitation(invitationId));
+  Future<Either<Failure, void>> resendInvitation(String invitationId) => _guardOrQueue(
+        () => remoteDataSource.resendInvitation(invitationId),
+        label: 'offline_action_resend_invitation',
+        method: 'POST',
+        path: Endpoints.invitationResend(int.parse(invitationId)),
+      );
 
   @override
-  Future<Either<Failure, void>> removeInvitation(String invitationId) =>
-      _guard(() => remoteDataSource.removeInvitation(invitationId));
+  Future<Either<Failure, void>> removeInvitation(String invitationId) => _guardOrQueue(
+        () => remoteDataSource.removeInvitation(invitationId),
+        label: 'offline_action_remove_invitation',
+        method: 'DELETE',
+        path: Endpoints.invitation(int.parse(invitationId)),
+      );
+
+  /// Like [_guard], but with no connection the action is queued and sent
+  /// when it returns ([QueuedOfflineFailure] tells the screen so).
+  Future<Either<Failure, void>> _guardOrQueue(
+    Future<void> Function() call, {
+    required String label,
+    required String method,
+    required String path,
+  }) async {
+    final queue = pendingActions;
+    Future<Either<Failure, void>> queued() async {
+      await queue!.enqueue(label: label, method: method, path: path);
+      return const Left(QueuedOfflineFailure());
+    }
+
+    if (queue != null && !await networkInfo.isConnected) return queued();
+    try {
+      await call();
+      return const Right(null);
+    } on NoInternetConnectionException {
+      return queue != null ? queued() : const Left(NetworkFailure(message: 'No internet connection'));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
 
   Future<Either<Failure, T>> _guard<T>(Future<T> Function() call) async {
     if (!await networkInfo.isConnected) {

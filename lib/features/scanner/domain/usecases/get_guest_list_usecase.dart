@@ -13,16 +13,15 @@ class GetGuestListUseCase extends UseCase<List<CheckInGuestEntity>, GetGuestList
 
   @override
   Future<Either<Failure, List<CheckInGuestEntity>>> call(GetGuestListParams params) async {
-    return await repository.getGuestList(params.eventId, searchQuery: params.searchQuery);
+    return await repository.getGuestList(searchQuery: params.searchQuery);
   }
 }
 
 class GetGuestListParams extends Equatable {
-  final int eventId;
   final String? searchQuery;
 
-  const GetGuestListParams({required this.eventId, this.searchQuery});
+  const GetGuestListParams({this.searchQuery});
 
   @override
-  List<Object?> get props => [eventId, searchQuery];
+  List<Object?> get props => [searchQuery];
 }

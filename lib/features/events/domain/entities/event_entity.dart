@@ -1,8 +1,11 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../../core/utils/venue_text.dart';
 import '../../../institution/domain/entities/event_role.dart';
+import 'event_details_info.dart';
 
 export '../../../institution/domain/entities/event_role.dart';
+export 'event_details_info.dart';
 
 /// Mirrors the backend enum: draft, pending_payment, active, completed,
 /// cancelled.
@@ -92,6 +95,9 @@ class EventEntity extends Equatable {
   /// Null = unlimited.
   final int? remainingInvitations;
 
+  /// Everything the host entered (`details`), on the event's own page only.
+  final EventDetailsInfo? details;
+
   const EventEntity({
     required this.id,
     required this.name,
@@ -126,9 +132,13 @@ class EventEntity extends Equatable {
     this.invitationsSentAt,
     this.invitationLimit,
     this.remainingInvitations,
+    this.details,
   });
 
   bool get isActive => status == EventStatus.active;
+
+  /// Where the occasion is, on one line (the address only when it adds to the name).
+  String get venueLine => VenueText.line(venue, venueAddress);
 
   /// Host-side guest actions (send, add, resend, remove) need a live event.
   bool get canManageGuests => isActive && role.canManage;
@@ -164,6 +174,7 @@ class EventEntity extends Equatable {
         invitationsSentAt,
         invitationLimit,
         remainingInvitations,
+        details,
         id,
         name,
         type,

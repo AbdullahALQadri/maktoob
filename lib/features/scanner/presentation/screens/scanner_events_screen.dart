@@ -7,6 +7,10 @@ import '../../../../injection_container.dart' as di;
 import '../../../events/domain/entities/event_entity.dart';
 import '../../../events/presentation/cubit/events_list/events_list_cubit.dart';
 import '../../../events/presentation/cubit/events_list/events_list_state.dart';
+import '../../data/datasources/door_remote_data_source.dart';
+import '../../data/datasources/door_store.dart';
+import '../../data/door_engine.dart';
+import '../../data/door_session_manager.dart';
 import '../widgets/widgets.dart';
 
 /// Screen that displays ongoing events for scanner selection
@@ -52,6 +56,20 @@ class _ScannerEventsContentState extends State<_ScannerEventsContent>
     super.dispose();
   }
 
+  /// Download the guest list of every active event now, while there is a
+  /// connection, so each door works at the venue with none.
+  Future<void> _prepareOffline(EventsListState state) async {
+    final events = state.events.where((e) => e.status == EventStatus.active && e.role.canScan);
+    try {
+      await di.sl<DoorSessionManager>().prepareClientEvents(
+        events.map((e) => (int.tryParse(e.id) ?? 0, e.name)),
+      );
+      await DoorEngine.syncAll(di.sl<DoorStore>(), di.sl<DoorRemoteDataSource>(), skip: di.sl<DoorEngine>().session?.id);
+    } catch (_) {
+      // Offline: the next connection does it (ForegroundSync / background).
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
@@ -62,7 +80,9 @@ class _ScannerEventsContentState extends State<_ScannerEventsContent>
         children: [
           _AnimatedHeader(fadeController: _fadeController, t: t),
           Expanded(
-            child: BlocBuilder<EventsListCubit, EventsListState>(
+            child: BlocConsumer<EventsListCubit, EventsListState>(
+              listenWhen: (a, b) => !b.isLoading && !b.isFailure && a.events != b.events,
+              listener: (context, state) => _prepareOffline(state),
               builder: (context, state) {
                 if (state.isLoading) return const _LoadingState();
                 if (state.isFailure) {

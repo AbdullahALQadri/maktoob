@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/services/fcm_service.dart';
 import '../../data/models/ai_image_model.dart';
+import '../../data/models/design_allowance_model.dart';
 import '../../data/repositories/ai_design_repository.dart';
 import 'ai_design_state.dart';
 
@@ -32,6 +33,9 @@ class AiDesignCubit extends Cubit<AiDesignState> {
   // result screens (style chip, etc.) since the AiDesignReady state is gone
   // by the time we emit AiImageCompleted.
   String? _trackedStyleTitle;
+
+  /// Latest designs-left figure from the server (load, every poll, refusals).
+  DesignAllowanceModel? _allowance;
 
   AiDesignCubit({
     required AiDesignRepository repository,
@@ -141,9 +145,24 @@ class AiDesignCubit extends Cubit<AiDesignState> {
         galleryImages: gallery,
         formFields: fields,
         formValues: values,
+        allowance: _allowance,
       ));
     } catch (e) {
       emit(AiDesignError(e.toString()));
+    }
+    unawaited(_refreshAllowance());
+  }
+
+  /// Non-fatal: an older backend has no allowance and the bar stays as before.
+  Future<void> _refreshAllowance() async {
+    try {
+      final allowance = await _repo.getAllowance(eventId);
+      if (isClosed || allowance == null) return;
+      _allowance = allowance;
+      final s = _ready;
+      if (s != null) emit(s.copyWith(allowance: allowance));
+    } catch (e) {
+      dev.log('Allowance fetch failed: $e', name: 'AiDesignCubit');
     }
   }
 
@@ -232,6 +251,8 @@ class AiDesignCubit extends Cubit<AiDesignState> {
       _startPolling(imageId, waitForPrompt: true);
     } catch (e) {
       emit((_ready ?? s).copyWith(isGenerating: false, generationError: e.toString()));
+      // A refusal (no designs left on this event) turns the button off.
+      unawaited(_refreshAllowance());
     }
   }
 
@@ -322,6 +343,7 @@ class AiDesignCubit extends Cubit<AiDesignState> {
       _repo.getStatus(eventId, imageId).then((status) {
         _isFetching = false;
         if (isClosed) return;
+        _allowance = status.allowance ?? _allowance;
         if (status.isPromptReady && waitForPrompt) {
           _cancelPolling();
           emit(AiPromptReady(
@@ -383,7 +405,7 @@ class AiDesignCubit extends Cubit<AiDesignState> {
   void _handleError(String message) {
     final s = _ready;
     if (s != null) {
-      emit(s.copyWith(isGenerating: false, generationError: message));
+      emit(s.copyWith(isGenerating: false, generationError: message, allowance: _allowance));
     } else {
       emit(AiDesignError(message));
     }

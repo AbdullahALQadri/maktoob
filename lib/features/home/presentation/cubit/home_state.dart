@@ -1,52 +1,35 @@
 import 'package:equatable/equatable.dart';
 
-import '../../domain/entities/recent_event_entity.dart';
-import '../../domain/entities/stat_entity.dart';
+import '../../domain/entities/home_summary.dart';
 
-abstract class HomeState extends Equatable {
+sealed class HomeState extends Equatable {
   const HomeState();
 
   @override
   List<Object?> get props => [];
 }
 
-class HomeInitial extends HomeState {
+final class HomeInitial extends HomeState {
   const HomeInitial();
 }
 
-class HomeLoading extends HomeState {
+final class HomeLoading extends HomeState {
   const HomeLoading();
 }
 
-class HomeLoaded extends HomeState {
-  final List<StatEntity> stats;
-  final List<RecentEventEntity> recentEvents;
-  final double responseRate;
-  final int totalResponded;
-  final int totalGuests;
+final class HomeLoaded extends HomeState {
+  const HomeLoaded(this.summary);
 
-  const HomeLoaded({
-    required this.stats,
-    required this.recentEvents,
-    required this.responseRate,
-    required this.totalResponded,
-    required this.totalGuests,
-  });
+  final HomeSummary summary;
 
   @override
-  List<Object?> get props => [
-        stats,
-        recentEvents,
-        responseRate,
-        totalResponded,
-        totalGuests,
-      ];
+  List<Object?> get props => [summary];
 }
 
-class HomeError extends HomeState {
-  final String message;
+final class HomeError extends HomeState {
+  const HomeError(this.message);
 
-  const HomeError({required this.message});
+  final String message;
 
   @override
   List<Object?> get props => [message];

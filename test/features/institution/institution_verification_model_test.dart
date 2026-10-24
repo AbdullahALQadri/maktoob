@@ -59,6 +59,40 @@ void main() {
       final i = InstitutionModel.fromJson({...json, 'pending_changes': null});
       expect(i.pendingChanges, isNull);
     });
+
+    test('KYB: legal details, representative identity and authorization gate the review', () {
+      final i = InstitutionModel.fromJson({
+        ...json,
+        'trade_name_ar': 'الأمل',
+        'legal_form': 'association',
+        'registration_authority': 'وزارة الداخلية',
+        'registration_country': 'ps',
+        'registration_date': '2015-03-01T00:00:00+02:00',
+        'representative_role': 'authorized',
+        'country': 'PS',
+        'verification': {
+          'name': true,
+          'sector': true,
+          'logo': true,
+          'legal_details': true,
+          'registration_document': true,
+          'representative_identity': false,
+          'authorization': false,
+          'declaration': true,
+        },
+      });
+
+      expect(i.verification.legalDetails, isTrue);
+      expect(i.verification.representativeIdentity, isFalse);
+      expect(i.verification.authorization, isFalse);
+      expect(i.verification.isComplete, isFalse);
+      expect(i.registrationCountry, 'PS');
+      expect(i.registrationDate, '2015-03-01');
+      expect(i.representativeRole, 'authorized');
+      // Guests see the trade name; invoices keep the official one.
+      expect(i.displayName(true), 'الأمل');
+      expect(i.officialName(true), 'جمعية الأمل');
+    });
   });
 
   group('InstitutionProfileInput.toFields', () {
@@ -71,6 +105,26 @@ void main() {
       final f = const InstitutionProfileInput(nameAr: 'شركة', taxNumber: '', sendEmpty: true).toFields();
       expect(f['tax_number'], '');
       expect(f.containsKey('declaration'), isFalse);
+    });
+
+    test('KYB fields use the backend keys', () {
+      final f = const InstitutionProfileInput(
+        nameAr: 'شركة مكتوب للتكنولوجيا',
+        tradeNameAr: 'مكتوب',
+        legalForm: 'private_limited_company',
+        registrationAuthority: 'وزارة الاقتصاد الوطني',
+        registrationCountry: 'PS',
+        registrationDate: '2020-01-05',
+        representativeRole: 'director',
+        country: 'PS',
+      ).toFields();
+      expect(f['trade_name_ar'], 'مكتوب');
+      expect(f['legal_form'], 'private_limited_company');
+      expect(f['registration_authority'], 'وزارة الاقتصاد الوطني');
+      expect(f['registration_country'], 'PS');
+      expect(f['registration_date'], '2020-01-05');
+      expect(f['representative_role'], 'director');
+      expect(f['country'], 'PS');
     });
   });
 }

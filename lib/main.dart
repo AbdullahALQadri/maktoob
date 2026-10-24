@@ -6,8 +6,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
+
 import 'app.dart';
 import 'bloc_observer.dart';
+import 'core/offline/background_sync.dart';
+import 'core/offline/pending_actions_queue.dart';
+import 'features/scanner/data/datasources/door_remote_data_source.dart';
+import 'features/scanner/data/datasources/door_store.dart';
+import 'features/scanner/data/door_engine.dart';
 import 'core/services/fcm_service.dart';
 import 'core/services/security/device_security_service.dart';
 import 'firebase_options.dart';
@@ -45,6 +52,20 @@ void main() {
       // Initialize FCM service (requests permission, captures token, wires streams)
       // Run unawaited — token registration happens via tokenStream listeners
       unawaited(di.sl<FcmService>().initialize());
+
+      // Offline-first: what was recorded with no connection (door
+      // check-ins, queued writes) uploads by itself when the connection
+      // returns, in the background too (WorkManager / BGTaskScheduler).
+      unawaited(BackgroundSync.initialize());
+      ForegroundSync.start(
+        store: di.sl<DoorStore>(),
+        remote: di.sl<DoorRemoteDataSource>(),
+        engine: di.sl<DoorEngine>(),
+        queue: di.sl<PendingActionsQueue>(),
+        connectivity: di.sl<InternetConnectionChecker>()
+            .onStatusChange
+            .map((s) => s == InternetConnectionStatus.connected),
+      );
 
       // Device check is informational only: never blocks the app (store
       // reviewers use emulators). Fire-and-forget, result is logged.

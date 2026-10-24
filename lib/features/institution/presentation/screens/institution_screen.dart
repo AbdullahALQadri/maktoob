@@ -5,6 +5,7 @@ import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
 import '../../../../injection_container.dart' as di;
 import '../../../authentication/presentation/cubit/auth_cubit.dart';
+import '../../../identity/presentation/screens/identity_verification_screen.dart';
 import '../../domain/entities/event_role.dart';
 import '../../domain/entities/institution_entity.dart';
 import '../cubit/institution_cubit.dart';
@@ -104,6 +105,21 @@ class InstitutionScreen extends StatelessWidget {
                     label: t.translate('institution_sector'),
                     value: institution.sector == null ? null : t.translate('institution_sector_${institution.sector}'),
                   ),
+                  if (institution.displayName(isArabic) != institution.officialName(isArabic))
+                    InfoRow(label: t.translate('institution_check_name'), value: institution.officialName(isArabic)),
+                  InfoRow(
+                    label: t.translate('institution_legal_form'),
+                    value: institution.legalForm == null ? null : t.translate('institution_legal_form_${institution.legalForm}'),
+                  ),
+                  InfoRow(label: t.translate('institution_registration_authority'), value: institution.registrationAuthority),
+                  InfoRow(label: t.translate('institution_registration_country'), value: institution.registrationCountry),
+                  InfoRow(label: t.translate('institution_registration_date'), value: institution.registrationDate),
+                  InfoRow(
+                    label: t.translate('institution_representative_role'),
+                    value: institution.representativeRole == null
+                        ? null
+                        : t.translate('institution_representative_role_${institution.representativeRole}'),
+                  ),
                   InfoRow(label: t.translate('institution_contact_person'), value: institution.contactPerson),
                   InfoRow(label: t.translate('institution_contact_phone'), value: institution.contactPhone),
                   InfoRow(label: t.translate('institution_registration_number'), value: institution.registrationNumber),
@@ -144,7 +160,27 @@ class InstitutionScreen extends StatelessWidget {
             ),
             if (!institution.isApproved) ...[
               const SizedBox(height: AppSpacing.md),
-              InstitutionChecklistCard(verification: institution.verification),
+              InstitutionChecklistCard(
+                verification: institution.verification,
+                onVerifyIdentity: () async {
+                  await Navigator.of(context).push(IdentityVerificationScreen.route());
+                  if (context.mounted) {
+                    context.read<AuthCubit>().refreshProfile();
+                    cubit.load(silent: true);
+                  }
+                },
+                onEditProfile: state.isBusy
+                    ? null
+                    : () => Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => BlocProvider.value(
+                            value: cubit,
+                            child: InstitutionProfileFormScreen(initial: institution),
+                          ),
+                        )),
+                onUploadAuthorization: institution.representativeRole == 'authorized' && !state.isBusy
+                    ? () => pickAndUploadInstitutionDocument(context, cubit, 'authorization_letter')
+                    : null,
+              ),
             ],
             const SizedBox(height: AppSpacing.md),
             InstitutionDocumentsCard(institution: institution, busy: state.isBusy),

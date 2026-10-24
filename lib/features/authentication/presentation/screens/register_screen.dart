@@ -10,6 +10,7 @@ import 'package:pinput/pinput.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
+import '../../../../core/utils/person_name.dart';
 import '../../../institution/domain/entities/institution_entity.dart';
 import '../../domain/entities/user_entity.dart';
 import '../cubit/auth_cubit.dart';
@@ -37,7 +38,9 @@ class _RegisterScreenState extends State<RegisterScreen>
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _customGovernorateController = TextEditingController();
-  final _contactPersonController = TextEditingController();
+  // Institution sign-up: the organization's name. `_nameController` is always
+  // the person's own full name (the representative), as on their ID.
+  final _organizationNameController = TextEditingController();
   final _registrationController = TextEditingController();
   String? _logoPath;
 
@@ -95,7 +98,7 @@ class _RegisterScreenState extends State<RegisterScreen>
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _customGovernorateController.dispose();
-    _contactPersonController.dispose();
+    _organizationNameController.dispose();
     _registrationController.dispose();
     _nameFocusNode.dispose();
     _phoneFocusNode.dispose();
@@ -122,8 +125,11 @@ class _RegisterScreenState extends State<RegisterScreen>
             : _RegisterData.governorates[_selectedGovernorateIndex!];
       }
 
+      // The person's full name as on their ID (the server checks letters and
+      // at least two words); an institution's name travels separately.
+      final personName = PersonName.clean(_nameController.text);
       context.read<AuthCubit>().register(
-            name: _nameController.text.trim(),
+            name: personName,
             email: _emailController.text.trim().isNotEmpty ? _emailController.text.trim() : null,
             phone: phoneNumber,
             password: _passwordController.text,
@@ -132,11 +138,11 @@ class _RegisterScreenState extends State<RegisterScreen>
             location: _selectedUserType == UserType.institution ? _locationController.text.trim() : null,
             institutionFields: _selectedUserType == UserType.institution
                 ? InstitutionProfileInput(
-                    nameAr: _nameController.text.trim(),
+                    nameAr: _organizationNameController.text.trim(),
                     sector: _selectedInstitutionFieldIndex == null
                         ? null
                         : kInstitutionSectors[_selectedInstitutionFieldIndex!],
-                    contactPerson: _contactPersonController.text.trim(),
+                    contactPerson: personName,
                     registrationNumber: _registrationController.text.trim(),
                     declaration: _declaration,
                   ).toFields()
@@ -203,9 +209,9 @@ class _RegisterScreenState extends State<RegisterScreen>
             onVerified: () {
               // Close the dialog and any pushed auth screens. The verify
               // response carries the token, so the user is signed in: the
-              // AuthWrapper shows the app for regular users (resuming a design
-              // picked while browsing) and, for an institution that is still
-              // pending, the AdminApprovalWaitingScreen.
+              // AuthWrapper shows the app (resuming a design picked while
+              // browsing); an institution still under review sees its file's
+              // progress on home.
               Navigator.of(context).popUntil((r) => r.isFirst);
             },
           ),
@@ -277,17 +283,29 @@ class _RegisterScreenState extends State<RegisterScreen>
       textInputAction: TextInputAction.next,
       onFieldSubmitted: (_) => _phoneFocusNode.requestFocus(),
       label: _selectedUserType == UserType.institution
-          ? t.translate('auth_institution_name')
+          ? t.translate('auth_representative_full_name')
           : t.translate('auth_full_name'),
-      hint: _selectedUserType == UserType.institution
-          ? t.translate('auth_institution_name_hint')
-          : t.translate('auth_full_name_hint'),
-      prefixIcon: _selectedUserType == UserType.institution
-          ? Icons.business_rounded
-          : Icons.person_outline_rounded,
+      // Must match the ID card: identity verification compares the two.
+      hint: t.translate('auth_full_name_hint'),
+      prefixIcon: Icons.person_outline_rounded,
       validator: (value) {
-        if (value == null || value.isEmpty) return t.translate('auth_field_required');
-        if (value.length < 2) return t.translate('auth_min_2_chars');
+        final error = PersonName.fullNameErrorKey(value);
+        return error == null ? null : t.translate(error);
+      },
+    );
+  }
+
+  Widget _buildOrganizationNameField(AppLocalizations t) {
+    return RegisterFormField(
+      key: const Key('register_organization_name'),
+      controller: _organizationNameController,
+      textInputAction: TextInputAction.next,
+      label: t.translate('auth_institution_name'),
+      hint: t.translate('auth_institution_name_hint'),
+      prefixIcon: Icons.business_rounded,
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) return t.translate('auth_field_required');
+        if (value.trim().length < 2) return t.translate('auth_min_2_chars');
         return null;
       },
     );
@@ -385,6 +403,8 @@ class _RegisterScreenState extends State<RegisterScreen>
     final governorates = _isArabic ? _RegisterData.governoratesAr : _RegisterData.governorates;
 
     return [
+      _buildOrganizationNameField(t),
+      SizedBox(height: context.dynamicHeight(0.016)),
       RegisterDropdownField(
         label: t.translate('auth_institution_field'),
         hint: t.translate('auth_institution_field_hint'),
@@ -393,14 +413,6 @@ class _RegisterScreenState extends State<RegisterScreen>
         value: _selectedInstitutionFieldIndex != null ? fields[_selectedInstitutionFieldIndex!] : null,
         onChanged: (value) => setState(() => _selectedInstitutionFieldIndex = fields.indexOf(value!)),
         validator: (value) => value == null ? t.translate('auth_field_required') : null,
-      ),
-      SizedBox(height: context.dynamicHeight(0.016)),
-      RegisterFormField(
-        controller: _contactPersonController,
-        label: t.translate('institution_contact_person'),
-        hint: t.translate('institution_contact_person'),
-        prefixIcon: Icons.badge_outlined,
-        validator: (value) => value == null || value.trim().isEmpty ? t.translate('auth_field_required') : null,
       ),
       SizedBox(height: context.dynamicHeight(0.016)),
       RegisterFormField(

@@ -10,6 +10,7 @@ import '../cubit/profile_cubit.dart';
 import '../cubit/settings_cubit.dart';
 import '../cubit/settings_state.dart';
 import '../widgets/widgets.dart';
+import 'pending_actions_screen.dart';
 import 'profile_screen.dart';
 
 /// Settings screen with language, profile and support options.
@@ -67,6 +68,15 @@ class SettingsScreen extends StatelessWidget {
         title: t.translate('institution_title'),
         subtitle: t.translate('institution_settings_desc'),
         onTap: () => Navigator.of(context).push(InstitutionScreen.route()),
+      ),
+      SizedBox(height: context.dynamicHeight(0.015)),
+      // What was done with no connection and waits to be sent.
+      SettingsTile(
+        key: const Key('settings_offline_queue_tile'),
+        icon: Icons.cloud_upload_outlined,
+        title: t.translate('offline_queue_title'),
+        subtitle: t.translate('settings_offline_queue_desc'),
+        onTap: () => Navigator.of(context).push(PendingActionsScreen.route()),
       ),
       SizedBox(height: context.dynamicHeight(0.03)),
 

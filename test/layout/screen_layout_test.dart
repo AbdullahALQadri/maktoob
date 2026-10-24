@@ -27,7 +27,6 @@ import 'package:maktoob/features/ai_design/presentation/pages/image_result_page.
 import 'package:maktoob/features/ai_design/presentation/pages/prompt_review_page.dart';
 import 'package:maktoob/features/authentication/domain/entities/user_entity.dart';
 import 'package:maktoob/features/authentication/presentation/cubit/auth_cubit.dart';
-import 'package:maktoob/features/authentication/presentation/screens/admin_approval_screen.dart';
 import 'package:maktoob/features/authentication/presentation/screens/forgot_password_otp_screen.dart';
 import 'package:maktoob/features/authentication/presentation/screens/forgot_password_screen.dart';
 import 'package:maktoob/features/authentication/presentation/screens/login_screen.dart';
@@ -37,7 +36,6 @@ import 'package:maktoob/features/authentication/presentation/screens/terms_accep
 import 'package:maktoob/features/events/presentation/cubit/event_details/event_details_cubit.dart';
 import 'package:maktoob/features/events/presentation/cubit/events_list/events_list_cubit.dart';
 import 'package:maktoob/features/events/presentation/screens/event_details_screen.dart';
-import 'package:maktoob/features/events/presentation/screens/view_all_events_screen.dart';
 import 'package:maktoob/features/explore/presentation/screens/explore_screen.dart';
 import 'package:maktoob/features/home/presentation/cubit/home_cubit.dart';
 import 'package:maktoob/features/home/presentation/screens/home_screen.dart';
@@ -259,10 +257,8 @@ void main() {
       onSuccess: () {},
     ),
     'terms_acceptance': () => const TermsAcceptanceScreen(),
-    'admin_approval': () => const AdminApprovalWaitingScreen(),
     'explore': () => ExploreScreen(onStartTap: () {}, onLoginTap: () {}),
     'home': () => const HomeScreen(),
-    'events_all': () => const ViewAllEventsScreen(),
     'event_details_active': () =>
         EventDetailsScreen(eventId: '27', onBack: () {}),
     'event_details_draft': () =>

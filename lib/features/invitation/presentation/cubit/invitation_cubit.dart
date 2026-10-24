@@ -9,6 +9,7 @@ import '../../../../core/api/event_wizard_api_service.dart';
 import '../../../../core/error/free_trial_refusal.dart';
 import '../../../../core/error/institution_errors.dart';
 import '../../../../core/utils/phone_normalizer.dart';
+import '../../../../core/utils/venue_text.dart';
 import '../../data/models/extra_service_model.dart';
 import '../../data/models/invitation_draft_model.dart';
 import '../../data/models/invoice_model.dart';
@@ -138,8 +139,10 @@ class InvitationCubit extends Cubit<InvitationState> {
       final endDate = DateTime.tryParse('${eventData['end_date'] ?? ''}');
       final lat = double.tryParse('${eventData['custom_venue_lat'] ?? ''}');
       final lng = double.tryParse('${eventData['custom_venue_lng'] ?? ''}');
-      final venueName = eventData['custom_venue_name_ar']?.toString();
-      final venueAddress = eventData['custom_venue_address_ar']?.toString();
+      final venueLine = VenueText.line(
+        eventData['custom_venue_name_ar']?.toString(),
+        eventData['custom_venue_address_ar']?.toString(),
+      );
       final partners = int.tryParse('${eventData['partner_count'] ?? eventData['max_companions'] ?? ''}');
       final deadline = DateTime.tryParse('${eventData['response_deadline'] ?? ''}');
       final message = eventData['message_ar']?.toString();
@@ -159,12 +162,14 @@ class InvitationCubit extends Cubit<InvitationState> {
         eventDate: date,
         eventTime: date == null ? null : TimeOfDay.fromDateTime(date.toLocal()),
         eventEndTime: endDate == null ? null : TimeOfDay.fromDateTime(endDate.toLocal()),
-        customLocation: lat != null && lng != null
+        // The place comes back even without a pin, so a resumed draft never
+        // asks for it again.
+        customLocation: (lat != null && lng != null) || venueLine.isNotEmpty
             ? LocationModel(
-                latitude: lat,
-                longitude: lng,
-                address: venueAddress ?? venueName ?? '',
-                placeName: venueName,
+                latitude: lat ?? 0,
+                longitude: lng ?? 0,
+                address: '',
+                placeName: venueLine,
               )
             : null,
         partnerWithGuests: partners != null && partners > 0 ? partners : null,
@@ -383,7 +388,9 @@ class InvitationCubit extends Cubit<InvitationState> {
       eventEndTime: null,
       venueId: state.selectedVenue?.id,
       customVenueNameAr: state.customLocation?.placeName,
-      customVenueAddressAr: state.customLocation?.address,
+      // The place is asked once: the typed line holds all of it, so an older
+      // separate address (folded into the line on resume) is cleared.
+      customVenueAddressAr: state.customLocation == null ? null : '',
       customVenueLat: hasCoords ? loc.latitude : null,
       customVenueLng: hasCoords ? loc.longitude : null,
       partnerCount: state.partnerWithGuests,
@@ -412,6 +419,7 @@ class InvitationCubit extends Cubit<InvitationState> {
           await apiService!.saveExtraServices(
             state.draftEventId!,
             state.selectedServices.map((s) => s.id).toList(),
+            options: _serviceOptions(),
           );
         }
       }
@@ -494,6 +502,7 @@ class InvitationCubit extends Cubit<InvitationState> {
         await apiService!.saveExtraServices(
           state.draftEventId!,
           state.selectedServices.map((s) => s.id).toList(),
+          options: _serviceOptions(),
         );
       }
 
@@ -992,19 +1001,32 @@ class InvitationCubit extends Cubit<InvitationState> {
     emit(state.copyWith(availableServices: services));
   }
 
-  /// Toggle service selection
-  void toggleService(ExtraServiceModel service) {
+  /// Toggle service selection. With [optionId] the service is (re)selected at that level.
+  void toggleService(ExtraServiceModel service, {int? optionId}) {
     final currentSelected = List<ExtraServiceModel>.from(state.selectedServices);
     final existingIndex = currentSelected.indexWhere((s) => s.id == service.id);
 
-    if (existingIndex >= 0) {
+    if (existingIndex >= 0 && optionId == null) {
       currentSelected.removeAt(existingIndex);
     } else {
-      currentSelected.add(service);
+      final picked = service.copyWith(
+        selectedOptionId: optionId ?? service.selectedOption?.id,
+      );
+      if (existingIndex >= 0) {
+        currentSelected[existingIndex] = picked;
+      } else {
+        currentSelected.add(picked);
+      }
     }
 
     emit(state.copyWith(selectedServices: currentSelected));
   }
+
+  /// service id => picked level, sent with the selection (`service_options`).
+  Map<String, int> _serviceOptions() => {
+        for (final s in state.selectedServices)
+          if (s.selectedOption != null) '${s.id}': s.selectedOption!.id,
+      };
 
   /// Check if a service is selected
   bool isServiceSelected(int serviceId) {
@@ -1106,7 +1128,7 @@ class InvitationCubit extends Cubit<InvitationState> {
 
     // Services
     for (final service in state.selectedServices) {
-      servicesTotal += service.price;
+      servicesTotal += service.effectivePrice;
       lineItems.add(InvoiceLineItem(
         description: service.name,
         descriptionAr: service.nameAr,
@@ -1271,6 +1293,7 @@ class InvitationCubit extends Cubit<InvitationState> {
           await apiService!.saveExtraServices(
             eventId,
             state.selectedServices.map((s) => s.id).toList(),
+            options: _serviceOptions(),
           );
         }
 
@@ -1726,6 +1749,7 @@ class InvitationCubit extends Cubit<InvitationState> {
           await apiService!.saveExtraServices(
             eventId,
             state.selectedServices.map((s) => s.id).toList(),
+            options: _serviceOptions(),
           );
         }
 

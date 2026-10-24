@@ -45,19 +45,35 @@ class InstitutionModel extends InstitutionEntity {
     super.verification,
     super.documents,
     super.pendingChanges,
+    super.tradeNameAr,
+    super.tradeNameEn,
+    super.legalForm,
+    super.registrationAuthority,
+    super.registrationCountry,
+    super.registrationDate,
+    super.representativeRole,
+    super.country,
   });
 
   static InstitutionVerification _verification(dynamic v) {
     if (v is! Map) return const InstitutionVerification();
     bool b(String k) => v[k] == true || v[k] == 1;
+    // Keys an older backend does not send count as done (it does not require them).
+    bool newKey(String k) => !v.containsKey(k) || b(k);
     return InstitutionVerification(
       name: b('name'),
       sector: b('sector'),
       logo: b('logo'),
       registrationDocument: b('registration_document'),
       declaration: b('declaration'),
+      legalDetails: newKey('legal_details'),
+      representativeIdentity: newKey('representative_identity'),
+      authorization: newKey('authorization'),
     );
   }
+
+  /// Y-m-d from a date or date-time string.
+  static String? _date(dynamic v) => _str(v)?.split(RegExp('[T ]')).first;
 
   static List<InstitutionDocumentEntity> _documents(dynamic v) {
     if (v is! List) return const [];
@@ -96,6 +112,14 @@ class InstitutionModel extends InstitutionEntity {
       verification: _verification(json['verification']),
       documents: _documents(json['documents']),
       pendingChanges: _pending(json['pending_changes']),
+      tradeNameAr: _str(json['trade_name_ar']),
+      tradeNameEn: _str(json['trade_name_en']),
+      legalForm: _str(json['legal_form']),
+      registrationAuthority: _str(json['registration_authority']),
+      registrationCountry: _str(json['registration_country'])?.toUpperCase(),
+      registrationDate: _date(json['registration_date']),
+      representativeRole: _str(json['representative_role']),
+      country: _str(json['country'])?.toUpperCase(),
       id: _int(json['id']),
       status: InstitutionStatus.fromString(_str(json['status'])) ?? InstitutionStatus.pending,
       nameAr: _str(json['name_ar']) ?? _str(json['name']) ?? _str(json['name_en']) ?? '',

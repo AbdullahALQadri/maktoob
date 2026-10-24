@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../../../core/utils/image_sizing.dart';
 import '../../data/models/ai_image_model.dart';
 
 /// 2-column grid of AI-generated gallery images with selection state.
@@ -104,7 +105,7 @@ class _ImageCard extends StatelessWidget {
             fit: StackFit.expand,
             children: [
               CachedNetworkImage(
-                imageUrl: image.imageUrl,
+                imageUrl: ImageSizing.thumb(image.imageUrl, width: 360),
                 fit: BoxFit.cover,
                 placeholder: (_, __) => Shimmer.fromColors(
                   baseColor: Colors.grey[300]!,

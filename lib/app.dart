@@ -6,11 +6,12 @@ import 'config/routes/app_routes.dart';
 import 'config/themes/app_theme.dart';
 import 'core/utils/app_strings.dart';
 import 'core/widgets/network/offline_wrapper.dart';
-import 'core/widgets/scaffold/app_content_width.dart';
+import 'core/design/readable_width.dart';
 import 'features/authentication/presentation/cubit/auth_cubit.dart';
 import 'features/authentication/presentation/widgets/auth_wrapper.dart';
 import 'features/events/presentation/cubit/event_details/event_details_cubit.dart';
 import 'features/events/presentation/cubit/events_list/events_list_cubit.dart';
+import 'features/events/presentation/cubit/my_events/my_events_cubit.dart';
 import 'features/home/presentation/cubit/home_cubit.dart';
 import 'features/invitation/presentation/cubit/invitation_cubit.dart';
 import 'features/payment/presentation/cubit/payment_cubit.dart';
@@ -38,14 +39,17 @@ class Maktoob extends StatelessWidget {
           create: (_) => di.sl<AuthCubit>()..checkAuthStatus(),
         ),
         // Home is loaded after authentication
-        BlocProvider<HomeCubit>(
-          lazy: true,
-          create: (_) => di.sl<HomeCubit>(),
-        ),
+        BlocProvider<HomeCubit>(lazy: true, create: (_) => di.sl<HomeCubit>()),
         // Events list is accessed from bottom nav
         BlocProvider<EventsListCubit>(
           lazy: true,
           create: (_) => di.sl<EventsListCubit>(),
+        ),
+        // My events tab (the portal's list); refreshed after the wizard
+        // or a payment through refreshEventLists.
+        BlocProvider<MyEventsCubit>(
+          lazy: true,
+          create: (_) => di.sl<MyEventsCubit>(),
         ),
         // Lazy load - only create when event details screen is accessed
         BlocProvider<EventDetailsCubit>(
@@ -80,8 +84,8 @@ class Maktoob extends StatelessWidget {
             settingsState.language == AppLanguage.ar
                 ? 'ar'
                 : settingsState.language == AppLanguage.tr
-                    ? 'tr'
-                    : 'en',
+                ? 'tr'
+                : 'en',
           );
 
           return MaterialApp(
@@ -91,23 +95,27 @@ class Maktoob extends StatelessWidget {
 
               // Wrap with OfflineWrapper to show offline banner
               // Also wrap with Directionality for RTL/LTR support.
-              // System text size is honoured up to 130%: beyond that long
-              // Arabic labels overflow buttons and cards. Tablets get the
-              // app in a centred column (AppContentWidth).
+              // System text size is honoured up to 130% while older screens
+              // are rebuilt (rebuilt ones are tested at 200%). The shell uses
+              // the whole width; screens not rebuilt yet keep a readable
+              // column on wide windows (ReadableWidthTransitions).
               return MediaQuery.withClampedTextScaling(
                 maxScaleFactor: 1.3,
-                child: AppContentWidth(
-                  child: Directionality(
-                    textDirection:
-                        isArabic ? TextDirection.rtl : TextDirection.ltr,
-                    child: OfflineWrapper(child: result),
-                  ),
+                child: Directionality(
+                  textDirection: isArabic
+                      ? TextDirection.rtl
+                      : TextDirection.ltr,
+                  child: OfflineWrapper(child: result),
                 ),
               );
             },
             title: AppStrings.appName,
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
+            theme: AppTheme.lightTheme.copyWith(
+              pageTransitionsTheme: ReadableWidthTransitions.theme,
+            ),
+            darkTheme: AppTheme.darkTheme.copyWith(
+              pageTransitionsTheme: ReadableWidthTransitions.theme,
+            ),
             themeMode: ThemeMode.light,
             locale: locale,
             supportedLocales: AppLocalizationsSetup.supportedLocales,

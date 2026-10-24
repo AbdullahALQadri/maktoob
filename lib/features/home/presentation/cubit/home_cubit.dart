@@ -1,57 +1,25 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../domain/usecases/get_recent_events_usecase.dart';
-import '../../domain/usecases/get_stats_usecase.dart';
+import '../../domain/usecases/get_home_usecase.dart';
 import 'home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
-  final GetStatsUseCase getStatsUseCase;
-  final GetRecentEventsUseCase getRecentEventsUseCase;
+  HomeCubit({required this.getHome}) : super(const HomeInitial());
 
-  HomeCubit({
-    required this.getStatsUseCase,
-    required this.getRecentEventsUseCase,
-  }) : super(const HomeInitial());
+  final GetHomeUseCase getHome;
 
-  Future<void> loadHomeData() async {
-    emit(const HomeLoading());
+  /// Loads the home screen. A refresh keeps what is on screen until the new
+  /// answer arrives, so pulling to refresh never flashes the skeleton, and a
+  /// failed refresh keeps the last good screen.
+  Future<void> load() async {
+    final hadContent = state is HomeLoaded;
+    if (!hadContent) emit(const HomeLoading());
 
-    final statsResult = await getStatsUseCase();
-    final eventsResult = await getRecentEventsUseCase();
+    final result = await getHome();
+    if (isClosed) return;
 
-    statsResult.fold(
-      (failure) => emit(HomeError(message: failure.toString())),
-      (stats) {
-        eventsResult.fold(
-          (failure) => emit(HomeError(message: failure.toString())),
-          (events) {
-            // Calculate response rate from actual stats
-            int totalGuests = 0;
-            int totalResponded = 0;
-            for (final stat in stats) {
-              if (stat.label == 'Total Guests') {
-                totalGuests = int.tryParse(stat.value.replaceAll(',', '')) ?? 0;
-              }
-              if (stat.label == 'Attending' || stat.label == 'Not Attending') {
-                totalResponded += int.tryParse(stat.value.replaceAll(',', '')) ?? 0;
-              }
-            }
-            final responseRate = totalGuests > 0 ? totalResponded.toDouble() / totalGuests : 0.0;
-
-            emit(HomeLoaded(
-              stats: stats,
-              recentEvents: events,
-              responseRate: responseRate,
-              totalResponded: totalResponded,
-              totalGuests: totalGuests,
-            ));
-          },
-        );
-      },
-    );
-  }
-
-  void refresh() {
-    loadHomeData();
+    result.fold((failure) {
+      if (!hadContent) emit(HomeError(failure.message ?? ''));
+    }, (summary) => emit(HomeLoaded(summary)));
   }
 }

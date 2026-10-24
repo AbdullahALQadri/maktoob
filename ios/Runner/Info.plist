@@ -56,11 +56,23 @@
 		<string>يحتاج التطبيق إلى الوصول إلى مكتبة الصور لاختيار صور الدعوة وإيصالات الدفع</string>
 		<key>NSPhotoLibraryAddUsageDescription</key>
 		<string>يحتاج التطبيق إلى إذن لحفظ الدعوة في مكتبة الصور</string>
-		<!-- Push notifications (FCM) delivered while the app is in the background -->
+		<!-- Push notifications (FCM) delivered while the app is in the background;
+		     fetch / processing: uploading door check-ins and queued writes made
+		     offline (workmanager, BackgroundSync in lib/core/offline). -->
 		<key>UIBackgroundModes</key>
 		<array>
 			<string>remote-notification</string>
+			<string>fetch</string>
+			<string>processing</string>
 		</array>
+		<key>BGTaskSchedulerPermittedIdentifiers</key>
+		<array>
+			<string>com.maktoob.maktoob.offlineSync</string>
+		</array>
+		<!-- Venue hub: the door phones talk to each other over the hall's Wi-Fi
+		     or a hotspot, with no internet (iOS asks the user once). -->
+		<key>NSLocalNetworkUsageDescription</key>
+		<string>يتصل التطبيق بأجهزة البوابات الأخرى في القاعة عبر الشبكة المحلية لمزامنة تسجيلات الدخول بدون إنترنت</string>
 		<!-- url_launcher canLaunchUrl() for the WhatsApp deep link -->
 		<key>LSApplicationQueriesSchemes</key>
 		<array>

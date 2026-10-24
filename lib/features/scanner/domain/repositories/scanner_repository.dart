@@ -2,22 +2,33 @@ import 'package:dartz/dartz.dart';
 
 import '../../../../core/error/failures.dart';
 import '../entities/check_in_guest_entity.dart';
+import '../entities/door_entities.dart';
 
+/// The door: works offline (the door pack) and syncs when it can.
 abstract class ScannerRepository {
-  /// Validates a scanned QR code against a venue and returns the invitation.
-  Future<Either<Failure, CheckInGuestEntity>> scanQrCode(String qrCode, int eventId);
+  /// Opens [session] (downloads the pack when there is a connection).
+  Future<DoorStatus> open(DoorSession session);
 
-  /// Confirms check-in for an invitation at a venue.
+  Future<void> close();
+
+  DoorStatus get status;
+  Stream<DoorStatus> get statusStream;
+
+  /// Looks a scanned QR up on the phone. Never needs the network.
+  Future<Either<Failure, CheckInGuestEntity>> scanQrCode(String qrCode);
+
+  /// Lets the guest in: the server decides when reachable, then the venue
+  /// hub, else this phone; the check-in is kept until it is uploaded.
   Future<Either<Failure, CheckInGuestEntity>> checkInGuest(
-    String invitationId,
-    int eventId, {
+    String invitationId, {
     int? actualCompanions,
     String? notes,
+    bool manual = false,
+    int? maxCompanions,
   });
 
-  /// Lists guests already checked in at a venue (attendance).
-  Future<Either<Failure, List<CheckInGuestEntity>>> getGuestList(
-    int eventId, {
-    String? searchQuery,
-  });
+  /// Every invitee of the event with who is already inside (local).
+  Future<Either<Failure, List<CheckInGuestEntity>>> getGuestList({String? searchQuery});
+
+  Future<void> syncNow();
 }

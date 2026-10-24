@@ -21,13 +21,11 @@ class _EditEventScreenState extends State<EditEventScreen> {
 
   late TextEditingController _nameController;
   late TextEditingController _venueController;
-  late TextEditingController _venueAddressController;
   late TextEditingController _descriptionController;
   late TextEditingController _maxCompanionsController;
 
   late FocusNode _nameFocus;
   late FocusNode _venueFocus;
-  late FocusNode _venueAddressFocus;
   late FocusNode _descriptionFocus;
   late FocusNode _maxCompanionsFocus;
 
@@ -37,8 +35,6 @@ class _EditEventScreenState extends State<EditEventScreen> {
     final state = context.read<EditEventCubit>().state;
     _nameController = TextEditingController(text: state.name);
     _venueController = TextEditingController(text: state.venue);
-    _venueAddressController =
-        TextEditingController(text: state.venueAddress ?? '');
     _descriptionController =
         TextEditingController(text: state.description ?? '');
     _maxCompanionsController =
@@ -46,7 +42,6 @@ class _EditEventScreenState extends State<EditEventScreen> {
 
     _nameFocus = FocusNode();
     _venueFocus = FocusNode();
-    _venueAddressFocus = FocusNode();
     _descriptionFocus = FocusNode();
     _maxCompanionsFocus = FocusNode();
   }
@@ -55,13 +50,11 @@ class _EditEventScreenState extends State<EditEventScreen> {
   void dispose() {
     _nameController.dispose();
     _venueController.dispose();
-    _venueAddressController.dispose();
     _descriptionController.dispose();
     _maxCompanionsController.dispose();
 
     _nameFocus.dispose();
     _venueFocus.dispose();
-    _venueAddressFocus.dispose();
     _descriptionFocus.dispose();
     _maxCompanionsFocus.dispose();
 
@@ -107,7 +100,8 @@ class _EditEventScreenState extends State<EditEventScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (!state.isDraft) const EditRequestBanner(),
+                        if (!state.isDraft)
+                          EditRequestBanner(waiting: state.hasPendingRequest),
                         _buildTextField(
                           label: t.translate('edit_event_name'),
                           controller: _nameController,
@@ -129,21 +123,9 @@ class _EditEventScreenState extends State<EditEventScreen> {
                           focusNode: _venueFocus,
                           textInputAction: TextInputAction.next,
                           onFieldSubmitted: (_) =>
-                              _venueAddressFocus.requestFocus(),
+                              _descriptionFocus.requestFocus(),
                           onChanged:
                               context.read<EditEventCubit>().updateVenue,
-                        ),
-                        SizedBox(height: context.dynamicHeight(0.02)),
-                        _buildTextField(
-                          label: t.translate('edit_event_venue_address'),
-                          controller: _venueAddressController,
-                          focusNode: _venueAddressFocus,
-                          textInputAction: TextInputAction.next,
-                          onFieldSubmitted: (_) =>
-                              _descriptionFocus.requestFocus(),
-                          onChanged: context
-                              .read<EditEventCubit>()
-                              .updateVenueAddress,
                         ),
                         SizedBox(height: context.dynamicHeight(0.02)),
                         _buildTextField(
@@ -400,14 +382,14 @@ class _EditEventScreenState extends State<EditEventScreen> {
     }
 
     return GestureDetector(
-      onTap: state.hasChanges ? _saveChanges : null,
+      onTap: state.canSave ? _saveChanges : null,
       child: Container(
         padding: EdgeInsets.symmetric(
           horizontal: context.dynamicWidth(0.04),
           vertical: context.dynamicHeight(0.012),
         ),
         decoration: BoxDecoration(
-          color: state.hasChanges
+          color: state.canSave
               ? Colors.white
               : Colors.white.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(context.dynamicWidth(0.051)),
@@ -421,7 +403,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
               ? t.translate('common_save')
               : t.translate('edit_event_submit_request'),
           style: TextStyle(
-            color: state.hasChanges
+            color: state.canSave
                 ? AppColors.primaryColor
                 : Colors.white.withValues(alpha: 0.5),
             fontWeight: FontWeight.w600,

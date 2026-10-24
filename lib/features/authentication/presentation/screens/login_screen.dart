@@ -15,11 +15,15 @@ class LoginScreen extends StatefulWidget {
   /// Back to the browse-without-account home ("تصفّح أولاً").
   final VoidCallback? onBrowseTap;
 
+  /// Door staff with a door code (no account): the door-only mode.
+  final VoidCallback? onDoorStaffTap;
+
   const LoginScreen({
     super.key,
     this.onRegisterTap,
     this.onLoginSuccess,
     this.onBrowseTap,
+    this.onDoorStaffTap,
   });
 
   @override
@@ -73,6 +77,7 @@ class _LoginScreenState extends State<LoginScreen>
             onRegisterTap: widget.onRegisterTap,
             onLoginSuccess: widget.onLoginSuccess,
             onBrowseTap: widget.onBrowseTap,
+            onDoorStaffTap: widget.onDoorStaffTap,
           ),
         ),
       ),
@@ -124,6 +129,7 @@ class _AnimatedContent extends StatelessWidget {
   final VoidCallback? onRegisterTap;
   final VoidCallback? onLoginSuccess;
   final VoidCallback? onBrowseTap;
+  final VoidCallback? onDoorStaffTap;
 
   const _AnimatedContent({
     required this.fadeAnimation,
@@ -131,6 +137,7 @@ class _AnimatedContent extends StatelessWidget {
     this.onRegisterTap,
     this.onLoginSuccess,
     this.onBrowseTap,
+    this.onDoorStaffTap,
   });
 
   @override
@@ -170,6 +177,16 @@ class _AnimatedContent extends StatelessWidget {
                         onPressed: onBrowseTap,
                         child: Text(
                           t.translate('explore_browse_first'),
+                          style: AppTextStyles.labelLarge.white,
+                        ),
+                      ),
+                    if (onDoorStaffTap != null)
+                      TextButton.icon(
+                        key: const Key('login_door_staff'),
+                        onPressed: onDoorStaffTap,
+                        icon: const Icon(Icons.qr_code_scanner, color: Colors.white),
+                        label: Text(
+                          t.translate('login_door_staff'),
                           style: AppTextStyles.labelLarge.white,
                         ),
                       ),

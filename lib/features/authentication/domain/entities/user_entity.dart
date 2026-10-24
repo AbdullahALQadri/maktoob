@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../identity/domain/entities/identity_entities.dart';
 import '../../../institution/domain/entities/institution_entity.dart';
 
 /// User type enum for distinguishing between individual users and institutions
@@ -71,6 +72,10 @@ class UserEntity extends Equatable {
   /// accepted yet (`legal.acceptance_required`): the app asks for it first.
   final bool mustAcceptTerms;
 
+  /// Identity verification (KYC, `client.identity`). Not the mobile check
+  /// ([isVerified]). Null on older backends.
+  final IdentityStateEntity? identity;
+
   const UserEntity({
     required this.id,
     required this.name,
@@ -86,7 +91,14 @@ class UserEntity extends Equatable {
     this.memberships = const [],
     this.mustChangePassword = false,
     this.mustAcceptTerms = false,
+    this.identity,
   });
+
+  /// The identity is verified by the Maktoob team (not just the mobile number).
+  bool get isIdentityVerified => identity?.isVerified ?? false;
+
+  /// The team asked for identity verification before events can be activated.
+  bool get identityRequired => (identity?.required ?? false) && !isIdentityVerified;
 
   /// An institution account that an admin has not approved (yet): the app
   /// shows the approval-waiting screen instead of the normal shell.
@@ -141,6 +153,7 @@ class UserEntity extends Equatable {
     List<InstitutionMembershipEntity>? memberships,
     bool? mustChangePassword,
     bool? mustAcceptTerms,
+    IdentityStateEntity? identity,
   }) {
     return UserEntity(
       id: id ?? this.id,
@@ -157,6 +170,7 @@ class UserEntity extends Equatable {
       memberships: memberships ?? this.memberships,
       mustChangePassword: mustChangePassword ?? this.mustChangePassword,
       mustAcceptTerms: mustAcceptTerms ?? this.mustAcceptTerms,
+      identity: identity ?? this.identity,
     );
   }
 
@@ -176,6 +190,7 @@ class UserEntity extends Equatable {
         memberships,
         mustChangePassword,
         mustAcceptTerms,
+        identity,
       ];
 }
 

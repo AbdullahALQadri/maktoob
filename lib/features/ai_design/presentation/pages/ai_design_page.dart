@@ -582,12 +582,26 @@ class _BottomGenerateBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final ready = state is AiDesignReady ? state as AiDesignReady : null;
+    // Each event has its own designs (the server counts); none left → no button.
+    final allowance = ready?.allowance;
+    final usedUp = allowance?.isUsedUp ?? false;
     final canGenerate = ready != null &&
         !ready.isGenerating &&
+        !usedUp &&
         ready.activeTab == 1 &&
         (ready.freeformPromptText.trim().isNotEmpty ||
             ready.selectedImageId != null ||
             ready.selectedMoodTags.isNotEmpty);
+
+    final String? allowanceLine = allowance == null
+        ? null
+        : usedUp
+            ? (allowance.poolReached
+                ? loc?.translate('ai_designs_unpaid_limit')
+                : loc?.translate('ai_designs_used_up'))
+            : (loc?.translate('ai_designs_left') ?? '')
+                .replaceAll('{left}', '${allowance.designsLeft}')
+                .replaceAll('{limit}', '${allowance.designsLimit}');
 
     return Container(
       padding: const EdgeInsetsDirectional.fromSTEB(20, 14, 20, 14),
@@ -603,30 +617,44 @@ class _BottomGenerateBar extends StatelessWidget {
       ),
       child: SafeArea(
         top: false,
-        child: SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: ElevatedButton.icon(
-            onPressed: canGenerate ? onGenerate : null,
-            icon: const Icon(Icons.brush_outlined, color: Colors.white),
-            label: Text(
-              loc?.translate('ai_generate_design_btn') ?? 'صمّم لي',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          if (allowanceLine != null && allowanceLine.isNotEmpty) ...[
+            Text(
+              allowanceLine,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: usedUp ? AppColors.amber700 : AppColors.gray500,
               ),
             ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryColor,
-              disabledBackgroundColor: AppColors.gray300,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+            const SizedBox(height: 8),
+          ],
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: ElevatedButton.icon(
+              onPressed: canGenerate ? onGenerate : null,
+              icon: const Icon(Icons.brush_outlined, color: Colors.white),
+              label: Text(
+                loc?.translate('ai_generate_design_btn') ?? 'صمّم لي',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
               ),
-              elevation: 0,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryColor,
+                disabledBackgroundColor: AppColors.gray300,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                elevation: 0,
+              ),
             ),
           ),
-        ),
+        ]),
       ),
     );
   }

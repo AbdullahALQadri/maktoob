@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../../core/error/failures.dart';
 import '../../../domain/entities/guest_entity.dart';
 import '../../../domain/entities/event_entity.dart';
 import '../../../domain/repositories/events_repository.dart';
@@ -202,6 +203,12 @@ class EventDetailsCubit extends Cubit<EventDetailsState> {
 
     return await result.fold(
       (failure) async {
+        // Offline: queued, sent when the connection returns.
+        if (failure is QueuedOfflineFailure) {
+          emit(state.copyWith(isBusy: false));
+          _notice(failure.message!, 1);
+          return true;
+        }
         emit(state.copyWith(isBusy: false, errorMessage: failure.message));
         return false;
       },

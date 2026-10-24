@@ -1,3 +1,5 @@
+import 'design_allowance_model.dart';
+
 /// Suggestion chip returned alongside a ready prompt to nudge the user
 /// toward a better generation result.
 class ImprovementSuggestion {
@@ -35,6 +37,10 @@ class GenerationStatusModel {
   /// Total wall-clock time the generation took (set with `completed`).
   final int? generationTimeMs;
 
+  /// Designs this event can still create; refreshed on every poll (a failed
+  /// image gives its design back).
+  final DesignAllowanceModel? allowance;
+
   const GenerationStatusModel({
     required this.status,
     required this.imageId,
@@ -46,6 +52,7 @@ class GenerationStatusModel {
     this.promptVersion,
     this.improvementSuggestions = const [],
     this.generationTimeMs,
+    this.allowance,
   });
 
   factory GenerationStatusModel.fromJson(Map<String, dynamic> json) {
@@ -67,6 +74,7 @@ class GenerationStatusModel {
               .map(ImprovementSuggestion.fromJson)
               .toList(),
       generationTimeMs: (data['generation_time_ms'] as num?)?.toInt(),
+      allowance: DesignAllowanceModel.tryParse(data['design_allowance']),
     );
   }
 

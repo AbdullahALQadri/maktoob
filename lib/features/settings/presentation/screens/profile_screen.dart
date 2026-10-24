@@ -5,6 +5,8 @@ import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
 import '../../../authentication/domain/entities/user_entity.dart';
 import '../../../authentication/presentation/cubit/auth_cubit.dart';
+import '../../../identity/presentation/screens/identity_verification_screen.dart';
+import '../../../identity/presentation/widgets/identity_status_card.dart';
 import '../../../institution/presentation/screens/institution_screen.dart';
 import '../cubit/profile_cubit.dart';
 import '../cubit/profile_state.dart';
@@ -210,6 +212,21 @@ class _ProfileSections extends StatelessWidget {
             }
           },
         ),
+        if (user.identity != null) ...[
+          SizedBox(height: context.dynamicHeight(0.03)),
+          _SectionTitle(title: t.translate('identity_title')),
+          SizedBox(height: context.dynamicHeight(0.015)),
+          IdentityStatusCard(
+            identity: user.identity!,
+            onTap: () async {
+              await Navigator.of(context).push(IdentityVerificationScreen.route());
+              if (context.mounted) {
+                context.read<ProfileCubit>().loadProfile();
+                context.read<AuthCubit>().refreshProfile();
+              }
+            },
+          ),
+        ],
         SizedBox(height: context.dynamicHeight(0.03)),
         _SectionTitle(title: t.translate('profile_personal_info')),
         SizedBox(height: context.dynamicHeight(0.015)),

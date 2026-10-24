@@ -9,8 +9,11 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/app_spacing.dart';
+import '../../domain/entities/door_entities.dart';
+import '../cubit/door_status_cubit.dart';
 import '../cubit/scanner_cubit.dart';
 import '../cubit/scanner_state.dart';
+import '../widgets/door_texts.dart';
 
 /// Self-service door ("وضع الجهاز الذاتي"): a device at the entrance with no
 /// staff. Every scan checks the guest in immediately, shows a full-screen
@@ -92,14 +95,8 @@ class _KioskScannerScreenState extends State<KioskScannerScreen> {
         title: Text(t.translate('kiosk_exit_title')),
         content: Text(t.translate('kiosk_exit_confirm')),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(t.translate('common_cancel')),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(t.translate('kiosk_exit_action')),
-          ),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(t.translate('common_cancel'))),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(t.translate('kiosk_exit_action'))),
         ],
       ),
     );
@@ -135,16 +132,9 @@ class _KioskScannerScreenState extends State<KioskScannerScreen> {
     return Align(
       alignment: AlignmentDirectional.bottomCenter,
       child: Padding(
-        padding: const EdgeInsetsDirectional.only(
-          bottom: AppSpacing.xxxxxl,
-          start: AppSpacing.lg,
-          end: AppSpacing.lg,
-        ),
+        padding: const EdgeInsetsDirectional.only(bottom: AppSpacing.xxxxxl, start: AppSpacing.lg, end: AppSpacing.lg),
         child: Container(
-          padding: const EdgeInsetsDirectional.symmetric(
-            horizontal: AppSpacing.lg,
-            vertical: AppSpacing.md,
-          ),
+          padding: const EdgeInsetsDirectional.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
           decoration: BoxDecoration(
             color: AppColors.black.withValues(alpha: 0.6),
             borderRadius: AppSpacing.borderRadiusMd,
@@ -152,42 +142,47 @@ class _KioskScannerScreenState extends State<KioskScannerScreen> {
           child: Text(
             _busy ? t.translate('kiosk_checking') : t.translate('kiosk_idle_hint'),
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: AppColors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-            ),
+            style: const TextStyle(color: AppColors.white, fontSize: 20, fontWeight: FontWeight.w600),
           ),
         ),
       ),
     );
   }
 
-  String _hhmm(DateTime d) {
-    final l = d.toLocal();
-    return '${l.hour.toString().padLeft(2, '0')}:${l.minute.toString().padLeft(2, '0')}';
+  DoorGate? get _gate => _doorStatus?.gate;
+  String? get _validOn => _doorStatus?.event?.validOn;
+
+  /// The door status, when the kiosk was opened from the door screen.
+  DoorStatus? get _doorStatus {
+    try {
+      return context.read<DoorStatusCubit>().state;
+    } catch (_) {
+      return null;
+    }
   }
 
   Widget _buildResult(AppLocalizations t, KioskResult r) {
     final String title;
     final List<String> lines;
-    if (r.admitted) {
-      title = t.translate('kiosk_welcome').replaceAll('{name}', r.name);
-      lines = [
-        if (r.companions > 0)
-          t.translate('kiosk_companions').replaceAll('{count}', '${r.companions}'),
-      ];
-    } else if (r.message.isEmpty) {
-      // Already entered (scan said checked in, or the check-in returned 409).
-      title = t.translate('scanner_already_checked');
+    if (r.admitted && r.returning) {
+      // Came in earlier today (here, at another door, or through the hub).
       final at = r.checkedInAt;
+      title = r.name.isEmpty
+          ? t.translate('kiosk_welcome_back_guest')
+          : t.translate('kiosk_welcome_back').replaceAll('{name}', r.name);
+      lines = [if (at != null) t.translate('door_returning_first').replaceAll('{time}', DoorTexts.hhmm(at))];
+    } else if (r.admitted) {
+      title = r.name.isEmpty
+          ? t.translate('kiosk_welcome_guest')
+          : t.translate('kiosk_welcome').replaceAll('{name}', r.name);
       lines = [
-        if (r.name.isNotEmpty) r.name,
-        if (at != null) t.translate('scanner_checked_in_at').replaceAll('{time}', _hhmm(at)),
+        if (r.companions > 0) t.translate('kiosk_companions').replaceAll('{count}', '${r.companions}'),
+        // Staff near the door see why to look twice (wrong gate, declined).
+        for (final w in r.warnings) DoorTexts.warning(t, w, gate: _gate),
       ];
     } else {
       title = t.translate('scanner_cannot_check_in');
-      lines = [if (r.name.isNotEmpty) r.name, r.message];
+      lines = [if (r.name.isNotEmpty) r.name, DoorTexts.reason(t, r.code, message: r.message, validOn: _validOn)];
     }
 
     return Container(
@@ -196,31 +191,19 @@ class _KioskScannerScreenState extends State<KioskScannerScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            r.admitted ? Icons.check_circle_outline : Icons.block,
-            color: AppColors.white,
-            size: 120,
-          ),
+          Icon(r.admitted ? Icons.check_circle_outline : Icons.block, color: AppColors.white, size: 120),
           const SizedBox(height: AppSpacing.lg),
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: AppColors.white,
-              fontSize: 34,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(color: AppColors.white, fontSize: 34, fontWeight: FontWeight.bold),
           ),
           for (final line in lines) ...[
             const SizedBox(height: AppSpacing.md),
             Text(
               line,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppColors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.w500,
-              ),
+              style: const TextStyle(color: AppColors.white, fontSize: 22, fontWeight: FontWeight.w500),
             ),
           ],
         ],
@@ -242,10 +225,7 @@ class _KioskScannerScreenState extends State<KioskScannerScreen> {
               child: Container(
                 width: 44,
                 height: 44,
-                decoration: BoxDecoration(
-                  color: AppColors.black.withValues(alpha: 0.4),
-                  shape: BoxShape.circle,
-                ),
+                decoration: BoxDecoration(color: AppColors.black.withValues(alpha: 0.4), shape: BoxShape.circle),
                 child: const Icon(Icons.lock_outline, color: AppColors.white, size: 22),
               ),
             ),

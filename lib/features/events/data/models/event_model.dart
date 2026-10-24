@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/event_entity.dart';
+import 'event_details_info_model.dart';
+import 'event_json.dart';
 
 class EventModel extends EventEntity {
   final List<Color> gradient;
@@ -39,6 +41,7 @@ class EventModel extends EventEntity {
     super.invitationsSentAt,
     super.invitationLimit,
     super.remainingInvitations,
+    super.details,
     required this.gradient,
     required this.icon,
   });
@@ -53,25 +56,25 @@ class EventModel extends EventEntity {
       // `title` is the unified column (title_ar/title_en were merged); keep the
       // old keys as fallbacks for any cached/legacy payloads.
       name: json['name'] as String? ?? json['title'] as String? ?? json['title_ar'] as String? ?? json['title_en'] as String? ?? '',
-      type: json['type'] as String? ?? _nameFrom(json['event_type']) ?? '',
-      date: json['date'] as String? ?? _formatDateFromApi(eventDate),
+      type: json['type'] as String? ?? EventJson.nameFrom(json['event_type']) ?? '',
+      date: json['date'] as String? ?? EventJson.dateLabel(eventDate),
       time: json['time'] as String? ?? json['event_time'] as String? ?? '',
       // venue may be a plain string OR a loaded relation Map — handle both
       // (casting a Map `as String?` would throw and fail the whole parse).
-      venue: _nameFrom(json['venue']) ?? _nameFrom(json['venue_data']) ?? json['custom_venue_name_ar'] as String? ?? '',
-      venueId: _parseInt(json['venue_id']) ??
-          _parseInt(json['venue'] is Map ? json['venue']['id'] : null) ??
-          _parseInt(json['venue_data'] is Map ? json['venue_data']['id'] : null),
+      venue: EventJson.nameFrom(json['venue']) ?? EventJson.nameFrom(json['venue_data']) ?? json['custom_venue_name_ar'] as String? ?? '',
+      venueId: EventJson.toInt(json['venue_id']) ??
+          EventJson.toInt(json['venue'] is Map ? json['venue']['id'] : null) ??
+          EventJson.toInt(json['venue_data'] is Map ? json['venue_data']['id'] : null),
       venueAddress: json['venue_address'] as String? ?? json['custom_venue_address_ar'] as String?,
       description: json['description'] as String? ?? json['description_ar'] as String?,
-      invitations: _parseIntOrListLength(json['invitations']) ?? _parseIntOrListLength(json['max_invitations']) ?? 0,
-      responses: _parseIntOrListLength(json['responses']) ?? 0,
-      attending: _parseIntOrListLength(json['attending']) ?? 0,
-      declined: _parseIntOrListLength(json['declined']) ?? 0,
-      pending: _parseIntOrListLength(json['pending']) ?? 0,
+      invitations: EventJson.countOf(json['invitations']) ?? EventJson.countOf(json['max_invitations']) ?? 0,
+      responses: EventJson.countOf(json['responses']) ?? 0,
+      attending: EventJson.countOf(json['attending']) ?? 0,
+      declined: EventJson.countOf(json['declined']) ?? 0,
+      pending: EventJson.countOf(json['pending']) ?? 0,
       // `invitations_used` is the capacity ledger (invitations created), not
       // door check-ins — never fall back to it here.
-      checkedIn: _parseIntOrListLength(json['checked_in']) ?? 0,
+      checkedIn: EventJson.countOf(json['checked_in']) ?? 0,
       status: _parseStatus(json['status'] as String? ?? 'draft'),
       eventDate: eventDate != null
           ? (eventDate is String ? DateTime.tryParse(eventDate) : null)
@@ -82,95 +85,25 @@ class EventModel extends EventEntity {
       packageName: json['package_name'] as String? ?? json['package']?['name_ar'] as String?,
       packagePrice: json['package_price'] as String? ?? (json['price'] != null ? '₪${json['price']}' : null),
       templateName: json['template_name'] as String? ?? json['template']?['name_ar'] as String?,
-      maxCompanions: _parseIntOrListLength(json['max_companions']) ?? 2,
+      maxCompanions: EventJson.countOf(json['max_companions']) ?? 2,
       allowCompanions: json['allow_companions'] as bool? ?? true,
       imageUrl: json['image_url'] as String? ??
           (json['final_ai_image'] is Map ? json['final_ai_image']['image_url'] as String? : null),
       rawStatus: json['status']?.toString(),
       invoiceTotal: double.tryParse('${json['invoice_total'] ?? ''}'),
-      checkedInCompanions: _parseIntOrListLength(json['checked_in_companions']) ?? 0,
-      attendees: _parseIntOrListLength(json['attendees']) ?? 0,
+      checkedInCompanions: EventJson.countOf(json['checked_in_companions']) ?? 0,
+      attendees: EventJson.countOf(json['attendees']) ?? 0,
       myRole: json['my_role']?.toString(),
       allowedChannels: json['allowed_channels'] is List && (json['allowed_channels'] as List).isNotEmpty
           ? (json['allowed_channels'] as List).map((e) => '$e').toList()
           : const ['whatsapp'],
       invitationsSentAt: DateTime.tryParse('${json['invitations_sent_at'] ?? ''}'),
-      invitationLimit: _parseInvitationLimit(json),
-      remainingInvitations: _parseRemaining(json),
+      invitationLimit: EventJson.invitationLimit(json),
+      remainingInvitations: EventJson.remaining(json),
+      details: EventDetailsInfoModel.fromJson(json['details']),
       gradient: _parseGradient(json['gradient']),
       icon: _parseIcon(json['icon']),
     );
-  }
-
-  /// Mirrors Event::getEffectiveInvitationsLimit(): the attached packages'
-  /// `pivot.invitations_included` total, else `max_invitations`.
-  /// Null (or 0) means no limit.
-  static int? _parseInvitationLimit(Map<String, dynamic> json) {
-    final explicit = _parseInt(json['invitation_limit']);
-    if (explicit != null) return explicit > 0 ? explicit : null;
-    final packages = json['packages'];
-    if (packages is List) {
-      var total = 0;
-      for (final p in packages) {
-        if (p is Map && p['pivot'] is Map) {
-          total += _parseInt(p['pivot']['invitations_included']) ?? 0;
-        }
-      }
-      if (total > 0) return total;
-    }
-    final max = _parseInt(json['max_invitations']);
-    return (max != null && max > 0) ? max : null;
-  }
-
-  /// Mirrors Event::getRemainingInvitationsAttribute(). Null = unlimited.
-  static int? _parseRemaining(Map<String, dynamic> json) {
-    if (json.containsKey('remaining_invitations')) {
-      return _parseInt(json['remaining_invitations']);
-    }
-    final limit = _parseInvitationLimit(json);
-    if (limit == null) return null;
-    final used = _parseInt(json['invitations_used']) ?? 0;
-    return (limit - used).clamp(0, limit);
-  }
-
-  /// Returns a display name from a value that may be a plain String or a
-  /// loaded relation Map ({name_ar / name_en / name}).
-  static String? _nameFrom(dynamic value) {
-    if (value is String) return value;
-    if (value is Map) {
-      return (value['name_ar'] ?? value['name_en'] ?? value['name']) as String?;
-    }
-    return null;
-  }
-
-  /// Parses an int from an int or numeric string; null otherwise.
-  static int? _parseInt(dynamic value) {
-    if (value is int) return value;
-    if (value is String) return int.tryParse(value);
-    return null;
-  }
-
-  /// Parses a value that could be an int, a List (returns length), or null
-  static int? _parseIntOrListLength(dynamic value) {
-    if (value == null) return null;
-    if (value is int) return value;
-    if (value is List) return value.length;
-    if (value is String) return int.tryParse(value);
-    return null;
-  }
-
-  static String _formatDateFromApi(dynamic eventDate) {
-    if (eventDate == null) return '';
-    if (eventDate is String) {
-      try {
-        final date = DateTime.parse(eventDate);
-        final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        return '${months[date.month - 1]} ${date.day}, ${date.year}';
-      } catch (_) {
-        return eventDate;
-      }
-    }
-    return '';
   }
 
   Map<String, dynamic> toJson() {
@@ -241,6 +174,7 @@ class EventModel extends EventEntity {
       venueId: entity.venueId,
       invitationLimit: entity.invitationLimit,
       remainingInvitations: entity.remainingInvitations,
+      details: entity.details,
     );
   }
 
@@ -279,6 +213,7 @@ class EventModel extends EventEntity {
       venueId: venueId,
       invitationLimit: invitationLimit,
       remainingInvitations: remainingInvitations,
+      details: details,
     );
   }
 
@@ -376,6 +311,7 @@ class EventModel extends EventEntity {
       venueId: venueId,
       invitationLimit: invitationLimit,
       remainingInvitations: remainingInvitations,
+      details: details,
       gradient: gradient ?? this.gradient,
       icon: icon ?? this.icon,
     );

@@ -3,6 +3,7 @@ import 'dart:io';
 import '../../../../core/api/event_wizard_api_service.dart';
 import '../models/ai_form_field_model.dart';
 import '../models/ai_image_model.dart';
+import '../models/design_allowance_model.dart';
 import '../models/generation_status_model.dart';
 
 class AiDesignRepository {
@@ -52,6 +53,14 @@ class AiDesignRepository {
       throw Exception('generate-prompt returned no image_id');
     }
     return imageId;
+  }
+
+  /// Designs this event can still create (from the wizard state).
+  Future<DesignAllowanceModel?> getAllowance(int eventId) async {
+    final res = await _api.getWizardState(eventId);
+    final data = res['data'];
+    return DesignAllowanceModel.tryParse(
+        data is Map ? data['design_allowance'] : res['design_allowance']);
   }
 
   Future<GenerationStatusModel> getStatus(int eventId, int imageId) async {

@@ -17,8 +17,7 @@ class EditEventCubit extends Cubit<EditEventState> {
       event: event,
       isDraft: isDraft,
       name: event.name,
-      venue: event.venue,
-      venueAddress: event.venueAddress,
+      venue: event.venueLine,
       description: event.description,
       eventDate: event.eventDate,
       rsvpDeadline: event.rsvpDeadline,
@@ -41,8 +40,6 @@ class EditEventCubit extends Cubit<EditEventState> {
 
   void updateName(String value) => emit(state.copyWith(name: value));
   void updateVenue(String value) => emit(state.copyWith(venue: value));
-  void updateVenueAddress(String value) =>
-      emit(state.copyWith(venueAddress: value));
   void updateDescription(String value) =>
       emit(state.copyWith(description: value));
   void updateEventDate(DateTime value) =>
@@ -72,10 +69,9 @@ class EditEventCubit extends Cubit<EditEventState> {
 
     final params = UpdateEventParams(
       name: state.name != state.event!.name ? state.name : null,
-      venue: state.venue != state.event!.venue ? state.venue : null,
-      venueAddress: state.venueAddress != state.event!.venueAddress
-          ? state.venueAddress
-          : null,
+      // The place is one line: a changed place clears the old separate address.
+      venue: state.placeChanged ? state.venue.trim() : null,
+      venueAddress: state.placeChanged ? '' : null,
       description: state.description != state.event!.description
           ? state.description
           : null,

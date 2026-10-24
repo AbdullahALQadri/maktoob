@@ -6,14 +6,34 @@ import '../../../events/domain/entities/event_entity.dart';
 
 /// Gradient header for scanner screen with event info.
 class ScannerHeader extends StatelessWidget {
-  final EventEntity event;
+  final String title;
+  final String? description;
+  final String? venue;
+  final String? when;
   final VoidCallback? onBack;
+
+  /// Door actions (gate, venue hub, management...).
+  final Widget? menu;
 
   const ScannerHeader({
     super.key,
-    required this.event,
+    required this.title,
+    this.description,
+    this.venue,
+    this.when,
     this.onBack,
+    this.menu,
   });
+
+  factory ScannerHeader.forEvent(EventEntity event, {Key? key, VoidCallback? onBack, Widget? menu}) => ScannerHeader(
+        key: key,
+        title: event.name,
+        description: event.description,
+        venue: event.venue,
+        when: '${event.date} | ${event.time}',
+        onBack: onBack,
+        menu: menu,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -38,11 +58,13 @@ class ScannerHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _BackRow(title: t.translate('scanner_guest_scanner'), onBack: onBack),
+          _BackRow(title: t.translate('scanner_guest_scanner'), onBack: onBack, menu: menu),
           SizedBox(height: context.dynamicHeight(0.02)),
-          _EventInfoRow(event: event),
-          SizedBox(height: context.dynamicHeight(0.015)),
-          _EventDetailsChip(event: event),
+          _EventInfoRow(title: title, description: description),
+          if (venue != null || when != null) ...[
+            SizedBox(height: context.dynamicHeight(0.015)),
+            _EventDetailsChip(venue: venue, when: when),
+          ],
         ],
       ),
     );
@@ -52,8 +74,9 @@ class ScannerHeader extends StatelessWidget {
 class _BackRow extends StatelessWidget {
   final String title;
   final VoidCallback? onBack;
+  final Widget? menu;
 
-  const _BackRow({required this.title, this.onBack});
+  const _BackRow({required this.title, this.onBack, this.menu});
 
   @override
   Widget build(BuildContext context) {
@@ -80,23 +103,27 @@ class _BackRow extends StatelessWidget {
           ),
         ),
         SizedBox(width: context.dynamicWidth(0.029)),
-        Text(
-          title,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: context.dynamicWidth(0.045),
-            fontWeight: FontWeight.w600,
+        Expanded(
+          child: Text(
+            title,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: context.dynamicWidth(0.045),
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
+        if (menu != null) menu!,
       ],
     );
   }
 }
 
 class _EventInfoRow extends StatelessWidget {
-  final EventEntity event;
+  final String title;
+  final String? description;
 
-  const _EventInfoRow({required this.event});
+  const _EventInfoRow({required this.title, this.description});
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +147,7 @@ class _EventInfoRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                event.name,
+                title,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: context.dynamicWidth(0.051),
@@ -128,10 +155,10 @@ class _EventInfoRow extends StatelessWidget {
                   letterSpacing: 0.5,
                 ),
               ),
-              if (event.description != null) ...[
+              if (description != null) ...[
                 SizedBox(height: context.dynamicHeight(0.005)),
                 Text(
-                  event.description!,
+                  description!,
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.9),
                     fontSize: context.dynamicWidth(0.032),
@@ -149,9 +176,10 @@ class _EventInfoRow extends StatelessWidget {
 }
 
 class _EventDetailsChip extends StatelessWidget {
-  final EventEntity event;
+  final String? venue;
+  final String? when;
 
-  const _EventDetailsChip({required this.event});
+  const _EventDetailsChip({this.venue, this.when});
 
   @override
   Widget build(BuildContext context) {
@@ -168,8 +196,8 @@ class _EventDetailsChip extends StatelessWidget {
         spacing: context.dynamicWidth(0.04),
         runSpacing: context.dynamicHeight(0.01),
         children: [
-          _DetailItem(icon: Icons.location_on, text: event.venue),
-          _DetailItem(icon: Icons.calendar_today, text: '${event.date} | ${event.time}'),
+          if (venue != null && venue!.isNotEmpty) _DetailItem(icon: Icons.location_on, text: venue!),
+          if (when != null) _DetailItem(icon: Icons.calendar_today, text: when!),
         ],
       ),
     );

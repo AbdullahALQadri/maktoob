@@ -116,9 +116,24 @@ class ScannerFailure extends Failure {
   const ScannerFailure({super.message, super.code});
 }
 
-/// Check-in refused with 409: the guest is already checked in.
-class AlreadyCheckedInFailure extends ScannerFailure {
-  const AlreadyCheckedInFailure({super.message, super.code});
+/// No connection: the write was queued and will be sent when it returns
+/// (PendingActionsQueue). [message] is the translation key to show.
+class QueuedOfflineFailure extends NetworkFailure {
+  const QueuedOfflineFailure() : super(message: 'event_queued_offline');
+}
+
+/// The door refused the guest. [reason] is a door rule code the UI
+/// translates (`door_reason_<code>`), because an offline door has no server
+/// message to show: event_not_active, qr_not_yet_valid, qr_expired,
+/// too_many_companions, not_found, other_event, no_pack, ...
+class DoorRefusedFailure extends ScannerFailure {
+  final String reason;
+  final int? maxCompanions;
+
+  const DoorRefusedFailure({required this.reason, this.maxCompanions, super.message});
+
+  @override
+  List<Object?> get props => [reason, maxCompanions, message];
 }
 
 /// Represents a failure during file picking operations.

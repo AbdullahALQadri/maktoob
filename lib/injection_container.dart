@@ -27,32 +27,10 @@ import 'features/explore/domain/usecases/get_occasion_groups_usecase.dart';
 import 'features/explore/domain/usecases/get_public_templates_usecase.dart';
 import 'features/explore/presentation/cubit/explore_cubit.dart';
 import 'core/services/pending_wizard_intent_service.dart';
-import 'features/home/data/datasources/home_local_data_source.dart';
-import 'features/home/data/datasources/home_remote_data_source.dart';
-import 'features/home/data/repositories/home_repository_impl.dart';
-import 'features/home/domain/repositories/home_repository.dart';
-import 'features/home/domain/usecases/get_recent_events_usecase.dart';
-import 'features/home/domain/usecases/get_stats_usecase.dart';
-import 'features/home/presentation/cubit/home_cubit.dart';
+import 'features/events/events_module.dart';
+import 'features/home/home_module.dart';
 
 // Events Feature
-import 'features/events/data/datasources/event_add_ons_remote_data_source.dart';
-import 'features/events/data/datasources/events_local_data_source.dart';
-import 'features/events/data/datasources/events_remote_data_source.dart';
-import 'features/events/data/repositories/event_add_ons_repository_impl.dart';
-import 'features/events/data/repositories/events_repository_impl.dart';
-import 'features/events/domain/repositories/event_add_ons_repository.dart';
-import 'features/events/domain/repositories/events_repository.dart';
-import 'features/events/domain/usecases/get_event_add_ons_usecase.dart';
-import 'features/events/domain/usecases/request_event_add_on_usecase.dart';
-import 'features/events/domain/usecases/withdraw_event_add_on_usecase.dart';
-import 'features/events/domain/usecases/filter_events_usecase.dart';
-import 'features/events/domain/usecases/get_event_details_usecase.dart';
-import 'features/events/domain/usecases/get_events_usecase.dart';
-import 'features/events/presentation/cubit/events_list/events_list_cubit.dart';
-import 'features/events/presentation/cubit/edit_event/edit_event_cubit.dart';
-import 'features/events/presentation/cubit/event_add_ons/event_add_ons_cubit.dart';
-import 'features/events/presentation/cubit/event_details/event_details_cubit.dart';
 
 // Venues Feature
 import 'features/venues/data/datasources/venues_local_data_source.dart';
@@ -64,9 +42,18 @@ import 'features/venues/domain/usecases/get_venues_usecase.dart';
 import 'features/venues/domain/usecases/search_venues_usecase.dart';
 import 'features/venues/presentation/cubit/venues_cubit.dart';
 
-// Scanner Feature
-import 'features/scanner/data/datasources/scanner_remote_data_source.dart';
+// Scanner Feature (the offline door)
+import 'core/offline/android_hub_service.dart';
+import 'core/offline/background_sync.dart';
+import 'core/offline/offline_database.dart';
+import 'core/offline/pending_actions_queue.dart';
+import 'features/scanner/data/datasources/door_remote_data_source.dart';
+import 'features/scanner/data/datasources/door_store.dart';
+import 'features/scanner/data/door_engine.dart';
+import 'features/scanner/data/door_session_manager.dart';
+import 'features/scanner/data/repositories/door_admin_repository_impl.dart';
 import 'features/scanner/data/repositories/scanner_repository_impl.dart';
+import 'features/scanner/domain/repositories/door_admin_repository.dart';
 import 'features/scanner/domain/repositories/scanner_repository.dart';
 import 'features/scanner/domain/usecases/check_in_guest_usecase.dart';
 import 'features/scanner/domain/usecases/get_guest_list_usecase.dart';
@@ -103,6 +90,12 @@ import 'features/notifications/domain/repositories/notifications_repository.dart
 import 'features/notifications/domain/usecases/get_notifications_usecase.dart';
 import 'features/notifications/domain/usecases/mark_notification_read_usecase.dart';
 import 'features/notifications/presentation/cubit/notifications_cubit.dart';
+import 'features/identity/data/datasources/identity_remote_data_source.dart';
+import 'features/identity/data/repositories/identity_repository_impl.dart';
+import 'features/identity/domain/repositories/identity_repository.dart';
+import 'features/identity/domain/usecases/get_identity_usecase.dart';
+import 'features/identity/domain/usecases/submit_identity_usecase.dart';
+import 'features/identity/presentation/cubit/identity_cubit.dart';
 import 'features/institution/data/datasources/institution_remote_data_source.dart';
 import 'features/institution/data/repositories/institution_repository_impl.dart';
 import 'features/institution/domain/repositories/institution_repository.dart';
@@ -177,34 +170,7 @@ Future<void> init({bool pushAvailable = true}) async {
   );
 
   //! ========== HOME FEATURE ==========
-  // Data Sources
-  sl.registerLazySingleton<HomeRemoteDataSource>(
-    () => HomeRemoteDataSourceImpl(apiConsumer: sl()),
-  );
-
-  sl.registerLazySingleton<HomeLocalDataSource>(
-    () => HomeLocalDataSourceImpl(sharedPreferences: sl()),
-  );
-
-  // Repository
-  sl.registerLazySingleton<HomeRepository>(
-    () => HomeRepositoryImpl(
-      remoteDataSource: sl(),
-      localDataSource: sl(),
-    ),
-  );
-
-  // Use Cases
-  sl.registerLazySingleton(() => GetStatsUseCase(sl()));
-  sl.registerLazySingleton(() => GetRecentEventsUseCase(sl()));
-
-  // Cubit
-  sl.registerFactory(
-    () => HomeCubit(
-      getStatsUseCase: sl(),
-      getRecentEventsUseCase: sl(),
-    ),
-  );
+  registerHomeModule(sl);
 
   //! ========== NOTIFICATIONS (client in-app inbox) ==========
   sl.registerLazySingleton<NotificationsRemoteDataSource>(
@@ -238,61 +204,7 @@ Future<void> init({bool pushAvailable = true}) async {
   );
 
   //! ========== EVENTS FEATURE ==========
-  // Data Sources
-  sl.registerLazySingleton<EventsRemoteDataSource>(
-    () => EventsRemoteDataSourceImpl(apiConsumer: sl()),
-  );
-
-  sl.registerLazySingleton<EventsLocalDataSource>(
-    () => EventsLocalDataSourceImpl(sharedPreferences: sl()),
-  );
-
-  // Repository
-  sl.registerLazySingleton<EventsRepository>(
-    () => EventsRepositoryImpl(
-      remoteDataSource: sl(),
-      localDataSource: sl(),
-      networkInfo: sl(),
-    ),
-  );
-
-  // Use Cases
-  sl.registerLazySingleton(() => GetEventsUseCase(sl()));
-  sl.registerLazySingleton(() => GetEventDetailsUseCase(sl()));
-  sl.registerLazySingleton(() => FilterEventsUseCase(sl()));
-
-  // Cubits
-  sl.registerFactory(
-    () => EventsListCubit(
-      getEventsUseCase: sl(),
-      filterEventsUseCase: sl(),
-    ),
-  );
-
-  sl.registerFactory(
-    () => EventDetailsCubit(
-      getEventDetailsUseCase: sl(),
-      eventsRepository: sl(),
-    ),
-  );
-
-  sl.registerFactory(
-    () => EditEventCubit(eventsRepository: sl()),
-  );
-
-  // Extra services on a paid event (request → team review → pay only them)
-  sl.registerLazySingleton<EventAddOnsRemoteDataSource>(
-    () => EventAddOnsRemoteDataSourceImpl(apiConsumer: sl()),
-  );
-  sl.registerLazySingleton<EventAddOnsRepository>(
-    () => EventAddOnsRepositoryImpl(remoteDataSource: sl()),
-  );
-  sl.registerLazySingleton(() => GetEventAddOnsUseCase(sl()));
-  sl.registerLazySingleton(() => RequestEventAddOnUseCase(sl()));
-  sl.registerLazySingleton(() => WithdrawEventAddOnUseCase(sl()));
-  sl.registerFactory(
-    () => EventAddOnsCubit(getAddOns: sl(), requestAddOn: sl(), withdrawAddOn: sl()),
-  );
+  registerEventsModule(sl);
 
   //! ========== VENUES FEATURE ==========
   // Data Sources
@@ -327,15 +239,44 @@ Future<void> init({bool pushAvailable = true}) async {
     ),
   );
 
-  //! ========== SCANNER FEATURE ==========
-  // Data Sources
-  sl.registerLazySingleton<ScannerRemoteDataSource>(
-    () => ScannerRemoteDataSourceImpl(apiConsumer: sl()),
+  //! ========== SCANNER FEATURE (offline door) ==========
+  // One SQLite file for door packs, door check-ins and queued writes; the
+  // background sync task opens the same file from its own isolate.
+  final offlineDb = await OfflineDatabase.shared();
+  sl.registerLazySingleton<DoorStore>(() => SqliteDoorStore(offlineDb));
+
+  // Door calls carry the client token, or a paired phone's / scanner
+  // account's own token; never the app's AuthInterceptor (no forced logout).
+  sl.registerLazySingleton<DoorRemoteDataSource>(
+    () => DoorRemoteDataSource(DoorHttp(tokenFor: (s) => DoorSessionManager.tokenFor(secureStorage, s))),
+  );
+  sl.registerLazySingleton<DoorSessionManager>(
+    () => DoorSessionManager(store: sl(), remote: sl(), secure: secureStorage),
+  );
+  sl.registerLazySingleton<DoorEngine>(
+    () => DoorEngine(
+      store: sl(),
+      remote: sl(),
+      connectivity: sl<InternetConnectionChecker>()
+          .onStatusChange
+          .map((s) => s == InternetConnectionStatus.connected),
+      onQueued: BackgroundSync.scheduleSoon,
+      keepAlive: AndroidHubService(),
+    ),
   );
 
-  // Repository
+  // Writes made offline elsewhere in the app (sent when the connection returns).
+  sl.registerLazySingleton<PendingActionsQueue>(
+    () => PendingActionsQueue(database: OfflineDatabase.shared, token: secureStorage.getToken)
+      ..onQueued = BackgroundSync.scheduleSoon,
+  );
+
+  // Repositories
   sl.registerLazySingleton<ScannerRepository>(
-    () => ScannerRepositoryImpl(remoteDataSource: sl()),
+    () => ScannerRepositoryImpl(engine: sl()),
+  );
+  sl.registerLazySingleton<DoorAdminRepository>(
+    () => DoorAdminRepositoryImpl(remote: sl()),
   );
 
   // Use Cases
@@ -346,6 +287,7 @@ Future<void> init({bool pushAvailable = true}) async {
   // Cubit
   sl.registerFactory(
     () => ScannerCubit(
+      repository: sl(),
       scanQrCodeUseCase: sl(),
       checkInGuestUseCase: sl(),
       getGuestListUseCase: sl(),
@@ -362,6 +304,17 @@ Future<void> init({bool pushAvailable = true}) async {
   sl.registerFactory(() => InstitutionCubit(repository: sl()));
   sl.registerFactory(() => InstitutionTeamCubit(repository: sl()));
   sl.registerFactory(() => InstitutionCreditsCubit(repository: sl()));
+
+  //! ========== IDENTITY FEATURE (KYC) ==========
+  sl.registerLazySingleton<IdentityRemoteDataSource>(
+    () => IdentityRemoteDataSourceImpl(apiConsumer: sl()),
+  );
+  sl.registerLazySingleton<IdentityRepository>(
+    () => IdentityRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
+  );
+  sl.registerLazySingleton(() => GetIdentityUseCase(sl()));
+  sl.registerLazySingleton(() => SubmitIdentityUseCase(sl()));
+  sl.registerFactory(() => IdentityCubit(getIdentity: sl(), submitIdentity: sl()));
 
   //! ========== PAYMENT FEATURE ==========
   // Data Sources

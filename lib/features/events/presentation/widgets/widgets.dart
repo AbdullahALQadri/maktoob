@@ -1,19 +1,12 @@
 // Events feature widgets barrel export
 
-export 'all_events_card_widget.dart';
-export 'all_events_header.dart';
-export 'event_analytics_card.dart';
-export 'event_details_cards.dart';
+export 'event_detail_section.dart';
+export 'event_messages_card.dart';
+export 'event_occasion_card.dart';
+export 'event_package_card.dart';
+export 'event_replies_card.dart';
 export 'edit_request_banner.dart';
 export 'edit_request_status_card.dart';
-export 'event_details_header.dart';
-export 'event_info_card.dart';
-export 'event_quick_stats.dart';
-export 'event_tab_bar.dart';
-export 'events_empty_state.dart';
-export 'events_error_state.dart';
-export 'guest_card.dart';
-export 'step_header_widget.dart';
 export 'pending_payment_banner.dart';
 export 'guest_invitation_sheet.dart';
 export 'guest_actions_bar.dart';

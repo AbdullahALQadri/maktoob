@@ -110,13 +110,20 @@ class Endpoints {
   /// POST `{terms_accepted: true}`: accept the Terms / Privacy version in force.
   static const String clientAcceptLegal = '/auth/legal/accept';
   static const String clientDeleteAccount = '/auth/account';
+  /// GET: identity verification state + form options; POST multipart: a new
+  /// submission (document fields, `front`, `back?`, `declaration`).
+  static const String clientIdentity = '/auth/identity';
 
   // ============================================================
-  // CLIENT - DASHBOARD
+  // CLIENT - HOME (same numbers and events as the portal dashboard)
   // ============================================================
-  static const String clientDashboardStats = '/client/dashboard/stats';
-  static const String clientDashboardRecentEvents =
-      '/client/dashboard/recent-events';
+  static const String clientHome = '/client/home';
+  static const String clientEvents = '/client/events'; // ?status=&q=&page=
+  // Event page follow-up (activity, setup steps, resend failed, fix an unsent guest)
+  static String eventActivity(String id) => '/events/$id/activity';
+  static String eventProgress(String id) => '/events/$id/progress';
+  static String eventResendFailed(String id) => '/events/$id/invitations/resend-failed';
+  static String unsentGuest(String eventId, String invitationId) => '/events/$eventId/invitations/$invitationId/guest';
 
   // ============================================================
   // CLIENT - EVENTS
@@ -160,7 +167,6 @@ class Endpoints {
   // ============================================================
   static const String payments = '/payments';
   static String payment(int id) => '/payments/$id';
-  static const String paymentsInitiate = '/payments/initiate';
 
   // Institutions (companies & associations)
   static const String institution = '/institution';
@@ -197,17 +203,10 @@ class Endpoints {
   static const String guestVerifyOtp = '/guest/auth/verify-otp';
   static const String guestLogout = '/guest/auth/logout';
   static const String guestProfile = '/guest/profile';
-  static const String guestUpdateProfile = '/guest/profile';
-  static const String guestFcmToken = '/guest/fcm-token';
 
   // ============================================================
   // GUEST - BROWSE (Read-Only)
   // ============================================================
-  static const String guestVenues = '/guest/venues';
-  static String guestVenue(int id) => '/guest/venues/$id';
-  static const String guestEvents = '/guest/events';
-  static String guestEvent(int id) => '/guest/events/$id';
-  static const String guestScanQr = '/guest/scan-qr';
 
   // ============================================================
   // SCANNER AUTHENTICATION
@@ -241,6 +240,19 @@ class Endpoints {
   // Host self-scan (client token). `/scanner/*` above needs a scanner account.
   static String eventCheckInScan(int eventId) => '/events/$eventId/check-in/scan';
   static String eventCheckInList(int eventId) => '/events/$eventId/guests/check-in-list';
+
+  // ============================================================
+  // OFFLINE DOOR (door pack, sync, gates, staff codes)
+  // ============================================================
+  // The same door API under three roots, by who holds the phone:
+  // the host / institution member (client token), a scanner account, or
+  // a staff phone paired by a door code (its own token, `/door`).
+  static String doorForEvent(int eventId) => '/events/$eventId/door';
+  static String doorForScanner(int eventId) => '/scanner/events/$eventId/door';
+  static const String doorPaired = '/door';
+  static const String doorPair = '/door/pair';
+  static const String doorPairedGate = '/door/gate';
+  static const String doorPairedLogout = '/door/logout';
 
   // ============================================================
   // ADMIN AUTHENTICATION

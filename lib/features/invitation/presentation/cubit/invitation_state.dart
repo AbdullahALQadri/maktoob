@@ -1245,7 +1245,7 @@ class InvitationState extends Equatable {
 
   /// Services total price
   double get servicesTotalPrice =>
-      selectedServices.fold(0, (sum, s) => sum + s.price);
+      selectedServices.fold(0, (sum, s) => sum + s.effectivePrice);
 
   // ============ Legacy Getters (backward compatibility) ============
 

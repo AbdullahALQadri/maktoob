@@ -55,7 +55,7 @@ class InstitutionDocumentEntity extends Equatable {
   List<Object?> get props => [id, type, originalName, size, uploadedAt];
 }
 
-/// What the review needs, as reported by the backend.
+/// What the review needs, as reported by the backend (KYB).
 class InstitutionVerification extends Equatable {
   final bool name;
   final bool sector;
@@ -63,20 +63,53 @@ class InstitutionVerification extends Equatable {
   final bool registrationDocument;
   final bool declaration;
 
+  /// Legal form, registration number and the country of registration.
+  final bool legalDetails;
+
+  /// The account owner's identity is verified (the person acting for it).
+  final bool representativeIdentity;
+
+  /// Their role is stated, with an authorization letter when acting by mandate.
+  final bool authorization;
+
   const InstitutionVerification({
     this.name = false,
     this.sector = false,
     this.logo = false,
     this.registrationDocument = false,
     this.declaration = false,
+    this.legalDetails = false,
+    this.representativeIdentity = false,
+    this.authorization = false,
   });
 
   /// Required items (the logo is recommended, not required).
-  bool get isComplete => name && sector && registrationDocument && declaration;
+  bool get isComplete =>
+      name && sector && legalDetails && registrationDocument && representativeIdentity && authorization && declaration;
 
   @override
-  List<Object?> get props => [name, sector, logo, registrationDocument, declaration];
+  List<Object?> get props =>
+      [name, sector, logo, registrationDocument, declaration, legalDetails, representativeIdentity, authorization];
 }
+
+/// Legal forms accepted by the backend (`Institution::LEGAL_FORMS`).
+const List<String> kInstitutionLegalForms = [
+  'sole_proprietorship',
+  'general_partnership',
+  'limited_partnership',
+  'private_limited_company',
+  'public_limited_company',
+  'non_profit_company',
+  'association',
+  'foreign_ngo',
+  'cooperative',
+  'government',
+  'other',
+];
+
+/// Who the account owner is for the organization (`Institution::REPRESENTATIVE_ROLES`):
+/// named on the certificate (owner / director) or acting by an authorization letter.
+const List<String> kInstitutionRepresentativeRoles = ['owner', 'director', 'authorized'];
 
 /// Identity edits on an approved institution, held until staff review them.
 class InstitutionPendingChanges extends Equatable {
@@ -118,6 +151,25 @@ class InstitutionEntity extends Equatable {
   final List<InstitutionDocumentEntity> documents;
   final InstitutionPendingChanges? pendingChanges;
 
+  /// Brand names guests see on invitations (optional); [nameAr] / [nameEn]
+  /// are the OFFICIAL names as on the registration certificate.
+  final String? tradeNameAr;
+  final String? tradeNameEn;
+  final String? legalForm;
+  final String? registrationAuthority;
+
+  /// ISO 3166 alpha-2.
+  final String? registrationCountry;
+
+  /// Y-m-d.
+  final String? registrationDate;
+
+  /// owner | director | authorized
+  final String? representativeRole;
+
+  /// Where the organization is based (ISO 3166 alpha-2).
+  final String? country;
+
   const InstitutionEntity({
     required this.id,
     required this.status,
@@ -142,6 +194,14 @@ class InstitutionEntity extends Equatable {
     this.verification = const InstitutionVerification(),
     this.documents = const [],
     this.pendingChanges,
+    this.tradeNameAr,
+    this.tradeNameEn,
+    this.legalForm,
+    this.registrationAuthority,
+    this.registrationCountry,
+    this.registrationDate,
+    this.representativeRole,
+    this.country,
   });
 
   bool get isApproved => status == InstitutionStatus.approved;
@@ -160,8 +220,17 @@ class InstitutionEntity extends Equatable {
           ? pendingChanges!.fields[column]
           : live;
 
-  String displayName(bool isArabic) =>
-      (!isArabic && (nameEn ?? '').isNotEmpty) ? nameEn! : nameAr;
+  /// The name guests see: the trade (brand) name when set, else the official one.
+  String displayName(bool isArabic) {
+    final trades = isArabic ? [tradeNameAr, tradeNameEn] : [tradeNameEn, tradeNameAr];
+    for (final name in trades) {
+      if ((name ?? '').isNotEmpty) return name!;
+    }
+    return officialName(isArabic);
+  }
+
+  /// The official (registered) name.
+  String officialName(bool isArabic) => (!isArabic && (nameEn ?? '').isNotEmpty) ? nameEn! : nameAr;
 
   @override
   List<Object?> get props => [
@@ -188,6 +257,14 @@ class InstitutionEntity extends Equatable {
         verification,
         documents,
         pendingChanges,
+        tradeNameAr,
+        tradeNameEn,
+        legalForm,
+        registrationAuthority,
+        registrationCountry,
+        registrationDate,
+        representativeRole,
+        country,
       ];
 }
 
@@ -339,6 +416,16 @@ class InstitutionProfileInput extends Equatable {
   final String? governorate;
   final String? address;
   final String? description;
+  final String? tradeNameAr;
+  final String? tradeNameEn;
+  final String? legalForm;
+  final String? registrationAuthority;
+  final String? registrationCountry;
+
+  /// Y-m-d.
+  final String? registrationDate;
+  final String? representativeRole;
+  final String? country;
 
   /// The owner confirmed they may represent the organization and the data is accurate.
   final bool declaration;
@@ -363,6 +450,14 @@ class InstitutionProfileInput extends Equatable {
     this.governorate,
     this.address,
     this.description,
+    this.tradeNameAr,
+    this.tradeNameEn,
+    this.legalForm,
+    this.registrationAuthority,
+    this.registrationCountry,
+    this.registrationDate,
+    this.representativeRole,
+    this.country,
     this.declaration = false,
     this.logoPath,
     this.sendEmpty = false,
@@ -381,6 +476,14 @@ class InstitutionProfileInput extends Equatable {
       'governorate': governorate,
       'address': address,
       'description': description,
+      'trade_name_ar': tradeNameAr,
+      'trade_name_en': tradeNameEn,
+      'legal_form': legalForm,
+      'registration_authority': registrationAuthority,
+      'registration_country': registrationCountry,
+      'registration_date': registrationDate,
+      'representative_role': representativeRole,
+      'country': country,
     };
     return {
       'organization_name_ar': nameAr,
@@ -404,6 +507,14 @@ class InstitutionProfileInput extends Equatable {
         governorate,
         address,
         description,
+        tradeNameAr,
+        tradeNameEn,
+        legalForm,
+        registrationAuthority,
+        registrationCountry,
+        registrationDate,
+        representativeRole,
+        country,
         declaration,
         logoPath,
         sendEmpty,

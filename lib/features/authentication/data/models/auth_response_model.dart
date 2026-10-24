@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../identity/data/models/identity_models.dart';
+import '../../../identity/domain/entities/identity_entities.dart';
 import '../../../institution/data/models/institution_models.dart';
 import '../../../institution/domain/entities/institution_entity.dart';
 import '../../domain/entities/user_entity.dart';
@@ -54,6 +56,10 @@ class ClientModel extends Equatable {
   final List<InstitutionMembershipModel> memberships;
   final bool mustChangePassword;
   final bool mustAcceptTerms;
+  final IdentityStateEntity? identity;
+
+  /// The raw `identity` block, kept so a cached user round-trips through toJson.
+  final Map<String, dynamic>? identityJson;
 
   const ClientModel({
     required this.id,
@@ -70,6 +76,8 @@ class ClientModel extends Equatable {
     this.memberships = const [],
     this.mustChangePassword = false,
     this.mustAcceptTerms = false,
+    this.identity,
+    this.identityJson,
   });
 
   /// The auth user, including the institution payload.
@@ -88,11 +96,15 @@ class ClientModel extends Equatable {
         memberships: memberships,
         mustChangePassword: mustChangePassword,
         mustAcceptTerms: mustAcceptTerms,
+        identity: identity,
       );
 
   factory ClientModel.fromJson(Map<String, dynamic> json) {
     final institution = InstitutionModel.tryParse(json['institution']);
+    final identityJson = json['identity'] is Map ? Map<String, dynamic>.from(json['identity']) : null;
     return ClientModel(
+      identity: IdentityStateModel.tryParse(identityJson),
+      identityJson: identityJson,
       accountType: json['account_type']?.toString() ?? json['user_type']?.toString() ?? 'individual',
       institutionStatus: InstitutionStatus.fromString(json['institution_status']?.toString()) ??
           institution?.status,
@@ -132,11 +144,12 @@ class ClientModel extends Equatable {
       'company_name': companyName,
       'is_verified': isVerified,
       'locale': locale,
+      if (identityJson != null) 'identity': identityJson,
     };
   }
 
   @override
-  List<Object?> get props => [id, name, email, phone, avatar, companyName, isVerified, locale];
+  List<Object?> get props => [id, name, email, phone, avatar, companyName, isVerified, locale, identity];
 }
 
 /// Guest user model (OTP-based authentication)

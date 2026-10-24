@@ -220,18 +220,18 @@ class _Page1EventSetupScreenState extends State<Page1EventSetupScreen> {
                                   'ابحث عن الموقع أو القاعة...',
                           prefixIcon: Icons.location_on_outlined,
                           onChanged: (v) {
-                            // Round-trip the typed text via customLocation so
-                            // saveEventDetails sends it as custom_venue_name_ar.
-                            // Coordinates default to 0 when the user only typed
-                            // an address — a richer map picker lives in
-                            // EventLocationSection if exact coords are needed.
-                            final loc = LocationModel(
-                              placeName: v,
-                              address: state.customLocation?.address ?? v,
-                              latitude: state.customLocation?.latitude ?? 0,
-                              longitude: state.customLocation?.longitude ?? 0,
-                            );
-                            context.read<InvitationCubit>().setCustomLocation(loc);
+                            // The typed line is the whole place (sent as
+                            // custom_venue_name_ar); a map pin, if any, is
+                            // kept. Coordinates stay 0 until the host pins it.
+                            final pin = state.customLocation;
+                            context.read<InvitationCubit>().setCustomLocation(
+                                  LocationModel(
+                                    placeName: v,
+                                    address: pin?.address ?? '',
+                                    latitude: pin?.latitude ?? 0,
+                                    longitude: pin?.longitude ?? 0,
+                                  ),
+                                );
                           },
                         ),
                       ),

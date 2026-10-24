@@ -8,12 +8,11 @@ import '../repositories/scanner_repository.dart';
 
 class ScanQrCodeParams extends Equatable {
   final String qrData;
-  final int eventId;
 
-  const ScanQrCodeParams({required this.qrData, required this.eventId});
+  const ScanQrCodeParams({required this.qrData});
 
   @override
-  List<Object?> get props => [qrData, eventId];
+  List<Object?> get props => [qrData];
 }
 
 class ScanQrCodeUseCase extends UseCase<CheckInGuestEntity, ScanQrCodeParams> {
@@ -22,8 +21,7 @@ class ScanQrCodeUseCase extends UseCase<CheckInGuestEntity, ScanQrCodeParams> {
   ScanQrCodeUseCase(this.repository);
 
   @override
-  Future<Either<Failure, CheckInGuestEntity>> call(
-      ScanQrCodeParams params) async {
-    return await repository.scanQrCode(params.qrData, params.eventId);
+  Future<Either<Failure, CheckInGuestEntity>> call(ScanQrCodeParams params) async {
+    return await repository.scanQrCode(params.qrData);
   }
 }

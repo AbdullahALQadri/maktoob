@@ -1,94 +1,19 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:maktoob/core/error/exceptions.dart';
-import 'package:maktoob/features/scanner/data/datasources/scanner_remote_data_source.dart';
-import 'package:maktoob/features/scanner/data/models/check_in_guest_model.dart';
-import 'package:maktoob/features/scanner/data/repositories/scanner_repository_impl.dart';
-import 'package:maktoob/features/scanner/domain/usecases/check_in_guest_usecase.dart';
-import 'package:maktoob/features/scanner/domain/usecases/get_guest_list_usecase.dart';
-import 'package:maktoob/features/scanner/domain/usecases/scan_qr_code_usecase.dart';
-import 'package:maktoob/features/scanner/presentation/cubit/scanner_cubit.dart';
+import 'package:maktoob/core/error/failures.dart';
 import 'package:maktoob/features/scanner/presentation/cubit/scanner_state.dart';
 
-Map<String, dynamic> _scan({
-  bool canCheckIn = true,
-  String? blocker,
-  int? max,
-  bool declined = false,
-  bool already = false,
-}) =>
-    {
-      'id': 7,
-      'guest_name': 'سارة',
-      'response_status': declined ? 'not_attending' : 'attending',
-      'expected_companions': 3,
-      'already_checked_in': already,
-      'last_check_in': already ? {'checked_in_at': '2026-10-10T17:05:00Z'} : null,
-      'event_status': canCheckIn ? 'active' : 'completed',
-      'can_check_in': canCheckIn,
-      'blocker': canCheckIn ? null : 'event_not_active',
-      'blocker_message': blocker,
-      'max_companions': max,
-      'declined_rsvp': declined,
-      'warning': declined ? 'This guest declined the invitation (not attending).' : null,
-    };
-
-class _FakeSource implements ScannerRemoteDataSource {
-  Map<String, dynamic> scanPayload = _scan();
-  Object? checkInError;
-  int? sentCompanions;
-  int checkInCalls = 0;
-
-  @override
-  Future<CheckInGuestModel> scanQrCode(String qrCode, int eventId) async =>
-      CheckInGuestModel.fromInvitationJson(scanPayload, qrCode: qrCode);
-
-  @override
-  Future<CheckInGuestModel> checkInGuest(String invitationId, int eventId,
-      {int? actualCompanions, String? notes}) async {
-    checkInCalls++;
-    sentCompanions = actualCompanions;
-    if (checkInError != null) throw checkInError!;
-    return CheckInGuestModel.fromCheckInResponse(
-      {
-        'success': true,
-        'warning': scanPayload['warning'],
-        'declined_rsvp': scanPayload['declined_rsvp'],
-        'data': {
-          'attendance_log': {
-            'guest_name': 'سارة',
-            'actual_companions': actualCompanions,
-            'checked_in_at': '2026-10-10T18:00:00Z',
-          },
-        },
-      },
-      invitationId: invitationId,
-      requestedCompanions: actualCompanions,
-    );
-  }
-
-  @override
-  Future<List<CheckInGuestModel>> getGuestList(int eventId, {String? searchQuery}) async => [];
-}
-
-ScannerCubit _cubit(_FakeSource src) {
-  final repo = ScannerRepositoryImpl(remoteDataSource: src);
-  return ScannerCubit(
-    scanQrCodeUseCase: ScanQrCodeUseCase(repo),
-    checkInGuestUseCase: CheckInGuestUseCase(repo),
-    getGuestListUseCase: GetGuestListUseCase(repo),
-  )..setEvent(1);
-}
-
+import 'fake_scanner_repository.dart';
 
 void main() {
   group('kiosk mode', () {
     test('auto-checks in with RSVP companions capped at max', () async {
-      final src = _FakeSource()..scanPayload = _scan(max: 2);
-      final cubit = _cubit(src);
+      final repo = FakeScannerRepository()..scan = Right(guestEntity(max: 2));
+      final cubit = await cubitFor(repo);
       await cubit.kioskScan('qr');
 
-      expect(src.checkInCalls, 1);
-      expect(src.sentCompanions, 2, reason: 'RSVP 3 capped at max 2');
+      expect(repo.checkInCalls, 1);
+      expect(repo.sentCompanions, 2, reason: 'RSVP 3 capped at max 2');
       final s = cubit.state as KioskResult;
       expect(s.admitted, isTrue);
       expect(s.name, 'سارة');
@@ -96,40 +21,65 @@ void main() {
       await cubit.close();
     });
 
-    test('a blocked QR (not yet valid / expired) is refused without a request', () async {
-      final src = _FakeSource()..scanPayload = _scan(canCheckIn: false, blocker: 'الدعوة صالحة يوم 20/11/2026');
-      final cubit = _cubit(src);
+    test('a blocked QR (not yet valid / expired) is refused without a check-in', () async {
+      final repo = FakeScannerRepository()
+        ..scan = Right(guestEntity(canCheckIn: false, blockerCode: 'qr_not_yet_valid'));
+      final cubit = await cubitFor(repo);
       await cubit.kioskScan('qr');
 
-      expect(src.checkInCalls, 0);
+      expect(repo.checkInCalls, 0);
       final s = cubit.state as KioskResult;
       expect(s.admitted, isFalse);
-      expect(s.message, 'الدعوة صالحة يوم 20/11/2026');
+      expect(s.code, 'qr_not_yet_valid');
       await cubit.close();
     });
 
-    test('an already-entered guest shows "already in" with the time', () async {
-      final src = _FakeSource()..scanPayload = _scan(already: true);
-      final cubit = _cubit(src);
+    test('a guest coming back the same day is welcomed back; nothing is recorded again', () async {
+      final repo = FakeScannerRepository()..scan = Right(guestEntity(already: true));
+      final cubit = await cubitFor(repo);
       await cubit.kioskScan('qr');
 
-      expect(src.checkInCalls, 0);
+      expect(repo.checkInCalls, 0);
       final s = cubit.state as KioskResult;
-      expect(s.admitted, isFalse);
-      expect(s.message, isEmpty);
-      expect(s.checkedInAt, isNotNull);
+      expect(s.admitted, isTrue);
+      expect(s.returning, isTrue);
+      expect(s.checkedInAt, DateTime.utc(2026, 10, 10, 17, 5), reason: 'the first entry');
+      expect(s.checkedInDevice, 'Women 1');
       await cubit.close();
     });
 
-    test('a 409 race also maps to "already in"', () async {
-      final src = _FakeSource()
-        ..checkInError = const ConflictException(message: 'Guest is already checked in.');
-      final cubit = _cubit(src);
+    test('coming back after the event day is refused: the QR is one day', () async {
+      final repo = FakeScannerRepository()
+        ..scan = Right(guestEntity(already: true, canCheckIn: false, blockerCode: 'qr_expired'));
+      final cubit = await cubitFor(repo);
       await cubit.kioskScan('qr');
 
       final s = cubit.state as KioskResult;
       expect(s.admitted, isFalse);
-      expect(s.message, isEmpty);
+      expect(s.code, 'qr_expired');
+      await cubit.close();
+    });
+
+    test('another door let them in first: still a welcome back', () async {
+      final repo = FakeScannerRepository()..checkInResult = guestEntity(already: true, returning: true);
+      final cubit = await cubitFor(repo);
+      await cubit.kioskScan('qr');
+
+      final s = cubit.state as KioskResult;
+      expect(s.admitted, isTrue);
+      expect(s.returning, isTrue);
+      expect(s.checkedInDevice, 'Women 1');
+      await cubit.close();
+    });
+
+    test('an unknown QR is refused with its reason', () async {
+      final repo = FakeScannerRepository()..scan = const Left(DoorRefusedFailure(reason: 'other_event'));
+      final cubit = await cubitFor(repo);
+      await cubit.kioskScan('qr');
+
+      final s = cubit.state as KioskResult;
+      expect(s.admitted, isFalse);
+      expect(s.code, 'other_event');
       await cubit.close();
     });
   });

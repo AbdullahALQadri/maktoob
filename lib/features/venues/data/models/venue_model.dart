@@ -78,13 +78,27 @@ class VenueModel extends VenueEntity {
     return [AppColors.primaryColor, AppColors.tertiaryColor];
   }
 
+  /// Icons a venue can carry. A release build tree-shakes the icon font, so
+  /// an icon may never be built from a runtime code point: the stored
+  /// `codePoint` is matched back to one of these constants.
+  static const List<IconData> _venueIcons = [
+    Icons.business,
+    Icons.location_on,
+    Icons.event,
+    Icons.people,
+    Icons.apartment,
+    Icons.home,
+    Icons.hotel,
+    Icons.restaurant,
+    Icons.park,
+    Icons.celebration,
+  ];
+
   /// Helper method to parse icon from JSON
   static IconData _parseIcon(dynamic iconData) {
-    if (iconData == null) {
-      return Icons.business;
-    }
-    if (iconData is int) {
-      return IconData(iconData, fontFamily: 'MaterialIcons');
+    final codePoint = iconData is int ? iconData : int.tryParse('${iconData ?? ''}');
+    for (final icon in _venueIcons) {
+      if (icon.codePoint == codePoint) return icon;
     }
     return Icons.business;
   }

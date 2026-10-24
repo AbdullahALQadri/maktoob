@@ -5,7 +5,7 @@
 > **Content-Type:** `application/json` (unless multipart)
 > **Timeout:** 30s (requests), 60s (uploads)
 > **Pagination:** `?page=1&per_page=20`. Defaults and caps differ per endpoint, and so do the shapes (raw Laravel paginator with top-level `last_page`; `ApiResponse` `{data[], meta{last_page}}`; Resource collection `{data, links, meta{last_page}}`; `{<items>[], pagination{last_page}}`). The app reads them all through `Pagination` (`lib/core/api/paginated_fetch.dart`): `lastPageOf()` / `fetchAll()` walk pages until `last_page`, an empty page, or a page cap.
-> **Currency:** ILS (Israeli New Shekel)
+> **Currency:** ILS (Shekel, Palestine - Gaza). USD / EUR are quotes on top (see Currencies).
 > **Timezone:** Asia/Gaza (+02:00)
 
 ---
@@ -14,14 +14,14 @@
 
 | # | Method | Endpoint | Request Body | Response | Auth | Notes |
 |---|--------|----------|-------------|----------|------|-------|
-| 1 | POST | `/auth/register` | `{ name*, phone* (unique), password* (min:8), password_confirmation*, terms_accepted* (true), email?, company_name? }` | `{ message, client: { id, name, email, phone }, otp_sent: true }` | No | Sends OTP via WhatsApp after registration. `terms_accepted` = the "I agree to the Terms and Conditions" box; recorded with version, time, IP and channel. |
+| 1 | POST | `/auth/register` | `{ name* (the PERSON's full name as on their ID: letters only, ≥ 2 words; for an institution the representative, with the organization in organization_name_ar), phone* (unique), password* (min:8), password_confirmation*, terms_accepted* (true), email?, company_name? }` | `{ message, client: { id, name, email, phone }, otp_sent: true }` | No | Sends OTP via WhatsApp after registration. `terms_accepted` = the "I agree to the Terms and Conditions" box; recorded with version, time, IP and channel. |
 | 2 | POST | `/auth/login` | `{ login* (phone or email), password* }` | `{ message, token: "1\|abc...", client: { id, name, email, phone, avatar, is_verified } }` | No | `login` accepts both email and phone |
 | 3 | POST | `/auth/verify-otp` | `{ login*, code* (size:6) }` | `{ message, token, client: { id, name, email, phone, is_verified } }` | No | Marks client as verified, returns token |
 | 4 | POST | `/auth/resend-otp` | `{ login*, purpose? (in: registration, forgot_password) }` | `{ message, otp_sent: true }` | No | Resends OTP for registration or forgot password |
 | 5 | POST | `/auth/forgot-password` | `{ login* }` | `{ message, otp_sent: true }` | No | Sends OTP to phone for password reset |
 | 6 | POST | `/auth/reset-password` | `{ login*, code* (size:6), password* (min:8), password_confirmation* }` | `{ message }` | No | Requires valid OTP from forgot-password |
 | 7 | POST | `/auth/logout` | — | `{ message }` | Yes | Invalidates current Sanctum token |
-| 8 | GET | `/auth/profile` | — | `{ client: { id, name, email, phone, avatar, avatar_url, initials, company_name, address, city, country, locale, is_active, is_verified, verified_at, created_at, account_type, institution_status, institution, institution_memberships, must_change_password, legal: { acceptance_required, terms_version, privacy_version, pending: [{type, version, title, change_summary, url}] } } }` | Yes | `legal.acceptance_required` → the app shows the blocking accept screen (after any forced password change). Whitelisted shape (`Client::accountPayload()`), same `client` as login / register / verify-otp. `avatar` is a storage path; **display `avatar_url`** (absolute). |
+| 8 | GET | `/auth/profile` | — | `{ client: { id, name, email, phone, avatar, avatar_url, initials, company_name, address, city, country, locale, is_active, is_verified, verified_at, created_at, account_type, institution_status, institution, institution_memberships, must_change_password, identity: { status, verified_at, required, … } (see "Identity verification (KYC)"), legal: { acceptance_required, terms_version, privacy_version, pending: [{type, version, title, change_summary, url}] } } }` | Yes | `legal.acceptance_required` → the app shows the blocking accept screen (after any forced password change). Whitelisted shape (`Client::accountPayload()`), same `client` as login / register / verify-otp. `avatar` is a storage path; **display `avatar_url`** (absolute). |
 | 9 | PUT / POST | `/auth/profile` | `{ name? (min:2), email? (nullable, unique), company_name?, address?, city?, country?, locale? (in:ar,en), avatar? (jpg/png/webp, ≤2 MB, ≥96×96), remove_avatar? (bool) }` | `{ message, client: {...} }` | Yes | Use **POST** for multipart (PHP ignores multipart on PUT). Phone is not editable. |
 | 9a | POST | `/auth/profile/avatar` | multipart `{ avatar* }` | `{ message, client: {...} }` | Yes | Replaces and deletes the old file. |
 | 9b | DELETE | `/auth/profile/avatar` | — | `{ message, client: {...} }` | Yes | Removes the photo; `avatar_url` becomes null. |
@@ -36,7 +36,7 @@
 
 | # | Method | Endpoint | Request Body | Response | Auth | Notes |
 |---|--------|----------|-------------|----------|------|-------|
-| 1 | POST | `/guest/auth/send-otp` | `{ phone* }` | `{ success, message }` | No | — |
+| 1 | POST | `/guest/auth/send-otp` | `{ phone* }` | `{ success, message }`; 422 for a non-Palestinian mobile (codes go by SMS); 429 when the number had its daily codes | No | — |
 | 2 | POST | `/guest/auth/verify-otp` | `{ phone*, otp* (size:6) }` | `{ success, token, data: { id, name, phone, email, gender, locale } }` | No | Returns guest token |
 | 3 | POST | `/guest/auth/logout` | — | `{ success }` | Yes | — |
 | 4 | GET | `/guest/profile` | — | `{ data: { id, name, phone, email, gender, locale } }` | Yes | — |
@@ -70,10 +70,16 @@
 
 | # | Method | Endpoint | Response | Auth | Notes |
 |---|--------|----------|----------|------|-------|
-| 1 | GET | `/client/dashboard/stats` | `{ success, data: [ { title, title_ar, value, icon, color, subtitle, subtitle_ar } ] }` | Yes | Cache: `CACHED_STATS` |
-| 2 | GET | `/client/dashboard/recent-events` | `{ success, data: [ { id, name, name_ar, date, status, guest_count, venue, venue_ar, type, type_ar } ] }` | Yes | Cache: `CACHED_RECENT_EVENTS` |
+| 1 | GET | `/client/home` | `{ success, data: { totals{events, active_events, invitations, responses, response_rate}, next_event: EventCard\|null, events: EventCard[≤6], free_trial_available, now } }` | Yes | **Used by the app's home.** Same numbers, nearest occasion and order as the web dashboard (`App\Services\Client\ClientHome`) |
+| 1b | GET | `/client/events?status=&q=&page=&per_page=` | `{ success, data: EventCard[], meta{current_page,last_page,per_page,total,from,to}, counts{all, draft, pending_payment, active, completed, cancelled} }` | Yes | **The app's My events tab.** Same list as the portal (`App\Services\Client\ClientEventList`): view scope, newest first, `status` one of the enum (anything else ignored), `q` searches the title (wildcards are literal), `per_page` 1-50 (default 12). `counts` ignore the filters |
+| 2 | GET | `/client/dashboard/stats` | `{ success, data: [ { title, title_ar, value, icon, color, subtitle, subtitle_ar } ] }` | Yes | Legacy (older app builds). "Active" there means date not passed |
+| 3 | GET | `/client/dashboard/recent-events` | `{ success, data: [ { id, name, name_ar, date, status, guest_count, venue, venue_ar, type, type_ar } ] }` | Yes | Legacy (older app builds) |
 
-> **Caching:** Cache-first fallback. Try remote, cache result. On failure, serve cached data.
+- **Scope:** own events plus the institution events the member may *view* (door staff see none, as on the portal).
+- **EventCard** (`App\Support\ClientEventCard`): `{id, title, status, event_type{id,name_ar,name_en}|null, event_date (Gaza ISO with offset), image_url, invitations_count, opened_count, responded_count, countdown_days (0 today, <0 passed, null when cancelled), next_action{key, step}, step_number (1-6 while draft / pending_payment, else null), steps_total, my_role}`.
+- **`next_action.key`:** `complete_details | add_guests | choose_design | pay | track_payment | send_invitations | view_results` (`ClientEventProgress::nextAction`). The app words it itself.
+- **`now`:** Gaza time with its UTC offset; the app turns the hourly banner mood with it (`BannerMood`, pinned to the backend by a test).
+- **Offline:** no local copy; the offline cache (`DioConsumer`) serves the last answer and adds `_offline.age_seconds`.
 
 ---
 
@@ -83,15 +89,21 @@
 |---|--------|----------|---------------------|----------|------|-------|
 | 1 | GET | `/events` | `?search=&status=&page=&per_page=` (default 15, max 100) | Raw Laravel paginator: `{ data: [ EventObject ], current_page, last_page, per_page, total, ... }` | Yes | The app walks every page (`per_page=50`, at most 20 pages) via `Pagination.fetchAll` |
 | 2 | POST | `/events` | `{ title_ar*, title_en?, event_type_id*, template_id?, event_date*, event_time?, venue_id?, description_ar?, description_en? }` | `{ success, data: { id, title_ar, status } }` | Yes | Direct create (not wizard) |
-| 3 | GET | `/events/{id}` | — | `{ success, data: EventObject }` | Yes | — |
+| 3 | GET | `/events/{id}` | — | `{ event: { ...event columns, image_url, allowed_channels, my_role, details } }` | Yes | `details` = everything the host entered, the same fields the portal and the admin show (`App\Support\EventDetails::forApi`): `starts_at` / `ends_at` / `invitations_sent_at` / `created_at` (Gaza ISO with offset; read the wall clock), `venue { name, address, map_url, lat, lng }`, `description`, `occasion_answers [ { key, label_ar, label_en, value, on_invitation } ]` (every answer, even to a question removed later), `replies { require_response, response_deadline, allow_companions, max_companions (0 = not allowed, null = no limit), ask_reason }`, `messages [ { key: invitation\|acceptance\|refusal\|ask_reason_prompt\|ask_reason_question\|thank_you, ar, en } ]` (only the texts the host wrote), `delivery_method`, `billing { package { name_ar, name_en }, custom_package, invitation_limit, invitations_used, remaining, invoice_number, total, paid, currency: ILS }` |
 | 4 | PUT | `/events/{id}` | `{ title_ar?, venue_id?, custom_venue_address_ar?, description_ar?, event_date?, status?, max_companions?, allow_companions? }` | `{ success, data: EventObject }` | Yes | Direct edit |
 | 5 | DELETE | `/events/{id}` | — | `{ message }`; 422 `{ code: cancel_instead }` once an active event's invitations were sent | Yes (owner) | Cancel instead: `PUT /events/{id} { status: cancelled }` |
-| 6 | GET | `/events/{id}/invitations` | `?status=&page=&per_page=` (default 15, max 1000) | Resource collection: `{ data: [ { id, display_name, guest: { name, email, phone }, status, companions, is_checked_in, open_count } ], links, meta: { current_page, last_page, ... } }` | Yes | Guest list; the app walks every page (`per_page=200`, at most 50 pages) |
+| 6 | GET | `/events/{id}/invitations` | `?status=&reply=&q=&page=&per_page=` (default 15, max 1000) | Resource collection: `{ data: [ { id, display_name, guest: { name, email, phone }, status, companions, is_checked_in, open_count } ], links, meta: { current_page, last_page, ... }, counts: { all, attending, not_attending, maybe, none, failed } }` | Yes | Guest list; the app walks every page (`per_page=200`, at most 50 pages) and filters offline itself. `reply` = attending, not_attending, maybe, none (no answer), failed (did not arrive); `q` matches the name or the number's digits (a local 059… finds +970 59…). `counts` ignore the filters |
+| 6a | GET | `/events/{id}/activity` | — | `{ success, data: [ { invitation_id, type: opened\|replied, reply, name, companions, at (Gaza ISO) } ] }` (latest 8) | Yes (view) | Event page feed, same as the portal (`App\Services\Client\EventFollowUp`) |
+| 6b | GET | `/events/{id}/progress` | — | `{ success, data: { in_setup, next_action{key, step}, steps: [ { key, done, current } ×6 ], invitations_count } }` | Yes (view) | The draft page's checklist (`ClientEventProgress`) |
+| 6c | POST | `/events/{id}/invitations/resend-failed` | — | `{ success, data: { failed, sent } }`; 422 `{ message, code: nothing_failed \| resend_blocked }` | Yes (manage) | `throttle:invite-resend`; skips guests past the resend cap / cooldown |
+| 6d | PUT | `/events/{id}/invitations/{invitation}/guest` | `{ name, phone }` | `{ success, data: invitation }`; 422 when already sent or the number is invalid | Yes (manage) | Fix a guest before sending (`UnsentGuestEditor`, shared with the portal) |
 | 7 | GET | `/events/{id}/statistics` | — | `{ statistics: { checked_in, checked_in_companions, attendees, total_invitations, sent, failed, opened, responded, attending, not_attending, maybe, ... } }` | Yes | `attendees` = checked-in guests + their companions (door count). The app merges `checked_in*` / `attendees` into event details. |
 | 8 | POST | `/events/{id}/send-invitations` | `{ delivery_method* (whatsapp\|sms\|email\|app, from `allowed_channels`), invitation_ids? }` | `{ message, dispatched, skipped, invitations_sent_at }`; 409 nothing new to send; 422 not active / channel not in package / nothing pending | Yes | Sends every `pending` invitation. Callable again later: it sends only guests added since |
 | 8b | POST | `/events/{id}/guests/add` | `{ guests: [ { name*, phone* } ] }` | 201 `{ created, sent, duplicates, invalid_phones[], over_limit_count, remaining_invitations }`; 422 not active / over package limit | Yes | Add guests to a live event. Sent right away if the invitations already went out |
 
 **EventObject:** `{ id, title_ar, title_en, event_type: { id, name_ar, name_en }, event_date, event_time, venue_data: { name_ar }, custom_venue_address_ar, description_ar, max_invitations, status, rsvp_deadline, response_deadline, package: { name_ar }, template: { name_ar }, max_companions, allow_companions }`
+
+**Where (the place):** the app asks once — one line in `custom_venue_name_ar` («قاعة الأندلس – الرمال، غزة») plus an optional Gaza pin (`custom_venue_lat/lng`). It sends `custom_venue_address_ar: ""` with the line to clear an older separate address, and shows `custom_venue_name_ar` + `custom_venue_address_ar` through `VenueText.line()` (the address only when it adds to the name; same rule as `Event::venueLine()`). Renaming the place in Arabic clears its stale English copy unless `custom_venue_name_en` is sent too. Approving an edit request that changes `venue` also clears the old address and pin.
 
 ---
 
@@ -100,7 +112,7 @@
 | # | Method | Endpoint | Request Body | Response | Auth | Notes |
 |---|--------|----------|-------------|----------|------|-------|
 | 1 | GET | `/events/{id}/edit-requests` | — | `{ success, data: [ { id, event_id, changes: {}, status, admin_notes, created_at } ] }` | Yes | — |
-| 2 | POST | `/events/{id}/edit-requests` | `{ name?, venue?, venue_address?, description?, event_date?, max_companions?, allow_companions?, rsvp_deadline? }` | `{ success, data: { id, status: "pending" }, message }` | Yes | Requires admin approval |
+| 2 | POST | `/events/{id}/edit-requests` | `{ name?, venue?, venue_address?, description?, event_date?, max_companions?, allow_companions?, rsvp_deadline? }` | `{ success, data: { id, status: "pending" }, message }` | Yes | Requires admin approval. One pending request per event: a second one is refused with 422 `errors.changes`. On approval of a new `venue` / `event_date`, staff choose whether to notify the guests (WhatsApp template `maktoob_event_changed_*`) and the door staff; the event's own door shifts move with a new date. |
 
 ---
 
@@ -154,8 +166,8 @@
 
 | # | Method | Endpoint | Request Body | Response | Auth |
 |---|--------|----------|-------------|----------|------|
-| 1 | GET | `/event-wizard/{eventId}/services` | — | `{ success, data: [ { id, name_ar, name_en, description_ar, description_en, price (ILS), icon_url, event_type_id } ] }` | Yes |
-| 2 | POST | `/event-wizard/{eventId}/services` | `{ service_ids: [1, 3, 5] }` | `{ success, message, data: { services_total, selected_services, requested_service_ids } }`. Before payment it replaces the invoice's services. On an **active (paid)** event it never re-bills: each newly ticked service becomes an add-on request (`requested_service_ids`); see §14.1. `422` while a payment request is under review, or on a completed/cancelled event | Yes |
+| 1 | GET | `/event-wizard/{eventId}/services` | — | `{ success, data: { services: [ { id, name_ar, name_en, description_ar, description_en, includes_ar, includes_en, category, base_price (ILS, the "from" price when there are levels), icon, image, audience, lead_time_days, active_options: [ { id, name_ar, name_en, price (ILS), includes_ar, includes_en } ] } ], grouped_services, categories } }`. `active_options` are the service's levels (empty = one price); every price is for the whole event. Only services offered for this event: its occasion (admin-picked occasions, none = all) and the client's account kind (`audience`: all / individual / institution). `includes_*` is one item per line. A service with `lead_time_days` cannot be added closer than that to the event | Yes |
+| 2 | POST | `/event-wizard/{eventId}/services` | `{ service_ids: [1, 3, 5], service_options?: { "<service id>": <level id> } }` (a service with levels and no pick, or a level of another service, gets its cheapest level) | `{ success, message, data: { services_total, selected_services, requested_service_ids } }`. Before payment it replaces the invoice's services. On an **active (paid)** event it never re-bills: each newly ticked service becomes an add-on request (`requested_service_ids`); see §14.1. `422` while a payment request is under review, or on a completed/cancelled event | Yes |
 
 ### Step 6: Package Selection
 
@@ -170,7 +182,7 @@
 |---|--------|----------|-------------|----------|------|
 | 1 | GET | `/event-wizard/{eventId}/invoice` | — | `{ success, data: { invoice_number, base_price, services_total, template_fee, discount, total_price, line_items: [ { description, amount } ], created_at, event_name, package_name, guest_count } }` | Yes |
 | 2 | POST | `/event-wizard/{eventId}/save` | `{ is_draft* }` | `{ success, message }` | Yes |
-| 3 | GET | `/event-wizard/{eventId}/state` | — | `{ success, data: { current_step, completed_steps[], event } }` | Yes |
+| 3 | GET | `/event-wizard/{eventId}/state` | — | `{ success, data: { current_step, completed_steps[], event, design_allowance } }` (see *Design limits* below) | Yes |
 | 4 | POST | `/event-wizard/{eventId}/activate` | — | `{ success, message }` | Yes |
 
 ---
@@ -211,8 +223,8 @@
 | 2 | POST | `/events/{eventId}/invitations` | `{ guest_ids* }` | `{ success, data: {...} }` | Yes |
 | 3 | GET | `/invitations/{id}` | — | `{ success, data: {...} }` | Yes |
 | 4 | DELETE | `/invitations/{id}` | — | `{ success }` | Yes |
-| 5 | POST | `/invitations/{id}/resend` | — | `{ success, message }` | Yes |
-| 6 | POST | `/invitations/{id}/check-in` | `{ actual_companions? (0..max_companions), notes? }` | `{ message, declined_rsvp, warning, invitation }`; 422 `{ message, code: event_not_active|qr_not_yet_valid|qr_expired|too_many_companions\|code: event_not_active|qr_not_yet_valid|qr_expired|too_many_companions, max_companions? }`; 409 `{ message, code: already_checked_in }` | Yes |
+| 5 | POST | `/invitations/{id}/resend` | — | `{ success, message }`; 422 `{ message, code: resend_blocked }` (answered / arrived guest, per-guest cap, cooldown); 429 `{ message, code: throttled }` | Yes |
+| 6 | POST | `/invitations/{id}/check-in` | `{ actual_companions? (0..max_companions), notes? }` | `{ message, returning, declined_rsvp, warning, invitation }`; 422 `{ message, code: event_not_active\|qr_not_yet_valid\|qr_expired\|too_many_companions, max_companions? }` | Yes |
 | 7 | POST | `/events/{event}/check-in/scan` | `{ qr_code* }` | `{ success, data: { invitation: { ...scan payload, scan flags: `can_check_in` (bool), `blocker` (`event_not_active`|`qr_not_yet_valid`|`qr_expired`|null), `valid_on` ("dd/mm/yyyy" or "dd/mm/yyyy - dd/mm/yyyy" | null)\|`blocker` (`event_not_active`|`qr_not_yet_valid`|`qr_expired`|null), `valid_on` ("dd/mm/yyyy" or "dd/mm/yyyy - dd/mm/yyyy" | null), `blocker_message`, `event_status`, `max_companions` (int\|`blocker` (`event_not_active`|`qr_not_yet_valid`|`qr_expired`|null), `valid_on` ("dd/mm/yyyy" or "dd/mm/yyyy - dd/mm/yyyy" | null), `declined_rsvp` (bool), `warning`, plus `already_checked_in`, `last_check_in{checked_in_at}` } } }`; 404 invalid QR | Yes |
 
 ---
@@ -240,10 +252,39 @@
 | # | Method | Endpoint | Request Body / Query | Response | Auth | Notes |
 |---|--------|----------|---------------------|----------|------|-------|
 | 1 | POST | `/scanner/check-in/scan` | `{ qr_code*, venue_id* }` | `{ success, data: { invitation: { id, guest_name, response_status, expected_companions, ..., scan flags: `can_check_in` (bool), `blocker` (`event_not_active`|`qr_not_yet_valid`|`qr_expired`|null), `valid_on` ("dd/mm/yyyy" or "dd/mm/yyyy - dd/mm/yyyy" | null)\|`blocker` (`event_not_active`|`qr_not_yet_valid`|`qr_expired`|null), `valid_on` ("dd/mm/yyyy" or "dd/mm/yyyy - dd/mm/yyyy" | null), `blocker_message`, `event_status`, `max_companions` (int\|`blocker` (`event_not_active`|`qr_not_yet_valid`|`qr_expired`|null), `valid_on` ("dd/mm/yyyy" or "dd/mm/yyyy - dd/mm/yyyy" | null), `declined_rsvp` (bool), `warning`, plus `already_checked_in`, `last_check_in{checked_in_at}` } } }` | Yes (scanner) | Scan only. If `can_check_in` is false the app shows `blocker_message` and offers no confirm; `declined_rsvp` shows `warning` but still allows. |
-| 2 | POST | `/scanner/check-in/{id}/verify` | `{ invitation_id*, venue_id*, actual_companions? (0..max_companions), notes? }` | `{ success, message, warning, declined_rsvp, data: { attendance_log: { id, invitation_id, checked_in_at, actual_companions, guest_name } } }`; 422 `{ message, code: event_not_active|qr_not_yet_valid|qr_expired|too_many_companions\|code: event_not_active|qr_not_yet_valid|qr_expired|too_many_companions, max_companions? }`; 409 `{ message, code: already_checked_in }` | Yes (scanner) | Confirms check-in. 409 shows "already checked in" with the scan time. |
+| 2 | POST | `/scanner/check-in/{id}/verify` | `{ invitation_id*, venue_id*, actual_companions? (0..max_companions), notes? }` | `{ success, message, returning, warning, declined_rsvp, data: { attendance_log: { id, invitation_id, checked_in_at, actual_companions, guest_name } } }`; 422 `{ message, code: event_not_active\|qr_not_yet_valid\|qr_expired\|too_many_companions, max_companions? }` | Yes (scanner) | Confirms check-in. `returning: true` = the guest came in earlier today: let back in, `attendance_log` is that first entry, nothing new is recorded. |
 | 4 | GET | `/scanner/attendance/{venueId}` | — | `{ success, data: [...] }` | Yes (scanner) | — |
 
-> **Door rules (CheckInService, all check-in paths):** status must be `active` or `completed` (draft / pending_payment / cancelled → `event_not_active`), and the QR is valid **by date in Asia/Gaza** from 00:00 of `event_date`'s day to 23:59:59 of `end_date`'s day (or `event_date`'s day). Before → `qr_not_yet_valid` ("الدعوة صالحة يوم {date}"), after → `qr_expired` ("انتهت صلاحية الدعوة"). The app's self-service (kiosk) mode uses the same two endpoints: scan, then check in immediately with `actual_companions` = RSVP companions capped at `max_companions`.
+### Offline door (the app's scanner uses these; works with no internet)
+
+The phone downloads a **door pack** (every invitation of the event, the door rules, the gates) before the event, admits guests from it with no connection, and uploads what it recorded later. The same API sits under three roots, by who holds the phone (all `ApiResponse` envelopes, `{success, message, data}`; own limiter `throttle:door` per token, 300/min; responses gzipped when asked):
+
+| Root | Who | Auth |
+|---|---|---|
+| `/events/{event}/door/*` | the host, or an institution member (`scan` for pack/sync, `manage` for gates/codes/devices) | client token |
+| `/scanner/events/{event}/door/*` | a scanner account assigned to the event's venue | scanner token |
+| `/door/*` | a staff phone paired with a door code (no account) | its own door token |
+
+| # | Method | Path (under the root) | Request | Response `data` | Notes |
+|---|--------|------|---------|----------|-------|
+| 1 | GET | `pack` | query `device_uuid, device_name, platform, gate_id, pending` (registers the phone) | `{ format: 1, event{id,title,status,event_date,end_date,valid_from,valid_until (ISO UTC),valid_on,timezone,allow_companions,companion_limit,venue_name}, gates[{id,name,audience: all\|men\|women,is_active}], keys{salt,sign} (base64url), server_time, cursor, roster_version, invitations[{id, hashes[], name, name_en, gender, phone_tail, companions, max_companions, rsvp, check_in\|null}] }` | No QR codes in the pack: `hashes` = first 16 bytes hex of HMAC-SHA256(salt, lower(code)) for `qr_code` and `short_url`. |
+| 2 | GET | `changes?since={cursor}&limit=` | same query as pack | `{ cursor, has_more, check_ins[{id,uuid,invitation_id,checked_in_at,companions,gate_id,device_name,source,flag}], event_status, roster_version, server_time }` | Other doors' check-ins. A different `roster_version` = download the pack again. |
+| 3 | POST | `check-ins` | `{ device{uuid,name,platform,gate_id,pending}, sent_at (device clock), items[≤500]{ uuid*, invitation_id*, companions, scanned_at, source: online\|offline\|lan\|manual, gate_id, device_uuid, device_name, notes } }` | `{ results[{ uuid, status: recorded\|replayed\|returned\|refused, code?, message?, flag?, max_companions?, check_in? }], device_id, server_time }` | Idempotent by item `uuid`. `online` = live claim (door rules decide; refused = not admitted). Others already happened: kept at `scanned_at` (clock skew corrected), a broken rule → `flag`. An invitation that already came in → `returned` (the guest stepped out and came back; `check_in` is the first entry, nothing is kept). |
+| 4 | POST | `lookup` | `{ qr }` | one pack invitation entry; 404 unknown | A guest added after the download. |
+| 5 | GET | `summary` | — | `{ totals{invitations,checked_in,companions,people,flagged}, by_source{}, gates[{...gate, guests, companions}], no_gate{guests,companions}, devices[...], can_manage }` | `/door/summary` hides `devices`. |
+| 6 | GET/POST/PUT/DELETE | `gates`, `gates/{id}` | `{ name*, audience? }` | gate | client root, `manage` |
+| 7 | GET/POST/DELETE | `codes`, `codes/{id}` | `{ label?, gate_id?, max_devices? (1..50) }` | POST: `{ code: "XXXXX-XXXXX" (shown once), door_code{id,label,hint,gate_id,max_devices,used_count,expires_at,revoked,usable}, share_text }` | client root, `manage`. Codes are stored hashed. |
+| 8 | GET/DELETE | `devices`, `devices/{id}` | — | `[{id,kind: paired\|client\|scanner\|lan,name,gate_id,last_seen_at,last_sync_at,pending,revoked,check_ins}]` | DELETE revokes a paired phone (401 `device_revoked` after). |
+
+Paired phones: `POST /door/pair {code*, device_uuid*, device_name*, platform?}` (public, `throttle:door-pair`) → `{ token, device, event, gates, access_until }`; 422 `{code: invalid_code\|code_expired\|code_full\|event_not_active\|device_revoked}`. Then `GET /door/session`, `PUT /door/gate {gate_id}`, `POST /door/logout`.
+
+New QR images encode `/i/{short_url}?k={event}.{invitation}.{max|n}.{sig}`: `sig` = base64url of the first 12 bytes of HMAC-SHA256(sign key, `v1|event|invitation|max|lower(short_url)`). An offline door accepts a genuine invitation that is not in its pack yet (warning `unlisted`). Older QRs (plain link, bare code, JSON) still scan through the pack.
+
+**Venue hub (no server).** One door phone serves the others over the venue Wi-Fi / its hotspot: `POST http://{ip}:8787/v1/{hello|pack|claim|push|changes}`, every body AES-256-GCM sealed with the secret in the hub's join QR (`maktoob-door:1:{base64url json{h: hosts[], e: event, t, n, k}}`). Phones joined to it learn within a second or two who another door let in, so a guest coming back shows as a return there too.
+- `claim`: answers `admitted`, `returned` (`check_in` = the first entry) or `refused` (`code`). the joined phone waits 4 s at most. The hub gives the server 1.5 s of that (when it answered in the last two minutes), then decides itself; a claim the server got late is replayed by its `uuid`, never counted twice. Claims for different guests run side by side, the same guest one at a time. No answer in time = the joined phone decides alone and uploads later.
+- On Android the hub runs as a foreground service (`connectedDevice`, a "venue hub on" notification), so it keeps serving with the screen off or another app open. On iOS it serves only while the app is open: the hub screen keeps the screen awake.
+
+> **Door rules (CheckInService, all check-in paths):** status must be `active` or `completed` (draft / pending_payment / cancelled → `event_not_active`), and the QR is valid **by date in Asia/Gaza** from 00:00 of `event_date`'s day to 23:59:59 of `end_date`'s day (or `event_date`'s day). Before → `qr_not_yet_valid` ("الدعوة صالحة يوم {date}"), after → `qr_expired` ("انتهت صلاحية الدعوة"). **The first entry is the attendance; a later scan that day is a return** (`returning` / `returned`): let back in, nothing recorded, companions not asked again; after the day it is `qr_expired` like any scan. The app's self-service (kiosk) mode uses the same two endpoints: scan, then check in immediately with `actual_companions` = RSVP companions capped at `max_companions`; a return is a "welcome back" with no check-in call.
 
 ---
 
@@ -300,7 +341,7 @@ A service added after the event is paid is its own small order. Status (`event_e
 | # | Method | Endpoint | Request Body | Response | Auth |
 |---|--------|----------|-------------|----------|------|
 | 1 | GET | `/events/{id}/add-ons` | — | `{ success, data: { can_request, invoice_open, services: [ { extra_service_id, name_ar, name_en, image, icon, quantity, unit_price, total_price, status, notes, decision_note, payment_request_id, can_withdraw } ], payment_due: { items[], subtotal, discount_percent, discount_amount, total }, pending_payment_request: { id, request_number, kind, amount } \| null, available_services: [ExtraService] } }` | Yes (manage) |
-| 2 | POST | `/events/{id}/add-ons` | `{ extra_service_id*, quantity? (1–100), notes? }` | `201` + same `data`. `422` if the event is not active, the service is already on it, or not offered for its type | Yes (manage) |
+| 2 | POST | `/events/{id}/add-ons` | `{ extra_service_id*, extra_service_option_id?, notes? }` (`quantity` is accepted from old builds and ignored: a service covers the whole event, always 1) | `201` + same `data`. `422` if the event is not active, the service is already on it, not offered for this event, or too close to the event for its `lead_time_days` | Yes (manage) |
 | 3 | DELETE | `/events/{id}/add-ons/{serviceId}` | — | same `data`; `422` once paid or while its payment is under review | Yes (manage) |
 | 4 | POST | `/events/{id}/add-ons/pay` | Multipart, like §14 #1: `payment_method`, `wallet_provider`, `invoice_images[]` (unless cash), `client_notes` | `201 { success, data: { payment_request (kind=services), ...same data } }`. Amount = `payment_due.total`, computed server-side. `422` if nothing is approved or a request is already pending | Yes (owner) |
 
@@ -489,6 +530,12 @@ Cards don't work in Gaza: the host pays cash in person, by IBAN transfer, or by 
 | Auth Token | FlutterSecureStorage | Encrypted | — |
 | App Preferences | SharedPreferences | `loggedIn`, `locale`, `themeMode` | Always available |
 | General Cache | Hive | `app_cache` | Serve cached |
+| Any GET (except live data: generation status, door, auth, scanner) | Hive | `http_cache` (`OfflineCacheInterceptor`) | Last good answer, header `x-maktoob-cache: 1` |
+| Door packs, door check-ins, door sessions | SQLite | `maktoob_offline.db` (`OfflineDatabase`) | The door works fully offline; uploads when online (foreground + WorkManager / BGTaskScheduler) |
+| Writes made offline (resend / remove invitation) | SQLite | `pending_actions` (`PendingActionsQueue`) | Sent in order when online, each with its own `Idempotency-Key`; Settings → "Waiting to send" |
+| Door tokens (paired phone, scanner account) | FlutterSecureStorage | `door_token_{session}` | Survive logout / 401 so queued check-ins still upload |
+
+Every non-GET request carries an `Idempotency-Key` header (`IdempotencyInterceptor`); the backend `IdempotentRequests` middleware replays the first answer for a repeat (`Idempotent-Replayed: true`), 422 `idempotency_key_reused` for the same key with another body, 409 `idempotency_in_progress` while the first still runs. Reads and keyed writes are retried on timeouts / dropped connections / 502-504 (`RetryInterceptor`).
 
 ---
 
@@ -623,3 +670,58 @@ The shekel is still the only **ledger** currency: every `amount`, `total` and in
 - `POST /payment-requests`, `POST /payment-requests/{id}/resubmit`, `POST /payment-requests/upgrade` accept an optional **`original_currency`** (`USD`/`EUR`/…). The server records `original_currency`, `original_amount` and `exchange_rate` from its own quote (so `original_amount × exchange_rate = amount`); the client chooses a currency, **never an amount**. `ILS` or omitted records nothing foreign. The other funding fields (`bank_route`, `payer_*`, `funding_reference`) are accepted too.
 - `clients.currency` stores a client's preferred display currency (portal/landing session for now).
 - App work still to do: a currency picker on the payment screen that calls `currency-quote`, sends `original_currency`, and re-fetches `bank-details?currency=`.
+
+### Design limits and billed-message limits (2026-10-24)
+Every generated image (a design background or an editor sticker) is a paid call, so the server meters them per event. Designs are **free to the client**; there is nothing to buy.
+
+- **Allowance:** each event has `designs_per_event` designs (default 3, plus any the team granted) and `stickers_per_event` stickers (default 5). A new event gets its own.
+- **Unpaid pool:** images on events that were never paid (not `active`/`completed`) also share one pool per phone number over 30 days (default 12). Paying for an event takes its images out of the pool, so a client who pays is never held back by it.
+- **One at a time:** a client has one design (and one sticker) in flight at a time.
+- **`design_allowance`** = `{ designs_limit, designs_used, designs_left, stickers_limit, stickers_used, stickers_left, pool_reached }`. `designs_left` already includes the pool, so it is the number to show and to disable the button on. It is returned by:
+  - `GET /event-wizard/{id}/state` (in `data`);
+  - `POST /event-wizard/{id}/generate-prompt`, `confirm-generate`, `refine-generate` (in `data`);
+  - `GET /event-wizard/{id}/generation-status/{imageId}` (in `data`, refreshed on every poll);
+  - `POST /events/{id}/concepts/generate`, `POST …/concepts/runs/{run}/regenerate` and `GET …/concepts/runs/{run}` (top level).
+- **Refunds:** an image that fails or times out gives its design back (the next poll shows it). A concept run keeps only the backgrounds that were actually painted.
+- **Concepts:** a client gets at most **3** concepts per request (`requested_count` above 3 is clamped), and never more than `designs_left`. The run's `requested_count` is what was granted.
+- **Refusals** carry `{ success: false, message, code, design_allowance }`. Show `message` as is: it is localized and never says "AI".
+  - 422 `event_limit` · `sticker_limit` · `unpaid_pool` · `blocked` (the team paused designs for this account);
+  - 429 `busy` (previous design still painting) · `client_daily` · `throttled` (more than 4 requests a minute / 30 an hour);
+  - 503 `paused` (the team paused designs for everyone, or the daily / monthly spending cap was reached).
+- `generate-prompt` already answers 422 when `designs_left` is 0, so a used-up event cannot keep composing prompts.
+- **Resends:** at most 3 per guest (`invitation_max_resends`), 15 minutes apart (`invitation_resend_cooldown_minutes`), and never to a guest who answered or arrived.
+- **Codes:** a number gets at most 5 codes a day (`otp_daily_per_number`), and the platform has a daily ceiling (`otp_daily_global_cap`). Both come back as the usual cooldown reply with their own `message`. SMS codes go to local mobiles (`+970` / `+972 5x`) only; other numbers get WhatsApp.
+
+## Identity verification (KYC) and institution KYB (2026-10-26)
+
+`is_verified` still means only "the mobile number was confirmed by code". Identity is a separate state: the client sends a photo of an official document with their legal name typed **in parts, exactly as printed** (never split from one string), and the Maktoob team reviews it. Once verified, the legal name is fixed (changing it needs a new document) and invoices / receipts print it; the account `name` stays the display name.
+
+### Endpoints (auth:sanctum + client, `{success, message, data}`)
+
+| Method | Endpoint | Body | Response |
+|---|---|---|---|
+| GET | `/auth/identity?locale=ar\|en` | — | `data: { identity, submissions: [submission] (latest 5), options: { document_types: [{key, label}], countries: [{code, name}] (PS first, names in `locale`), four_part_id_countries: ["PS"], check_digit_id_countries: ["PS","IL"], minimum_age: 18, max_file_kb: 8192 } }` |
+| POST | `/auth/identity` (multipart) | `document_type*` (national_id\|passport\|residence_permit), `document_country*` (ISO 3166 alpha-2), `document_number*`, `document_expires_on?` (Y-m-d, after today), `first_name_ar`, `father_name_ar`, `grandfather_name_ar`, `family_name_ar`, `given_names_latin`, `family_name_latin`, `birth_date*` (Y-m-d, age ≥ 18), `front*` (jpg/png/webp/pdf ≤ 8 MB), `back?`, `declaration*` = 1 | 201 `data: { identity, submission }` · 422 per field · 429 throttled (10/hour; 5 submissions/day) |
+
+- **Rules (mirrored in the app by `IdentityRules`):** Arabic fields Arabic letters only, Latin fields Latin letters only; a Palestinian (`PS`) national ID needs all four Arabic parts; a passport needs `given_names_latin` + `family_name_latin`; otherwise at least first + family name in one script. `PS` / `IL` national ID numbers are 9 digits with the check digit (weights 1,2,1,2…, digit sums, total % 10 == 0, padded left to 9); other numbers `[A-Z0-9]{4,20}`. Arabic-Indic digits are accepted and normalized.
+- A new submission **replaces** a pending one. The app compresses the photos (≈2200 px, JPEG quality 85, well under 2 MB) and needs a connection: ID photos are never queued offline.
+- `submission` = `{ id, status (pending|approved|rejected|cancelled|superseded), method, document_type, document_country, document_last4, document_expires_on, legal_name, birth_date, has_back, submitted_at, reviewed_at, rejection_reason }`. The full number and the files are never returned.
+- `legal_name` = `{ ar: { first, father, grandfather, family, full }, latin: { given, family, full } }`.
+
+### `client.identity` (login / register / verify-otp / GET + PUT `/auth/profile`)
+
+`{ status: none|pending|verified|rejected, verified_at, required, required_reason, legal_name | null, document: { type, country, last4, expires_on } | null, pending: { id, document_type, submitted_at } | null, rejection_reason }`
+
+- `required: true` = the team asked this client to verify; their events cannot be activated until then (activation blocker `identity_required`, shown with the server `message` as is).
+- Older backends send no `identity`; the app treats that as "not shown".
+- FCM types `identity.approved`, `identity.rejected`, `identity.required` (data: `type`, `client_id`) → re-fetch `/auth/profile` (never trust the push body).
+
+### Register: `name` is the person
+
+`name` is always the person's own full name (letters only, at least two words; 422 otherwise). An institution sign-up sends the representative's name in `name` and the organization in `organization_name_ar` (the app no longer puts the organization's name in `name`; the server tolerates that older shape only when `organization_name_ar == name`). `contact_person` defaults to the representative's name.
+
+### Institution KYB fields
+
+- The institution payload (`client.institution`, `GET /institution` → `data.institution`) adds `trade_name_ar, trade_name_en, display_name, legal_form, registration_authority, registration_country (ISO2), registration_date (Y-m-d), representative_role (owner|director|authorized), country (ISO2)`. `name_ar` / `name_en` are the **official** names (as on the certificate; invoices print them); the trade names are optional brand names shown on invitations.
+- `POST /institution/profile` accepts the same keys: `legal_form` ∈ `sole_proprietorship, general_partnership, limited_partnership, private_limited_company, public_limited_company, non_profit_company, association, foreign_ngo, cooperative, government, other`; `registration_date` not in the future. On an approved / suspended institution these are reviewed (held in `pending_changes`) like the other identity fields.
+- `verification` checklist keys: `name, sector, logo, legal_details, registration_document, representative_identity, authorization, declaration`. `legal_details` = legal form + registration number + registration country; `representative_identity` = the owner's own identity is verified (the app links it to the identity screen); `authorization` = `representative_role` set, plus an `authorization_letter` document when the role is `authorized`. All but `logo` are required for approval.

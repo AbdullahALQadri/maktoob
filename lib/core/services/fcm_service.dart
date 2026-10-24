@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as dev;
-import 'dart:io' show Platform;
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../utils/app_colors.dart';
@@ -114,7 +114,7 @@ class FcmService {
 
   Future<void> _showForeground(RemoteMessage m) async {
     final n = m.notification;
-    if (n == null || !Platform.isAndroid) return;
+    if (n == null || defaultTargetPlatform != TargetPlatform.android) return;
     try {
       await _local.show(
         m.hashCode,
@@ -144,7 +144,10 @@ class FcmService {
   Future<String?> getToken() async {
     if (!available) return null;
     try {
-      if (Platform.isIOS && !await _waitForApnsToken()) return null;
+      if (defaultTargetPlatform == TargetPlatform.iOS &&
+          !await _waitForApnsToken()) {
+        return null;
+      }
       return await _fm.getToken();
     } catch (e) {
       dev.log('FCM token unavailable: $e', name: 'FcmService');

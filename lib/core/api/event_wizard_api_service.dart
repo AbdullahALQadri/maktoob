@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import '../api/api_consumer.dart';
-import '../api/end_points.dart';
+import 'api_consumer.dart';
+import 'end_points.dart';
 
 /// Service for Event Wizard API calls
 class EventWizardApiService {
@@ -366,11 +366,16 @@ class EventWizardApiService {
   /// Save selected extra services
   Future<Map<String, dynamic>> saveExtraServices(
     int eventId,
-    List<int> serviceIds,
-  ) async {
+    List<int> serviceIds, {
+    Map<String, int>? options,
+  }) async {
     final response = await _apiConsumer.post(
       Endpoints.wizardServices(eventId),
-      body: {'service_ids': serviceIds},
+      body: {
+        'service_ids': serviceIds,
+        // service id => level id; a service with levels defaults to its cheapest.
+        if (options != null && options.isNotEmpty) 'service_options': options,
+      },
     );
     return response as Map<String, dynamic>;
   }

@@ -20,8 +20,8 @@ class EditEventState extends Equatable {
 
   // Form fields
   final String name;
+  /// The place on one line (an older separate address is folded in).
   final String venue;
-  final String? venueAddress;
   final String? description;
   final DateTime? eventDate;
   final DateTime? rsvpDeadline;
@@ -38,7 +38,6 @@ class EditEventState extends Equatable {
     this.isDraft = true,
     this.name = '',
     this.venue = '',
-    this.venueAddress,
     this.description,
     this.eventDate,
     this.rsvpDeadline,
@@ -56,11 +55,19 @@ class EditEventState extends Equatable {
       status == EditEventStatus.saved ||
       status == EditEventStatus.requestSubmitted;
 
+  /// One request at a time: the team reviews it before another can be sent.
+  bool get hasPendingRequest =>
+      !isDraft &&
+      previousRequests.any((r) => r.status == EditRequestStatus.pending);
+
+  bool get canSave => hasChanges && !hasPendingRequest;
+
+  bool get placeChanged => event != null && venue.trim() != event!.venueLine;
+
   bool get hasChanges {
     if (event == null) return false;
     return name != event!.name ||
-        venue != event!.venue ||
-        venueAddress != event!.venueAddress ||
+        placeChanged ||
         description != event!.description ||
         eventDate != event!.eventDate ||
         rsvpDeadline != event!.rsvpDeadline ||
@@ -74,7 +81,6 @@ class EditEventState extends Equatable {
     bool? isDraft,
     String? name,
     String? venue,
-    String? venueAddress,
     String? description,
     DateTime? eventDate,
     DateTime? rsvpDeadline,
@@ -89,7 +95,6 @@ class EditEventState extends Equatable {
       isDraft: isDraft ?? this.isDraft,
       name: name ?? this.name,
       venue: venue ?? this.venue,
-      venueAddress: venueAddress ?? this.venueAddress,
       description: description ?? this.description,
       eventDate: eventDate ?? this.eventDate,
       rsvpDeadline: rsvpDeadline ?? this.rsvpDeadline,
@@ -107,7 +112,6 @@ class EditEventState extends Equatable {
         isDraft,
         name,
         venue,
-        venueAddress,
         description,
         eventDate,
         rsvpDeadline,

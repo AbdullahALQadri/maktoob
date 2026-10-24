@@ -128,9 +128,19 @@ class AuthCubit extends Cubit<AuthState> {
     'institution.changes_rejected',
   };
 
-  /// Called by the FCM handler for every push; refreshes on institution ones.
+  /// Push types that change the account's identity verification (KYC).
+  static const identityPushTypes = {
+    'identity.approved',
+    'identity.rejected',
+    'identity.required',
+  };
+
+  /// Called by the FCM handler for every push; refreshes on institution and
+  /// identity ones (the push body is never trusted: the profile is re-fetched).
   Future<void> onPushType(String? type) async {
-    if (type != null && institutionPushTypes.contains(type) && state is AuthAuthenticated) {
+    if (type != null &&
+        (institutionPushTypes.contains(type) || identityPushTypes.contains(type)) &&
+        state is AuthAuthenticated) {
       await refreshProfile();
     }
   }

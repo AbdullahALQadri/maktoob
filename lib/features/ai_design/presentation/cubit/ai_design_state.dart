@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import '../../data/models/ai_form_field_model.dart';
 import '../../data/models/ai_image_model.dart';
+import '../../data/models/design_allowance_model.dart';
 import '../../data/models/generation_status_model.dart';
 
 abstract class AiDesignState extends Equatable {
@@ -35,6 +36,9 @@ class AiDesignReady extends AiDesignState {
   /// Saving a template / uploaded design (no generation involved).
   final bool isUploading;
 
+  /// Designs this event can still create; null until the server answered.
+  final DesignAllowanceModel? allowance;
+
   const AiDesignReady({
     required this.galleryImages,
     required this.formFields,
@@ -48,6 +52,7 @@ class AiDesignReady extends AiDesignState {
     this.generationError,
     this.selectedMoodTags = const [],
     this.isUploading = false,
+    this.allowance,
   });
 
   AiDesignReady copyWith({
@@ -63,6 +68,7 @@ class AiDesignReady extends AiDesignState {
     String? generationError,
     List<String>? selectedMoodTags,
     bool? isUploading,
+    DesignAllowanceModel? allowance,
     bool clearSelectedImage = false,
     bool clearFreeformPrompt = false,
     bool clearError = false,
@@ -80,6 +86,7 @@ class AiDesignReady extends AiDesignState {
       generationError:     clearError          ? null : (generationError    ?? this.generationError),
       selectedMoodTags:    selectedMoodTags    ?? this.selectedMoodTags,
       isUploading:         isUploading         ?? this.isUploading,
+      allowance:           allowance           ?? this.allowance,
     );
   }
 
@@ -100,6 +107,7 @@ class AiDesignReady extends AiDesignState {
     freeformPromptText, formValues, customPrompt,
     activeTab, isGenerating, generationError,
     selectedMoodTags, isUploading,
+    allowance?.designsLeft, allowance?.designsLimit, allowance?.poolReached,
   ];
 }
 

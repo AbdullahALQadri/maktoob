@@ -29,7 +29,6 @@ export 'widgets/animations/staggered_slide_fade.dart';
 
 export 'widgets/buttons/primary_button.dart';
 export 'widgets/buttons/secondary_button.dart';
-export 'widgets/buttons/gradient_button.dart';
 export 'widgets/buttons/app_text_button.dart';
 export 'widgets/buttons/app_icon_button.dart';
 
@@ -56,7 +55,6 @@ export 'widgets/images/app_image.dart';
 // WIDGETS - SCAFFOLD
 // =============================================================================
 
-export 'widgets/scaffold/app_scaffold.dart';
 export 'widgets/app_bars/maktoob_app_bar.dart';
 export 'widgets/tabs/pill_tabs.dart';
 

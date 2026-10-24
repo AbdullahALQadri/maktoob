@@ -8,11 +8,11 @@ class AppConstants {
   static const String timezoneOffset = '+02:00'; // Gaza timezone offset
 
   // ============================================================
-  // CURRENCY - Israeli New Shekel (ILS)
+  // CURRENCY - Shekel (ILS), Palestine - Gaza
   // ============================================================
   static const String currencyCode = 'ILS';
   static const String currencySymbol = '\u20AA'; // Unicode for ₪
-  static const String currencyName = 'Israeli New Shekel';
+  static const String currencyName = 'Shekel';
   static const int currencyDecimalPlaces = 2;
 
   /// Format amount with currency symbol

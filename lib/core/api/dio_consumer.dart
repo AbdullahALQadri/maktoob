@@ -13,6 +13,7 @@ import 'api_consumer.dart';
 import 'app_interceptors.dart';
 import 'auth_interceptor.dart';
 import 'end_points.dart';
+import 'offline_interceptors.dart';
 import 'status_code.dart';
 
 class DioConsumer implements ApiConsumer {
@@ -20,18 +21,23 @@ class DioConsumer implements ApiConsumer {
   final SecureStorageService _secureStorage = SecureStorageService();
 
   DioConsumer({required this.client}) {
-    // Certificate pinning: only allow self-signed certs in debug mode
-    (client.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
-      final httpClient = HttpClient();
-      if (kReleaseMode) {
-        // In release mode, enforce strict SSL validation
-        httpClient.badCertificateCallback = (cert, host, port) => false;
-      } else {
-        // In debug mode, allow self-signed certificates for local dev
-        httpClient.badCertificateCallback = (cert, host, port) => true;
-      }
-      return httpClient;
-    };
+    // Certificate pinning: only allow self-signed certs in debug mode.
+    // The browser owns TLS on the web, where the adapter is not an
+    // IOHttpClientAdapter.
+    final adapter = client.httpClientAdapter;
+    if (adapter is IOHttpClientAdapter) {
+      adapter.createHttpClient = () {
+        final httpClient = HttpClient();
+        if (kReleaseMode) {
+          // In release mode, enforce strict SSL validation
+          httpClient.badCertificateCallback = (cert, host, port) => false;
+        } else {
+          // In debug mode, allow self-signed certificates for local dev
+          httpClient.badCertificateCallback = (cert, host, port) => true;
+        }
+        return httpClient;
+      };
+    }
 
     // Enforce HTTPS in release mode
     final baseUrl = Endpoints.baseUrl;
@@ -56,7 +62,13 @@ class DioConsumer implements ApiConsumer {
           status != null && status >= StatusCode.ok && status < 300;
 
     client.interceptors.add(di.sl<AppIntercepters>());
+    // Weak networks: a write is never applied twice, a dropped request is
+    // retried, and a screen opened offline shows its last good answer.
+    // Order matters for errors: retry first, then fall back to the cache.
+    client.interceptors.add(IdempotencyInterceptor());
     client.interceptors.add(di.sl<AuthInterceptor>());
+    client.interceptors.add(RetryInterceptor(client));
+    client.interceptors.add(OfflineCacheInterceptor(_secureStorage.httpCache));
     if (kDebugMode) {
       client.interceptors.add(di.sl<LogInterceptor>());
     }

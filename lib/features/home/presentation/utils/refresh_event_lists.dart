@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../events/presentation/cubit/events_list/events_list_cubit.dart';
+import '../../../events/presentation/cubit/my_events/my_events_cubit.dart';
 import '../cubit/home_cubit.dart';
 
 /// Reload the home dashboard and the "my events" list. Call it when the user
@@ -13,9 +14,12 @@ import '../cubit/home_cubit.dart';
 void refreshEventLists(BuildContext context) {
   if (!context.mounted) return;
   try {
-    context.read<HomeCubit>().loadHomeData();
+    context.read<HomeCubit>().load();
   } catch (_) {}
   try {
     context.read<EventsListCubit>().refreshEvents();
+  } catch (_) {}
+  try {
+    context.read<MyEventsCubit>().refresh();
   } catch (_) {}
 }

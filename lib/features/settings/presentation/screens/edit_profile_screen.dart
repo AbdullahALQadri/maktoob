@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
+import '../../../../core/utils/person_name.dart';
 import '../../../authentication/domain/entities/user_entity.dart';
 import '../../../authentication/presentation/cubit/auth_cubit.dart';
 import '../cubit/profile_cubit.dart';
@@ -418,8 +419,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         if (value == null || value.trim().isEmpty) {
           return t.translate('auth_field_required');
         }
-        if (value.trim().length < 2) {
-          return t.translate('auth_min_2_chars');
+        // A changed name follows the sign-up rule (letters, at least two
+        // words); an older name never blocks saving the other fields.
+        if (PersonName.clean(value) != widget.user.name) {
+          final error = PersonName.fullNameErrorKey(value);
+          if (error != null) return t.translate(error);
         }
         return null;
       },

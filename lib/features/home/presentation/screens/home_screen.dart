@@ -1,280 +1,155 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/core.dart';
-import '../../../../core/services/fcm_service.dart';
-import '../../../../injection_container.dart' as di;
-import '../../../notifications/presentation/cubit/notifications_cubit.dart';
-import '../../../notifications/presentation/cubit/notifications_state.dart';
+import '../../../../config/locale/l10n_context.dart';
+import '../../../../core/design/window_size.dart';
+import '../../../../core/utils/app_colors.dart';
+import '../../../../core/widgets/network/saved_copy_note.dart';
+import '../../../authentication/domain/entities/user_entity.dart';
+import '../../../authentication/presentation/cubit/auth_cubit.dart';
+import '../../../authentication/presentation/cubit/auth_state.dart';
+import '../../../events/domain/entities/event_entity.dart';
+import '../../../institution/presentation/screens/institution_screen.dart';
+import '../../../invitation/presentation/screens/invitation_wizard_screen.dart';
+import '../../../events/domain/entities/event_card.dart';
+import '../../domain/entities/home_summary.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
-import '../widgets/widgets.dart';
-import '../../../../config/locale/app_localizations.dart';
-import '../../../events/presentation/cubit/events_list/events_list_cubit.dart';
-import '../../../notifications/presentation/screens/notifications_screen.dart';
-import '../widgets/event_search_delegate.dart';
+import '../widgets/home_error_state.dart';
+import '../widgets/home_events_section.dart';
+import '../widgets/home_first_visit.dart';
+import '../widgets/home_hero.dart';
+import '../widgets/home_kpis.dart';
+import '../widgets/home_loading.dart' as skeleton;
+import '../widgets/home_top_bar.dart';
+import '../widgets/institution_notice.dart';
 
-/// Home screen — editorial dashboard.
-///
-/// Layout:
-///   - Top app bar: "Maktoob" wordmark + search + notifications.
-///   - Title block (large heading + soft subtitle).
-///   - Hero metric card (Global RSVPs, big saffron percentage).
-///   - 2×2 stat grid.
-///   - Recent events (first card photo-led, rest text-led).
-///   - FAB bottom-right for "create event".
+/// Home: the hour's banner with the nearest occasion and its next step, the
+/// four numbers, then the events that need the host first. The same
+/// content as the web dashboard, laid out for the window.
 class HomeScreen extends StatefulWidget {
-  final Function(String)? onViewEvent;
+  const HomeScreen({super.key, this.onViewEvent, this.onCreateEvent, this.onViewAllEvents});
 
-  const HomeScreen({super.key, this.onViewEvent});
+  final ValueChanged<String>? onViewEvent;
+  final VoidCallback? onCreateEvent;
+
+  /// Opens the My events tab.
+  final VoidCallback? onViewAllEvents;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _fadeController;
-
+class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _fadeController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 700),
-    )..forward();
-    context.read<HomeCubit>().loadHomeData();
+    context.read<HomeCubit>().load();
   }
 
-  @override
-  void dispose() {
-    _fadeController.dispose();
-    super.dispose();
+  /// Setup steps continue in the wizard; everything else opens the event.
+  void _act(EventCard event) {
+    const wizardSteps = {NextAction.completeDetails, NextAction.addGuests, NextAction.chooseDesign, NextAction.pay};
+    if (event.status == EventStatus.draft && event.role.canManage && wizardSteps.contains(event.nextAction)) {
+      context.openInvitationWizardWithDraft(event.id);
+    } else {
+      widget.onViewEvent?.call('${event.id}');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surfaceBg,
-      appBar: _HomeAppBar(onViewEvent: widget.onViewEvent),
-      // FAB intentionally removed — the create-event "+" is owned by
-      // main_shell's AdaptiveBottomNavigationBar (showAddButton: true,
-      // onAddTap: _onAddEventTap) so it's available across all tabs.
+      backgroundColor: context.scaffoldBg,
+      appBar: HomeTopBar(onOpenEvent: widget.onViewEvent),
       body: BlocBuilder<HomeCubit, HomeState>(
-        buildWhen: _shouldRebuild,
-        builder: _buildState,
+        builder: (context, state) => switch (state) {
+          HomeLoaded(:final summary) => RefreshIndicator(
+            color: AppColors.primaryColor,
+            onRefresh: context.read<HomeCubit>().load,
+            child: _Content(
+              summary: summary,
+              onAction: _act,
+              onCreate: widget.onCreateEvent ?? context.openInvitationWizard,
+              onViewAll: widget.onViewAllEvents ?? () {},
+            ),
+          ),
+          HomeError(:final message) => HomeErrorState(message: message, onRetry: context.read<HomeCubit>().load),
+          _ => const skeleton.HomeLoading(),
+        },
       ),
     );
-  }
-
-  bool _shouldRebuild(HomeState previous, HomeState current) {
-    return previous.runtimeType != current.runtimeType ||
-        (previous is HomeLoaded && current is HomeLoaded);
-  }
-
-  Widget _buildState(BuildContext context, HomeState state) {
-    if (state is HomeInitial || state is HomeLoading) {
-      return const HomeSkeleton();
-    }
-    if (state is HomeError) {
-      return HomeErrorState(
-        message: state.message,
-        onRetry: () => context.read<HomeCubit>().refresh(),
-      );
-    }
-    if (state is HomeLoaded) {
-      return RefreshIndicator(
-        color: AppColors.primaryColor,
-        backgroundColor: AppColors.white,
-        onRefresh: () => context.read<HomeCubit>().loadHomeData(),
-        child: _HomeContent(
-          state: state,
-          fadeAnimation: _fadeController,
-          onViewEvent: widget.onViewEvent,
-        ),
-      );
-    }
-    return const SizedBox.shrink();
   }
 }
 
-class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final Function(String)? onViewEvent;
+class _Content extends StatelessWidget {
+  const _Content({required this.summary, required this.onAction, required this.onCreate, required this.onViewAll});
 
-  const _HomeAppBar({this.onViewEvent});
-
-  Future<void> _openSearch(BuildContext context) async {
-    final t = AppLocalizations.of(context)!;
-    final id = await showSearch<String?>(
-      context: context,
-      delegate: EventSearchDelegate(
-        cubit: context.read<EventsListCubit>(),
-        hint: t.translate('home_search_hint'),
-      ),
-    );
-    if (id != null) onViewEvent?.call(id);
-  }
-
-  @override
-  Size get preferredSize => const Size.fromHeight(64);
+  final HomeSummary summary;
+  final ValueChanged<EventCard> onAction;
+  final VoidCallback onCreate;
+  final VoidCallback onViewAll;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surfaceBg,
-        border: Border(
-          bottom: BorderSide(color: AppColors.gray200, width: 1),
-        ),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: const EdgeInsetsDirectional.symmetric(horizontal: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Maktoob',
-                style: TextStyle(
-                  fontFamily: 'Tajawal',
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
-                  color: context.textPrimary,
-                  letterSpacing: -0.5,
-                  height: 1.0,
-                ),
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _AppBarIcon(
-                    icon: Icons.search,
-                    onTap: () => _openSearch(context),
-                  ),
-                  const SizedBox(width: 16),
-                  _NotificationBell(onViewEvent: onViewEvent),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// The bell with an unread badge. It re-counts on every push, so a
-/// "your event is active" notification shows up without a manual refresh.
-class _NotificationBell extends StatefulWidget {
-  final Function(String)? onViewEvent;
-
-  const _NotificationBell({this.onViewEvent});
-
-  @override
-  State<_NotificationBell> createState() => _NotificationBellState();
-}
-
-class _NotificationBellState extends State<_NotificationBell> {
-  final NotificationsCubit _cubit = di.sl<NotificationsCubit>();
-  StreamSubscription<Map<String, dynamic>>? _pushSub;
-
-  @override
-  void initState() {
-    super.initState();
-    _cubit.load();
-    _pushSub = di.sl<FcmService>().messageStream.listen((_) => _cubit.load());
-  }
-
-  @override
-  void dispose() {
-    _pushSub?.cancel();
-    _cubit.close();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<NotificationsCubit, NotificationsState>(
-      bloc: _cubit,
-      builder: (context, state) {
-        final unread = state is NotificationsLoaded ? state.unreadCount : 0;
-        return Badge(
-          isLabelVisible: unread > 0,
-          label: Text(unread > 99 ? '99+' : '$unread'),
-          backgroundColor: AppColors.primaryColor,
-          offset: const Offset(-2, 2),
-          child: _AppBarIcon(
-            icon: unread > 0
-                ? Icons.notifications_active_outlined
-                : Icons.notifications_outlined,
-            onTap: () => NotificationsScreen.open(
-              context,
-              onOpenEvent: widget.onViewEvent,
-              cubit: _cubit,
-            ).then((_) {
-              if (mounted) _cubit.load();
-            }),
-          ),
-        );
+    final user = context.select<AuthCubit, UserEntity?>(
+      (c) => switch (c.state) {
+        AuthAuthenticated(:final user) => user,
+        _ => null,
       },
     );
-  }
-}
+    final institution = user?.institution;
+    final gutter = EdgeInsetsDirectional.symmetric(horizontal: context.pageGutter);
+    Widget padded(Widget child) => Padding(padding: gutter, child: child);
 
-class _AppBarIcon extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-  const _AppBarIcon({required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-      child: Padding(
-        padding: const EdgeInsetsDirectional.all(6),
-        child: Icon(icon, size: 24, color: context.textPrimary),
-      ),
-    );
-  }
-}
-
-class _HomeContent extends StatelessWidget {
-  final HomeLoaded state;
-  final Animation<double> fadeAnimation;
-  final Function(String)? onViewEvent;
-
-  const _HomeContent({
-    required this.state,
-    required this.fadeAnimation,
-    this.onViewEvent,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          HomeHeader(fadeAnimation: fadeAnimation),
-          const SizedBox(height: 12),
-          ResponseRateCardWidget(
-            responseRate: state.responseRate,
-            totalResponded: state.totalResponded,
-            totalGuests: state.totalGuests,
+      padding: const EdgeInsetsDirectional.only(top: 8, bottom: 32),
+      children: [
+        if (summary.isSavedCopy) ...[padded(const SavedCopyNote()), const SizedBox(height: 12)],
+        padded(
+          HomeHero(
+            summary: summary,
+            firstName: _firstName(user?.name ?? ''),
+            orgLine: _orgLine(context, user),
+            onCreate: onCreate,
+            onMyEvents: onViewAll,
+            onAction: onAction,
           ),
-          const SizedBox(height: 28),
-          HomeRecentEvents(
-            events: state.recentEvents,
-            onViewEvent: onViewEvent,
+        ),
+        if (user != null && user.needsInstitutionApproval && institution != null) ...[
+          const SizedBox(height: 22),
+          padded(
+            InstitutionNotice(
+              status: institution.status,
+              verification: institution.verification,
+              onComplete: () => Navigator.of(context).push(InstitutionScreen.route()),
+            ),
           ),
-          const SizedBox(height: 120),
         ],
-      ),
+        const SizedBox(height: 22),
+        if (summary.isFirstVisit)
+          padded(const HomeFirstVisit())
+        else ...[
+          padded(HomeKpis(totals: summary.totals)),
+          const SizedBox(height: 26),
+          HomeEventsSection(events: summary.events, onOpen: onAction, onViewAll: onViewAll),
+        ],
+      ],
     );
+  }
+
+  static String _firstName(String name) => name.trim().split(RegExp(r'\s+')).first;
+
+  /// "Al-Nour Society · 300 invitation credits · 10% off" for an approved institution.
+  static String? _orgLine(BuildContext context, UserEntity? user) {
+    final institution = user?.institution;
+    if (user == null || institution == null || !user.isApprovedInstitutionOwner) return null;
+    final name = institution.officialName(context.languageCode == 'ar');
+    final balance = context.tr('home_inst_line', {
+      'credits': institution.invitationCredits,
+      'discount': institution.discountPercent.round(),
+    });
+    return '$name · $balance';
   }
 }

@@ -3,7 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
+import '../../../../core/offline/pending_actions_queue.dart';
+import '../../../../injection_container.dart' as di;
 import '../../../authentication/domain/entities/user_entity.dart';
+import '../../../scanner/data/door_session_manager.dart';
 import '../../../authentication/presentation/cubit/auth_cubit.dart';
 import '../cubit/profile_cubit.dart';
 import '../screens/change_password_screen.dart';
@@ -37,10 +40,19 @@ class ProfileDialogs {
   /// Shows logout confirmation dialog.
   static Future<void> showLogout(BuildContext context) async {
     final t = AppLocalizations.of(context)!;
+    // Door check-ins or queued writes not sent yet need this account's
+    // sign-in to upload: say so before the logout.
+    var waiting = 0;
+    try {
+      waiting = await di.sl<DoorSessionManager>().pendingEverywhere() + await di.sl<PendingActionsQueue>().count();
+    } catch (_) {}
+    if (!context.mounted) return;
     final confirmed = await AppDialog.showConfirmation(
       context,
       title: t.translate('profile_logout'),
-      message: t.translate('profile_logout_confirm'),
+      message: waiting > 0
+          ? t.translate('logout_pending_desc').replaceAll('{count}', '$waiting')
+          : t.translate('profile_logout_confirm'),
       confirmText: t.translate('profile_logout'),
       cancelText: t.translate('common_cancel'),
       type: DialogType.warning,

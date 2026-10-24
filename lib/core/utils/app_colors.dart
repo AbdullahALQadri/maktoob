@@ -41,7 +41,12 @@ class AppColors {
 
   // Navy washes
   static const Color navy50 = Color(0xFFE6ECF4);
+
+  /// Also the sidebar's lines on wide windows (the web portal's `--mk-sidebar-line`).
   static const Color navy700 = Color(0xFF0A3A73);
+
+  /// Sidebar text and icons on wide windows (the web portal's `--mk-sidebar-ink`).
+  static const Color sidebarInk = Color(0xFFB9CBE0);
 
   // ===========================================================================
   // NEUTRALS
@@ -132,6 +137,9 @@ class AppColors {
   static const Color green50 = Color(0xFFF0FDF4);
   static const Color green100 = Color(0xFFDCFCE7);
   static const Color green600 = Color(0xFF16A34A);
+
+  /// Text on green100 (the portal's "Active" pill).
+  static const Color green800 = Color(0xFF166534);
 
   // ===========================================================================
   // RED (errors)

@@ -17,6 +17,21 @@
     <!-- Push notifications (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
+    <!-- Offline door: WorkManager uploads check-ins made offline as soon as a
+         network is back (network constraint), also after a reboot. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <!-- Venue hub: lists the Wi-Fi / hotspot addresses shown in its join QR. -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <!-- Venue hub keeps serving the other door phones with the screen off or
+         the app in the background: a "connectedDevice" foreground service
+         (CHANGE_NETWORK_STATE is its Android 14 prerequisite) holding a CPU
+         and a Wi-Fi lock. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+
     <application
         android:label="Maktoob"
         android:name="${applicationName}"
@@ -44,6 +59,11 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- Venue hub foreground service (flutter_foreground_task; do not rename). -->
+        <service
+            android:name="com.pravera.flutter_foreground_task.service.ForegroundService"
+            android:foregroundServiceType="connectedDevice"
+            android:exported="false" />
         <!-- Pushes drawn by the system carry the Maktoob mark in brand sky blue. -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
