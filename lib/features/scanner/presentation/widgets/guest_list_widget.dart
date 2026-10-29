@@ -34,11 +34,7 @@ class GuestListWidget extends StatelessWidget {
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
+                BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 10, offset: const Offset(0, 4)),
               ],
             ),
             child: Row(
@@ -46,28 +42,18 @@ class GuestListWidget extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(
-                      Icons.people_alt,
-                      color: context.textTertiary,
-                    ),
+                    Icon(Icons.people_alt, color: context.textTertiary),
                     const SizedBox(width: 12),
                     Text(
                       'Guest List',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: context.textPrimary,
-                      ),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: context.textPrimary),
                     ),
                   ],
                 ),
                 AnimatedRotation(
                   turns: isExpanded ? 0.5 : 0,
                   duration: const Duration(milliseconds: 300),
-                  child: Icon(
-                    Icons.keyboard_arrow_down,
-                    color: context.textSecondary,
-                  ),
+                  child: Icon(Icons.keyboard_arrow_down, color: context.textSecondary),
                 ),
               ],
             ),
@@ -78,9 +64,7 @@ class GuestListWidget extends StatelessWidget {
         AnimatedCrossFade(
           firstChild: const SizedBox.shrink(),
           secondChild: _buildGuestListContent(context),
-          crossFadeState: isExpanded
-              ? CrossFadeState.showSecond
-              : CrossFadeState.showFirst,
+          crossFadeState: isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
           duration: const Duration(milliseconds: 300),
         ),
       ],
@@ -93,13 +77,7 @@ class GuestListWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(
         children: [
@@ -113,14 +91,8 @@ class GuestListWidget extends StatelessWidget {
                 prefixIcon: Icon(Icons.search, color: context.iconDefault),
                 filled: true,
                 fillColor: context.overlayBg,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               ),
             ),
           ),
@@ -130,16 +102,10 @@ class GuestListWidget extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: guests.length,
-            separatorBuilder: (context, index) => Divider(
-              height: 1,
-              color: context.borderColor,
-            ),
+            separatorBuilder: (context, index) => Divider(height: 1, color: context.borderColor),
             itemBuilder: (context, index) {
               final guest = guests[index];
-              return _GuestItemWidget(
-                guest: guest,
-                onCheckIn: () => onCheckIn(guest),
-              );
+              return _GuestItemWidget(guest: guest, onCheckIn: () => onCheckIn(guest));
             },
           ),
         ],
@@ -152,10 +118,7 @@ class _GuestItemWidget extends StatelessWidget {
   final CheckInGuestEntity guest;
   final VoidCallback onCheckIn;
 
-  const _GuestItemWidget({
-    required this.guest,
-    required this.onCheckIn,
-  });
+  const _GuestItemWidget({required this.guest, required this.onCheckIn});
 
   @override
   Widget build(BuildContext context) {
@@ -178,8 +141,7 @@ class _GuestItemWidget extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: (guest.isVip ? Colors.amber : Colors.blue)
-                      .withValues(alpha: 0.3),
+                  color: (guest.isVip ? Colors.amber : Colors.blue).withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 3),
                 ),
@@ -188,11 +150,7 @@ class _GuestItemWidget extends StatelessWidget {
             child: Center(
               child: Text(
                 guest.name.split(' ').map((n) => n[0]).take(2).join(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
               ),
             ),
           ),
@@ -208,36 +166,21 @@ class _GuestItemWidget extends StatelessWidget {
                     Flexible(
                       child: Text(
                         guest.name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
-                        ),
+                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     if (guest.isVip) ...[
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.amber.shade400,
-                              Colors.orange.shade400,
-                            ],
-                          ),
+                          gradient: LinearGradient(colors: [Colors.amber.shade400, Colors.orange.shade400]),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: const Text(
                           'VIP',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
@@ -246,33 +189,16 @@ class _GuestItemWidget extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(
-                      Icons.group,
-                      size: 14,
-                      color: context.iconSecondary,
-                    ),
+                    Icon(Icons.group, size: 14, color: context.iconSecondary),
                     const SizedBox(width: 4),
-                    Text(
-                      '+${guest.companions}',
-                      style: TextStyle(
-                        color: context.iconSecondary,
-                        fontSize: 12,
-                      ),
-                    ),
+                    Text('+${guest.companions}', style: TextStyle(color: context.iconSecondary, fontSize: 12)),
                     const SizedBox(width: 12),
-                    Icon(
-                      Icons.qr_code,
-                      size: 14,
-                      color: context.iconSecondary,
-                    ),
+                    Icon(Icons.qr_code, size: 14, color: context.iconSecondary),
                     const SizedBox(width: 4),
                     Flexible(
                       child: Text(
                         guest.qrCode,
-                        style: TextStyle(
-                          color: context.iconSecondary,
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: context.iconSecondary, fontSize: 12),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -294,19 +220,11 @@ class _GuestItemWidget extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.check_circle,
-                    size: 16,
-                    color: Colors.green.shade600,
-                  ),
+                  Icon(Icons.check_circle, size: 16, color: Colors.green.shade600),
                   const SizedBox(width: 4),
                   Text(
                     'Checked In',
-                    style: TextStyle(
-                      color: Colors.green.shade600,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(color: Colors.green.shade600, fontSize: 12, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -318,18 +236,10 @@ class _GuestItemWidget extends StatelessWidget {
                 backgroundColor: AppColors.primaryColor,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 elevation: 2,
               ),
-              child: const Text(
-                'Check In',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              child: const Text('Check In', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
             ),
         ],
       ),

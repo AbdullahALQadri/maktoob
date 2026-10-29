@@ -7,11 +7,15 @@ mixin _Reports on _SqliteStoreBase {
   @override
   Future<int> guestCount(int eventId) => _count('SELECT COUNT(*) FROM door_guests WHERE event_id = ?', [eventId]);
 
+  /// Guests in (on [day] for an event of several days).
   @override
-  Future<int> checkedInCount(int eventId) => _count(
-    'SELECT COUNT(DISTINCT invitation_id) FROM door_check_ins WHERE event_id = ? AND sync_state != ?',
-    [eventId, 'refused'],
-  );
+  Future<int> checkedInCount(int eventId, {DoorDay? day}) {
+    final (onDay, dayArgs) = _onDay(day);
+    return _count(
+      'SELECT COUNT(DISTINCT invitation_id) FROM door_check_ins WHERE event_id = ? AND sync_state != ?$onDay',
+      [eventId, 'refused', ...dayArgs],
+    );
+  }
 
   @override
   Future<int> pendingCount(int eventId) => _count(

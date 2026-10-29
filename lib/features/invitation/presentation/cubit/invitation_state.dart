@@ -1,5 +1,4 @@
 // ignore_for_file: deprecated_member_use_from_same_package
-import 'package:maktoob/core/utils/app_colors.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -10,6 +9,9 @@ import '../../data/models/extra_service_model.dart';
 import '../../data/models/invitation_draft_model.dart';
 import '../../data/models/invoice_model.dart';
 import '../../data/models/location_model.dart';
+import 'event_type_model.dart';
+
+export 'event_type_model.dart';
 
 /// Steps in the 3-page event creation wizard
 enum InvitationStep {
@@ -59,106 +61,6 @@ enum InvitationStatus {
   loading,
   success,
   failure,
-}
-
-/// Event type model from API
-class EventTypeModel extends Equatable {
-  final int? id; // null for custom type
-  final String name;
-  final String nameAr;
-  final String? iconUrl;
-  final String? emoji;
-  final List<Color>? gradientColors;
-
-  /// Occasion group this type belongs to (null for client-made custom types).
-  final int? groupId;
-
-  /// Backend `is_custom` flag (a client-created type that has a real id).
-  final bool isClientCustom;
-
-  /// Backend slug (wedding, graduation, opening…); drives the title suggestion.
-  final String? slug;
-
-  /// Business-style types show an end time on the same day.
-  final bool hasEndTime;
-
-  const EventTypeModel({
-    this.id,
-    required this.name,
-    required this.nameAr,
-    this.iconUrl,
-    this.emoji,
-    this.gradientColors,
-    this.groupId,
-    this.isClientCustom = false,
-    this.slug,
-    this.hasEndTime = false,
-  });
-
-  bool get isCustom => id == null;
-
-  /// Check if this event type is a marriage/engagement type
-  bool get isMarriageOrEngagement {
-    final nameLower = name.toLowerCase();
-    return nameLower.contains('wedding') ||
-        nameLower.contains('marriage') ||
-        nameLower.contains('engagement') ||
-        nameAr.contains('زفاف') ||
-        nameAr.contains('خطوبة');
-  }
-
-  factory EventTypeModel.fromJson(Map<String, dynamic> json) {
-    // API returns name_en/name_ar, fallback to name for compatibility
-    final nameEn = json['name_en'] as String? ?? json['name'] as String? ?? '';
-    final nameAr = json['name_ar'] as String? ?? nameEn;
-    return EventTypeModel(
-      id: json['id'] as int?,
-      name: nameEn.isNotEmpty ? nameEn : nameAr,
-      nameAr: nameAr.isNotEmpty ? nameAr : nameEn,
-      iconUrl: json['icon_url'] as String?,
-      emoji: json['emoji'] as String?,
-      groupId: _asInt(json['group_id']),
-      isClientCustom: _asBool(json['is_custom']),
-      slug: _asString(json['slug']),
-      hasEndTime: _asBool(json['has_end_time']),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      if (id != null) 'id': id,
-      'name': name,
-      'name_ar': nameAr,
-      if (iconUrl != null) 'icon_url': iconUrl,
-      if (emoji != null) 'emoji': emoji,
-    };
-  }
-
-  /// Create custom event type
-  factory EventTypeModel.custom(String name) {
-    return EventTypeModel(
-      id: null,
-      name: name,
-      nameAr: name,
-      emoji: '➕',
-      gradientColors: const [AppColors.purple600, AppColors.pink600],
-    );
-  }
-
-  @override
-  List<Object?> get props =>
-      [
-        id,
-        name,
-        nameAr,
-        iconUrl,
-        emoji,
-        gradientColors,
-        groupId,
-        isClientCustom,
-        slug,
-        hasEndTime,
-      ];
 }
 
 int? _asInt(dynamic v) {
@@ -946,6 +848,7 @@ class InvitationState extends Equatable {
     TimeOfDay? eventTime,
     DateTime? eventEndDate,
     TimeOfDay? eventEndTime,
+    bool clearEventEndDate = false,
     List<VenueModel>? availableVenues,
     VenueModel? selectedVenue,
     LocationModel? customLocation,
@@ -1058,7 +961,7 @@ class InvitationState extends Equatable {
       eventDescription: eventDescription ?? this.eventDescription,
       eventDate: eventDate ?? this.eventDate,
       eventTime: eventTime ?? this.eventTime,
-      eventEndDate: eventEndDate ?? this.eventEndDate,
+      eventEndDate: clearEventEndDate ? null : (eventEndDate ?? this.eventEndDate),
       eventEndTime: eventEndTime ?? this.eventEndTime,
       availableVenues: availableVenues ?? this.availableVenues,
       selectedVenue:
@@ -1149,8 +1052,9 @@ class InvitationState extends Equatable {
     // Title is optional: the backend writes one from the occasion's names.
     if (eventDate == null) return false;
     if (eventTime == null) return false;
-    // Business types: an end time, when given, must be after the start.
-    if (selectedEventType?.hasEndTime == true && eventEndTime != null) {
+    // Business types: an end time, when given, must be after the start
+    // (on a later last day it may be any time).
+    if (selectedEventType?.hasEndTime == true && eventEndTime != null && eventEndDate == null) {
       final start = eventTime!.hour * 60 + eventTime!.minute;
       final end = eventEndTime!.hour * 60 + eventEndTime!.minute;
       if (end <= start) return false;

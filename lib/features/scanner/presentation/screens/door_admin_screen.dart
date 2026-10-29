@@ -12,6 +12,8 @@ import '../../data/models/door_models.dart';
 import '../../domain/entities/door_entities.dart';
 import '../../domain/repositories/door_admin_repository.dart';
 import '../cubit/door_admin_cubit.dart';
+import '../widgets/door_admin_message.dart';
+import '../widgets/door_days_report.dart';
 import '../widgets/door_texts.dart';
 
 /// The host's doors (needs a connection): who came in through which gate,
@@ -56,7 +58,7 @@ class _DoorAdminView extends StatelessWidget {
           builder: (context, s) {
             if (s.summary == null) {
               if (s.loading) return const Center(child: CircularProgressIndicator());
-              return _Message(
+              return DoorAdminMessage(
                 icon: s.offline ? Icons.cloud_off_outlined : Icons.error_outline,
                 text: s.offline ? t.translate('door_admin_offline') : (s.error ?? t.translate('door_reason_refused')),
                 onRetry: () => context.read<DoorAdminCubit>().load(),
@@ -145,6 +147,7 @@ class _ReportTab extends StatelessWidget {
               if (s.flagged > 0) _Stat(label: t.translate('door_stat_flagged'), value: s.flagged, alert: true),
             ],
           ),
+          DoorDaysReport(days: s.days),
           AppSpacing.verticalSpace24,
           Text(t.translate('door_report_by_gate'), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
           AppSpacing.verticalSpace8,
@@ -234,7 +237,7 @@ class _GatesTab extends StatelessWidget {
             )
           : null,
       body: s.gates.isEmpty
-          ? _Message(icon: Icons.door_front_door_outlined, text: t.translate('door_gates_empty'))
+          ? DoorAdminMessage(icon: Icons.door_front_door_outlined, text: t.translate('door_gates_empty'))
           : ListView(
               padding: const EdgeInsetsDirectional.all(AppSpacing.md),
               children: [
@@ -492,38 +495,4 @@ class _Row extends StatelessWidget {
       ],
     ),
   );
-}
-
-class _Message extends StatelessWidget {
-  final IconData icon;
-  final String text;
-  final VoidCallback? onRetry;
-
-  const _Message({required this.icon, required this.text, this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsetsDirectional.all(AppSpacing.lg),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 48, color: AppColors.gray400),
-            AppSpacing.verticalSpace12,
-            Text(
-              text,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.gray600),
-            ),
-            if (onRetry != null) ...[
-              AppSpacing.verticalSpace12,
-              OutlinedButton(onPressed: onRetry, child: Text(t.translate('common_retry'))),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
 }

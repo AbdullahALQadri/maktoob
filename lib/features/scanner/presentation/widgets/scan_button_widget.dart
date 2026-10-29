@@ -8,12 +8,7 @@ class ScanButtonWidget extends StatelessWidget {
   final Animation<double> scanAnimation;
   final VoidCallback? onTap;
 
-  const ScanButtonWidget({
-    super.key,
-    required this.isScanning,
-    required this.scanAnimation,
-    this.onTap,
-  });
+  const ScanButtonWidget({super.key, required this.isScanning, required this.scanAnimation, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -29,14 +24,8 @@ class ScanButtonWidget extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: isScanning
-                    ? [
-                        AppColors.primaryColor.withValues(alpha: 0.7),
-                        AppColors.tertiaryColor.withValues(alpha: 0.7),
-                      ]
-                    : [
-                        AppColors.primaryColor,
-                        AppColors.tertiaryColor,
-                      ],
+                    ? [AppColors.primaryColor.withValues(alpha: 0.7), AppColors.tertiaryColor.withValues(alpha: 0.7)]
+                    : [AppColors.primaryColor, AppColors.tertiaryColor],
               ),
               borderRadius: BorderRadius.circular(context.dynamicWidth(0.051)),
               boxShadow: [
@@ -55,9 +44,7 @@ class ScanButtonWidget extends StatelessWidget {
                   Positioned.fill(
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(context.dynamicWidth(0.051)),
-                      child: CustomPaint(
-                        painter: ScanLinePainter(scanAnimation.value),
-                      ),
+                      child: CustomPaint(painter: ScanLinePainter(scanAnimation.value)),
                     ),
                   ),
                 Column(
@@ -131,15 +118,10 @@ class ScanLinePainter extends CustomPainter {
           Colors.white.withValues(alpha: 0.5),
           Colors.white.withValues(alpha: 0.0),
         ],
-      ).createShader(
-        Rect.fromLTWH(0, 0, size.width, 40),
-      );
+      ).createShader(Rect.fromLTWH(0, 0, size.width, 40));
 
     final y = progress * size.height;
-    canvas.drawRect(
-      Rect.fromLTWH(0, y - 20, size.width, 40),
-      paint,
-    );
+    canvas.drawRect(Rect.fromLTWH(0, y - 20, size.width, 40), paint);
   }
 
   @override

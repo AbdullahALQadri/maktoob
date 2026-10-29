@@ -21,7 +21,7 @@ final _sign = List<int>.generate(32, (i) => 200 - i);
 String _b64(List<int> b) => base64Url.encode(b).replaceAll('=', '');
 
 /// Guests: 1 Sara (code AAAA1111 / link sara00000001), 2 Ahmad, 3 Lina.
-Map<String, dynamic> testPack({String status = 'active', int maxCompanions = 2}) {
+Map<String, dynamic> testPack({String status = 'active', int maxCompanions = 2, List<Map<String, String>>? days}) {
   Map<String, dynamic> guest(int id, String name, String code, String link, {String? gender}) => {
     'id': id,
     'hashes': [DoorCrypto.lookupHash(_salt, code), DoorCrypto.lookupHash(_salt, link)],
@@ -41,6 +41,7 @@ Map<String, dynamic> testPack({String status = 'active', int maxCompanions = 2})
       'status': status,
       'valid_from': now.subtract(const Duration(hours: 6)).toIso8601String(),
       'valid_until': now.add(const Duration(hours: 6)).toIso8601String(),
+      'days': ?days,
     },
     'gates': [
       {'id': 1, 'name': 'رجال ١', 'audience': 'men'},

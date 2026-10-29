@@ -72,7 +72,8 @@ mixin _DoorHubHost on _DoorEngineBase implements LanHubHandlers {
       if (s == null || meta == null) return {'result': 'refused', 'code': 'no_pack'};
       final record = DoorCheckInRecord.fromLanJson(s.eventId, item, origin: 'peer');
 
-      final first = await store.firstCheckIn(s.eventId, record.invitationId);
+      // That day's attendance (the joined door scanned at checkedInAt).
+      final first = await store.firstCheckIn(s.eventId, record.invitationId, day: _dayAt(record.checkedInAt));
       // The same claim sent again after a timeout: it is in.
       if (first != null && first.uuid == record.uuid) return {'result': 'admitted', 'synced': false};
 

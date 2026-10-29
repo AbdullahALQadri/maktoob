@@ -1026,11 +1026,11 @@ class _DateTimeCard extends StatelessWidget {
               cubit.updateTime(t);
             },
           ),
-          // Business types only: an end time on the same day. Weddings and
+          // Business types only: an end time, maybe several days. Weddings and
           // family occasions have no end (the QR is valid all day).
           if (state.selectedEventType?.hasEndTime == true) ...[
             const SizedBox(height: AppSpacing.smd),
-            _EndTimeField(state: state),
+            EventEndFields(state: state),
           ],
         ],
       ),
@@ -1421,89 +1421,6 @@ class _TitleInput extends StatelessWidget {
           ],
         ],
       ),
-    );
-  }
-}
-
-// =============================================================================
-// End time (has_end_time types only) on the same day as the start
-// =============================================================================
-
-class _EndTimeField extends StatelessWidget {
-  final InvitationState state;
-  const _EndTimeField({required this.state});
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final end = state.eventEndTime;
-    final start = state.eventTime;
-    final invalid = end != null &&
-        start != null &&
-        !EventSetupRules.isEndAfterStart(start, end);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l?.translate('wizard_event_end_time_label') ?? 'وقت الانتهاء',
-          style: const TextStyle(fontSize: 12, color: AppColors.gray500),
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        InkWell(
-          borderRadius: AppSpacing.borderRadiusLg,
-          onTap: () async {
-            final picked = await showTimePicker(
-              context: context,
-              initialTime: end ??
-                  (start != null
-                      ? TimeOfDay(
-                          hour: (start.hour + 2) % 24, minute: start.minute)
-                      : const TimeOfDay(hour: 20, minute: 0)),
-            );
-            if (picked != null && context.mounted) {
-              context.read<InvitationCubit>().updateEndTime(picked);
-            }
-          },
-          child: Container(
-            padding: const EdgeInsetsDirectional.all(AppSpacing.md),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceBg,
-              borderRadius: AppSpacing.borderRadiusLg,
-              border: Border.all(
-                  color: invalid ? AppColors.red500 : AppColors.gray200),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.schedule_rounded,
-                    color: AppColors.gray500, size: 20),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: Text(
-                    end != null
-                        ? MaterialLocalizations.of(context).formatTimeOfDay(end)
-                        : (l?.translate('wizard_event_end_time_hint') ??
-                            'اختر وقت الانتهاء (اختياري)'),
-                    style: TextStyle(
-                      fontSize: 14,
-                      color:
-                          end != null ? context.textPrimary : AppColors.gray400,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        if (invalid) ...[
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            l?.translate('wizard_end_before_start') ??
-                'وقت الانتهاء يجب أن يكون بعد وقت البداية',
-            style: const TextStyle(fontSize: 12, color: AppColors.red500),
-          ),
-        ],
-      ],
     );
   }
 }

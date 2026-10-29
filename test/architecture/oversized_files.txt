@@ -63,12 +63,11 @@ lib/features/invitation/presentation/widgets/package_card.dart 439
 lib/features/notifications/presentation/screens/notifications_screen.dart 336
 lib/features/payment/presentation/screens/payment_upload_screen.dart 322
 lib/features/payment/presentation/widgets/payment_method_widgets.dart 328
-lib/features/scanner/presentation/screens/door_admin_screen.dart 529
+lib/features/scanner/presentation/screens/door_admin_screen.dart 498
 lib/features/scanner/presentation/screens/door_staff_entry_screen.dart 252
 lib/features/scanner/presentation/screens/qr_camera_screen.dart 334
 lib/features/scanner/presentation/screens/qr_scanner_screen.dart 361
 lib/features/scanner/presentation/screens/scanner_events_screen.dart 362
-lib/features/scanner/presentation/widgets/guest_list_widget.dart 338
 lib/features/scanner/presentation/widgets/guest_verified_dialog.dart 280
 lib/features/scanner/presentation/widgets/scanner_event_card.dart 281
 lib/features/settings/presentation/screens/edit_profile_screen.dart 542

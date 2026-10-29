@@ -22,10 +22,7 @@ class DoorTexts {
   static String reason(AppLocalizations t, String? code, {String? message, int? maxCompanions, String? validOn}) {
     if (message != null && message.isNotEmpty) return message;
     final key = _reasons.contains(code) ? 'door_reason_$code' : 'door_reason_refused';
-    return t
-        .translate(key)
-        .replaceAll('{max}', '${maxCompanions ?? ''}')
-        .replaceAll('{date}', validOn ?? '');
+    return t.translate(key).replaceAll('{max}', '${maxCompanions ?? ''}').replaceAll('{date}', validOn ?? '');
   }
 
   static String warning(AppLocalizations t, String code, {DoorGate? gate}) {

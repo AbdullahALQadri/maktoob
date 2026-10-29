@@ -162,6 +162,7 @@ class InvitationCubit extends Cubit<InvitationState> {
         eventDate: date,
         eventTime: date == null ? null : TimeOfDay.fromDateTime(date.toLocal()),
         eventEndTime: endDate == null ? null : TimeOfDay.fromDateTime(endDate.toLocal()),
+        eventEndDate: endDate != null && date != null && EventSetupRules.isLaterDay(date, endDate) ? endDate : null,
         // The place comes back even without a pin, so a resumed draft never
         // asks for it again.
         customLocation: (lat != null && lng != null) || venueLine.isNotEmpty
@@ -378,14 +379,14 @@ class InvitationCubit extends Cubit<InvitationState> {
       descriptionAr: state.eventDescription,
       eventDate: state.eventDate ?? DateTime.now().add(const Duration(days: 30)),
       eventTime: formatTimeOfDay(state.eventTime),
-      // Only business types (has_end_time) send an end: same day + end time.
+      // Only business types (has_end_time) send an end: on the start day, or on the last day.
       eventEndDate: EventSetupRules.endDateTimeToSend(
         hasEndTime: state.selectedEventType?.hasEndTime == true,
         date: state.eventDate,
         start: state.eventTime,
         end: state.eventEndTime,
+        lastDay: state.eventEndDate,
       ),
-      eventEndTime: null,
       venueId: state.selectedVenue?.id,
       customVenueNameAr: state.customLocation?.placeName,
       // The place is asked once: the typed line holds all of it, so an older
@@ -747,10 +748,9 @@ class InvitationCubit extends Cubit<InvitationState> {
     emit(state.copyWith(eventTime: time));
   }
 
-  /// Update event end date (optional — null means no explicit end).
-  void updateEndDate(DateTime date) {
-    emit(state.copyWith(eventEndDate: date));
-  }
+  /// Several days (business types): the last day, or null for one day.
+  void updateEndDate(DateTime? day) =>
+      emit(day == null ? state.copyWith(clearEventEndDate: true) : state.copyWith(eventEndDate: day));
 
   /// Update event end time (optional).
   void updateEndTime(TimeOfDay time) {

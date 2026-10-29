@@ -26,14 +26,14 @@ class ScannerHeader extends StatelessWidget {
   });
 
   factory ScannerHeader.forEvent(EventEntity event, {Key? key, VoidCallback? onBack, Widget? menu}) => ScannerHeader(
-        key: key,
-        title: event.name,
-        description: event.description,
-        venue: event.venue,
-        when: '${event.date} | ${event.time}',
-        onBack: onBack,
-        menu: menu,
-      );
+    key: key,
+    title: event.name,
+    description: event.description,
+    venue: event.venue,
+    when: '${event.date} | ${event.time}',
+    onBack: onBack,
+    menu: menu,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -90,27 +90,16 @@ class _BackRow extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.15),
               shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.3),
-                width: 1,
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 1),
             ),
-            child: Icon(
-              Icons.arrow_back_rounded,
-              color: Colors.white,
-              size: context.dynamicWidth(0.056),
-            ),
+            child: Icon(Icons.arrow_back_rounded, color: Colors.white, size: context.dynamicWidth(0.056)),
           ),
         ),
         SizedBox(width: context.dynamicWidth(0.029)),
         Expanded(
           child: Text(
             title,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: context.dynamicWidth(0.045),
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(color: Colors.white, fontSize: context.dynamicWidth(0.045), fontWeight: FontWeight.w600),
           ),
         ),
         if (menu != null) menu!,
@@ -135,11 +124,7 @@ class _EventInfoRow extends StatelessWidget {
             color: Colors.white.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(context.dynamicWidth(0.04)),
           ),
-          child: Icon(
-            Icons.event,
-            color: Colors.white,
-            size: context.dynamicWidth(0.069),
-          ),
+          child: Icon(Icons.event, color: Colors.white, size: context.dynamicWidth(0.069)),
         ),
         SizedBox(width: context.dynamicWidth(0.04)),
         Expanded(
@@ -159,10 +144,7 @@ class _EventInfoRow extends StatelessWidget {
                 SizedBox(height: context.dynamicHeight(0.005)),
                 Text(
                   description!,
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    fontSize: context.dynamicWidth(0.032),
-                  ),
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: context.dynamicWidth(0.032)),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -184,10 +166,7 @@ class _EventDetailsChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: context.dynamicWidth(0.029),
-        vertical: context.dynamicHeight(0.01),
-      ),
+      padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.029), vertical: context.dynamicHeight(0.01)),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(context.dynamicWidth(0.021)),
@@ -219,10 +198,7 @@ class _DetailItem extends StatelessWidget {
         SizedBox(width: context.dynamicWidth(0.016)),
         Text(
           text,
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.9),
-            fontSize: context.dynamicWidth(0.032),
-          ),
+          style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: context.dynamicWidth(0.032)),
         ),
       ],
     );

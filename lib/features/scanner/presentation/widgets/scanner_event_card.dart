@@ -10,12 +10,7 @@ class ScannerEventCard extends StatelessWidget {
   final int index;
   final VoidCallback? onTap;
 
-  const ScannerEventCard({
-    super.key,
-    required this.event,
-    required this.index,
-    this.onTap,
-  });
+  const ScannerEventCard({super.key, required this.event, required this.index, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -103,11 +98,7 @@ class _HeaderRow extends StatelessWidget {
             ),
             borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
           ),
-          child: Icon(
-            _getEventIcon(event.type),
-            color: Colors.white,
-            size: context.dynamicWidth(0.061),
-          ),
+          child: Icon(_getEventIcon(event.type), color: Colors.white, size: context.dynamicWidth(0.061)),
         ),
         SizedBox(width: context.dynamicWidth(0.035)),
         Expanded(
@@ -171,8 +162,12 @@ class _DetailsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: _InfoItem(icon: Icons.calendar_today, text: '${event.date}\n${event.time}')),
-        Expanded(child: _InfoItem(icon: Icons.location_on, text: event.venue)),
+        Expanded(
+          child: _InfoItem(icon: Icons.calendar_today, text: '${event.date}\n${event.time}'),
+        ),
+        Expanded(
+          child: _InfoItem(icon: Icons.location_on, text: event.venue),
+        ),
       ],
     );
   }
@@ -194,11 +189,7 @@ class _InfoItem extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: TextStyle(
-              fontSize: context.dynamicWidth(0.029),
-              color: context.textSecondary,
-              height: 1.4,
-            ),
+            style: TextStyle(fontSize: context.dynamicWidth(0.029), color: context.textSecondary, height: 1.4),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -225,11 +216,23 @@ class _StatsRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _StatItem(label: t.translate('scanner_expected'), value: event.attending.toString(), color: AppColors.blue500),
+          _StatItem(
+            label: t.translate('scanner_expected'),
+            value: event.attending.toString(),
+            color: AppColors.blue500,
+          ),
           _StatDivider(),
-          _StatItem(label: t.translate('scanner_checked_in'), value: event.checkedIn.toString(), color: AppColors.green600),
+          _StatItem(
+            label: t.translate('scanner_checked_in'),
+            value: event.checkedIn.toString(),
+            color: AppColors.green600,
+          ),
           _StatDivider(),
-          _StatItem(label: t.translate('scanner_pending'), value: (event.attending - event.checkedIn).toString(), color: AppColors.amber500),
+          _StatItem(
+            label: t.translate('scanner_pending'),
+            value: (event.attending - event.checkedIn).toString(),
+            color: AppColors.amber500,
+          ),
         ],
       ),
     );
@@ -249,11 +252,7 @@ class _StatItem extends StatelessWidget {
       children: [
         Text(
           value,
-          style: TextStyle(
-            fontSize: context.dynamicWidth(0.045),
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
+          style: TextStyle(fontSize: context.dynamicWidth(0.045), fontWeight: FontWeight.bold, color: color),
         ),
         SizedBox(height: context.dynamicHeight(0.002)),
         Text(

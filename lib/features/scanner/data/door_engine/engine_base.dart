@@ -103,6 +103,13 @@ abstract class _DoorEngineBase implements DoorControls {
         DateTime.now().difference(ok) < DoorEngine.serverFreshness;
   }
 
+  /// Today, for an event of several days (each day counts its own
+  /// attendance); null for a one-day event.
+  DoorDay? get _today => _meta?.event.dayAt(clock.nowUtc());
+
+  /// The event day [atUtc] falls in (a check-in another door decided).
+  DoorDay? _dayAt(DateTime atUtc) => _meta?.event.dayAt(atUtc);
+
   DoorGate? get _gate {
     final id = _session?.gateId;
     if (id == null) return null;
@@ -145,7 +152,7 @@ abstract class _DoorEngineBase implements DoorControls {
         link: link,
         hasPack: meta != null,
         guests: meta == null ? 0 : await store.guestCount(s.eventId),
-        checkedIn: meta == null ? 0 : await store.checkedInCount(s.eventId),
+        checkedIn: meta == null ? 0 : await store.checkedInCount(s.eventId, day: _today),
         pending: await store.pendingCount(s.eventId),
         refused: await store.refusedCount(s.eventId),
         packDownloadedAt: meta?.downloadedAt,

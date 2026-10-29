@@ -95,7 +95,6 @@ class EventWizardApiService {
     required DateTime eventDate,
     String? eventTime,
     DateTime? eventEndDate,
-    String? eventEndTime,
     int? venueId,
     String? customVenueNameAr,
     String? customVenueNameEn,
@@ -115,11 +114,8 @@ class EventWizardApiService {
         if (descriptionAr != null) 'description': descriptionAr,
         // event_date/end_date are datetimes: send "YYYY-MM-DD HH:MM".
         'event_date': _dateTime(eventDate, eventTime),
-        if (eventEndDate != null)
-          'end_date': _dateTime(eventEndDate, eventEndTime ??
-              (eventEndDate.hour != 0 || eventEndDate.minute != 0
-                  ? '${eventEndDate.hour.toString().padLeft(2, '0')}:${eventEndDate.minute.toString().padLeft(2, '0')}'
-                  : null)),
+        // Always sent: null clears an end the host took away (one day again).
+        'end_date': eventEndDate?.toIso8601String().substring(0, 16).replaceFirst('T', ' '),
         if (venueId != null) 'venue_id': venueId,
         if (customVenueNameAr != null) 'custom_venue_name_ar': customVenueNameAr,
         if (customVenueNameEn != null) 'custom_venue_name_en': customVenueNameEn,

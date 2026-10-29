@@ -19,8 +19,7 @@ class EventSetupRules {
       return t.isEmpty ? null : t;
     }
 
-    final typeName =
-        (typeNameAr != null && typeNameAr.trim().isNotEmpty) ? typeNameAr.trim() : 'مناسبة';
+    final typeName = (typeNameAr != null && typeNameAr.trim().isNotEmpty) ? typeNameAr.trim() : 'مناسبة';
     final groom = get('groom_name');
     final bride = get('bride_name');
     final couple = groom != null && bride != null ? '$groom و$bride' : null;
@@ -83,9 +82,7 @@ class EventSetupRules {
       default:
         final company = get('company_name');
         final hosts = get('host_names');
-        title = company != null
-            ? '$typeName — $company'
-            : (hosts != null ? '$typeName — $hosts' : null);
+        title = company != null ? '$typeName — $company' : (hosts != null ? '$typeName — $hosts' : null);
     }
     if (title != null && title.isNotEmpty) return title;
 
@@ -99,22 +96,40 @@ class EventSetupRules {
   static const double minLng = 34.2;
   static const double maxLng = 34.6;
 
-  static bool isInGaza(double lat, double lng) =>
-      lat >= minLat && lat <= maxLat && lng >= minLng && lng <= maxLng;
+  static bool isInGaza(double lat, double lng) => lat >= minLat && lat <= maxLat && lng >= minLng && lng <= maxLng;
 
   /// End time for `has_end_time` types sits on the start day and must be later.
   static bool isEndAfterStart(TimeOfDay start, TimeOfDay end) =>
       end.hour * 60 + end.minute > start.hour * 60 + start.minute;
 
-  /// The `end_date` to send: same day as the start, only for has_end_time types.
+  /// The longest event the door handles day by day (backend MAX_EVENT_DAYS).
+  static const int maxEventDays = 31;
+
+  /// The `end_date` to send, only for has_end_time types: the start day at
+  /// [end], or [lastDay] at [end] for an event of several days (the guests'
+  /// QR then works every day, each day counting its own attendance).
   static DateTime? endDateTimeToSend({
     required bool hasEndTime,
     required DateTime? date,
     required TimeOfDay? start,
     required TimeOfDay? end,
+    DateTime? lastDay,
   }) {
     if (!hasEndTime || date == null || end == null) return null;
+    if (lastDay != null && isLaterDay(date, lastDay)) {
+      return DateTime(lastDay.year, lastDay.month, lastDay.day, end.hour, end.minute);
+    }
     if (start != null && !isEndAfterStart(start, end)) return null;
     return DateTime(date.year, date.month, date.day, end.hour, end.minute);
+  }
+
+  /// [lastDay] is a later calendar day than [start], within [maxEventDays].
+  static bool isLaterDay(DateTime start, DateTime lastDay) {
+    final days = DateTime(
+      lastDay.year,
+      lastDay.month,
+      lastDay.day,
+    ).difference(DateTime(start.year, start.month, start.day)).inDays;
+    return days >= 1 && days < maxEventDays;
   }
 }

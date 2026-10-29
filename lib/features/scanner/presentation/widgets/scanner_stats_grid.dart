@@ -59,12 +59,7 @@ class _StatCard extends StatelessWidget {
   final IconData icon;
   final Color color;
 
-  const _StatCard({
-    required this.label,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
+  const _StatCard({required this.label, required this.value, required this.icon, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -85,20 +80,13 @@ class _StatCard extends StatelessWidget {
         children: [
           Container(
             padding: EdgeInsets.all(context.dynamicWidth(0.024)),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
             child: Icon(icon, color: color, size: context.dynamicWidth(0.061)),
           ),
           SizedBox(height: context.dynamicHeight(0.015)),
           Text(
             value,
-            style: TextStyle(
-              fontSize: context.dynamicWidth(0.069),
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
+            style: TextStyle(fontSize: context.dynamicWidth(0.069), fontWeight: FontWeight.bold, color: color),
           ),
           SizedBox(height: context.dynamicHeight(0.005)),
           Text(

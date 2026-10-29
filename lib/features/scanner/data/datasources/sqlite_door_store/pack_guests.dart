@@ -118,7 +118,7 @@ mixin _PackAndGuests on _SqliteStoreBase {
   }
 
   @override
-  Future<List<DoorGuest>> guests(int eventId, {String query = '', int limit = 500}) async {
+  Future<List<DoorGuest>> guests(int eventId, {String query = '', int limit = 500, DoorDay? day}) async {
     final q = _normalize(query);
     final rows = await db.query(
       'door_guests',
@@ -128,7 +128,7 @@ mixin _PackAndGuests on _SqliteStoreBase {
       limit: limit,
     );
     if (rows.isEmpty) return const [];
-    final firsts = await _firstCheckIns(eventId, rows.map((r) => r['invitation_id'] as int).toList());
+    final firsts = await _firstCheckIns(eventId, rows.map((r) => r['invitation_id'] as int).toList(), day: day);
     return rows.map((r) {
       final g = _guest(r);
       return g.withCheckIn(firsts[g.id]);

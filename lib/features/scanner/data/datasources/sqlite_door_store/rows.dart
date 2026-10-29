@@ -149,14 +149,21 @@ abstract class _SqliteStoreBase implements DoorStore {
     return added;
   }
 
-  Future<Map<int, DoorCheckIn>> _firstCheckIns(int eventId, List<int> invitationIds) async {
+  /// Limits a check-ins query to [day] (an event of several days), or not.
+  (String, List<Object>) _onDay(DoorDay? day) => day == null
+      ? ('', const [])
+      : (' AND checked_in_at >= ? AND checked_in_at <= ?', [_ms(day.from), _ms(day.until)]);
+
+  Future<Map<int, DoorCheckIn>> _firstCheckIns(int eventId, List<int> invitationIds, {DoorDay? day}) async {
     final out = <int, DoorCheckIn>{};
+    final (onDay, dayArgs) = _onDay(day);
     for (var i = 0; i < invitationIds.length; i += 500) {
       final chunk = invitationIds.sublist(i, i + 500 > invitationIds.length ? invitationIds.length : i + 500);
       final rows = await db.query(
         'door_check_ins',
-        where: 'event_id = ? AND invitation_id IN (${List.filled(chunk.length, '?').join(',')}) AND sync_state != ?',
-        whereArgs: [eventId, ...chunk, 'refused'],
+        where:
+            'event_id = ? AND invitation_id IN (${List.filled(chunk.length, '?').join(',')}) AND sync_state != ?$onDay',
+        whereArgs: [eventId, ...chunk, 'refused', ...dayArgs],
         orderBy: 'checked_in_at ASC',
       );
       for (final r in rows) {

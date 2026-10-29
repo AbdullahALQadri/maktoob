@@ -156,6 +156,51 @@ void main() {
       await engine.close();
     });
 
+    test('an event of several days: each day its own attendance, a return within the day', () async {
+      final now = DateTime.now().toUtc();
+      Map<String, String> day(String date, Duration from, Duration until) => {
+        'date': date,
+        'from': now.add(from).toIso8601String(),
+        'until': now.add(until).toIso8601String(),
+      };
+      final server = FakeServer()
+        ..packJson = testPack(
+          days: [
+            day('d1', const Duration(hours: -30), const Duration(hours: -6)),
+            day('d2', const Duration(hours: -6), const Duration(hours: 6)),
+            day('d3', const Duration(hours: 6), const Duration(hours: 30)),
+          ],
+        );
+      // Sara came yesterday.
+      server.checkIns.add(
+        DoorCheckIn(
+          uuid: 'day-1',
+          invitationId: 1,
+          checkedInAt: now.subtract(const Duration(hours: 20)),
+          deviceName: 'Men 1',
+        ),
+      );
+      final engine = DoorEngine(store: await memoryStore(), remote: server, syncEvery: null);
+      await engine.open(testSession(), live: false);
+      expect(engine.status.checkedIn, 0, reason: 'nobody in yet today');
+      server.online = false;
+
+      // Today she is a new day's guest, not a return.
+      final verdict = await engine.lookup(testQr('sara00000001'));
+      expect(verdict.returning, isFalse);
+      final today = await engine.admit(1, companions: 1);
+      expect(today.admitted, isTrue);
+      expect(today.returning, isFalse);
+      expect(engine.status.pending, 1);
+      expect(engine.status.checkedIn, 1);
+
+      // She steps out and comes back the same day.
+      final back = await engine.admit(1);
+      expect(back.returning, isTrue);
+      expect(engine.status.pending, 1, reason: 'a return records nothing');
+      await engine.close();
+    });
+
     test('a phone with no list yet says so instead of failing', () async {
       final server = FakeServer()..online = false;
       final engine = DoorEngine(store: await memoryStore(), remote: server, syncEvery: null);

@@ -58,11 +58,7 @@ class _GuestVerifiedDialogState extends State<GuestVerifiedDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Icon(
-              blocked ? Icons.block_rounded : Icons.check_circle_outline_rounded,
-              color: accent,
-              size: 56,
-            ),
+            Icon(blocked ? Icons.block_rounded : Icons.check_circle_outline_rounded, color: accent, size: 56),
             AppSpacing.verticalSpace12,
             Text(
               t.translate(blocked ? 'scanner_cannot_check_in' : 'scanner_verified'),
@@ -109,7 +105,8 @@ class _GuestVerifiedDialogState extends State<GuestVerifiedDialog> {
                 key: const Key('scanner_blocker'),
                 icon: Icons.block_rounded,
                 color: AppColors.red500,
-                text: guest.blockerMessage ??
+                text:
+                    guest.blockerMessage ??
                     (guest.blockerCode == null
                         ? t.translate('scanner_cannot_check_in')
                         : DoorTexts.reason(t, guest.blockerCode, maxCompanions: guest.maxCompanions, validOn: validOn)),

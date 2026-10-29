@@ -42,9 +42,9 @@ class _DoorHubScreenState extends State<DoorHubScreen> {
   Future<void> _start() async {
     final t = AppLocalizations.of(context)!;
     final code = await context.read<DoorStatusCubit>().startHub(
-          notificationTitle: t.translate('door_hub_notification_title'),
-          notificationText: t.translate('door_hub_notification_text'),
-        );
+      notificationTitle: t.translate('door_hub_notification_title'),
+      notificationText: t.translate('door_hub_notification_text'),
+    );
     if (!mounted) return;
     setState(() {
       _joinCode = code;
@@ -148,24 +148,30 @@ class _Line extends StatelessWidget {
   final bool strong;
   final bool ltr;
 
-  const _Line({required this.icon, required this.text, this.color = AppColors.gray700, this.strong = false, this.ltr = false});
+  const _Line({
+    required this.icon,
+    required this.text,
+    this.color = AppColors.gray700,
+    this.strong = false,
+    this.ltr = false,
+  });
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsetsDirectional.only(bottom: AppSpacing.sm),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, size: AppSpacing.iconMd, color: color),
-            AppSpacing.horizontalSpace8,
-            Expanded(
-              child: Text(
-                text,
-                textDirection: ltr ? TextDirection.ltr : null,
-                style: TextStyle(color: color, fontWeight: strong ? FontWeight.w700 : FontWeight.w400, height: 1.4),
-              ),
-            ),
-          ],
+    padding: const EdgeInsetsDirectional.only(bottom: AppSpacing.sm),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: AppSpacing.iconMd, color: color),
+        AppSpacing.horizontalSpace8,
+        Expanded(
+          child: Text(
+            text,
+            textDirection: ltr ? TextDirection.ltr : null,
+            style: TextStyle(color: color, fontWeight: strong ? FontWeight.w700 : FontWeight.w400, height: 1.4),
+          ),
         ),
-      );
+      ],
+    ),
+  );
 }

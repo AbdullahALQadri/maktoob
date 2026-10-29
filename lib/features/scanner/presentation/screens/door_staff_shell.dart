@@ -26,9 +26,11 @@ class DoorStaffShell extends StatelessWidget {
       context: context,
       builder: (dialog) => AlertDialog(
         title: Text(t.translate('door_staff_leave')),
-        content: Text(pending > 0
-            ? t.translate('door_staff_leave_pending').replaceAll('{count}', '$pending')
-            : t.translate('door_staff_leave_confirm')),
+        content: Text(
+          pending > 0
+              ? t.translate('door_staff_leave_pending').replaceAll('{count}', '$pending')
+              : t.translate('door_staff_leave_confirm'),
+        ),
         actions: [
           TextButton(onPressed: () => Navigator.of(dialog).pop(false), child: Text(t.translate('common_cancel'))),
           TextButton(onPressed: () => Navigator.of(dialog).pop(true), child: Text(t.translate('common_confirm'))),
@@ -45,10 +47,7 @@ class DoorStaffShell extends StatelessWidget {
     return BlocProvider(
       create: (_) => di.sl<ScannerCubit>(),
       child: Builder(
-        builder: (context) => QRScannerScreen(
-          session: session,
-          onLeaveStaffMode: () => _leave(context),
-        ),
+        builder: (context) => QRScannerScreen(session: session, onLeaveStaffMode: () => _leave(context)),
       ),
     );
   }

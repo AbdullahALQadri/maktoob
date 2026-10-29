@@ -7,6 +7,9 @@ class DoorSummaryModel {
   final int companions;
   final int people;
   final int flagged;
+
+  /// Who came each day of an event of several days (empty for one day).
+  final List<DoorDayCount> days;
   final List<DoorGateCount> gates;
   final DoorGateCount noGate;
   final List<DoorDeviceModel> devices;
@@ -18,6 +21,7 @@ class DoorSummaryModel {
     required this.companions,
     required this.people,
     required this.flagged,
+    this.days = const [],
     required this.gates,
     required this.noGate,
     required this.devices,
@@ -33,6 +37,12 @@ class DoorSummaryModel {
       companions: _int(t['companions']),
       people: _int(t['people']),
       flagged: _int(t['flagged']),
+      days: _list(j['days'])
+          .map(
+            (d) =>
+                DoorDayCount(date: '${d['date'] ?? ''}', guests: _int(d['guests']), companions: _int(d['companions'])),
+          )
+          .toList(),
       gates: _list(j['gates'])
           .map(
             (g) => DoorGateCount(gate: DoorJson.gate(g), guests: _int(g['guests']), companions: _int(g['companions'])),
@@ -43,6 +53,15 @@ class DoorSummaryModel {
       canManage: j['can_manage'] == true,
     );
   }
+}
+
+/// One day of an event of several days: [date] is Y-m-d (Asia/Gaza).
+class DoorDayCount {
+  final String date;
+  final int guests;
+  final int companions;
+
+  const DoorDayCount({required this.date, required this.guests, required this.companions});
 }
 
 class DoorGateCount {

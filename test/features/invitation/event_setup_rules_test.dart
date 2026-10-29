@@ -64,6 +64,33 @@ void main() {
           isNull);
     });
 
+    test('business over several days: the end time on the last day, any hour', () {
+      expect(
+          EventSetupRules.endDateTimeToSend(
+              hasEndTime: true,
+              date: date,
+              start: start,
+              end: const TimeOfDay(hour: 15, minute: 0),
+              lastDay: DateTime(2026, 12, 3)),
+          DateTime(2026, 12, 3, 15, 0),
+          reason: 'ends at 15:00 on the third day, before the 18:00 start hour');
+      // The last day must be later, and within a month.
+      expect(EventSetupRules.isLaterDay(date, DateTime(2026, 12, 1)), isFalse);
+      expect(EventSetupRules.isLaterDay(date, DateTime(2026, 12, 31)), isTrue);
+      expect(EventSetupRules.isLaterDay(date, DateTime(2027, 1, 1)), isFalse);
+      // Several days: the end time may be earlier in the day than the start.
+      const biz = EventTypeModel(id: 1, name: 'w', nameAr: 'w', slug: 'workshop', hasEndTime: true);
+      final s = InvitationState(
+          selectedEventType: biz,
+          eventDate: date,
+          eventTime: start,
+          eventEndTime: const TimeOfDay(hour: 15, minute: 0),
+          eventEndDate: DateTime(2026, 12, 3));
+      expect(s.canProceedFromEventDetails, isTrue);
+      // Back to one day: the same end time is before the start again.
+      expect(s.copyWith(clearEventEndDate: true).canProceedFromEventDetails, isFalse);
+    });
+
     test('other types never send an end', () {
       expect(
           EventSetupRules.endDateTimeToSend(

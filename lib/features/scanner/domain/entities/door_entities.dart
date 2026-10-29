@@ -16,6 +16,10 @@ class DoorEventInfo extends Equatable {
   final int? companionLimit;
   final String? venueName;
 
+  /// Every day of the event (Asia/Gaza). Several days: each one counts its
+  /// own attendance; one day (a wedding): as before.
+  final List<DoorDay> days;
+
   const DoorEventInfo({
     required this.id,
     required this.title,
@@ -27,7 +31,20 @@ class DoorEventInfo extends Equatable {
     this.allowCompanions = true,
     this.companionLimit,
     this.venueName,
+    this.days = const [],
   });
+
+  bool get multiDay => days.length > 1;
+
+  /// The day [nowUtc] falls in, when the event lasts several days (null for
+  /// a one-day event or outside its days).
+  DoorDay? dayAt(DateTime nowUtc) {
+    if (!multiDay) return null;
+    for (final d in days) {
+      if (d.contains(nowUtc)) return d;
+    }
+    return null;
+  }
 
   DoorEventInfo copyWith({String? status}) => DoorEventInfo(
     id: id,
@@ -40,6 +57,7 @@ class DoorEventInfo extends Equatable {
     allowCompanions: allowCompanions,
     companionLimit: companionLimit,
     venueName: venueName,
+    days: days,
   );
 
   @override
@@ -54,7 +72,23 @@ class DoorEventInfo extends Equatable {
     allowCompanions,
     companionLimit,
     venueName,
+    days,
   ];
+}
+
+/// One day of the event: [date] (Y-m-d, Asia/Gaza) from [from] to [until]
+/// (UTC instants, summer time included, sent by the server).
+class DoorDay extends Equatable {
+  final String date;
+  final DateTime from;
+  final DateTime until;
+
+  const DoorDay({required this.date, required this.from, required this.until});
+
+  bool contains(DateTime atUtc) => !atUtc.isBefore(from) && !atUtc.isAfter(until);
+
+  @override
+  List<Object?> get props => [date, from, until];
 }
 
 /// One door of the event. `audience` (all / men / women) only warns.

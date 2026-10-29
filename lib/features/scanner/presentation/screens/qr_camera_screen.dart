@@ -9,17 +9,13 @@ import '../../../../core/utils/responsive.dart';
 class QRCameraScreen extends StatefulWidget {
   final Function(String) onQRCodeScanned;
 
-  const QRCameraScreen({
-    super.key,
-    required this.onQRCodeScanned,
-  });
+  const QRCameraScreen({super.key, required this.onQRCodeScanned});
 
   @override
   State<QRCameraScreen> createState() => _QRCameraScreenState();
 }
 
-class _QRCameraScreenState extends State<QRCameraScreen>
-    with SingleTickerProviderStateMixin {
+class _QRCameraScreenState extends State<QRCameraScreen> with SingleTickerProviderStateMixin {
   late MobileScannerController _scannerController;
   late AnimationController _animationController;
   late Animation<double> _scanLineAnimation;
@@ -35,17 +31,13 @@ class _QRCameraScreenState extends State<QRCameraScreen>
       torchEnabled: false,
     );
 
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat(reverse: true);
+    _animationController = AnimationController(vsync: this, duration: const Duration(seconds: 2))
+      ..repeat(reverse: true);
 
-    _scanLineAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
-    );
+    _scanLineAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
   }
 
   @override
@@ -87,10 +79,7 @@ class _QRCameraScreenState extends State<QRCameraScreen>
       body: Stack(
         children: [
           // Camera preview
-          MobileScanner(
-            controller: _scannerController,
-            onDetect: _onDetect,
-          ),
+          MobileScanner(controller: _scannerController, onDetect: _onDetect),
           // Overlay with scan area
           _buildOverlay(context),
           // Top bar with close and torch buttons
@@ -105,10 +94,7 @@ class _QRCameraScreenState extends State<QRCameraScreen>
   Widget _buildTopBar(BuildContext context, AppLocalizations t) {
     return SafeArea(
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: context.dynamicWidth(0.04),
-          vertical: context.dynamicHeight(0.02),
-        ),
+        padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.04), vertical: context.dynamicHeight(0.02)),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -118,25 +104,14 @@ class _QRCameraScreenState extends State<QRCameraScreen>
               child: Container(
                 width: 44,
                 height: 44,
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.5),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.close,
-                  color: Colors.white,
-                  size: 24,
-                ),
+                decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.5), shape: BoxShape.circle),
+                child: const Icon(Icons.close, color: Colors.white, size: 24),
               ),
             ),
             // Title
             Text(
               t.translate('scanner_scan_qr_short'),
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: context.dynamicWidth(0.045),
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(color: Colors.white, fontSize: context.dynamicWidth(0.045), fontWeight: FontWeight.bold),
             ),
             // Torch button
             GestureDetector(
@@ -145,16 +120,10 @@ class _QRCameraScreenState extends State<QRCameraScreen>
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: _isTorchOn
-                      ? AppColors.primaryColor
-                      : Colors.black.withValues(alpha: 0.5),
+                  color: _isTorchOn ? AppColors.primaryColor : Colors.black.withValues(alpha: 0.5),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  _isTorchOn ? Icons.flash_on : Icons.flash_off,
-                  color: Colors.white,
-                  size: 24,
-                ),
+                child: Icon(_isTorchOn ? Icons.flash_on : Icons.flash_off, color: Colors.white, size: 24),
               ),
             ),
           ],
@@ -170,27 +139,18 @@ class _QRCameraScreenState extends State<QRCameraScreen>
       children: [
         // Dark overlay with transparent center
         ColorFiltered(
-          colorFilter: ColorFilter.mode(
-            Colors.black.withValues(alpha: 0.6),
-            BlendMode.srcOut,
-          ),
+          colorFilter: ColorFilter.mode(Colors.black.withValues(alpha: 0.6), BlendMode.srcOut),
           child: Stack(
             fit: StackFit.expand,
             children: [
               Container(
-                decoration: const BoxDecoration(
-                  color: Colors.black,
-                  backgroundBlendMode: BlendMode.dstOut,
-                ),
+                decoration: const BoxDecoration(color: Colors.black, backgroundBlendMode: BlendMode.dstOut),
               ),
               Center(
                 child: Container(
                   width: scanAreaSize,
                   height: scanAreaSize,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                  ),
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
                 ),
               ),
             ],
@@ -204,22 +164,10 @@ class _QRCameraScreenState extends State<QRCameraScreen>
             child: Stack(
               children: [
                 // Corner decorations
-                _buildCorner(
-                  alignment: Alignment.topLeft,
-                  rotation: 0,
-                ),
-                _buildCorner(
-                  alignment: Alignment.topRight,
-                  rotation: 90,
-                ),
-                _buildCorner(
-                  alignment: Alignment.bottomRight,
-                  rotation: 180,
-                ),
-                _buildCorner(
-                  alignment: Alignment.bottomLeft,
-                  rotation: 270,
-                ),
+                _buildCorner(alignment: Alignment.topLeft, rotation: 0),
+                _buildCorner(alignment: Alignment.topRight, rotation: 90),
+                _buildCorner(alignment: Alignment.bottomRight, rotation: 180),
+                _buildCorner(alignment: Alignment.bottomLeft, rotation: 270),
                 // Scanning line animation
                 AnimatedBuilder(
                   animation: _scanLineAnimation,
@@ -261,10 +209,7 @@ class _QRCameraScreenState extends State<QRCameraScreen>
     );
   }
 
-  Widget _buildCorner({
-    required Alignment alignment,
-    required double rotation,
-  }) {
+  Widget _buildCorner({required Alignment alignment, required double rotation}) {
     return Align(
       alignment: alignment,
       child: Transform.rotate(
@@ -274,14 +219,8 @@ class _QRCameraScreenState extends State<QRCameraScreen>
           height: 30,
           decoration: BoxDecoration(
             border: Border(
-              top: BorderSide(
-                color: AppColors.primaryColor,
-                width: 4,
-              ),
-              left: BorderSide(
-                color: AppColors.primaryColor,
-                width: 4,
-              ),
+              top: BorderSide(color: AppColors.primaryColor, width: 4),
+              left: BorderSide(color: AppColors.primaryColor, width: 4),
             ),
           ),
         ),
@@ -310,11 +249,7 @@ class _QRCameraScreenState extends State<QRCameraScreen>
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.qr_code,
-                  color: Colors.white.withValues(alpha: 0.9),
-                  size: context.dynamicWidth(0.051),
-                ),
+                Icon(Icons.qr_code, color: Colors.white.withValues(alpha: 0.9), size: context.dynamicWidth(0.051)),
                 SizedBox(width: context.dynamicWidth(0.021)),
                 Text(
                   t.translate('scanner_place_qr'),

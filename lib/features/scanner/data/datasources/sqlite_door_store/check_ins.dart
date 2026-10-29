@@ -36,11 +36,12 @@ mixin _CheckIns on _SqliteStoreBase {
   });
 
   @override
-  Future<DoorCheckIn?> firstCheckIn(int eventId, int invitationId) async {
+  Future<DoorCheckIn?> firstCheckIn(int eventId, int invitationId, {DoorDay? day}) async {
+    final (onDay, dayArgs) = _onDay(day);
     final rows = await db.query(
       'door_check_ins',
-      where: 'event_id = ? AND invitation_id = ? AND sync_state != ?',
-      whereArgs: [eventId, invitationId, 'refused'],
+      where: 'event_id = ? AND invitation_id = ? AND sync_state != ?$onDay',
+      whereArgs: [eventId, invitationId, 'refused', ...dayArgs],
       orderBy: 'checked_in_at ASC',
       limit: 1,
     );

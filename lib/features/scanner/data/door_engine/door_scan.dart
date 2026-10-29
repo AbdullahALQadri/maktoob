@@ -49,9 +49,14 @@ mixin _DoorScan on _DoorEngineBase {
 
     if (guest == null) return const DoorVerdict(blocker: DoorRules.notFound);
 
-    // A guest who already came in is let back in (see DoorVerdict.returning).
-    final first = await store.firstCheckIn(s.eventId, guest.id);
-    guest = guest.withCheckIn(first ?? guest.checkIn);
+    // A guest who already came in (today, for an event of several days) is
+    // let back in (see DoorVerdict.returning).
+    final today = _today;
+    final first = await store.firstCheckIn(s.eventId, guest.id, day: today);
+    final known = guest.checkIn;
+    guest = guest.withCheckIn(
+      first ?? (today == null || (known != null && today.contains(known.checkedInAt)) ? known : null),
+    );
 
     return DoorVerdict(
       guest: guest,
@@ -66,7 +71,7 @@ mixin _DoorScan on _DoorEngineBase {
   Future<List<DoorGuest>> guests({String query = ''}) async {
     final s = _session;
     if (s == null) return const [];
-    return store.guests(s.eventId, query: query);
+    return store.guests(s.eventId, query: query, day: _today);
   }
 
   /// One guest with their first check-in (e.g. a guest coming back).
@@ -74,7 +79,7 @@ mixin _DoorScan on _DoorEngineBase {
     final s = _session;
     if (s == null) return null;
     final guest = await store.guest(s.eventId, invitationId);
-    return guest?.withCheckIn(await store.firstCheckIn(s.eventId, invitationId));
+    return guest?.withCheckIn(await store.firstCheckIn(s.eventId, invitationId, day: _today));
   }
 
   Future<DoorAdmission> admit(
@@ -99,7 +104,7 @@ mixin _DoorScan on _DoorEngineBase {
     if (eventBlocker != null) {
       return DoorAdmission(admitted: false, code: eventBlocker, guest: guest, maxCompanions: max, warnings: warnings);
     }
-    final first = await store.firstCheckIn(s.eventId, invitationId);
+    final first = await store.firstCheckIn(s.eventId, invitationId, day: _today);
     if (first != null) {
       return DoorAdmission(
         admitted: true,

@@ -52,6 +52,14 @@ class DoorJson {
     allowCompanions: j['allow_companions'] != false,
     companionLimit: _intOrNull(j['companion_limit']),
     venueName: _str(j['venue_name']),
+    days: _list(j['days'])
+        .map((d) {
+          final from = _date(d['from']);
+          final until = _date(d['until']);
+          return from == null || until == null ? null : DoorDay(date: '${d['date']}', from: from, until: until);
+        })
+        .whereType<DoorDay>()
+        .toList(),
   );
 
   static Map<String, dynamic> eventToJson(DoorEventInfo e) => {
@@ -65,6 +73,9 @@ class DoorJson {
     'allow_companions': e.allowCompanions,
     'companion_limit': e.companionLimit,
     'venue_name': e.venueName,
+    'days': [
+      for (final d in e.days) {'date': d.date, 'from': d.from.toIso8601String(), 'until': d.until.toIso8601String()},
+    ],
   };
 
   static DoorGate gate(Map<String, dynamic> j) => DoorGate(

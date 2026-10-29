@@ -37,17 +37,13 @@ class _ScannerEventsContent extends StatefulWidget {
   State<_ScannerEventsContent> createState() => _ScannerEventsContentState();
 }
 
-class _ScannerEventsContentState extends State<_ScannerEventsContent>
-    with SingleTickerProviderStateMixin {
+class _ScannerEventsContentState extends State<_ScannerEventsContent> with SingleTickerProviderStateMixin {
   late AnimationController _fadeController;
 
   @override
   void initState() {
     super.initState();
-    _fadeController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    )..forward();
+    _fadeController = AnimationController(vsync: this, duration: const Duration(milliseconds: 600))..forward();
   }
 
   @override
@@ -61,10 +57,12 @@ class _ScannerEventsContentState extends State<_ScannerEventsContent>
   Future<void> _prepareOffline(EventsListState state) async {
     final events = state.events.where((e) => e.status == EventStatus.active && e.role.canScan);
     try {
-      await di.sl<DoorSessionManager>().prepareClientEvents(
-        events.map((e) => (int.tryParse(e.id) ?? 0, e.name)),
+      await di.sl<DoorSessionManager>().prepareClientEvents(events.map((e) => (int.tryParse(e.id) ?? 0, e.name)));
+      await DoorEngine.syncAll(
+        di.sl<DoorStore>(),
+        di.sl<DoorRemoteDataSource>(),
+        skip: di.sl<DoorEngine>().session?.id,
       );
-      await DoorEngine.syncAll(di.sl<DoorStore>(), di.sl<DoorRemoteDataSource>(), skip: di.sl<DoorEngine>().session?.id);
     } catch (_) {
       // Offline: the next connection does it (ForegroundSync / background).
     }
@@ -94,10 +92,7 @@ class _ScannerEventsContentState extends State<_ScannerEventsContent>
                     .toList();
 
                 if (ongoingEvents.isEmpty) return const _EmptyState();
-                return _EventsList(
-                  events: ongoingEvents,
-                  onEventSelected: widget.onEventSelected,
-                );
+                return _EventsList(events: ongoingEvents, onEventSelected: widget.onEventSelected);
               },
             ),
           ),
@@ -145,10 +140,7 @@ class _AnimatedHeader extends StatelessWidget {
                 SizedBox(height: context.dynamicHeight(0.007)),
                 Text(
                   t.translate('scanner_select_event_desc'),
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    fontSize: context.dynamicWidth(0.035),
-                  ),
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: context.dynamicWidth(0.035)),
                 ),
               ],
             ),
@@ -173,10 +165,7 @@ class _IconBadge extends StatelessWidget {
         return Transform.scale(scale: value, child: child);
       },
       child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: context.dynamicWidth(0.029),
-          vertical: context.dynamicHeight(0.007),
-        ),
+        padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.029), vertical: context.dynamicHeight(0.007)),
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(context.dynamicWidth(0.051)),
@@ -188,11 +177,7 @@ class _IconBadge extends StatelessWidget {
             SizedBox(width: context.dynamicWidth(0.016)),
             Text(
               t.translate('scanner_guest_scanner'),
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: context.dynamicWidth(0.029),
-                fontWeight: FontWeight.w500,
-              ),
+              style: TextStyle(color: Colors.white, fontSize: context.dynamicWidth(0.029), fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -257,26 +242,34 @@ class _ErrorState extends StatelessWidget {
             Container(
               width: context.dynamicWidth(0.2),
               height: context.dynamicWidth(0.2),
-              decoration: BoxDecoration(
-                color: AppColors.red500.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: AppColors.red500.withValues(alpha: 0.1), shape: BoxShape.circle),
               child: Icon(Icons.error_outline, size: context.dynamicWidth(0.101), color: AppColors.red500),
             ),
             SizedBox(height: context.dynamicHeight(0.025)),
             Text(
               t.translate('home_something_wrong'),
-              style: TextStyle(fontSize: context.dynamicWidth(0.045), fontWeight: FontWeight.bold, color: context.textPrimary),
+              style: TextStyle(
+                fontSize: context.dynamicWidth(0.045),
+                fontWeight: FontWeight.bold,
+                color: context.textPrimary,
+              ),
             ),
             SizedBox(height: context.dynamicHeight(0.01)),
-            Text(message, textAlign: TextAlign.center, style: TextStyle(color: context.iconSecondary, fontSize: context.dynamicWidth(0.035))),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: context.iconSecondary, fontSize: context.dynamicWidth(0.035)),
+            ),
             SizedBox(height: context.dynamicHeight(0.03)),
             ElevatedButton(
               onPressed: () => context.read<EventsListCubit>().refreshEvents(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryColor,
                 foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: context.dynamicWidth(0.08), vertical: context.dynamicHeight(0.015)),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.dynamicWidth(0.08),
+                  vertical: context.dynamicHeight(0.015),
+                ),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.dynamicWidth(0.029))),
               ),
               child: Text(t.translate('home_try_again'), style: TextStyle(fontSize: context.dynamicWidth(0.035))),
@@ -304,16 +297,17 @@ class _EmptyState extends StatelessWidget {
             Container(
               width: context.dynamicWidth(0.251),
               height: context.dynamicWidth(0.251),
-              decoration: BoxDecoration(
-                color: AppColors.primaryColor.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: AppColors.primaryColor.withValues(alpha: 0.1), shape: BoxShape.circle),
               child: Icon(Icons.event_busy, size: context.dynamicWidth(0.12), color: AppColors.primaryColor),
             ),
             SizedBox(height: context.dynamicHeight(0.03)),
             Text(
               t.translate('scanner_no_ongoing_events'),
-              style: TextStyle(fontSize: context.dynamicWidth(0.051), fontWeight: FontWeight.bold, color: context.textPrimary),
+              style: TextStyle(
+                fontSize: context.dynamicWidth(0.051),
+                fontWeight: FontWeight.bold,
+                color: context.textPrimary,
+              ),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: context.dynamicHeight(0.015)),

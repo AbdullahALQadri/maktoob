@@ -45,7 +45,10 @@ class DoorStatusBar extends StatelessWidget {
                   Icon(icon, color: color, size: AppSpacing.iconMd),
                   AppSpacing.horizontalSpace8,
                   Expanded(
-                    child: Text(label, style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 14)),
+                    child: Text(
+                      label,
+                      style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 14),
+                    ),
                   ),
                   if (s.syncing)
                     const SizedBox(
@@ -77,10 +80,15 @@ class DoorStatusBar extends StatelessWidget {
                   ),
                   _Fact(
                     icon: Icons.list_alt_outlined,
-                    text: t.translate('door_list_updated').replaceAll('{time}', DoorTexts.ago(t, s.lastSyncAt ?? s.packDownloadedAt)),
+                    text: t
+                        .translate('door_list_updated')
+                        .replaceAll('{time}', DoorTexts.ago(t, s.lastSyncAt ?? s.packDownloadedAt)),
                   ),
                   if (s.hubRunning || s.peers > 0)
-                    _Fact(icon: Icons.devices_other_outlined, text: t.translate('door_hub_peers').replaceAll('{count}', '${s.peers}')),
+                    _Fact(
+                      icon: Icons.devices_other_outlined,
+                      text: t.translate('door_hub_peers').replaceAll('{count}', '${s.peers}'),
+                    ),
                 ],
               ),
               if (s.gates.isNotEmpty || gate != null) ...[
@@ -99,13 +107,19 @@ class DoorStatusBar extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.door_front_door_outlined, size: AppSpacing.iconSm, color: AppColors.primaryDark),
+                        const Icon(
+                          Icons.door_front_door_outlined,
+                          size: AppSpacing.iconSm,
+                          color: AppColors.primaryDark,
+                        ),
                         AppSpacing.horizontalSpace4,
                         Text(
-                          gate == null
-                              ? t.translate('door_gate_none')
-                              : '${t.translate('door_gate')}: ${gate.name}',
-                          style: const TextStyle(color: AppColors.primaryDark, fontWeight: FontWeight.w600, fontSize: 13),
+                          gate == null ? t.translate('door_gate_none') : '${t.translate('door_gate')}: ${gate.name}',
+                          style: const TextStyle(
+                            color: AppColors.primaryDark,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
                         ),
                         AppSpacing.horizontalSpace4,
                         const Icon(Icons.expand_more, size: AppSpacing.iconSm, color: AppColors.primaryDark),
@@ -120,10 +134,7 @@ class DoorStatusBar extends StatelessWidget {
                   key: const Key('door_problem'),
                   width: double.infinity,
                   padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
-                  decoration: BoxDecoration(
-                    color: AppColors.red100,
-                    borderRadius: AppSpacing.borderRadiusSm,
-                  ),
+                  decoration: BoxDecoration(color: AppColors.red100, borderRadius: AppSpacing.borderRadiusSm),
                   child: Text(
                     DoorTexts.problem(t, s.problem!),
                     style: const TextStyle(color: AppColors.red500, fontSize: 13, fontWeight: FontWeight.w600),
@@ -132,7 +143,10 @@ class DoorStatusBar extends StatelessWidget {
               ],
               if (!s.hasPack && s.session != null) ...[
                 AppSpacing.verticalSpace8,
-                Text(t.translate('door_reason_no_pack'), style: const TextStyle(color: AppColors.gray600, fontSize: 13)),
+                Text(
+                  t.translate('door_reason_no_pack'),
+                  style: const TextStyle(color: AppColors.gray600, fontSize: 13),
+                ),
               ],
             ],
           ),
@@ -151,13 +165,13 @@ class _Fact extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: AppSpacing.iconSm, color: color),
-          AppSpacing.horizontalSpace4,
-          Text(text, style: TextStyle(color: color, fontSize: 12.5)),
-        ],
-      );
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Icon(icon, size: AppSpacing.iconSm, color: color),
+      AppSpacing.horizontalSpace4,
+      Text(text, style: TextStyle(color: color, fontSize: 12.5)),
+    ],
+  );
 }
 
 class _GateOption extends StatelessWidget {
@@ -170,14 +184,14 @@ class _GateOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListTile(
-        onTap: onTap,
-        leading: Icon(
-          selected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-          color: selected ? AppColors.primaryColor : AppColors.gray400,
-        ),
-        title: Text(title),
-        subtitle: subtitle == null ? null : Text(subtitle!),
-      );
+    onTap: onTap,
+    leading: Icon(
+      selected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+      color: selected ? AppColors.primaryColor : AppColors.gray400,
+    ),
+    title: Text(title),
+    subtitle: subtitle == null ? null : Text(subtitle!),
+  );
 }
 
 /// Bottom sheet to choose this phone's gate (from the downloaded list).
@@ -195,7 +209,10 @@ Future<void> showGatePicker(BuildContext context) async {
         children: [
           Padding(
             padding: const EdgeInsetsDirectional.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-            child: Text(t.translate('door_choose_gate'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+            child: Text(
+              t.translate('door_choose_gate'),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            ),
           ),
           _GateOption(
             title: t.translate('door_gate_none'),

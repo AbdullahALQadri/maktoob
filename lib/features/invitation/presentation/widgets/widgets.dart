@@ -4,6 +4,7 @@
 export 'companions_section.dart';
 export 'rsvp_settings_section.dart';
 export 'contact_picker_widget.dart';
+export 'event_end_fields.dart';
 export 'event_type_fields_section.dart';
 export 'extra_service_card.dart';
 export 'google_maps_picker_widget.dart';

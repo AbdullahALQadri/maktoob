@@ -64,7 +64,9 @@ abstract class DoorStore {
   Future<void> upsertGuest(int eventId, DoorPackGuest guest);
   Future<DoorGuest?> guestByHash(int eventId, String hash);
   Future<DoorGuest?> guest(int eventId, int invitationId);
-  Future<List<DoorGuest>> guests(int eventId, {String query = '', int limit = 500});
+
+  /// With [day] (an event of several days) each guest's check-in is that day's.
+  Future<List<DoorGuest>> guests(int eventId, {String query = '', int limit = 500, DoorDay? day});
 
   /// False when the uuid is already known (a re-received record).
   Future<bool> addCheckIn(DoorCheckInRecord record);
@@ -72,7 +74,9 @@ abstract class DoorStore {
   /// Check-ins from the server / the hub: insert unknown, update the state of known.
   Future<int> mergeCheckIns(int eventId, List<DoorCheckIn> checkIns, {required String origin, bool synced = true});
   Future<void> mergeLanRecords(int eventId, List<DoorCheckInRecord> records);
-  Future<DoorCheckIn?> firstCheckIn(int eventId, int invitationId);
+
+  /// The first check-in (on [day] when given: that day's attendance).
+  Future<DoorCheckIn?> firstCheckIn(int eventId, int invitationId, {DoorDay? day});
   Future<List<DoorCheckInRecord>> pendingUploads(int eventId, {int limit = 200});
   Future<void> markUpload(String uuid, String state, {String? code});
   Future<void> bumpAttempts(List<String> uuids);
@@ -80,7 +84,7 @@ abstract class DoorStore {
   Future<int> maxLanSeq(int eventId);
 
   Future<int> guestCount(int eventId);
-  Future<int> checkedInCount(int eventId);
+  Future<int> checkedInCount(int eventId, {DoorDay? day});
   Future<int> pendingCount(int eventId);
   Future<int> refusedCount(int eventId);
 
