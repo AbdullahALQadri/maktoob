@@ -103,7 +103,7 @@ class EventCardTile extends StatelessWidget {
   }
 
   String _meta(BuildContext context) => [
-    if (event.typeName(context.languageCode) case final type?) type,
+    ?event.typeName(context.languageCode),
     if (event.date case final date?) context.clockTime(date),
     context.tr('home_card_guests', {'count': event.invitations}),
   ].join(' · ');

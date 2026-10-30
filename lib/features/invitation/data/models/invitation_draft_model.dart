@@ -72,54 +72,6 @@ extension GoldenEventTypeExtension on GoldenEventType {
         return const [AppColors.purple600, AppColors.pink600];
     }
   }
-
-  /// Number of name fields required for this event type
-  int get nameFieldCount {
-    switch (this) {
-      case GoldenEventType.birthday:
-        return 1;
-      case GoldenEventType.wedding:
-        return 2;
-      case GoldenEventType.aqiqah:
-        return 2;
-      case GoldenEventType.storeOpening:
-        return 1;
-      case GoldenEventType.custom:
-        return 1;
-    }
-  }
-
-  /// Labels for name fields
-  List<String> get nameFieldLabels {
-    switch (this) {
-      case GoldenEventType.birthday:
-        return ['Celebrant Name'];
-      case GoldenEventType.wedding:
-        return ['Bride Name', 'Groom Name'];
-      case GoldenEventType.aqiqah:
-        return ['Baby Name', 'Parent Name'];
-      case GoldenEventType.storeOpening:
-        return ['Store Name'];
-      case GoldenEventType.custom:
-        return ['Event Name'];
-    }
-  }
-
-  /// Arabic labels for name fields
-  List<String> get nameFieldLabelsAr {
-    switch (this) {
-      case GoldenEventType.birthday:
-        return ['اسم المحتفل به'];
-      case GoldenEventType.wedding:
-        return ['اسم العروس', 'اسم العريس'];
-      case GoldenEventType.aqiqah:
-        return ['اسم المولود', 'اسم الوالد'];
-      case GoldenEventType.storeOpening:
-        return ['اسم المتجر'];
-      case GoldenEventType.custom:
-        return ['اسم المناسبة'];
-    }
-  }
 }
 
 /// Source of guest data for duplicate handling priority

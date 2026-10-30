@@ -18,7 +18,6 @@ import 'features/payment/presentation/cubit/payment_cubit.dart';
 import 'features/scanner/presentation/cubit/scanner_cubit.dart';
 import 'features/settings/presentation/cubit/settings_cubit.dart';
 import 'features/settings/presentation/cubit/settings_state.dart';
-import 'features/venues/presentation/cubit/venues_cubit.dart';
 import 'injection_container.dart' as di;
 
 class Maktoob extends StatelessWidget {
@@ -55,11 +54,6 @@ class Maktoob extends StatelessWidget {
         BlocProvider<EventDetailsCubit>(
           lazy: true,
           create: (_) => di.sl<EventDetailsCubit>(),
-        ),
-        // Lazy load - only create when venues screen is accessed
-        BlocProvider<VenuesCubit>(
-          lazy: true,
-          create: (_) => di.sl<VenuesCubit>(),
         ),
         // Lazy load - only create when scanner screen is accessed
         BlocProvider<ScannerCubit>(

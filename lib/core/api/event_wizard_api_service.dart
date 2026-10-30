@@ -7,8 +7,7 @@ import 'end_points.dart';
 class EventWizardApiService {
   final ApiConsumer _apiConsumer;
 
-  EventWizardApiService({required ApiConsumer apiConsumer})
-      : _apiConsumer = apiConsumer;
+  EventWizardApiService({required this._apiConsumer});
 
   // ============================================================
   // PAGE 1: Event Type & Template Selection
@@ -56,13 +55,12 @@ class EventWizardApiService {
       Endpoints.wizardInitialize,
       body: {
         // Owner / manager creating on behalf of an approved institution.
-        if (institutionId != null) 'institution_id': institutionId,
-        if (eventTypeId != null) 'event_type_id': eventTypeId,
-        if (customEventTypeName != null)
-          'custom_event_type_name': customEventTypeName,
+        'institution_id': ?institutionId,
+        'event_type_id': ?eventTypeId,
+        'custom_event_type_name': ?customEventTypeName,
         // Designs come from the public gallery (ai_generated_images); the
         // server links a gallery image as the event's design by this key.
-        if (templateId != null) 'ai_generated_image_id': templateId,
+        'ai_generated_image_id': ?templateId,
       },
     );
     return response as Map<String, dynamic>;
@@ -111,23 +109,20 @@ class EventWizardApiService {
         // Backend unified title_ar/title_en -> title and description_* ->
         // description (migration 2026_07_01); event_date/end_date are datetimes.
         'title': titleAr,
-        if (descriptionAr != null) 'description': descriptionAr,
+        'description': ?descriptionAr,
         // event_date/end_date are datetimes: send "YYYY-MM-DD HH:MM".
         'event_date': _dateTime(eventDate, eventTime),
         // Always sent: null clears an end the host took away (one day again).
         'end_date': eventEndDate?.toIso8601String().substring(0, 16).replaceFirst('T', ' '),
-        if (venueId != null) 'venue_id': venueId,
-        if (customVenueNameAr != null) 'custom_venue_name_ar': customVenueNameAr,
-        if (customVenueNameEn != null) 'custom_venue_name_en': customVenueNameEn,
-        if (customVenueAddressAr != null)
-          'custom_venue_address_ar': customVenueAddressAr,
-        if (customVenueAddressEn != null)
-          'custom_venue_address_en': customVenueAddressEn,
-        if (customVenueLat != null) 'custom_venue_lat': customVenueLat,
-        if (customVenueLng != null) 'custom_venue_lng': customVenueLng,
-        if (partnerCount != null) 'partner_count': partnerCount,
-        if (eventTypeFormValues != null)
-          'event_type_form_values': eventTypeFormValues,
+        'venue_id': ?venueId,
+        'custom_venue_name_ar': ?customVenueNameAr,
+        'custom_venue_name_en': ?customVenueNameEn,
+        'custom_venue_address_ar': ?customVenueAddressAr,
+        'custom_venue_address_en': ?customVenueAddressEn,
+        'custom_venue_lat': ?customVenueLat,
+        'custom_venue_lng': ?customVenueLng,
+        'partner_count': ?partnerCount,
+        'event_type_form_values': ?eventTypeFormValues,
       },
     );
     return response as Map<String, dynamic>;
@@ -332,10 +327,10 @@ class EventWizardApiService {
       Endpoints.wizardInvitationConfig(eventId),
       body: {
         'default_delivery_method': defaultDeliveryMethod,
-        if (messageAr != null) 'message_ar': messageAr,
-        if (messageEn != null) 'message_en': messageEn,
-        if (refusalMessageAr != null) 'refusal_message_ar': refusalMessageAr,
-        if (refusalMessageEn != null) 'refusal_message_en': refusalMessageEn,
+        'message_ar': ?messageAr,
+        'message_en': ?messageEn,
+        'refusal_message_ar': ?refusalMessageAr,
+        'refusal_message_en': ?refusalMessageEn,
         'allow_companions': allowCompanions,
         'max_companions': maxCompanions,
         'require_response': requireResponse,
@@ -401,12 +396,12 @@ class EventWizardApiService {
     final response = await _apiConsumer.post(
       Endpoints.wizardSelectPackage(eventId),
       body: {
-        if (packageId != null) 'package_id': packageId,
+        'package_id': ?packageId,
         'is_custom_package': isCustomPackage,
-        if (customGuestCount != null) 'custom_guest_count': customGuestCount,
-        if (customServiceIds != null) 'custom_service_ids': customServiceIds,
-        if (customChannels != null) 'custom_channels': customChannels,
-        if (customFeatures != null) 'custom_features': customFeatures,
+        'custom_guest_count': ?customGuestCount,
+        'custom_service_ids': ?customServiceIds,
+        'custom_channels': ?customChannels,
+        'custom_features': ?customFeatures,
       },
     );
     return response as Map<String, dynamic>;

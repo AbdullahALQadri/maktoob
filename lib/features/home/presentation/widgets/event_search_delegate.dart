@@ -97,7 +97,7 @@ class EventSearchDelegate extends SearchDelegate<String?> {
         return ListView.separated(
           padding: const EdgeInsetsDirectional.all(AppSpacing.md),
           itemCount: results.length,
-          separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+          separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
           itemBuilder: (context, i) {
             final e = results[i];
             return Material(

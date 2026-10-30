@@ -41,7 +41,12 @@ class SecureStorageService {
   /// The one storage configuration. The background sync isolate builds its
   /// own instance with exactly these options, or it could not read the keys.
   static const FlutterSecureStorage storage = FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    // v10 moves data saved under v9's EncryptedSharedPreferences to its own
+    // ciphers on first read. Keep a backup while it does and never wipe on an
+    // error: door tokens must survive (pending check-ins depend on them).
+    // Stay on v10 until every installed app has run it once; v11 can no
+    // longer read v9 data.
+    aOptions: AndroidOptions(migrateWithBackup: true, resetOnError: false),
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
   );
 

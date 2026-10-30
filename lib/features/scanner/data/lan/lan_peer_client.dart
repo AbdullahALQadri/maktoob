@@ -29,7 +29,7 @@ class LanPeerClient {
     Map<String, dynamic> payload, {
     Duration timeout = const Duration(seconds: 3),
   }) async {
-    final hosts = [if (_host != null) _host!, ...join.hosts.where((h) => h != _host)];
+    final hosts = [?_host, ...join.hosts.where((h) => h != _host)];
     for (final host in hosts) {
       try {
         final answer = await _post(host, op, payload, timeout);

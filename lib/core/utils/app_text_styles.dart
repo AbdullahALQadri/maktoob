@@ -6,7 +6,7 @@ import 'app_strings.dart';
 /// Unified text styles for the entire application.
 ///
 /// This class provides consistent typography across all screens.
-/// All text styles use the Satoshi font family and follow a clear hierarchy.
+/// All text styles use the Tajawal font family and follow a clear hierarchy.
 ///
 /// Example usage:
 /// ```dart
@@ -165,16 +165,6 @@ class AppTextStyles {
     height: 1.4,
   );
 
-  /// Overline text - 10px medium uppercase
-  static const TextStyle overline = TextStyle(
-    fontFamily: _fontFamily,
-    fontSize: 10,
-    fontWeight: FontWeight.w500,
-    color: AppColors.gray500,
-    letterSpacing: 1.5,
-    height: 1.4,
-  );
-
   /// Helper/hint text - 12px regular
   static const TextStyle helper = TextStyle(
     fontFamily: _fontFamily,
@@ -197,33 +187,6 @@ class AppTextStyles {
   // BUTTONS
   // ==========================================================================
 
-  /// Primary button text - 16px semibold
-  static const TextStyle buttonLarge = TextStyle(
-    fontFamily: _fontFamily,
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
-    color: AppColors.white,
-    height: 1.2,
-  );
-
-  /// Medium button text - 14px semibold
-  static const TextStyle buttonMedium = TextStyle(
-    fontFamily: _fontFamily,
-    fontSize: 14,
-    fontWeight: FontWeight.w600,
-    color: AppColors.white,
-    height: 1.2,
-  );
-
-  /// Small button text - 12px semibold
-  static const TextStyle buttonSmall = TextStyle(
-    fontFamily: _fontFamily,
-    fontSize: 12,
-    fontWeight: FontWeight.w600,
-    color: AppColors.white,
-    height: 1.2,
-  );
-
   // ==========================================================================
   // LINKS
   // ==========================================================================
@@ -232,16 +195,6 @@ class AppTextStyles {
   static const TextStyle link = TextStyle(
     fontFamily: _fontFamily,
     fontSize: 14,
-    fontWeight: FontWeight.w500,
-    color: AppColors.primaryColor,
-    decoration: TextDecoration.underline,
-    height: 1.4,
-  );
-
-  /// Small link text - 12px medium
-  static const TextStyle linkSmall = TextStyle(
-    fontFamily: _fontFamily,
-    fontSize: 12,
     fontWeight: FontWeight.w500,
     color: AppColors.primaryColor,
     decoration: TextDecoration.underline,
@@ -279,14 +232,6 @@ class AppTextStyles {
     height: 1.4,
   );
 
-  /// Hint text for inputs - 16px regular
-  static const TextStyle inputHint = TextStyle(
-    fontFamily: _fontFamily,
-    fontSize: 16,
-    fontWeight: FontWeight.w400,
-    color: AppColors.gray400,
-    height: 1.4,
-  );
 }
 
 /// Extension to create variants of text styles easily
@@ -318,9 +263,6 @@ extension TextStyleExtension on TextStyle {
   /// Creates a bold variant
   TextStyle get bold => copyWith(fontWeight: FontWeight.bold);
 
-  /// Creates a semibold variant
-  TextStyle get semiBold => copyWith(fontWeight: FontWeight.w600);
-
   /// Creates a medium variant
   TextStyle get medium => copyWith(fontWeight: FontWeight.w500);
 
@@ -330,9 +272,4 @@ extension TextStyleExtension on TextStyle {
   /// Creates an underlined variant
   TextStyle get underlined => copyWith(decoration: TextDecoration.underline);
 
-  /// Creates a centered variant (for use with RichText)
-  TextStyle withHeight(double height) => copyWith(height: height);
-
-  /// Creates a variant with custom letter spacing
-  TextStyle withSpacing(double spacing) => copyWith(letterSpacing: spacing);
 }

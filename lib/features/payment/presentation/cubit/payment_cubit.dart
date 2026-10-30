@@ -58,16 +58,13 @@ class PaymentCubit extends Cubit<PaymentState> {
   Future<void> pickFile() async {
     if (!state.canAddMoreFiles) return;
     try {
-      final result = await FilePicker.platform.pickFiles(
+      final files = await FilePicker.pickFiles(
         type: FileType.custom,
         // The backend accepts images only (`invoice_images[]`).
         allowedExtensions: ['png', 'jpg', 'jpeg'],
-        allowMultiple: true,
       );
 
-      if (result != null && result.files.isNotEmpty) {
-        addFiles(result.files);
-      }
+      if (files.isNotEmpty) addFiles(files);
     } catch (e) {
       emit(UploadError(
         message: 'Error picking file: $e',
@@ -83,7 +80,7 @@ class PaymentCubit extends Cubit<PaymentState> {
     final merged = [...state.selectedFiles];
     for (final f in files) {
       if (merged.length >= kMaxReceiptImages) break;
-      final dup = merged.any((m) => m.name == f.name && m.size == f.size && m.path == f.path);
+      final dup = merged.any((m) => m.name == f.name && m.lengthSync() == f.lengthSync() && m.path == f.path);
       if (!dup) merged.add(f);
     }
     emit(FileSelected(files: List.unmodifiable(merged), bankDetails: _bankDetails));

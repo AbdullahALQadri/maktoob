@@ -71,6 +71,8 @@ class RetryInterceptor extends Interceptor {
         return !noNetwork(e);
       case DioExceptionType.cancel:
       case DioExceptionType.badCertificate:
+      // Slow parsing on this phone: asking the server again won't help.
+      case DioExceptionType.transformTimeout:
         return false;
     }
   }

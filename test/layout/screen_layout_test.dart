@@ -58,8 +58,6 @@ import 'package:maktoob/features/settings/presentation/screens/change_password_s
 import 'package:maktoob/features/settings/presentation/screens/edit_profile_screen.dart';
 import 'package:maktoob/features/settings/presentation/screens/profile_screen.dart';
 import 'package:maktoob/features/settings/presentation/screens/settings_screen.dart';
-import 'package:maktoob/features/venues/presentation/cubit/venues_cubit.dart';
-import 'package:maktoob/features/venues/presentation/screens/venue_screen.dart';
 import 'package:maktoob/injection_container.dart' as di;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -269,7 +267,6 @@ void main() {
       create: (_) => di.sl<NotificationsCubit>()..load(),
       child: const NotificationsScreen(),
     ),
-    'venues': () => const VenueScreen(),
     'scanner_events': () => const ScannerEventsScreen(),
     'payment_upload': () => BlocProvider<PaymentCubit>(
       create: (_) => di.sl<PaymentCubit>(),
@@ -337,7 +334,6 @@ void main() {
       BlocProvider<EventDetailsCubit>(
         create: (_) => di.sl<EventDetailsCubit>(),
       ),
-      BlocProvider<VenuesCubit>(create: (_) => di.sl<VenuesCubit>()),
       BlocProvider<ScannerCubit>(create: (_) => di.sl<ScannerCubit>()),
       BlocProvider<PaymentCubit>(create: (_) => di.sl<PaymentCubit>()),
       BlocProvider<InvitationCubit>(create: (_) => di.sl<InvitationCubit>()),

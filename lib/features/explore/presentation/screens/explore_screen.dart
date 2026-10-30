@@ -170,7 +170,7 @@ class _ExploreView extends StatelessWidget {
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: group.types.length,
-                separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
+                separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.sm),
                 itemBuilder: (_, i) {
                   final type = group.types[i];
                   return ChoiceChip(

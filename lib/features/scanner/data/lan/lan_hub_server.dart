@@ -87,33 +87,33 @@ class LanHubServer {
     try {
       final path = request.uri.path;
       if (request.method == 'GET' && path == '/ping') {
-        return _send(res, 200, {'app': 'maktoob-door', 'v': 1, 'event_id': eventId});
+        return await _send(res, 200, {'app': 'maktoob-door', 'v': 1, 'event_id': eventId});
       }
       if (request.method != 'POST' || !path.startsWith('/v1/')) {
-        return _send(res, 404, {'error': 'not_found'});
+        return await _send(res, 404, {'error': 'not_found'});
       }
 
       final bytes = await _readBody(request);
-      if (bytes == null) return _send(res, 413, {'error': 'too_large'});
+      if (bytes == null) return await _send(res, 413, {'error': 'too_large'});
       final envelope = jsonDecode(utf8.decode(bytes));
-      if (envelope is! Map) return _send(res, 400, {'error': 'bad_request'});
+      if (envelope is! Map) return await _send(res, 400, {'error': 'bad_request'});
 
       final Map<String, dynamic> payload;
       try {
         payload = await cipher.open(Map<String, dynamic>.from(envelope), path);
       } on LanAuthException {
-        return _send(res, 403, {'error': 'forbidden'});
+        return await _send(res, 403, {'error': 'forbidden'});
       }
-      if (payload['event_id'] != eventId) return _send(res, 409, {'error': 'other_event'});
+      if (payload['event_id'] != eventId) return await _send(res, 409, {'error': 'other_event'});
       final device = '${payload['device_uuid'] ?? ''}';
       if (device.isNotEmpty) _peers[device] = DateTime.now();
 
       final answer = await _dispatch(path.substring(4), payload);
-      if (answer == null) return _send(res, 404, {'error': 'not_found'});
-      return _send(res, 200, await cipher.seal(answer, path));
+      if (answer == null) return await _send(res, 404, {'error': 'not_found'});
+      return await _send(res, 200, await cipher.seal(answer, path));
     } catch (_) {
       try {
-        return _send(res, 500, {'error': 'server'});
+        return await _send(res, 500, {'error': 'server'});
       } catch (_) {}
     }
   }

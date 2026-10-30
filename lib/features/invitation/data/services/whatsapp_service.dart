@@ -56,11 +56,11 @@ class WhatsAppService {
       await invoiceImage.copy(shareFile.path);
 
       // Share via system share sheet
-      final result = await Share.shareXFiles(
-        [XFile(shareFile.path)],
+      final result = await SharePlus.instance.share(ShareParams(
+        files: [XFile(shareFile.path)],
         text: message,
         subject: 'Maktoob Invoice',
-      );
+      ));
 
       return result.status == ShareResultStatus.success;
     } catch (e) {
@@ -155,14 +155,4 @@ Maktoob Events
     final cleanedPhone = phoneNumber.replaceAll(RegExp(r'[^\d]'), '');
     return 'https://wa.me/$cleanedPhone?text=${Uri.encodeComponent(message)}';
   }
-}
-
-/// Exception thrown when WhatsApp is not installed
-class WhatsAppNotInstalledException implements Exception {
-  final String message;
-  WhatsAppNotInstalledException(
-      [this.message = 'WhatsApp is not installed on this device']);
-
-  @override
-  String toString() => message;
 }

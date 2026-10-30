@@ -290,7 +290,7 @@ class _AiDesignPageState extends State<AiDesignPage>
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: s.galleryImages.length,
-              separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
+              separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.sm),
               itemBuilder: (_, i) {
                 final img = s.galleryImages[i];
                 final selected = img.id == s.selectedImageId;
@@ -311,7 +311,7 @@ class _AiDesignPageState extends State<AiDesignPage>
                     child: CachedNetworkImage(
                       imageUrl: img.imageUrl,
                       fit: BoxFit.cover,
-                      errorWidget: (_, __, ___) =>
+                      errorWidget: (_, _, _) =>
                           const ColoredBox(color: AppColors.gray100),
                     ),
                   ),

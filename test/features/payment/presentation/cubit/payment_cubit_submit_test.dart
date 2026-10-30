@@ -12,6 +12,8 @@ import 'package:maktoob/features/payment/domain/usecases/upload_invoice_usecase.
 import 'package:maktoob/features/payment/presentation/cubit/payment_cubit.dart';
 import 'package:maktoob/features/payment/presentation/cubit/payment_state.dart';
 
+import '../../../../helpers/fake_platform_file.dart';
+
 class _Call {
   final List<PlatformFile> files;
   final String eventId;
@@ -36,7 +38,7 @@ class _RecordingRepository implements PaymentRepository {
     return Right(PaymentEntity(
       id: '1',
       fileName: files.isEmpty ? '' : files.first.name,
-      fileSize: files.isEmpty ? 0 : files.first.size,
+      fileSize: files.isEmpty ? 0 : files.first.lengthSync() ?? 0,
       fileExtension: '',
       uploadedAt: DateTime(2026),
       status: PaymentStatus.uploaded,
@@ -50,7 +52,7 @@ class _RecordingRepository implements PaymentRepository {
   Stream<double> getUploadProgress() => const Stream.empty();
 }
 
-PlatformFile _img(String name) => PlatformFile(name: name, size: name.length, path: '/tmp/$name');
+PlatformFile _img(String name) => FakePlatformFile(name: name, size: name.length, path: '/tmp/$name');
 
 void main() {
   late _RecordingRepository repo;

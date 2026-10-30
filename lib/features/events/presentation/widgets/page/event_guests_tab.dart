@@ -119,7 +119,7 @@ class _EventGuestsTabState extends State<EventGuestsTab> {
             padding: EdgeInsetsDirectional.fromSTEB(gutter, 4, gutter, 32),
             sliver: SliverList.separated(
               itemCount: visible.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              separatorBuilder: (_, _) => const SizedBox(height: 8),
               itemBuilder: (context, i) {
                 final guest = visible[i];
                 Future<bool> resend() => cubit.resendInvitation(guest.id);

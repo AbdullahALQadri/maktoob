@@ -113,7 +113,7 @@ class _DoorAdminView extends StatelessWidget {
             child: Text(t.translate('door_code_copy')),
           ),
           TextButton(
-            onPressed: () => Share.share(created.shareText.isNotEmpty ? created.shareText : created.code),
+            onPressed: () => SharePlus.instance.share(ShareParams(text: created.shareText.isNotEmpty ? created.shareText : created.code)),
             child: Text(t.translate('door_code_share')),
           ),
           TextButton(onPressed: () => Navigator.of(dialog).pop(), child: Text(t.translate('common_close'))),

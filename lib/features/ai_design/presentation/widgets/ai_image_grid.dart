@@ -60,7 +60,7 @@ class _AiGridSkeleton extends StatelessWidget {
           crossAxisSpacing: 10,
           childAspectRatio: 0.7,
         ),
-        itemBuilder: (_, __) => Container(
+        itemBuilder: (_, _) => Container(
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
@@ -107,12 +107,12 @@ class _ImageCard extends StatelessWidget {
               CachedNetworkImage(
                 imageUrl: ImageSizing.thumb(image.imageUrl, width: 360),
                 fit: BoxFit.cover,
-                placeholder: (_, __) => Shimmer.fromColors(
+                placeholder: (_, _) => Shimmer.fromColors(
                   baseColor: Colors.grey[300]!,
                   highlightColor: Colors.grey[100]!,
                   child: Container(color: Colors.white),
                 ),
-                errorWidget: (_, __, ___) => Container(
+                errorWidget: (_, _, _) => Container(
                   color: Colors.grey[200],
                   child: const Icon(Icons.broken_image_outlined, color: Colors.grey),
                 ),

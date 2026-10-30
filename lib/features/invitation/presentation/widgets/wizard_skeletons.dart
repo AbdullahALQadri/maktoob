@@ -65,7 +65,7 @@ class ServicesListSkeleton extends StatelessWidget {
       child: ListView.builder(
         padding: const EdgeInsetsDirectional.all(16),
         itemCount: count,
-        itemBuilder: (_, __) => Container(
+        itemBuilder: (_, _) => Container(
           margin: const EdgeInsetsDirectional.only(bottom: 12),
           padding: const EdgeInsetsDirectional.all(14),
           decoration: BoxDecoration(

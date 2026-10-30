@@ -22,9 +22,9 @@ class AuthInterceptor extends Interceptor {
   final VoidCallback? onUnauthenticated;
 
   AuthInterceptor({
-    required SecureStorageService secureStorage,
+    required this._secureStorage,
     this.onUnauthenticated,
-  }) : _secureStorage = secureStorage;
+  });
 
   @override
   void onRequest(

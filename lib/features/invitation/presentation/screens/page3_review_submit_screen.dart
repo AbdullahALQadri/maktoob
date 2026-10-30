@@ -1050,7 +1050,7 @@ class _LiveStatusBannerState extends State<_LiveStatusBanner>
             height: 16,
             child: AnimatedBuilder(
               animation: _controller,
-              builder: (_, __) {
+              builder: (_, _) {
                 final t = _controller.value;
                 return Stack(
                   alignment: Alignment.center,
@@ -1119,8 +1119,8 @@ class _FinalPreviewCard extends StatelessWidget {
               CachedNetworkImage(
                 imageUrl: imageUrl,
                 fit: BoxFit.cover,
-                placeholder: (_, __) => Container(color: AppColors.gray100),
-                errorWidget: (_, __, ___) =>
+                placeholder: (_, _) => Container(color: AppColors.gray100),
+                errorWidget: (_, _, _) =>
                     Container(color: AppColors.gray100),
               )
             else
@@ -1369,7 +1369,7 @@ class _ActionBar extends StatelessWidget {
                 '---\n'
                 'Maktoob Events';
 
-      await Share.shareXFiles([XFile(filePath)], text: shareText);
+      await SharePlus.instance.share(ShareParams(files: [XFile(filePath)], text: shareText));
     } catch (e) {
       debugPrint('Error sharing invoice: $e');
       if (!context.mounted) return;

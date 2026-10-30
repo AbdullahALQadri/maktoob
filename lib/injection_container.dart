@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
-import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Core
@@ -32,15 +32,6 @@ import 'features/home/home_module.dart';
 
 // Events Feature
 
-// Venues Feature
-import 'features/venues/data/datasources/venues_local_data_source.dart';
-import 'features/venues/data/datasources/venues_remote_data_source.dart';
-import 'features/venues/data/repositories/venues_repository_impl.dart';
-import 'features/venues/domain/repositories/venues_repository.dart';
-import 'features/venues/domain/usecases/add_venue_usecase.dart';
-import 'features/venues/domain/usecases/get_venues_usecase.dart';
-import 'features/venues/domain/usecases/search_venues_usecase.dart';
-import 'features/venues/presentation/cubit/venues_cubit.dart';
 
 // Scanner Feature (the offline door)
 import 'core/offline/android_hub_service.dart';
@@ -109,9 +100,7 @@ Future<void> init({bool pushAvailable = true}) async {
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
 
-  sl.registerLazySingleton<InternetConnectionChecker>(
-    () => InternetConnectionChecker.instance,
-  );
+  sl.registerLazySingleton<InternetConnection>(InternetConnection.new);
 
   //! ========== Core ==========
   sl.registerLazySingleton<NetworkInfo>(
@@ -206,39 +195,6 @@ Future<void> init({bool pushAvailable = true}) async {
   //! ========== EVENTS FEATURE ==========
   registerEventsModule(sl);
 
-  //! ========== VENUES FEATURE ==========
-  // Data Sources
-  sl.registerLazySingleton<VenuesRemoteDataSource>(
-    () => VenuesRemoteDataSourceImpl(apiConsumer: sl()),
-  );
-
-  sl.registerLazySingleton<VenuesLocalDataSource>(
-    () => VenuesLocalDataSourceImpl(sharedPreferences: sl()),
-  );
-
-  // Repository
-  sl.registerLazySingleton<VenuesRepository>(
-    () => VenuesRepositoryImpl(
-      remoteDataSource: sl(),
-      localDataSource: sl(),
-      networkInfo: sl(),
-    ),
-  );
-
-  // Use Cases
-  sl.registerLazySingleton(() => GetVenuesUseCase(sl()));
-  sl.registerLazySingleton(() => AddVenueUseCase(sl()));
-  sl.registerLazySingleton(() => SearchVenuesUseCase(sl()));
-
-  // Cubit
-  sl.registerFactory(
-    () => VenuesCubit(
-      getVenuesUseCase: sl(),
-      addVenueUseCase: sl(),
-      searchVenuesUseCase: sl(),
-    ),
-  );
-
   //! ========== SCANNER FEATURE (offline door) ==========
   // One SQLite file for door packs, door check-ins and queued writes; the
   // background sync task opens the same file from its own isolate.
@@ -257,9 +213,9 @@ Future<void> init({bool pushAvailable = true}) async {
     () => DoorEngine(
       store: sl(),
       remote: sl(),
-      connectivity: sl<InternetConnectionChecker>()
+      connectivity: sl<InternetConnection>()
           .onStatusChange
-          .map((s) => s == InternetConnectionStatus.connected),
+          .map((s) => s == InternetStatus.connected),
       onQueued: BackgroundSync.scheduleSoon,
       keepAlive: AndroidHubService(),
     ),

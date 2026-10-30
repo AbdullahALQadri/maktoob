@@ -153,14 +153,10 @@ class _Thumb extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final path = file.path;
-    final Widget image;
-    if (file.bytes != null) {
-      image = Image.memory(file.bytes!, fit: BoxFit.cover, errorBuilder: _fallback);
-    } else if (path != null) {
-      image = Image.file(File(path), fit: BoxFit.cover, errorBuilder: _fallback);
-    } else {
-      image = _fallback(context, null, null);
-    }
+    final Widget image = path != null
+        ? Image.file(File(path), fit: BoxFit.cover, errorBuilder: _fallback)
+        // Web: the picked file is a blob URL.
+        : Image.network(file.uri.toString(), fit: BoxFit.cover, errorBuilder: _fallback);
     return SizedBox(
       width: size,
       height: size,

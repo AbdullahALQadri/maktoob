@@ -66,12 +66,11 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
     });
 
     try {
-      // readonly: true -> request READ_CONTACTS only. The default
-      // (readonly: false) also asks for WRITE_CONTACTS, which is not in the
-      // manifest, so Android reported "denied" even after the user granted
-      // read access and the list never loaded.
-      final hasPermission =
-          await FlutterContacts.requestPermission(readonly: true);
+      // Read only: WRITE_CONTACTS is not in the manifest, so asking for it
+      // made Android report "denied" even after the user granted read access.
+      // iOS 18 "limited" (the user picked some contacts) is enough too.
+      final status = await FlutterContacts.permissions.request(PermissionType.read);
+      final hasPermission = status == PermissionStatus.granted || status == PermissionStatus.limited;
 
       if (!hasPermission) {
         if (!mounted) return;
@@ -82,11 +81,8 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
         return;
       }
 
-      // Permission granted - fetch contacts with full access
-      final contacts = await FlutterContacts.getContacts(
-        withProperties: true,
-        withPhoto: false,
-        withThumbnail: false,
+      final contacts = await FlutterContacts.getAll(
+        properties: {ContactProperty.name, ContactProperty.phone},
       );
 
       // Filter contacts with valid Palestinian phone numbers
@@ -97,7 +93,7 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
 
       // Sort by name
       validContacts.sort((a, b) =>
-        (a.displayName).compareTo(b.displayName));
+        (a.shownName).compareTo(b.shownName));
 
       if (!mounted) return;
       setState(() {
@@ -124,7 +120,7 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
     } else {
       setState(() {
         _filteredContacts = _contacts.where((contact) {
-          final name = contact.displayName.toLowerCase();
+          final name = contact.shownName.toLowerCase();
           final digits = query.replaceAll(RegExp(r'[^\d]'), '');
           final phones = contact.phones
               .map((p) => p.number.replaceAll(RegExp(r'[^\d]'), ''))
@@ -175,7 +171,7 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
 
       if (_selectedPhones.contains(normalizedPhone)) {
         selectedGuests.add(GuestInfoModel(
-          name: contact.displayName,
+          name: contact.shownName,
           phone: normalizedPhone,
           source: GuestSource.contacts,
         ));
@@ -369,8 +365,8 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
                 ? AppColors.primary
                 : context.borderColor,
             child: Text(
-              contact.displayName.isNotEmpty
-                  ? contact.displayName[0].toUpperCase()
+              contact.shownName.isNotEmpty
+                  ? contact.shownName[0].toUpperCase()
                   : '?',
               style: TextStyle(
                 color: isSelected ? Colors.white : context.textTertiary,
@@ -379,7 +375,7 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
             ),
           ),
           title: Text(
-            contact.displayName,
+            contact.shownName,
             style: const TextStyle(fontWeight: FontWeight.w500),
           ),
           subtitle: Text(
@@ -402,4 +398,8 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
       },
     );
   }
+}
+
+extension on Contact {
+  String get shownName => displayName ?? '';
 }

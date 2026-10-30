@@ -138,7 +138,7 @@ class GuestInvitationSheet extends StatelessWidget {
                     child: FilledButton.icon(
                       icon: const Icon(Icons.share_rounded),
                       label: Text(t.translate('guest_sheet_share_link')),
-                      onPressed: () => Share.share(url),
+                      onPressed: () => SharePlus.instance.share(ShareParams(text: url)),
                     ),
                   ),
                 ],

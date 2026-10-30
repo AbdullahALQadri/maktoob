@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 
 import 'app.dart';
 import 'bloc_observer.dart';
@@ -62,9 +62,9 @@ void main() {
         remote: di.sl<DoorRemoteDataSource>(),
         engine: di.sl<DoorEngine>(),
         queue: di.sl<PendingActionsQueue>(),
-        connectivity: di.sl<InternetConnectionChecker>()
+        connectivity: di.sl<InternetConnection>()
             .onStatusChange
-            .map((s) => s == InternetConnectionStatus.connected),
+            .map((s) => s == InternetStatus.connected),
       );
 
       // Device check is informational only: never blocks the app (store

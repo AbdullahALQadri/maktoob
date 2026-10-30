@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 
 import '../../utils/app_colors.dart';
 import '../../utils/responsive.dart';
@@ -24,22 +24,22 @@ class OfflineWrapper extends StatefulWidget {
 }
 
 class _OfflineWrapperState extends State<OfflineWrapper> {
-  late StreamSubscription<InternetConnectionStatus> _subscription;
+  late StreamSubscription<InternetStatus> _subscription;
   bool _isConnected = true;
 
   @override
   void initState() {
     super.initState();
-    _subscription = InternetConnectionChecker.instance.onStatusChange.listen(
+    _subscription = InternetConnection().onStatusChange.listen(
       (status) {
         if (mounted) {
           setState(() {
-            _isConnected = status == InternetConnectionStatus.connected;
+            _isConnected = status == InternetStatus.connected;
           });
         }
       },
     );
-    InternetConnectionChecker.instance.hasConnection.then((connected) {
+    InternetConnection().hasInternetAccess.then((connected) {
       if (mounted && _isConnected != connected) {
         setState(() => _isConnected = connected);
       }

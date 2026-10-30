@@ -90,7 +90,7 @@ class _MkPassState extends State<MkPass> with SingleTickerProviderStateMixin {
                     ),
                     AnimatedBuilder(
                       animation: _beam,
-                      builder: (_, __) => Align(
+                      builder: (_, _) => Align(
                         alignment: Alignment(0, -1 + 2 * _beam.value),
                         child: Container(
                           height: 3,

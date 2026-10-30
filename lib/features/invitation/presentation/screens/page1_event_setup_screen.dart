@@ -1198,8 +1198,8 @@ class _AiCoverHero extends StatelessWidget {
                     CachedNetworkImage(
                       imageUrl: imageUrl!,
                       fit: BoxFit.cover,
-                      placeholder: (_, __) => _gradientBg(),
-                      errorWidget: (_, __, ___) => _gradientBg(),
+                      placeholder: (_, _) => _gradientBg(),
+                      errorWidget: (_, _, _) => _gradientBg(),
                     )
                   else
                     _gradientBg(),

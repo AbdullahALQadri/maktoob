@@ -147,7 +147,7 @@ class ExtraServiceCard extends StatelessWidget {
               child: Image.network(
                 service.iconUrl!,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _buildDefaultIcon(context),
+                errorBuilder: (_, _, _) => _buildDefaultIcon(context),
               ),
             )
           : _buildDefaultIcon(context),

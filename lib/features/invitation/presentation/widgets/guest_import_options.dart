@@ -128,18 +128,15 @@ class GuestImportOptions extends StatelessWidget {
       // document picker on iOS) grants access to the chosen file. Asking for
       // READ_EXTERNAL_STORAGE / MANAGE_EXTERNAL_STORAGE blocked the import on
       // Android 13+, where those are always denied.
-      final result = await FilePicker.platform.pickFiles(
+      final picked = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: ['xlsx', 'xls'],
-        allowMultiple: false,
       );
 
       if (!context.mounted) return;
 
-      if (result != null && result.files.single.path != null) {
-        final file = File(result.files.single.path!);
-        cubit.importGuestsFromExcel(file);
-      }
+      final path = picked?.path;
+      if (path != null) cubit.importGuestsFromExcel(File(path));
     } catch (e) {
       if (!context.mounted) return;
 

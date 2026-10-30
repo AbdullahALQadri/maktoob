@@ -52,7 +52,7 @@ class EventPoster extends StatelessWidget {
               fit: BoxFit.cover,
               memCacheWidth: (width * 3).round(),
               fadeInDuration: const Duration(milliseconds: 150),
-              errorWidget: (_, __, ___) => _Paper(title: title, accent: accent, ink: ink),
+              errorWidget: (_, _, _) => _Paper(title: title, accent: accent, ink: ink),
             )
           : _Paper(title: title, accent: accent, ink: ink),
     );

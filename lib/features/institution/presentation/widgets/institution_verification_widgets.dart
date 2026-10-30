@@ -157,14 +157,12 @@ class InstitutionChecklistCard extends StatelessWidget {
 /// Pick a PDF / image and upload it as [type] (e.g. `authorization_letter`).
 Future<void> pickAndUploadInstitutionDocument(BuildContext context, InstitutionCubit cubit, String type) async {
   final t = AppLocalizations.of(context)!;
-  final picked = await FilePicker.platform.pickFiles(
+  final file = await FilePicker.pickFile(
     type: FileType.custom,
     allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png', 'webp'],
-    allowMultiple: false,
   );
-  final file = picked?.files.single;
   if (file == null || file.path == null) return;
-  if (file.size > 8 * 1024 * 1024) {
+  if ((await file.length() ?? 0) > 8 * 1024 * 1024) {
     if (context.mounted) {
       AppSnackBar.showError(context, message: t.translate('institution_document_too_large'));
     }

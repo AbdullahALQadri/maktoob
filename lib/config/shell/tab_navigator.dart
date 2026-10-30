@@ -32,7 +32,7 @@ class TabNavigator extends StatelessWidget {
         key: navigatorKey,
         // Pages inside a tab still open the named routes (payment, design).
         onGenerateRoute: AppRoutes.onGenerateRoute,
-        onGenerateInitialRoutes: (_, __) => [
+        onGenerateInitialRoutes: (_, _) => [
           MaterialPageRoute<void>(
             settings: RouteSettings(name: routeName),
             builder: root,

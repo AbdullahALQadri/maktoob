@@ -157,7 +157,7 @@ class ImageResultPage extends StatelessWidget {
 
   Future<void> _shareImage(BuildContext context) async {
     try {
-      await Share.share(imageUrl);
+      await SharePlus.instance.share(ShareParams(text: imageUrl));
     } catch (e) {
       debugPrint('Share failed: $e');
     }
@@ -202,12 +202,12 @@ class _ImageCard extends StatelessWidget {
           CachedNetworkImage(
             imageUrl: imageUrl,
             fit: BoxFit.cover,
-            placeholder: (_, __) => Shimmer.fromColors(
+            placeholder: (_, _) => Shimmer.fromColors(
               baseColor: Colors.grey[300]!,
               highlightColor: Colors.grey[100]!,
               child: Container(color: Colors.white),
             ),
-            errorWidget: (_, __, ___) => Container(
+            errorWidget: (_, _, _) => Container(
               color: AppColors.gray200,
               child: const Icon(Icons.broken_image_outlined,
                   size: 60, color: Colors.grey),

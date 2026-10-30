@@ -196,7 +196,7 @@ class DioConsumer implements ApiConsumer {
         "phone": params.phone,
         "password": params.password,
         "password_confirmation": params.password,
-        if (imageFile != null) "avatar": imageFile,
+        "avatar": ?imageFile,
       });
 
       final response = await client.post(
@@ -238,7 +238,7 @@ class DioConsumer implements ApiConsumer {
 
       FormData formData = FormData.fromMap({
         ...?body,
-        if (imageFile != null) "image": imageFile,
+        "image": ?imageFile,
       });
 
       final headers = await _getHeaders();
@@ -320,12 +320,12 @@ class DioConsumer implements ApiConsumer {
     return out;
   }
 
-  // ========== HANDLE ERRORS ==========
   dynamic _handleDioError(DioException error) {
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
+      case DioExceptionType.transformTimeout:
         throw const FetchDataException();
 
       case DioExceptionType.badResponse:

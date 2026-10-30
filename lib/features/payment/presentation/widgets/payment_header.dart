@@ -12,7 +12,7 @@ class PaymentHeader extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.only(
-        top: context.topPadding + context.dynamicHeight(0.03),
+        top: MediaQuery.paddingOf(context).top + context.dynamicHeight(0.03),
         left: context.dynamicWidth(0.04),
         right: context.dynamicWidth(0.04),
         bottom: context.dynamicHeight(0.039),

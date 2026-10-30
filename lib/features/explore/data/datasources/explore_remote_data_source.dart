@@ -26,7 +26,7 @@ class ExploreRemoteDataSourceImpl implements ExploreRemoteDataSource {
   Future<List<TemplatePreviewModel>> getTemplates({int? eventTypeId}) async {
     final response = await apiConsumer.get(
       Endpoints.publicTemplates,
-      queryParameters: {if (eventTypeId != null) 'event_type_id': eventTypeId},
+      queryParameters: {'event_type_id': ?eventTypeId},
     );
     return TemplatePreviewModel.listFromResponse(response);
   }

@@ -67,7 +67,7 @@ class _Row extends StatelessWidget {
         padding: EdgeInsetsDirectional.symmetric(horizontal: gutter),
         clipBehavior: Clip.none,
         itemCount: events.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (_, i) => SizedBox(
           width: 248,
           child: EventCardTile(event: events[i], onTap: () => onOpen(events[i])),

@@ -20,7 +20,7 @@ class IdentityRemoteDataSourceImpl implements IdentityRemoteDataSource {
   Future<IdentityOverviewModel> getOverview({String? locale}) async {
     final response = await apiConsumer.get(
       Endpoints.clientIdentity,
-      queryParameters: {if (locale != null) 'locale': locale},
+      queryParameters: {'locale': ?locale},
     );
     return IdentityOverviewModel.fromJson(response);
   }

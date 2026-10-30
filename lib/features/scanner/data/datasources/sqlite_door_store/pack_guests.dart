@@ -73,8 +73,8 @@ mixin _PackAndGuests on _SqliteStoreBase {
     DateTime? lastSyncAt,
   }) async {
     final values = <String, Object?>{
-      if (cursor != null) 'cursor': cursor,
-      if (clockOffsetMs != null) 'clock_offset_ms': clockOffsetMs,
+      'cursor': ?cursor,
+      'clock_offset_ms': ?clockOffsetMs,
       if (lastSyncAt != null) 'last_sync_at': _ms(lastSyncAt),
     };
     if (eventStatus != null) {

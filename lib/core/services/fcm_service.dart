@@ -84,7 +84,7 @@ class FcmService {
   Future<void> _initLocalNotifications() async {
     try {
       await _local.initialize(
-        const InitializationSettings(
+        settings: const InitializationSettings(
           android: AndroidInitializationSettings('ic_stat_maktoob'),
           iOS: DarwinInitializationSettings(
             requestAlertPermission: false,
@@ -117,10 +117,10 @@ class FcmService {
     if (n == null || defaultTargetPlatform != TargetPlatform.android) return;
     try {
       await _local.show(
-        m.hashCode,
-        n.title,
-        n.body,
-        NotificationDetails(
+        id: m.hashCode,
+        title: n.title,
+        body: n.body,
+        notificationDetails: NotificationDetails(
           android: AndroidNotificationDetails(
             _channel.id,
             _channel.name,
@@ -148,6 +148,10 @@ class FcmService {
           !await _waitForApnsToken()) {
         return null;
       }
+      // The backend sends to FCM registration tokens. register()/onRegistered
+      // hand out a Firebase Installation ID instead, a different send target:
+      // switch only together with the backend's sender.
+      // ignore: deprecated_member_use
       return await _fm.getToken();
     } catch (e) {
       dev.log('FCM token unavailable: $e', name: 'FcmService');
@@ -180,6 +184,7 @@ class FcmService {
     final token = await getToken();
     if (token != null && !_tokenCtrl.isClosed) _tokenCtrl.add(token);
 
+    // ignore: deprecated_member_use (see getToken)
     _onTokenRefreshSub = _fm.onTokenRefresh.listen((t) {
       if (!_tokenCtrl.isClosed) _tokenCtrl.add(t);
     });

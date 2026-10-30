@@ -24,9 +24,9 @@ mixin _DoorManagementApi {
             'PUT',
             '${_base(s)}/gates/$id',
             body: {
-              if (name != null) 'name': name,
-              if (audience != null) 'audience': audience,
-              if (active != null) 'is_active': active,
+              'name': ?name,
+              'audience': ?audience,
+              'is_active': ?active,
             },
           ),
         ),
@@ -46,8 +46,8 @@ mixin _DoorManagementApi {
             '${_base(s)}/codes',
             body: {
               if (label != null && label.isNotEmpty) 'label': label,
-              if (gateId != null) 'gate_id': gateId,
-              if (maxDevices != null) 'max_devices': maxDevices,
+              'gate_id': ?gateId,
+              'max_devices': ?maxDevices,
             },
           ),
         ),

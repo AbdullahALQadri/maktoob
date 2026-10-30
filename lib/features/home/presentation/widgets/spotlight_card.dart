@@ -23,7 +23,7 @@ class SpotlightCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final date = event.date;
     final type = event.typeName(context.languageCode);
-    final meta = [if (type != null) type, if (date != null) context.eventDateLine(date)].join(' · ');
+    final meta = [?type, if (date != null) context.eventDateLine(date)].join(' · ');
     final days = event.countdownDays;
 
     return Container(

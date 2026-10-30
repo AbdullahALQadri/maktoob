@@ -102,7 +102,7 @@ class _BackRow extends StatelessWidget {
             style: TextStyle(color: Colors.white, fontSize: context.dynamicWidth(0.045), fontWeight: FontWeight.w600),
           ),
         ),
-        if (menu != null) menu!,
+        ?menu,
       ],
     );
   }

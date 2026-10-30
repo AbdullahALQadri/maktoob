@@ -110,8 +110,8 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
     if (state.phase == MyEventsPhase.loading) {
       return SliverList.separated(
         itemCount: 4,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
-        itemBuilder: (_, __) => const SkeletonBox(height: 110, borderRadius: 12),
+        separatorBuilder: (_, _) => const SizedBox(height: 10),
+        itemBuilder: (_, _) => const SkeletonBox(height: 110, borderRadius: 12),
       );
     }
     if (state.phase == MyEventsPhase.failed) {
@@ -146,7 +146,7 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
     }
     return SliverList.separated(
       itemCount: state.items.length + 1,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      separatorBuilder: (_, _) => const SizedBox(height: 10),
       itemBuilder: (_, i) =>
           i == state.items.length ? more : EventRowTile(event: state.items[i], onTap: () => _open(state.items[i])),
     );

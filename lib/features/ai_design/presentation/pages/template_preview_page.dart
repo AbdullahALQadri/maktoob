@@ -48,7 +48,7 @@ class _TemplatePreviewPageState extends State<TemplatePreviewPage> {
       precacheImage(
         _bg,
         context,
-        onError: (_, __) {
+        onError: (_, _) {
           if (mounted) setState(() => _bgFailed = true);
         },
       ).then((_) {

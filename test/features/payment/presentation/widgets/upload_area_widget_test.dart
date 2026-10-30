@@ -4,7 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:maktoob/config/locale/app_localizations_setup.dart';
 import 'package:maktoob/features/payment/presentation/widgets/upload_area_widget.dart';
 
-PlatformFile _img(String name) => PlatformFile(name: name, size: 1);
+import '../../../../helpers/fake_platform_file.dart';
+
+PlatformFile _img(String name) => FakePlatformFile(name: name, size: 1);
 
 void main() {
   Future<void> pump(WidgetTester tester, Widget child) async {

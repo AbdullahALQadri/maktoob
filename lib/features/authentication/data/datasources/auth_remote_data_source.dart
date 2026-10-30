@@ -104,8 +104,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         // The register screen only submits once "I agree" is ticked.
         'terms_accepted': true,
         if (email != null && email.isNotEmpty) 'email': email,
-        if (companyName != null) 'company_name': companyName,
-        if (userType != null) 'user_type': userType,
+        'company_name': ?companyName,
+        'user_type': ?userType,
         if (governorate != null && governorate.isNotEmpty) 'governorate': governorate,
         if (location != null && location.isNotEmpty) 'location': location,
         // Institution sign-up: organization_name_ar, sector, contact_person...
@@ -161,7 +161,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       Endpoints.clientResendOtp,
       body: {
         'login': login,
-        if (purpose != null) 'purpose': purpose,
+        'purpose': ?purpose,
       },
     );
     return AuthResponseModel.fromJson(response);
@@ -213,10 +213,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     final response = await apiConsumer.put(
       Endpoints.clientUpdateProfile,
       body: {
-        if (name != null) 'name': name,
-        if (email != null) 'email': email,
-        if (phone != null) 'phone': phone,
-        if (companyName != null) 'company_name': companyName,
+        'name': ?name,
+        'email': ?email,
+        'phone': ?phone,
+        'company_name': ?companyName,
       },
     );
     return AuthResponseModel.fromJson(response);

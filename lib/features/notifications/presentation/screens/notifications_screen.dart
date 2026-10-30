@@ -107,7 +107,7 @@ class NotificationsScreen extends StatelessWidget {
               child: ListView.separated(
                 padding: const EdgeInsetsDirectional.all(AppSpacing.md),
                 itemCount: state.items.length + (showFooter ? 1 : 0),
-                separatorBuilder: (_, __) =>
+                separatorBuilder: (_, _) =>
                     const SizedBox(height: AppSpacing.sm),
                 itemBuilder: (context, i) => i == state.items.length
                     ? _LoadMoreFooter(

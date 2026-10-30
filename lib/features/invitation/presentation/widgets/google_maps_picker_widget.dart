@@ -90,7 +90,7 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
         '${t.translate('map_selected_location')} (${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)})';
 
     try {
-      final placemarks = await placemarkFromCoordinates(
+      final placemarks = await Geocoding().placemarkFromCoordinates(
         position.latitude,
         position.longitude,
       );

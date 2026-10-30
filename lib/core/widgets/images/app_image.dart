@@ -31,7 +31,7 @@ import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 ///
 /// // SVG asset
 /// AppImage.svg(
-///   'assets/icons/home.svg',
+///   'assets/images/logo.svg',
 ///   width: 24,
 ///   color: AppColors.primary,
 /// )

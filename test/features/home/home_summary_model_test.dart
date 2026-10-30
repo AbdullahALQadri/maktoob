@@ -44,7 +44,7 @@ Map<String, dynamic> _response({Map<String, dynamic>? offline}) => {
         'free_trial_available': true,
         'now': '2026-10-24T15:00:00+02:00',
       },
-      if (offline != null) '_offline': offline,
+      '_offline': ?offline,
     };
 
 void main() {

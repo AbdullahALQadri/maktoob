@@ -7,7 +7,7 @@ EventModel _event(String status, {Object? total}) => EventModel.fromJson({
       'title': 'زفاف',
       'status': status,
       'event_date': '2026-11-01',
-      if (total != null) 'invoice_total': total,
+      'invoice_total': ?total,
     });
 
 void main() {

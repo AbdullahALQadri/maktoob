@@ -121,7 +121,7 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
     return PaymentModel(
       id: '${(data is Map ? data['id'] : null) ?? ''}',
       fileName: file?.name ?? '',
-      fileSize: file?.size ?? 0,
+      fileSize: file?.lengthSync() ?? 0,
       fileExtension: file?.extension ?? '',
       filePath: file?.path,
       uploadedAt: DateTime.now(),
