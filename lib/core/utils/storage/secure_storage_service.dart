@@ -77,12 +77,6 @@ class SecureStorageService {
     return await _secureStorage.read(key: SecureStorageKeys.token);
   }
 
-  /// Check if token exists (user is logged in).
-  Future<bool> hasToken() async {
-    final token = await getToken();
-    return token != null && token.isNotEmpty;
-  }
-
   /// Door secrets (tokens of paired / scanner door sessions).
   Future<void> writeDoorSecret(String key, String value) =>
       _secureStorage.write(key: '${SecureStorageKeys.doorPrefix}$key', value: value);
@@ -107,26 +101,6 @@ class SecureStorageService {
   // ===========================================================================
   // HIVE CACHE STORAGE (for API caching & offline data)
   // ===========================================================================
-
-  /// Cache API response data with a key.
-  Future<void> cacheData(String key, dynamic data) async {
-    await _cacheBox.put(key, data);
-  }
-
-  /// Read cached data by key.
-  dynamic getCachedData(String key) {
-    return _cacheBox.get(key);
-  }
-
-  /// Check if cache exists for a key.
-  bool hasCachedData(String key) {
-    return _cacheBox.containsKey(key);
-  }
-
-  /// Remove specific cached data.
-  Future<void> removeCachedData(String key) async {
-    await _cacheBox.delete(key);
-  }
 
   /// Clear all cached data.
   Future<void> clearCache() async {

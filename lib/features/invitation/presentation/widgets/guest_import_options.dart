@@ -61,7 +61,7 @@ class GuestImportOptions extends StatelessWidget {
                   icon: Icons.contacts,
                   label:
                       l?.translate('invitation_from_contacts') ?? 'From Contacts',
-                  count: state.allGuests
+                  count: state.guests
                       .where((g) => g.source == GuestSource.contacts)
                       .length,
                   onPressed: () => _openContactPicker(context),
@@ -72,7 +72,7 @@ class GuestImportOptions extends StatelessWidget {
                 child: _ImportButton(
                   icon: Icons.table_chart,
                   label: l?.translate('invitation_excel_file') ?? 'Excel File',
-                  count: state.allGuests
+                  count: state.guests
                       .where((g) => g.source == GuestSource.excel)
                       .length,
                   onPressed:
@@ -86,7 +86,7 @@ class GuestImportOptions extends StatelessWidget {
                   icon: Icons.edit,
                   label:
                       l?.translate('invitation_manual_entry') ?? 'Manual Entry',
-                  count: state.allGuests
+                  count: state.guests
                       .where((g) => g.source == GuestSource.manual)
                       .length,
                   onPressed: onToggleManualForm,

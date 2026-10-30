@@ -467,7 +467,7 @@ class _PackageLimitNotice extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final selected = state.selectedPackage;
-    final guests = state.allGuests.length;
+    final guests = state.guests.length;
     final limit = selected?.isCustom == true
         ? state.customPackageLimit
         : selected?.invitationLimit;
@@ -735,7 +735,7 @@ class _PackagePicker extends StatelessWidget {
           PackageCard(
             package: package,
             isSelected: state.selectedPackage?.id == package.id,
-            guestCount: state.allGuests.length,
+            guestCount: state.guests.length,
             customPrice: state.customPackagePrice,
             isLoadingPrice: state.isLoadingCustomPrice,
             customLimit: state.customPackageLimit,

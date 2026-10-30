@@ -1,4 +1,3 @@
-// ignore_for_file: deprecated_member_use_from_same_package
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -8,7 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/api/event_wizard_api_service.dart';
 import '../../../../core/error/free_trial_refusal.dart';
 import '../../../../core/error/institution_errors.dart';
-import '../../../../core/utils/phone_normalizer.dart';
 import '../../../../core/utils/venue_text.dart';
 import '../../data/models/extra_service_model.dart';
 import '../../data/models/invitation_draft_model.dart';
@@ -273,51 +271,6 @@ class InvitationCubit extends Cubit<InvitationState> {
     }
   }
 
-  Future<void> createDraftAndProceed() async {
-    // Skip if already has draft
-    if (state.draftEventId != null) {
-      nextStep();
-      return;
-    }
-
-    emit(state.copyWith(isLoading: true, clearError: true));
-
-    try {
-      if (apiService != null) {
-        // Call API to create draft event
-        final response = await apiService!.initializeWizard(
-          eventTypeId: state.selectedEventType?.id,
-          customEventTypeName: state.customEventTypeName,
-          templateId: state.selectedTemplate?.id,
-          institutionId: state.institutionId,
-        );
-
-        final eventId = response['data']?['event_id'] as int?;
-        if (eventId != null) {
-          emit(state.copyWith(
-            isLoading: false,
-            draftEventId: eventId,
-          ));
-          nextStep();
-        } else {
-          emit(state.copyWith(
-            isLoading: false,
-            errorMessage: 'invitation_failed_create_draft',
-          ));
-        }
-      } else {
-        // No API service, just proceed locally
-        emit(state.copyWith(isLoading: false));
-        nextStep();
-      }
-    } catch (e) {
-      emit(state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      ));
-    }
-  }
-
   /// Create draft + save details in one step, then proceed (3-page wizard Page 1)
   Future<void> createDraftAndSaveDetails() async {
     emit(state.copyWith(isLoading: true, clearError: true));
@@ -435,117 +388,6 @@ class InvitationCubit extends Cubit<InvitationState> {
     }
   }
 
-  /// Save event details and proceed to next step (from Page 2)
-  Future<void> saveDetailsAndProceed() async {
-    if (state.draftEventId == null) {
-      nextStep();
-      return;
-    }
-
-    emit(state.copyWith(isLoading: true, clearError: true));
-
-    try {
-      if (apiService != null) {
-        await _callSaveEventDetails(state.draftEventId!);
-      }
-
-      emit(state.copyWith(isLoading: false));
-      nextStep();
-    } catch (e) {
-      emit(state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      ));
-    }
-  }
-
-  /// Save guests and proceed to next step (from Page 4)
-  Future<void> saveGuestsAndProceed() async {
-    if (state.draftEventId == null || state.guests.isEmpty) {
-      nextStep();
-      return;
-    }
-
-    emit(state.copyWith(isLoading: true, clearError: true));
-
-    try {
-      if (apiService != null) {
-        await apiService!.addManualGuests(
-          state.draftEventId!,
-          state.guests.map((g) => {
-            'name': g.name,
-            'phone': g.phone,
-          }).toList(),
-        );
-      }
-
-      emit(state.copyWith(isLoading: false));
-      nextStep();
-    } catch (e) {
-      emit(state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      ));
-    }
-  }
-
-  /// Save services and proceed to next step (from Page 5)
-  Future<void> saveServicesAndProceed() async {
-    if (state.draftEventId == null) {
-      nextStep();
-      return;
-    }
-
-    emit(state.copyWith(isLoading: true, clearError: true));
-
-    try {
-      if (apiService != null && state.selectedServices.isNotEmpty) {
-        await apiService!.saveExtraServices(
-          state.draftEventId!,
-          state.selectedServices.map((s) => s.id).toList(),
-          options: _serviceOptions(),
-        );
-      }
-
-      emit(state.copyWith(isLoading: false));
-      nextStep();
-    } catch (e) {
-      emit(state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      ));
-    }
-  }
-
-  /// Save package selection and proceed to next step (from Page 6)
-  Future<void> savePackageAndProceed() async {
-    if (state.draftEventId == null || state.selectedPackage == null) {
-      nextStep();
-      return;
-    }
-
-    emit(state.copyWith(isLoading: true, clearError: true));
-
-    try {
-      if (apiService != null) {
-        await apiService!.selectPackage(
-          state.draftEventId!,
-          packageId: state.selectedPackage!.isCustom ? null : state.selectedPackage!.id,
-          isCustomPackage: state.selectedPackage!.isCustom,
-          customGuestCount: state.selectedPackage!.isCustom ? state.customPackageLimit : null,
-        );
-      }
-
-      emit(state.copyWith(isLoading: false));
-      nextStep();
-    } catch (e) {
-      emit(state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      ));
-    }
-  }
-
   /// Navigate to the next step (3-page wizard)
   void nextStep() {
     final nextStepMap = {
@@ -553,22 +395,6 @@ class InvitationCubit extends Cubit<InvitationState> {
       InvitationStep.eventSetup: InvitationStep.guestsAndServices,
       InvitationStep.guestsAndServices: InvitationStep.reviewAndSubmit,
       InvitationStep.reviewAndSubmit: InvitationStep.reviewAndSubmit,
-      // Legacy steps → redirect to modern equivalents
-      InvitationStep.eventTypeSelection: InvitationStep.guestsAndServices,
-      InvitationStep.eventDetails: InvitationStep.guestsAndServices,
-      InvitationStep.invitationPreview: InvitationStep.guestsAndServices,
-      InvitationStep.guestManagement: InvitationStep.reviewAndSubmit,
-      InvitationStep.extraServices: InvitationStep.reviewAndSubmit,
-      InvitationStep.packageSelection: InvitationStep.reviewAndSubmit,
-      InvitationStep.invoiceSummary: InvitationStep.reviewAndSubmit,
-      InvitationStep.landing: InvitationStep.eventSetup,
-      InvitationStep.eventType: InvitationStep.eventSetup,
-      InvitationStep.creation: InvitationStep.guestsAndServices,
-      InvitationStep.guests: InvitationStep.reviewAndSubmit,
-      InvitationStep.share: InvitationStep.reviewAndSubmit,
-      InvitationStep.package: InvitationStep.reviewAndSubmit,
-      InvitationStep.payment: InvitationStep.reviewAndSubmit,
-      InvitationStep.confirmation: InvitationStep.reviewAndSubmit,
     };
 
     final next = nextStepMap[state.currentStep];
@@ -584,22 +410,6 @@ class InvitationCubit extends Cubit<InvitationState> {
       InvitationStep.eventSetup: InvitationStep.eventSetup,
       InvitationStep.guestsAndServices: InvitationStep.eventSetup,
       InvitationStep.reviewAndSubmit: InvitationStep.guestsAndServices,
-      // Legacy steps → redirect to modern equivalents
-      InvitationStep.eventTypeSelection: InvitationStep.eventSetup,
-      InvitationStep.eventDetails: InvitationStep.eventSetup,
-      InvitationStep.invitationPreview: InvitationStep.eventSetup,
-      InvitationStep.guestManagement: InvitationStep.eventSetup,
-      InvitationStep.extraServices: InvitationStep.eventSetup,
-      InvitationStep.packageSelection: InvitationStep.guestsAndServices,
-      InvitationStep.invoiceSummary: InvitationStep.guestsAndServices,
-      InvitationStep.landing: InvitationStep.eventSetup,
-      InvitationStep.eventType: InvitationStep.eventSetup,
-      InvitationStep.creation: InvitationStep.eventSetup,
-      InvitationStep.guests: InvitationStep.eventSetup,
-      InvitationStep.share: InvitationStep.guestsAndServices,
-      InvitationStep.package: InvitationStep.guestsAndServices,
-      InvitationStep.payment: InvitationStep.guestsAndServices,
-      InvitationStep.confirmation: InvitationStep.guestsAndServices,
     };
 
     final prev = prevStepMap[state.currentStep];
@@ -615,18 +425,12 @@ class InvitationCubit extends Cubit<InvitationState> {
 
   // ============ Page 1: Event Type Selection ============
 
-  /// Set available event types from API
-  void setAvailableEventTypes(List<EventTypeModel> eventTypes) {
-    emit(state.copyWith(availableEventTypes: eventTypes));
-  }
-
   /// Select an event type, then load its per-type detail fields.
   void selectEventType(EventTypeModel eventType) {
     emit(state.copyWith(
       selectedEventType: eventType,
       // Clear template selection when event type changes
       clearSelectedTemplate: true,
-      clearUploadedTemplate: true,
       availableTemplates: [],
       eventTypeFormFields: const [],
       isLoadingFormFields: false,
@@ -668,57 +472,9 @@ class InvitationCubit extends Cubit<InvitationState> {
     ));
   }
 
-  /// Set available templates from API
-  void setAvailableTemplates(List<TemplateModel> templates) {
-    emit(state.copyWith(availableTemplates: templates));
-  }
-
   /// Select a template
   void selectTemplate(TemplateModel template) {
-    emit(state.copyWith(
-      selectedTemplate: template,
-      clearUploadedTemplate: true,
-    ));
-  }
-
-  /// Upload custom template file
-  void uploadCustomTemplate(File file) {
-    emit(state.copyWith(
-      uploadedTemplateFile: file,
-      selectedTemplate: TemplateModel.customPlaceholder(),
-    ));
-  }
-
-  /// Set custom template description
-  void setCustomTemplateDescription(String description) {
-    emit(state.copyWith(uploadedTemplateDescription: description));
-  }
-
-  /// Clear uploaded template
-  void clearUploadedTemplate() {
-    emit(state.copyWith(
-      clearUploadedTemplate: true,
-      clearUploadedTemplateDescription: true,
-    ));
-  }
-
-  /// Clear all custom template data (file, description, and template selection)
-  void clearCustomTemplate() {
-    emit(state.copyWith(
-      clearUploadedTemplate: true,
-      clearSelectedTemplate: true,
-      clearUploadedTemplateDescription: true,
-    ));
-  }
-
-  /// Clear uploaded template file only
-  void clearUploadedTemplateFile() {
-    emit(state.copyWith(clearUploadedTemplate: true));
-  }
-
-  /// Clear custom template description only
-  void clearCustomTemplateDescription() {
-    emit(state.copyWith(clearUploadedTemplateDescription: true));
+    emit(state.copyWith(selectedTemplate: template));
   }
 
   /// Clear selected template only (when using custom template)
@@ -731,11 +487,6 @@ class InvitationCubit extends Cubit<InvitationState> {
   /// Update event name
   void updateEventName(String name) {
     emit(state.copyWith(eventName: name));
-  }
-
-  /// Update event description
-  void updateEventDescription(String? description) {
-    emit(state.copyWith(eventDescription: description));
   }
 
   /// Update event date
@@ -757,27 +508,12 @@ class InvitationCubit extends Cubit<InvitationState> {
     emit(state.copyWith(eventEndTime: time));
   }
 
-  /// Set available venues from API
-  void setAvailableVenues(List<VenueModel> venues) {
-    emit(state.copyWith(availableVenues: venues));
-  }
-
   /// Select a venue
   void selectVenue(VenueModel venue) {
     emit(state.copyWith(
       selectedVenue: venue,
       clearCustomLocation: true,
     ));
-  }
-
-  /// Clear selected venue
-  void clearVenue() {
-    emit(state.copyWith(clearSelectedVenue: true));
-  }
-
-  /// Clear custom location
-  void clearLocation() {
-    emit(state.copyWith(clearCustomLocation: true));
   }
 
   /// Set custom location from Google Maps
@@ -821,11 +557,6 @@ class InvitationCubit extends Cubit<InvitationState> {
 
   // ============ Page 3: Preview ============
 
-  /// Set preview image URL from API
-  void setPreviewImageUrl(String? url) {
-    emit(state.copyWith(previewImageUrl: url));
-  }
-
   // ============ Page 4: Guest Management ============
 
   /// Add guests from mobile contacts
@@ -836,23 +567,6 @@ class InvitationCubit extends Cubit<InvitationState> {
     _mergeAndDeduplicateGuests();
   }
 
-  /// Add guests from Excel file
-  Future<ExcelParseResult?> addExcelGuests(File excelFile) async {
-    if (excelParserService == null) return null;
-
-    emit(state.copyWith(status: InvitationStatus.loading));
-
-    final result = await excelParserService!.parseExcelFile(excelFile);
-
-    emit(state.copyWith(
-      status: InvitationStatus.success,
-      excelGuests: result.guests,
-    ));
-
-    _mergeAndDeduplicateGuests();
-    return result;
-  }
-
   /// Add a manual guest
   void addManualGuest(GuestInfoModel guest) {
     final newManualGuests = List<GuestInfoModel>.from(state.manualGuests)
@@ -860,35 +574,6 @@ class InvitationCubit extends Cubit<InvitationState> {
 
     emit(state.copyWith(manualGuests: newManualGuests));
     _mergeAndDeduplicateGuests();
-  }
-
-  /// Update current guest input
-  void updateCurrentGuestName(String name) {
-    emit(state.copyWith(
-      currentGuestInput: state.currentGuestInput.copyWith(name: name),
-    ));
-  }
-
-  void updateCurrentGuestPhone(String phone) {
-    emit(state.copyWith(
-      currentGuestInput: state.currentGuestInput.copyWith(phone: phone),
-    ));
-  }
-
-  void updateCurrentGuestEmail(String email) {
-    emit(state.copyWith(
-      currentGuestInput: state.currentGuestInput.copyWith(email: email),
-    ));
-  }
-
-  /// Add current guest to list and reset input
-  void addCurrentGuest() {
-    if (!state.currentGuestInput.isValid) return;
-
-    addManualGuest(state.currentGuestInput);
-    emit(state.copyWith(
-      currentGuestInput: const GuestInfoModel(name: ''),
-    ));
   }
 
   /// Remove a guest by index
@@ -920,15 +605,6 @@ class InvitationCubit extends Cubit<InvitationState> {
     _mergeAndDeduplicateGuests();
   }
 
-  /// Remove a guest from contacts list
-  void removeContactGuest(String phone) {
-    final normalizedPhone = _normalizePhone(phone);
-    final newContacts = List<GuestInfoModel>.from(state.contactsGuests)
-      ..removeWhere((g) => g.normalizedPhone == normalizedPhone);
-    emit(state.copyWith(contactsGuests: newContacts));
-    _mergeAndDeduplicateGuests();
-  }
-
   /// Clear all guests
   void clearAllGuests() {
     emit(state.copyWith(
@@ -939,14 +615,6 @@ class InvitationCubit extends Cubit<InvitationState> {
       duplicatePhoneNumbers: {},
     ));
   }
-
-  /// Alias for clearAllGuests (backward compatibility)
-  @Deprecated('Use clearAllGuests instead')
-  void clearGuests() => clearAllGuests();
-
-  /// Alias for addManualGuest (backward compatibility)
-  @Deprecated('Use addManualGuest instead')
-  void addGuestDirect(GuestInfoModel guest) => addManualGuest(guest);
 
   /// Merge guests from all sources and remove duplicates
   /// Priority: manual > excel > contacts
@@ -992,14 +660,7 @@ class InvitationCubit extends Cubit<InvitationState> {
     ));
   }
 
-  String _normalizePhone(String phone) => PhoneNormalizer.normalize(phone);
-
   // ============ Page 5: Extra Services ============
-
-  /// Set available services from API
-  void setAvailableServices(List<ExtraServiceModel> services) {
-    emit(state.copyWith(availableServices: services));
-  }
 
   /// Toggle service selection. With [optionId] the service is (re)selected at that level.
   void toggleService(ExtraServiceModel service, {int? optionId}) {
@@ -1028,17 +689,7 @@ class InvitationCubit extends Cubit<InvitationState> {
           if (s.selectedOption != null) '${s.id}': s.selectedOption!.id,
       };
 
-  /// Check if a service is selected
-  bool isServiceSelected(int serviceId) {
-    return state.selectedServices.any((s) => s.id == serviceId);
-  }
-
   // ============ Page 6: Package Selection ============
-
-  /// Set available packages from API
-  void setAvailablePackages(List<PackageModel> packages) {
-    emit(state.copyWith(availablePackages: packages));
-  }
 
   /// Select a package. Tapping the selected package again deselects it.
   /// The choice stays changeable until payment: the backend's
@@ -1076,32 +727,6 @@ class InvitationCubit extends Cubit<InvitationState> {
   void setCustomPackageLimit(int limit) {
     emit(state.copyWith(customPackageLimit: limit));
     calculateCustomPackagePrice(limit);
-  }
-
-  /// Set custom package price (from API)
-  void setCustomPackagePrice(double price) {
-    emit(state.copyWith(customPackagePrice: price));
-  }
-
-  /// Clear the package validation error flag (after dialog is shown)
-  void clearPackageValidationError() {
-    emit(state.copyWith(packageValidationError: false));
-  }
-
-  /// Validate package limit against guest count
-  void _validatePackageLimit() {
-    if (state.selectedPackage == null) return;
-
-    final isExceeded = state.isPackageLimitExceeded;
-    if (state.packageValidationError != isExceeded) {
-      emit(state.copyWith(packageValidationError: isExceeded));
-    }
-  }
-
-  /// Check if can proceed from package selection
-  bool validatePackageSelection() {
-    _validatePackageLimit();
-    return state.canProceedFromPackage;
   }
 
   // ============ Page 7: Invoice & Save ============
@@ -1233,105 +858,6 @@ class InvitationCubit extends Cubit<InvitationState> {
     }
   }
 
-  /// Save and submit invitation
-  Future<void> saveAndSubmit() async {
-    emit(state.copyWith(status: InvitationStatus.loading));
-
-    try {
-      // Generate invoice summary if not done
-      if (state.invoiceSummary == null) {
-        generateInvoiceSummary();
-      }
-
-      if (apiService != null) {
-        int eventId;
-
-        // Step 1: Initialize wizard if no draft exists
-        if (state.draftEventId == null) {
-          final initResponse = await apiService!.initializeWizard(
-            eventTypeId: state.selectedEventType?.id,
-            customEventTypeName: state.customEventTypeName,
-            templateId: state.selectedTemplate?.id,
-            institutionId: state.institutionId,
-          );
-          eventId = initResponse['data']?['event_id'] as int? ?? 0;
-          emit(state.copyWith(draftEventId: eventId));
-        } else {
-          eventId = state.draftEventId!;
-        }
-
-        // Step 2: Save event details
-        await _callSaveEventDetails(eventId);
-
-        // Step 3: Add guests
-        // Always sync, so removing every guest clears them server-side too.
-        await apiService!.addManualGuests(
-          eventId,
-          state.guests.map((g) => {
-            'name': g.name,
-            'phone': g.phone,
-          }).toList(),
-        );
-
-        // Step 4: Save invitation configuration
-        final hasCompanions = state.partnerWithGuests != null && state.partnerWithGuests! > 0;
-        await apiService!.saveInvitationConfig(
-          eventId,
-          defaultDeliveryMethod: 'whatsapp',
-          allowCompanions: hasCompanions,
-          maxCompanions: hasCompanions ? state.partnerWithGuests! : 0,
-          requireResponse: true,
-          responseDeadline: state.rsvpDeadline,
-          // Sent only when typed; otherwise the saved message is kept.
-          messageAr: (state.invitationMessage ?? '').trim().isEmpty
-              ? null
-              : state.invitationMessage!.trim(),
-        );
-
-        // Step 5: Save extra services
-        if (state.selectedServices.isNotEmpty) {
-          await apiService!.saveExtraServices(
-            eventId,
-            state.selectedServices.map((s) => s.id).toList(),
-            options: _serviceOptions(),
-          );
-        }
-
-        // Step 6: Select package
-        if (state.selectedPackage != null) {
-          await apiService!.selectPackage(
-            eventId,
-            packageId: state.selectedPackage!.isCustom ? null : state.selectedPackage!.id,
-            isCustomPackage: state.selectedPackage!.isCustom,
-            customGuestCount: state.selectedPackage!.isCustom ? state.customPackageLimit : null,
-          );
-        }
-
-        // Step 7: Final save
-        await apiService!.saveEvent(eventId, isDraft: false);
-
-        emit(state.copyWith(
-          status: InvitationStatus.success,
-          savedEventId: eventId.toString(),
-          invitationId: eventId.toString(),
-        ));
-      } else {
-        // Fallback for when no API service
-        final eventId = 'EVT-${DateTime.now().millisecondsSinceEpoch}';
-        emit(state.copyWith(
-          status: InvitationStatus.success,
-          savedEventId: eventId,
-          invitationId: eventId,
-        ));
-      }
-    } catch (e) {
-      emit(state.copyWith(
-        status: InvitationStatus.failure,
-        errorMessage: e.toString(),
-      ));
-    }
-  }
-
   /// Generate invoice image and open WhatsApp
   Future<void> openWhatsAppWithInvoice() async {
     if (whatsAppService == null || invoiceGenerator == null) return;
@@ -1409,44 +935,7 @@ class InvitationCubit extends Cubit<InvitationState> {
     ));
   }
 
-  /// Clear the AI-generated image (e.g. user wants to regenerate)
-  void clearAiGeneratedImage() {
-    emit(state.copyWith(
-      clearGeneratedImage: true,
-    ));
-  }
-
   // ============ Page 3: Load Preview ============
-
-  /// Load preview from API
-  Future<void> loadPreview() async {
-    emit(state.copyWith(
-      isLoadingPreview: true,
-      previewError: null,
-    ));
-
-    try {
-      String? previewUrl;
-
-      if (apiService != null && state.draftEventId != null) {
-        final response = await apiService!.getInvitationPreview(state.draftEventId!);
-        final data = response['data'];
-        previewUrl = data['preview_url'];
-      } else {
-        previewUrl = null;
-      }
-
-      emit(state.copyWith(
-        isLoadingPreview: false,
-        previewImageUrl: previewUrl,
-      ));
-    } catch (e) {
-      emit(state.copyWith(
-        isLoadingPreview: false,
-        previewError: e.toString(),
-      ));
-    }
-  }
 
   // ============ Page 4: Excel Import ============
 
@@ -1846,176 +1335,6 @@ class InvitationCubit extends Cubit<InvitationState> {
         saveErrorIsFreeTrial: freeTrial,
       ));
     }
-  }
-
-  /// Load venues from API
-  Future<void> loadVenues() async {
-    emit(state.copyWith(isLoadingVenues: true));
-
-    try {
-      List<VenueModel> venues;
-
-      // Venues are loaded as part of form fields, but we can also load them separately
-      if (apiService != null && state.draftEventId != null) {
-        final response = await apiService!.getEventFormFields(state.draftEventId!);
-        final venuesData = response['data']['venues'] as List? ?? [];
-        venues = venuesData.map((v) => VenueModel.fromJson(v)).toList();
-      } else {
-        venues = [];
-      }
-
-      emit(state.copyWith(
-        isLoadingVenues: false,
-        availableVenues: venues,
-      ));
-    } catch (e) {
-      emit(state.copyWith(
-        isLoadingVenues: false,
-        errorMessage: e.toString(),
-      ));
-    }
-  }
-
-  /// Load form fields for event type
-  Future<void> loadFormFields() async {
-    if (state.draftEventId == null) {
-      return;
-    }
-
-    emit(state.copyWith(isLoadingFormFields: true));
-
-    try {
-      List<EventTypeFormField> formFields;
-      List<VenueModel> venues = [];
-
-      if (apiService != null) {
-        final response = await apiService!.getEventFormFields(state.draftEventId!);
-        final data = response['data'];
-
-        // Parse form fields
-        final fieldsData = data['form_fields'] as List? ?? [];
-        formFields = EventTypeFormField.listFromJson(fieldsData);
-
-        // Parse venues
-        final venuesData = data['venues'] as List? ?? [];
-        venues = venuesData.map((v) => VenueModel.fromJson(v)).toList();
-      } else {
-        formFields = [];
-      }
-
-      emit(state.copyWith(
-        isLoadingFormFields: false,
-        eventTypeFormFields: formFields,
-        availableVenues: venues.isNotEmpty ? venues : state.availableVenues,
-      ));
-    } catch (e) {
-      emit(state.copyWith(
-        isLoadingFormFields: false,
-        errorMessage: e.toString(),
-      ));
-    }
-  }
-
-  // ============ Legacy Methods (backward compatibility) ============
-
-  /// Legacy: Generate share link (mock implementation)
-  @Deprecated('Use new sharing flow instead')
-  void generateShareLink() {
-    final link = 'https://maktoob.app/invite/${state.savedEventId ?? 'preview'}';
-    emit(state.copyWith(shareLink: link));
-  }
-
-  /// Legacy: Update location string
-  @Deprecated('Use setCustomLocation instead')
-  void updateLocation(String location) {
-    // Create a simple custom location from the string
-    emit(state.copyWith(
-      customLocation: LocationModel(
-        latitude: 31.5,
-        longitude: 34.45,
-        address: location,
-        placeName: location,
-      ),
-    ));
-  }
-
-  /// Legacy: Update location address
-  @Deprecated('Use setCustomLocation instead')
-  void updateLocationAddress(String address) {
-    if (state.customLocation != null) {
-      emit(state.copyWith(
-        customLocation: state.customLocation!.copyWith(address: address),
-      ));
-    } else {
-      emit(state.copyWith(
-        customLocation: LocationModel(
-          latitude: 31.5,
-          longitude: 34.45,
-          address: address,
-        ),
-      ));
-    }
-  }
-
-  /// Legacy: Update name at index (maps to eventName for index 0)
-  @Deprecated('Use updateEventName instead')
-  void updateName(int index, String name) {
-    if (index == 0) {
-      updateEventName(name);
-    }
-  }
-
-  /// Legacy: Skip to confirmation step
-  @Deprecated('Use goToStep instead')
-  void skipToConfirmation() {
-    emit(state.copyWith(currentStep: InvitationStep.confirmation));
-  }
-
-  /// Legacy: Submit invitation (maps to saveAndSubmit)
-  @Deprecated('Use saveAndSubmit instead')
-  Future<void> submitInvitation() async {
-    await saveAndSubmit();
-  }
-
-  /// Legacy: Get WhatsApp URL for a phone number
-  @Deprecated('Use WhatsAppService directly instead')
-  String getWhatsAppUrl(String phoneNumber) {
-    final cleanedPhone = phoneNumber.replaceAll(RegExp(r'[^\d]'), '');
-    final message = 'Payment confirmation for event: ${state.eventName ?? "Event"}';
-    return 'https://wa.me/$cleanedPhone?text=${Uri.encodeComponent(message)}';
-  }
-
-  /// Legacy: Select event type from GoldenEventType
-  @Deprecated('Use selectEventType(EventTypeModel) instead')
-  void selectEventTypeFromGolden(GoldenEventType type) {
-    final eventTypeModel = EventTypeModel(
-      id: type.index + 1,
-      name: type.name,
-      nameAr: type.nameAr,
-      emoji: type.emoji,
-      gradientColors: type.gradientColors,
-    );
-    selectEventType(eventTypeModel);
-  }
-
-  /// Legacy: Select package by ID string
-  @Deprecated('Use selectPackage(PackageModel) instead')
-  void selectPackageById(String packageId) {
-    final package = state.availablePackages.firstWhere(
-      (p) => p.id.toString() == packageId,
-      orElse: () => state.availablePackages.first,
-    );
-    selectPackage(package);
-  }
-
-  /// Legacy: Select template by ID string
-  @Deprecated('Use selectTemplate(TemplateModel) instead')
-  void selectTemplateById(String templateId) {
-    final template = state.availableTemplates.firstWhere(
-      (t) => t.id?.toString() == templateId,
-      orElse: () => state.availableTemplates.first,
-    );
-    selectTemplate(template);
   }
 
   // ============ Helper Methods ============

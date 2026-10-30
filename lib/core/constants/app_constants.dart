@@ -15,23 +15,6 @@ class AppConstants {
   static const String currencyName = 'Shekel';
   static const int currencyDecimalPlaces = 2;
 
-  /// Format amount with currency symbol
-  static String formatCurrency(double amount) {
-    return '$currencySymbol${amount.toStringAsFixed(currencyDecimalPlaces)}';
-  }
-
-  /// Format amount with currency code (for display)
-  static String formatCurrencyWithCode(double amount) {
-    return '${amount.toStringAsFixed(currencyDecimalPlaces)} $currencyCode';
-  }
-
-  /// Parse currency string to double
-  static double parseCurrency(String value) {
-    // Remove currency symbol and whitespace
-    final cleaned = value.replaceAll(currencySymbol, '').replaceAll(',', '').trim();
-    return double.tryParse(cleaned) ?? 0.0;
-  }
-
   // ============================================================
   // LOCALES
   // ============================================================

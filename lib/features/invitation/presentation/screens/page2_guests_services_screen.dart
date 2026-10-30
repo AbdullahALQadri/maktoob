@@ -390,7 +390,7 @@ class _BottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final canProceed = state.canProceedFromGuestManagement && !state.isLoading;
+    final canProceed = state.guests.isNotEmpty && !state.isLoading;
 
     return Container(
       padding: EdgeInsets.all(context.dynamicWidth(0.04)),

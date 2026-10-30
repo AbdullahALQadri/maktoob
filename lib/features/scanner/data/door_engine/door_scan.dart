@@ -74,14 +74,6 @@ mixin _DoorScan on _DoorEngineBase {
     return store.guests(s.eventId, query: query, day: _today);
   }
 
-  /// One guest with their first check-in (e.g. a guest coming back).
-  Future<DoorGuest?> guestById(int invitationId) async {
-    final s = _session;
-    if (s == null) return null;
-    final guest = await store.guest(s.eventId, invitationId);
-    return guest?.withCheckIn(await store.firstCheckIn(s.eventId, invitationId, day: _today));
-  }
-
   Future<DoorAdmission> admit(
     int invitationId, {
     int companions = 0,

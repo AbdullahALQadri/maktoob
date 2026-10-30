@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/error/failures.dart';
-import '../../../domain/entities/guest_entity.dart';
 import '../../../domain/entities/event_entity.dart';
 import '../../../domain/repositories/events_repository.dart';
 import '../../../domain/usecases/get_event_details_usecase.dart';
@@ -44,17 +43,6 @@ class EventDetailsCubit extends Cubit<EventDetailsState> {
     }
   }
 
-  /// Change the current tab
-  void changeTab(EventDetailsTab tab) {
-    emit(state.copyWith(currentTab: tab));
-  }
-
-  /// Change tab by index
-  void changeTabByIndex(int index) {
-    final tab = EventDetailsTab.values[index];
-    emit(state.copyWith(currentTab: tab));
-  }
-
   /// Get current tab index
   int get currentTabIndex => state.currentTab.index;
 
@@ -70,36 +58,6 @@ class EventDetailsCubit extends Cubit<EventDetailsState> {
       guestSearchQuery: query,
       filteredGuests: filteredGuests,
     ));
-  }
-
-  /// Clear guest search
-  void clearGuestSearch() {
-    emit(state.copyWith(
-      guestSearchQuery: '',
-      filteredGuests: state.guests,
-    ));
-  }
-
-  /// Filter guests by status
-  void filterGuestsByStatus(GuestStatus? status) {
-    List<GuestEntity> filteredGuests;
-
-    if (status == null) {
-      filteredGuests = state.guests;
-    } else {
-      filteredGuests = state.guests.where((g) => g.status == status).toList();
-    }
-
-    // Apply search query if exists
-    if (state.guestSearchQuery.isNotEmpty) {
-      filteredGuests = filteredGuests.where((guest) {
-        return guest.name.toLowerCase().contains(state.guestSearchQuery.toLowerCase()) ||
-            guest.email.toLowerCase().contains(state.guestSearchQuery.toLowerCase()) ||
-            guest.phone.contains(state.guestSearchQuery);
-      }).toList();
-    }
-
-    emit(state.copyWith(filteredGuests: filteredGuests));
   }
 
   /// Delete the event
@@ -245,15 +203,4 @@ class EventDetailsCubit extends Cubit<EventDetailsState> {
     }
   }
 
-  /// Get status label
-  String getGuestStatusLabel(GuestStatus status) {
-    switch (status) {
-      case GuestStatus.attending:
-        return 'Attending';
-      case GuestStatus.pending:
-        return 'Pending';
-      case GuestStatus.declined:
-        return 'Declined';
-    }
-  }
 }

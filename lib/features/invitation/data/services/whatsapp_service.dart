@@ -144,12 +144,6 @@ Maktoob Events
 ''';
   }
 
-  /// Check if WhatsApp is installed
-  Future<bool> isWhatsAppInstalled() async {
-    final whatsappUrl = Uri.parse('whatsapp://send?phone=1234567890');
-    return await canLaunchUrl(whatsappUrl);
-  }
-
   /// Get WhatsApp URL for a phone number with message
   String getWhatsAppUrl(String phoneNumber, String message) {
     final cleanedPhone = phoneNumber.replaceAll(RegExp(r'[^\d]'), '');

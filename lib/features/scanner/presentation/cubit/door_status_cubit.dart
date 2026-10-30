@@ -31,8 +31,6 @@ class DoorStatusCubit extends Cubit<DoorStatus> {
 
   Future<void> leaveHub() => controls.detachHub();
 
-  Future<void> retryAfterSignIn() => controls.clearAuthProblem();
-
   Future<void> refresh() => controls.refreshStatus();
 
   @override

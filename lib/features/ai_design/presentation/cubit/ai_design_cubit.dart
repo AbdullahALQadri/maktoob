@@ -202,13 +202,6 @@ class AiDesignCubit extends Cubit<AiDesignState> {
     emit(s.copyWith(freeformPromptText: text));
   }
 
-  void updateCustomPrompt(String text) {
-    final s = _ready;
-    if (s == null) return;
-    final trimmed = text.trim();
-    emit(s.copyWith(customPrompt: trimmed.isEmpty ? null : trimmed));
-  }
-
   void toggleMoodTag(String tag) {
     final s = _ready;
     if (s == null) return;

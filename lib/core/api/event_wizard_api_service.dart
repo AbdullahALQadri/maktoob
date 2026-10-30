@@ -70,14 +70,6 @@ class EventWizardApiService {
   // PAGE 2: Event Details
   // ============================================================
 
-  /// Get form fields for event details
-  Future<Map<String, dynamic>> getEventFormFields(int eventId) async {
-    final response = await _apiConsumer.get(
-      Endpoints.wizardFormFields(eventId),
-    );
-    return response as Map<String, dynamic>;
-  }
-
   static String _dateTime(DateTime d, String? hhmm) {
     final day = d.toIso8601String().split('T')[0];
     return hhmm == null || hhmm.isEmpty ? day : '$day $hhmm';
@@ -131,14 +123,6 @@ class EventWizardApiService {
   // ============================================================
   // PAGE 3: Invitation Preview
   // ============================================================
-
-  /// Get invitation preview
-  Future<Map<String, dynamic>> getInvitationPreview(int eventId) async {
-    final response = await _apiConsumer.get(
-      Endpoints.wizardPreview(eventId),
-    );
-    return response as Map<String, dynamic>;
-  }
 
   /// Poll AI generation status
   Future<Map<String, dynamic>> getGenerationStatus(
@@ -243,38 +227,6 @@ class EventWizardApiService {
   // PAGE 4: Guest Management
   // ============================================================
 
-  /// Get guests for event
-  Future<Map<String, dynamic>> getGuests(int eventId) async {
-    final response = await _apiConsumer.get(
-      Endpoints.wizardGuests(eventId),
-    );
-    return response as Map<String, dynamic>;
-  }
-
-  /// Import guests from contacts
-  Future<Map<String, dynamic>> importFromContacts(
-    int eventId,
-    List<Map<String, String>> contacts,
-  ) async {
-    final response = await _apiConsumer.post(
-      Endpoints.wizardGuestsContacts(eventId),
-      body: {'contacts': contacts},
-    );
-    return response as Map<String, dynamic>;
-  }
-
-  /// Import guests from Excel
-  Future<Map<String, dynamic>> importFromExcel(
-    int eventId,
-    File excelFile,
-  ) async {
-    final response = await _apiConsumer.postWithImage(
-      Endpoints.wizardGuestsExcel(eventId),
-      params: _FileParams(excelFile),
-    );
-    return response as Map<String, dynamic>;
-  }
-
   /// Sync the wizard guest list. The wizard always sends its whole list, so
   /// `replace` lets the server drop guests the host removed (they would
   /// otherwise still be invited at save).
@@ -293,14 +245,6 @@ class EventWizardApiService {
   Future<Map<String, dynamic>> removeGuest(int eventId, int guestId) async {
     final response = await _apiConsumer.delete(
       Endpoints.wizardGuestDelete(eventId, guestId),
-    );
-    return response as Map<String, dynamic>;
-  }
-
-  /// Remove duplicate guests
-  Future<Map<String, dynamic>> removeDuplicates(int eventId) async {
-    final response = await _apiConsumer.post(
-      Endpoints.wizardGuestsRemoveDuplicates(eventId),
     );
     return response as Map<String, dynamic>;
   }

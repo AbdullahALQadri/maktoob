@@ -34,29 +34,6 @@ class EventsListCubit extends Cubit<EventsListState> {
     );
   }
 
-  /// Search events by query
-  void searchEvents(String query) {
-    emit(state.copyWith(
-      searchQuery: query,
-      filteredEvents: _applyFilters(state.events, query, state.filterStatus),
-    ));
-  }
-
-  /// Filter events by status
-  void filterByStatus(EventStatus? status) {
-    if (status == null) {
-      emit(state.copyWith(
-        clearFilterStatus: true,
-        filteredEvents: _applyFilters(state.events, state.searchQuery, null),
-      ));
-    } else {
-      emit(state.copyWith(
-        filterStatus: status,
-        filteredEvents: _applyFilters(state.events, state.searchQuery, status),
-      ));
-    }
-  }
-
   /// Clear all filters
   void clearFilters() {
     emit(state.copyWith(
@@ -91,20 +68,4 @@ class EventsListCubit extends Cubit<EventsListState> {
     }).toList();
   }
 
-  /// Get filter label for display
-  String getFilterLabel(EventStatus? status) {
-    if (status == null) return 'All';
-    switch (status) {
-      case EventStatus.active:
-        return 'Active';
-      case EventStatus.draft:
-        return 'Draft';
-      case EventStatus.pendingPayment:
-        return 'Pending payment';
-      case EventStatus.completed:
-        return 'Completed';
-      case EventStatus.cancelled:
-        return 'Cancelled';
-    }
-  }
 }

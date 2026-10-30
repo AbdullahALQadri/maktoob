@@ -31,12 +31,7 @@ class Endpoints {
   static const String wizardCustomEventType = '/event-wizard/event-types/custom';
   static const String wizardInitialize = '/event-wizard/initialize';
 
-  // Page 2 - Event Details
-  static String wizardFormFields(int eventId) => '/event-wizard/$eventId/form-fields';
   static String wizardSaveDetails(int eventId) => '/event-wizard/$eventId/details';
-
-  // Page 3 - Invitation Preview
-  static String wizardPreview(int eventId) => '/event-wizard/$eventId/preview';
 
   // AI Template Generation (legacy — kept for backwards compat)
   static String wizardGenerationStatus(int eventId, int imageId) => '/event-wizard/$eventId/generation-status/$imageId';
@@ -49,13 +44,8 @@ class Endpoints {
   static String wizardUploadDesign(int eventId) => '/event-wizard/$eventId/upload-design';
   static String wizardSaveAiImage(int eventId) => '/event-wizard/$eventId/details';
 
-  // Page 4 - Guest Management
-  static String wizardGuests(int eventId) => '/event-wizard/$eventId/guests';
-  static String wizardGuestsContacts(int eventId) => '/event-wizard/$eventId/guests/import-contacts';
-  static String wizardGuestsExcel(int eventId) => '/event-wizard/$eventId/guests/import-excel';
   static String wizardGuestsManual(int eventId) => '/event-wizard/$eventId/guests/manual';
   static String wizardGuestDelete(int eventId, int guestId) => '/event-wizard/$eventId/guests/$guestId';
-  static String wizardGuestsRemoveDuplicates(int eventId) => '/event-wizard/$eventId/guests/remove-duplicates';
 
   // Page 4.5 - Invitation Configuration
   static String wizardInvitationConfig(int eventId) => '/event-wizard/$eventId/invitation-config';

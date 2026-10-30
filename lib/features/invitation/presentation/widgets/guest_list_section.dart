@@ -16,7 +16,7 @@ class GuestListSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final allGuests = state.allGuests;
+    final allGuests = state.guests;
 
     if (allGuests.isEmpty) {
       return _EmptyGuestList(l: l);

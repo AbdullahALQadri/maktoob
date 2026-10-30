@@ -1,4 +1,3 @@
-// ignore_for_file: deprecated_member_use_from_same_package
 import 'dart:convert';
 import 'dart:io';
 
@@ -15,44 +14,9 @@ export 'event_type_model.dart';
 
 /// Steps in the 3-page event creation wizard
 enum InvitationStep {
-  // Modern 3-page wizard steps
   eventSetup, // Page 1: Event type + template + details + preview
   guestsAndServices, // Page 2: Guest management + extra services
   reviewAndSubmit, // Page 3: Package selection + invoice + submit
-
-  // Legacy 7-page steps (for backward compatibility)
-  @Deprecated('Use eventSetup instead')
-  eventTypeSelection,
-  @Deprecated('Use eventSetup instead')
-  eventDetails,
-  @Deprecated('Use eventSetup instead')
-  invitationPreview,
-  @Deprecated('Use guestsAndServices instead')
-  guestManagement,
-  @Deprecated('Use guestsAndServices instead')
-  extraServices,
-  @Deprecated('Use reviewAndSubmit instead')
-  packageSelection,
-  @Deprecated('Use reviewAndSubmit instead')
-  invoiceSummary,
-
-  // Legacy steps (for backward compatibility with old flow)
-  @Deprecated('Use eventSetup instead')
-  landing,
-  @Deprecated('Use eventSetup instead')
-  eventType,
-  @Deprecated('Use eventSetup instead')
-  creation,
-  @Deprecated('Use guestsAndServices instead')
-  guests,
-  @Deprecated('Use reviewAndSubmit instead')
-  share,
-  @Deprecated('Use reviewAndSubmit instead')
-  package,
-  @Deprecated('Use reviewAndSubmit instead')
-  payment,
-  @Deprecated('Use reviewAndSubmit instead')
-  confirmation,
 }
 
 /// Status of invitation operations
@@ -543,13 +507,11 @@ class InvitationState extends Equatable {
   // Loading states
   final bool isLoading;
   final bool isLoadingTemplates;
-  final bool isLoadingPreview;
   final bool isLoadingServices;
   final bool isLoadingPackages;
   final bool isLoadingInvoice;
   final bool isLoadingExcel;
   final bool isLoadingCustomPrice;
-  final bool isLoadingVenues;
   final bool isLoadingFormFields;
 
   // Save states
@@ -558,7 +520,6 @@ class InvitationState extends Equatable {
   final bool isSaveAsDraft;
 
   // Error states
-  final String? previewError;
   final String? servicesError;
   final String? packagesError;
   final String? invoiceError;
@@ -586,8 +547,6 @@ class InvitationState extends Equatable {
   final String? customEventTypeName;
   final List<TemplateModel> availableTemplates;
   final TemplateModel? selectedTemplate;
-  final File? uploadedTemplateFile;
-  final String? uploadedTemplateDescription;
 
   // Page 2: Event Details
   final String? eventName;
@@ -596,7 +555,6 @@ class InvitationState extends Equatable {
   final TimeOfDay? eventTime;
   final DateTime? eventEndDate;
   final TimeOfDay? eventEndTime;
-  final List<VenueModel> availableVenues;
   final VenueModel? selectedVenue;
   final LocationModel? customLocation;
   final int? partnerWithGuests;
@@ -610,7 +568,6 @@ class InvitationState extends Equatable {
 
   // Preview & AI Generation
   final String? previewImageUrl;
-  final bool isGeneratingImage;
   final int? generatingImageId;
   final String? generatedImageUrl;
   final String? generationError;
@@ -621,7 +578,6 @@ class InvitationState extends Equatable {
   final List<GuestInfoModel> excelGuests;
   final List<GuestInfoModel> manualGuests;
   final Set<String> duplicatePhoneNumbers;
-  final GuestInfoModel currentGuestInput;
 
   // Page 5: Extra Services
   final List<ExtraServiceModel> availableServices;
@@ -650,7 +606,6 @@ class InvitationState extends Equatable {
   final File? generatedInvoiceImage;
 
   // Results & Errors
-  final String? shareLink;
   final String? invitationId;
   final String? errorMessage;
 
@@ -663,20 +618,17 @@ class InvitationState extends Equatable {
     // Loading states
     this.isLoading = false,
     this.isLoadingTemplates = false,
-    this.isLoadingPreview = false,
     this.isLoadingServices = false,
     this.isLoadingPackages = false,
     this.isLoadingInvoice = false,
     this.isLoadingExcel = false,
     this.isLoadingCustomPrice = false,
-    this.isLoadingVenues = false,
     this.isLoadingFormFields = false,
     // Save states
     this.isSaving = false,
     this.saveSuccess = false,
     this.isSaveAsDraft = false,
     // Error states
-    this.previewError,
     this.servicesError,
     this.packagesError,
     this.invoiceError,
@@ -693,8 +645,6 @@ class InvitationState extends Equatable {
     this.customEventTypeName,
     this.availableTemplates = const [],
     this.selectedTemplate,
-    this.uploadedTemplateFile,
-    this.uploadedTemplateDescription,
     // Page 2
     this.eventName,
     this.eventDescription,
@@ -702,7 +652,6 @@ class InvitationState extends Equatable {
     this.eventTime,
     this.eventEndDate,
     this.eventEndTime,
-    this.availableVenues = const [],
     this.selectedVenue,
     this.customLocation,
     this.partnerWithGuests,
@@ -712,7 +661,6 @@ class InvitationState extends Equatable {
     this.eventTypeFormData = const {},
     // Preview & AI Generation
     this.previewImageUrl,
-    this.isGeneratingImage = false,
     this.generatingImageId,
     this.generatedImageUrl,
     this.generationError,
@@ -722,7 +670,6 @@ class InvitationState extends Equatable {
     this.excelGuests = const [],
     this.manualGuests = const [],
     this.duplicatePhoneNumbers = const {},
-    this.currentGuestInput = const GuestInfoModel(name: ''),
     // Page 5
     this.availableServices = const [],
     this.selectedServices = const [],
@@ -741,7 +688,6 @@ class InvitationState extends Equatable {
     this.whatsappNumber,
     this.generatedInvoiceImage,
     // Results
-    this.shareLink,
     this.invitationId,
     this.errorMessage,
   });
@@ -762,26 +708,8 @@ class InvitationState extends Equatable {
     return needed > 0 && credits >= needed;
   }
 
-  /// Check if event type is custom
-  bool get isCustomEventType => selectedEventType?.isCustom ?? false;
-
-  /// Check if template is custom (uploaded)
-  bool get isCustomTemplate =>
-      (selectedTemplate?.isCustom ?? false) || uploadedTemplateFile != null;
-
-  /// Should skip preview page
-  /// Skip only if custom event type or custom template without uploaded image
-  /// (e.g., only description sent to admin). Show preview if an image was uploaded.
-  bool get shouldSkipPreview =>
-      isCustomEventType ||
-      (isCustomTemplate && uploadedTemplateFile == null);
-
   /// Total guest count from all sources
   int get totalGuestCount => guests.length;
-
-  /// Alias for totalGuestCount (backward compatibility)
-  @Deprecated('Use totalGuestCount instead')
-  int get totalGuests => totalGuestCount;
 
   /// Check if package limit is exceeded
   bool get isPackageLimitExceeded {
@@ -808,20 +736,17 @@ class InvitationState extends Equatable {
     // Loading states
     bool? isLoading,
     bool? isLoadingTemplates,
-    bool? isLoadingPreview,
     bool? isLoadingServices,
     bool? isLoadingPackages,
     bool? isLoadingInvoice,
     bool? isLoadingExcel,
     bool? isLoadingCustomPrice,
-    bool? isLoadingVenues,
     bool? isLoadingFormFields,
     // Save states
     bool? isSaving,
     bool? saveSuccess,
     bool? isSaveAsDraft,
     // Error states
-    String? previewError,
     String? servicesError,
     String? packagesError,
     String? invoiceError,
@@ -839,8 +764,6 @@ class InvitationState extends Equatable {
     String? customEventTypeName,
     List<TemplateModel>? availableTemplates,
     TemplateModel? selectedTemplate,
-    File? uploadedTemplateFile,
-    String? uploadedTemplateDescription,
     // Page 2
     String? eventName,
     String? eventDescription,
@@ -849,7 +772,6 @@ class InvitationState extends Equatable {
     DateTime? eventEndDate,
     TimeOfDay? eventEndTime,
     bool clearEventEndDate = false,
-    List<VenueModel>? availableVenues,
     VenueModel? selectedVenue,
     LocationModel? customLocation,
     int? partnerWithGuests,
@@ -860,7 +782,6 @@ class InvitationState extends Equatable {
     Map<String, dynamic>? eventTypeFormData,
     // Preview & AI Generation
     String? previewImageUrl,
-    bool? isGeneratingImage,
     int? generatingImageId,
     String? generatedImageUrl,
     String? generationError,
@@ -872,7 +793,6 @@ class InvitationState extends Equatable {
     List<GuestInfoModel>? excelGuests,
     List<GuestInfoModel>? manualGuests,
     Set<String>? duplicatePhoneNumbers,
-    GuestInfoModel? currentGuestInput,
     // Page 5
     List<ExtraServiceModel>? availableServices,
     List<ExtraServiceModel>? selectedServices,
@@ -891,14 +811,11 @@ class InvitationState extends Equatable {
     String? whatsappNumber,
     File? generatedInvoiceImage,
     // Results
-    String? shareLink,
     String? invitationId,
     String? errorMessage,
     // Clear flags
     bool clearSelectedEventType = false,
     bool clearSelectedTemplate = false,
-    bool clearUploadedTemplate = false,
-    bool clearUploadedTemplateDescription = false,
     bool clearSelectedVenue = false,
     bool clearCustomLocation = false,
     bool clearPartnerWithGuests = false,
@@ -914,20 +831,17 @@ class InvitationState extends Equatable {
       // Loading states
       isLoading: isLoading ?? this.isLoading,
       isLoadingTemplates: isLoadingTemplates ?? this.isLoadingTemplates,
-      isLoadingPreview: isLoadingPreview ?? this.isLoadingPreview,
       isLoadingServices: isLoadingServices ?? this.isLoadingServices,
       isLoadingPackages: isLoadingPackages ?? this.isLoadingPackages,
       isLoadingInvoice: isLoadingInvoice ?? this.isLoadingInvoice,
       isLoadingExcel: isLoadingExcel ?? this.isLoadingExcel,
       isLoadingCustomPrice: isLoadingCustomPrice ?? this.isLoadingCustomPrice,
-      isLoadingVenues: isLoadingVenues ?? this.isLoadingVenues,
       isLoadingFormFields: isLoadingFormFields ?? this.isLoadingFormFields,
       // Save states
       isSaving: isSaving ?? this.isSaving,
       saveSuccess: saveSuccess ?? this.saveSuccess,
       isSaveAsDraft: isSaveAsDraft ?? this.isSaveAsDraft,
       // Error states
-      previewError: previewError,
       servicesError: servicesError,
       packagesError: packagesError,
       invoiceError: invoiceError,
@@ -950,12 +864,6 @@ class InvitationState extends Equatable {
       selectedTemplate: clearSelectedTemplate
           ? null
           : (selectedTemplate ?? this.selectedTemplate),
-      uploadedTemplateFile: clearUploadedTemplate
-          ? null
-          : (uploadedTemplateFile ?? this.uploadedTemplateFile),
-      uploadedTemplateDescription: clearUploadedTemplateDescription
-          ? null
-          : (uploadedTemplateDescription ?? this.uploadedTemplateDescription),
       // Page 2
       eventName: eventName ?? this.eventName,
       eventDescription: eventDescription ?? this.eventDescription,
@@ -963,7 +871,6 @@ class InvitationState extends Equatable {
       eventTime: eventTime ?? this.eventTime,
       eventEndDate: clearEventEndDate ? null : (eventEndDate ?? this.eventEndDate),
       eventEndTime: eventEndTime ?? this.eventEndTime,
-      availableVenues: availableVenues ?? this.availableVenues,
       selectedVenue:
           clearSelectedVenue ? null : (selectedVenue ?? this.selectedVenue),
       customLocation:
@@ -976,7 +883,6 @@ class InvitationState extends Equatable {
       eventTypeFormData: eventTypeFormData ?? this.eventTypeFormData,
       // Preview & AI Generation
       previewImageUrl: previewImageUrl ?? this.previewImageUrl,
-      isGeneratingImage: isGeneratingImage ?? this.isGeneratingImage,
       generatingImageId: generatingImageId ?? this.generatingImageId,
       generatedImageUrl: clearGeneratedImage
           ? null
@@ -991,7 +897,6 @@ class InvitationState extends Equatable {
       manualGuests: manualGuests ?? this.manualGuests,
       duplicatePhoneNumbers:
           duplicatePhoneNumbers ?? this.duplicatePhoneNumbers,
-      currentGuestInput: currentGuestInput ?? this.currentGuestInput,
       // Page 5
       availableServices: availableServices ?? this.availableServices,
       selectedServices: selectedServices ?? this.selectedServices,
@@ -1014,7 +919,6 @@ class InvitationState extends Equatable {
       generatedInvoiceImage:
           generatedInvoiceImage ?? this.generatedInvoiceImage,
       // Results
-      shareLink: shareLink ?? this.shareLink,
       invitationId: invitationId ?? this.invitationId,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
@@ -1022,17 +926,13 @@ class InvitationState extends Equatable {
 
   // ============ Validation Helpers ============
 
-  /// Check if Page 1 (Event Type + AI Design) is complete.
-  /// Accepts any of: AI-generated image, an uploaded file, a freeform description.
-  /// (The legacy template selection is no longer part of the wizard UI.)
+  /// Check if Page 1 (Event Type + design) is complete.
   bool get canProceedFromEventType {
     if (selectedEventType == null) return false;
     if (selectedEventType!.isCustom && (customEventTypeName?.isEmpty ?? true)) {
       return false;
     }
-    return (generatedImageUrl?.isNotEmpty ?? false)
-        || uploadedTemplateFile != null
-        || (uploadedTemplateDescription?.isNotEmpty ?? false);
+    return generatedImageUrl?.isNotEmpty ?? false;
   }
 
   /// Required per-type fields that are still empty.
@@ -1063,145 +963,13 @@ class InvitationState extends Equatable {
     return true;
   }
 
-  /// Check if page 4 is complete
-  bool get canProceedFromGuests => guests.isNotEmpty;
-  bool get canProceedFromGuestManagement => guests.isNotEmpty;
-
   /// Check if page 6 is complete
   bool get canProceedFromPackage {
     if (selectedPackage == null) return false;
     return !isPackageLimitExceeded;
   }
-  bool get canProceedFromPackageSelection => canProceedFromPackage;
-
-  /// Get all guests from all sources (combined)
-  List<GuestInfoModel> get allGuests => guests;
-
-  /// Get progress percentage (0.0 - 1.0)
-  double get progressPercentage {
-    switch (currentStep) {
-      // Modern 3-page wizard
-      case InvitationStep.eventSetup:
-        return 0.33;
-      case InvitationStep.guestsAndServices:
-        return 0.66;
-      case InvitationStep.reviewAndSubmit:
-        return 1.0;
-      // Legacy 7-page steps → map to closest modern step
-      case InvitationStep.eventTypeSelection:
-      case InvitationStep.eventDetails:
-      case InvitationStep.invitationPreview:
-      case InvitationStep.landing:
-      case InvitationStep.eventType:
-      case InvitationStep.creation:
-        return 0.33;
-      case InvitationStep.guestManagement:
-      case InvitationStep.extraServices:
-      case InvitationStep.guests:
-        return 0.66;
-      case InvitationStep.packageSelection:
-      case InvitationStep.invoiceSummary:
-      case InvitationStep.share:
-      case InvitationStep.package:
-      case InvitationStep.payment:
-      case InvitationStep.confirmation:
-        return 1.0;
-    }
-  }
-
-  /// Get step number (1-3)
-  int get stepNumber {
-    switch (currentStep) {
-      case InvitationStep.eventSetup:
-      case InvitationStep.eventTypeSelection:
-      case InvitationStep.eventDetails:
-      case InvitationStep.invitationPreview:
-      case InvitationStep.landing:
-      case InvitationStep.eventType:
-      case InvitationStep.creation:
-        return 1;
-      case InvitationStep.guestsAndServices:
-      case InvitationStep.guestManagement:
-      case InvitationStep.extraServices:
-      case InvitationStep.guests:
-        return 2;
-      case InvitationStep.reviewAndSubmit:
-      case InvitationStep.packageSelection:
-      case InvitationStep.invoiceSummary:
-      case InvitationStep.share:
-      case InvitationStep.package:
-      case InvitationStep.payment:
-      case InvitationStep.confirmation:
-        return 3;
-    }
-  }
-
-  /// Total steps
-  int get totalSteps => 3;
-
-  /// Guest statistics
-  int get confirmedGuests =>
-      guests.where((g) => g.status == GuestStatus.confirmed).length;
-  int get declinedGuests =>
-      guests.where((g) => g.status == GuestStatus.declined).length;
-  int get pendingGuests =>
-      guests.where((g) => g.status == GuestStatus.pending).length;
-
-  /// Services total price
-  double get servicesTotalPrice =>
-      selectedServices.fold(0, (sum, s) => sum + s.effectivePrice);
 
   // ============ Legacy Getters (backward compatibility) ============
-
-  /// Legacy: Get event type as GoldenEventType (maps from selectedEventType)
-  @Deprecated('Use selectedEventType instead')
-  GoldenEventType? get eventType {
-    if (selectedEventType == null) return null;
-    // Map EventTypeModel to GoldenEventType by name
-    switch (selectedEventType!.name.toLowerCase()) {
-      case 'birthday':
-        return GoldenEventType.birthday;
-      case 'wedding':
-        return GoldenEventType.wedding;
-      case 'aqiqah':
-        return GoldenEventType.aqiqah;
-      case 'store opening':
-      case 'storeopening':
-        return GoldenEventType.storeOpening;
-      default:
-        return GoldenEventType.custom;
-    }
-  }
-
-  /// Legacy: Get names list (maps from eventName)
-  @Deprecated('Use eventName instead')
-  List<String> get names => eventName != null ? [eventName!] : [];
-
-  /// Legacy: Get location string (maps from selectedVenue or customLocation)
-  @Deprecated('Use selectedVenue or customLocation instead')
-  String? get location =>
-      selectedVenue?.name ?? customLocation?.placeName ?? customLocation?.address;
-
-  /// Legacy: Get location address
-  @Deprecated('Use selectedVenue or customLocation instead')
-  String? get locationAddress =>
-      selectedVenue?.address ?? customLocation?.address;
-
-  /// Legacy: Get selected template ID as string
-  @Deprecated('Use selectedTemplate instead')
-  String? get selectedTemplateId => selectedTemplate?.id?.toString();
-
-  /// Legacy: Get selected package ID as string
-  @Deprecated('Use selectedPackage instead')
-  String? get selectedPackageId => selectedPackage?.id.toString();
-
-  /// Legacy: Check if free plan is selected
-  @Deprecated('Use selectedPackage?.price == 0 instead')
-  bool get isFreePlanSelected => selectedPackage?.price == 0;
-
-  /// Legacy: Check if can proceed from creation step
-  @Deprecated('Use canProceedFromEventDetails instead')
-  bool get canProceedFromCreation => canProceedFromEventDetails;
 
   @override
   List<Object?> get props => [
@@ -1213,20 +981,17 @@ class InvitationState extends Equatable {
         // Loading states
         isLoading,
         isLoadingTemplates,
-        isLoadingPreview,
         isLoadingServices,
         isLoadingPackages,
         isLoadingInvoice,
         isLoadingExcel,
         isLoadingCustomPrice,
-        isLoadingVenues,
         isLoadingFormFields,
         // Save states
         isSaving,
         saveSuccess,
         isSaveAsDraft,
         // Error states
-        previewError,
         servicesError,
         packagesError,
         invoiceError,
@@ -1243,8 +1008,6 @@ class InvitationState extends Equatable {
         customEventTypeName,
         availableTemplates,
         selectedTemplate,
-        uploadedTemplateFile,
-        uploadedTemplateDescription,
         // Page 2
         eventName,
         eventDescription,
@@ -1252,7 +1015,6 @@ class InvitationState extends Equatable {
         eventTime,
         eventEndDate,
         eventEndTime,
-        availableVenues,
         selectedVenue,
         customLocation,
         partnerWithGuests,
@@ -1262,7 +1024,6 @@ class InvitationState extends Equatable {
         eventTypeFormData,
         // Preview & AI Generation
         previewImageUrl,
-        isGeneratingImage,
         generatingImageId,
         generatedImageUrl,
         generationError,
@@ -1272,7 +1033,6 @@ class InvitationState extends Equatable {
         excelGuests,
         manualGuests,
         duplicatePhoneNumbers,
-        currentGuestInput,
         // Page 5
         availableServices,
         selectedServices,
@@ -1291,7 +1051,6 @@ class InvitationState extends Equatable {
         whatsappNumber,
         generatedInvoiceImage,
         // Results
-        shareLink,
         invitationId,
         errorMessage,
       ];

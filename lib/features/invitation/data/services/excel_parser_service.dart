@@ -102,20 +102,6 @@ class ExcelParserService {
   /// Delegates to [PhoneNormalizer] for canonical form across all guest sources.
   String _normalizePhone(String phone) => PhoneNormalizer.normalize(phone);
 
-  /// Get expected format description for user guidance
-  String getExpectedFormatDescription() {
-    return '''
-Expected Excel format:
-- Column A: Guest Name
-- Column B: Phone Number (+972 or +970 format)
-
-Example:
-| Guest Name    | Phone          |
-|---------------|----------------|
-| Ahmad Ali     | +970599123456  |
-| Sara Mohamed  | +972501234567  |
-''';
-  }
 }
 
 /// Result of parsing an Excel file

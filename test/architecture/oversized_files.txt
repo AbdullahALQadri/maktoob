@@ -2,7 +2,7 @@
 # Split a file, then lower or remove its line here. Never raise a number.
 lib/config/themes/app_theme.dart 903
 lib/core/api/dio_consumer.dart 412
-lib/core/api/event_wizard_api_service.dart 465
+lib/core/api/event_wizard_api_service.dart 409
 lib/core/utils/app_text_styles.dart 275
 lib/core/widgets/buttons/app_icon_button.dart 295
 lib/core/widgets/cards/app_card.dart 334
@@ -14,7 +14,7 @@ lib/core/widgets/loading/scanning_indicator.dart 384
 lib/core/widgets/loading/skeleton_widgets.dart 542
 lib/core/widgets/sheets/app_bottom_sheet.dart 998
 lib/core/widgets/snackbar/app_snackbar.dart 419
-lib/features/ai_design/presentation/cubit/ai_design_cubit.dart 423
+lib/features/ai_design/presentation/cubit/ai_design_cubit.dart 416
 lib/features/ai_design/presentation/pages/ai_design_page.dart 661
 lib/features/ai_design/presentation/pages/image_result_page.dart 398
 lib/features/ai_design/presentation/pages/prompt_review_page.dart 497
@@ -30,7 +30,6 @@ lib/features/authentication/presentation/widgets/login_form_card.dart 266
 lib/features/events/data/datasources/events_remote_data_source.dart 325
 lib/features/events/data/models/event_model.dart 319
 lib/features/events/data/repositories/events_repository_impl.dart 301
-lib/features/events/presentation/cubit/event_details/event_details_cubit.dart 259
 lib/features/events/presentation/screens/edit_event_screen.dart 581
 lib/features/events/presentation/widgets/guest_invitation_sheet.dart 259
 lib/features/explore/presentation/screens/explore_screen.dart 366
@@ -43,9 +42,8 @@ lib/features/institution/presentation/screens/institution_screen.dart 320
 lib/features/institution/presentation/widgets/institution_verification_widgets.dart 275
 lib/features/invitation/data/models/invitation_draft_model.dart 338
 lib/features/invitation/data/services/invoice_generator.dart 389
-lib/features/invitation/presentation/cubit/invitation_cubit.dart 2039
-lib/features/invitation/presentation/cubit/invitation_state.dart 1298
-lib/features/invitation/presentation/screens/invitation_wizard_screen.dart 267
+lib/features/invitation/presentation/cubit/invitation_cubit.dart 1358
+lib/features/invitation/presentation/cubit/invitation_state.dart 1057
 lib/features/invitation/presentation/screens/page1_event_setup_screen.dart 1462
 lib/features/invitation/presentation/screens/page2_guests_services_screen.dart 423
 lib/features/invitation/presentation/screens/page3_review_submit_screen.dart 1433

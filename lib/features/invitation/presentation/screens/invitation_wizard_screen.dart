@@ -1,4 +1,3 @@
-// ignore_for_file: deprecated_member_use_from_same_package
 import '../../../home/presentation/utils/refresh_event_lists.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -191,50 +190,11 @@ class _InvitationWizardView extends StatelessWidget {
 
   Widget _buildCurrentPage(BuildContext context, InvitationStep step) {
     switch (step) {
-      // Modern 3-page wizard
       case InvitationStep.eventSetup:
         return const Page1EventSetupScreen(key: ValueKey('page1'));
       case InvitationStep.guestsAndServices:
         return const Page2GuestsServicesScreen(key: ValueKey('page2'));
       case InvitationStep.reviewAndSubmit:
-        return Page3ReviewSubmitScreen(
-            key: const ValueKey('page3'), onComplete: onComplete);
-
-      // Legacy steps → redirect to modern equivalents
-      case InvitationStep.eventTypeSelection:
-      case InvitationStep.eventDetails:
-      case InvitationStep.invitationPreview:
-      case InvitationStep.landing:
-      case InvitationStep.eventType:
-      case InvitationStep.creation:
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          context
-              .read<InvitationCubit>()
-              .goToStep(InvitationStep.eventSetup);
-        });
-        return const Page1EventSetupScreen(key: ValueKey('page1'));
-
-      case InvitationStep.guestManagement:
-      case InvitationStep.extraServices:
-      case InvitationStep.guests:
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          context
-              .read<InvitationCubit>()
-              .goToStep(InvitationStep.guestsAndServices);
-        });
-        return const Page2GuestsServicesScreen(key: ValueKey('page2'));
-
-      case InvitationStep.packageSelection:
-      case InvitationStep.invoiceSummary:
-      case InvitationStep.share:
-      case InvitationStep.package:
-      case InvitationStep.payment:
-      case InvitationStep.confirmation:
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          context
-              .read<InvitationCubit>()
-              .goToStep(InvitationStep.reviewAndSubmit);
-        });
         return Page3ReviewSubmitScreen(
             key: const ValueKey('page3'), onComplete: onComplete);
     }
