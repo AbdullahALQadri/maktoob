@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../config/locale/app_localizations.dart';
+import '../../../../config/locale/l10n_context.dart';
 import '../../../../core/core.dart';
+import '../../../../core/widgets/loading/mk_spinner.dart';
+import '../../../../core/widgets/page/page_kit.dart';
 import '../../../authentication/domain/entities/user_entity.dart';
 import '../../../authentication/presentation/cubit/auth_cubit.dart';
 import '../../../identity/presentation/screens/identity_verification_screen.dart';
@@ -10,13 +12,15 @@ import '../../../identity/presentation/widgets/identity_status_card.dart';
 import '../../../institution/presentation/screens/institution_screen.dart';
 import '../cubit/profile_cubit.dart';
 import '../cubit/profile_state.dart';
-import '../widgets/widgets.dart';
-import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
+import '../widgets/account_summary_card.dart';
+import '../widgets/profile_dialogs.dart';
 
+/// The profile: who the client is, the kind of account, the identity, and
+/// what they can do with the account.
 class ProfileScreen extends StatefulWidget {
-  final VoidCallback? onBack;
-
   const ProfileScreen({super.key, this.onBack});
+
+  final VoidCallback? onBack;
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -29,21 +33,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     context.read<ProfileCubit>().loadProfile();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
-    final isArabic = !t.isEnLocale;
-
-    return Scaffold(
-      backgroundColor: context.overlayBg,
-      body: BlocConsumer<ProfileCubit, ProfileState>(
-        listener: _handleStateChange,
-        builder: (context, state) => _buildBody(context, state, isArabic),
-      ),
-    );
-  }
-
-  void _handleStateChange(BuildContext context, ProfileState state) {
+  void _onState(BuildContext context, ProfileState state) {
     if (state is ProfileUpdated) {
       AppSnackBar.showSuccess(context, message: state.message);
       context.read<ProfileCubit>().resetToLoaded();
@@ -53,232 +43,176 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Widget _buildBody(BuildContext context, ProfileState state, bool isArabic) {
-    if (state is ProfileLoading) {
-      return const ProfileSkeleton();
-    }
-
-    if (state is ProfileError && state.user == null) {
-      return _ErrorView(message: state.message);
-    }
-
-    final (user, isUpdating) = _extractUserState(state);
-    if (user == null) return const ProfileSkeleton();
-
-    return _ProfileContent(
-      user: user,
-      isArabic: isArabic,
-      isUpdating: isUpdating,
-      onBack: widget.onBack,
-    );
+  /// Opens a page that may change the account, then reads it again.
+  Future<void> _openThenRefresh(Route<void> route) async {
+    await Navigator.of(context).push(route);
+    if (!mounted) return;
+    context.read<ProfileCubit>().loadProfile();
+    context.read<AuthCubit>().refreshProfile();
   }
-
-  (UserEntity?, bool) _extractUserState(ProfileState state) {
-    return switch (state) {
-      ProfileLoaded(:final user) => (user, false),
-      ProfileUpdating(:final user) => (user, true),
-      ProfileUpdated(:final user) => (user, false),
-      ProfileAvatarChanged(:final user) => (user, false),
-      ProfileError(:final user) => (user, false),
-      _ => (null, false),
-    };
-  }
-}
-
-class _ErrorView extends StatelessWidget {
-  final String message;
-
-  const _ErrorView({required this.message});
 
   @override
   Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
+    return Scaffold(
+      backgroundColor: context.scaffoldBg,
+      appBar: AppBar(
+        title: Text(context.tr('profile_title')),
+        leading: widget.onBack == null ? null : BackButton(onPressed: widget.onBack),
+      ),
+      body: BlocConsumer<ProfileCubit, ProfileState>(
+        listener: _onState,
+        builder: (context, state) {
+          final user = switch (state) {
+            ProfileLoaded(:final user) => user,
+            ProfileUpdating(:final user) => user,
+            ProfileUpdated(:final user) => user,
+            ProfileAvatarChanged(:final user) => user,
+            ProfileError(:final user) => user,
+            _ => null,
+          };
+          if (user == null) {
+            return state is ProfileError
+                ? _Problem(message: state.message, onRetry: context.read<ProfileCubit>().loadProfile)
+                : const Center(child: MkSpinner());
+          }
+          return Stack(
+            children: [
+              _content(context, user),
+              if (state is ProfileUpdating)
+                Positioned.fill(
+                  child: ColoredBox(
+                    color: AppColors.black.withValues(alpha: 0.2),
+                    child: const Center(child: MkSpinner()),
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
 
+  Widget _content(BuildContext context, UserEntity user) {
+    final identity = user.identity;
+    return PageBody(
+      side: [
+        if (identity != null)
+          IdentityStatusCard(
+            identity: identity,
+            onTap: () => _openThenRefresh(IdentityVerificationScreen.route()),
+          ),
+        PageCard.rows(
+          title: context.tr('profile_account_actions'),
+          rows: [
+            PageRow(
+              key: const Key('profile_edit'),
+              icon: Icons.edit_outlined,
+              title: context.tr('profile_edit'),
+              onTap: () => ProfileDialogs.showEditProfile(context, user: user),
+            ),
+            PageRow(
+              key: const Key('profile_change_password'),
+              icon: Icons.lock_outline,
+              title: context.tr('profile_change_password'),
+              onTap: () => ProfileDialogs.showChangePassword(context, phone: user.phone ?? ''),
+            ),
+            PageRow(
+              key: const Key('profile_logout'),
+              icon: Icons.logout,
+              title: context.tr('profile_logout'),
+              onTap: () => ProfileDialogs.showLogout(context),
+            ),
+            PageRow(
+              key: const Key('profile_delete'),
+              icon: Icons.delete_outline,
+              title: context.tr('profile_delete'),
+              destructive: true,
+              onTap: () => ProfileDialogs.showDeleteAccount(context),
+            ),
+          ],
+        ),
+      ],
+      children: [
+        AccountSummaryCard(user: user),
+        PageCard.rows(
+          title: context.tr('profile_personal_info'),
+          rows: [
+            PageRow(icon: Icons.person_outline, title: context.tr('profile_name'), subtitle: user.name),
+            if (user.email.isNotEmpty)
+              PageRow(
+                icon: Icons.email_outlined,
+                title: context.tr('profile_email'),
+                subtitle: user.email,
+                subtitleLtr: true,
+              ),
+            if ((user.phone ?? '').isNotEmpty)
+              PageRow(
+                icon: Icons.phone_outlined,
+                title: context.tr('profile_phone'),
+                subtitle: user.phone,
+                subtitleLtr: true,
+              ),
+            if ((user.companyName ?? '').isNotEmpty)
+              PageRow(
+                icon: Icons.business_outlined,
+                title: context.tr('profile_organization'),
+                subtitle: user.companyName,
+              ),
+          ],
+        ),
+        PageCard.rows(
+          title: context.tr('profile_account_type'),
+          rows: [
+            PageRow(
+              key: const Key('profile_type_individual'),
+              icon: Icons.person,
+              title: context.tr('auth_individual'),
+              subtitle: context.tr('profile_individual_desc'),
+              selected: !user.isInstitution,
+              // Going back to a personal account is done with the team.
+              onTap: user.isInstitution
+                  ? () => AppSnackBar.showInfo(context, message: context.tr('profile_type_downgrade_support'))
+                  : null,
+            ),
+            PageRow(
+              key: const Key('profile_type_institution'),
+              icon: Icons.business,
+              title: context.tr('auth_institution'),
+              subtitle: context.tr('profile_institution_desc'),
+              selected: user.isInstitution,
+              // The institution's own page: its file, team and credits. For
+              // a person this starts a request the team reviews.
+              onTap: () => _openThenRefresh(InstitutionScreen.route()),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _Problem extends StatelessWidget {
+  const _Problem({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(context.dynamicWidth(0.08)),
+        padding: const EdgeInsets.all(24),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: context.dynamicWidth(0.2),
-              color: AppColors.red500,
-            ),
-            SizedBox(height: context.dynamicHeight(0.02)),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: context.dynamicWidth(0.04),
-                color: context.textSecondary,
-              ),
+              style: TextStyle(fontSize: 15, height: 1.6, color: context.textSecondary),
             ),
-            SizedBox(height: context.dynamicHeight(0.03)),
-            ElevatedButton(
-              onPressed: () => context.read<ProfileCubit>().loadProfile(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryColor,
-                foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(
-                  horizontal: context.dynamicWidth(0.08),
-                  vertical: context.dynamicHeight(0.015),
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(t.translate('common_retry')),
-            ),
+            const SizedBox(height: 12),
+            OutlinedButton(onPressed: onRetry, child: Text(context.tr('common_retry'))),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ProfileContent extends StatelessWidget {
-  final UserEntity user;
-  final bool isArabic;
-  final bool isUpdating;
-  final VoidCallback? onBack;
-
-  const _ProfileContent({
-    required this.user,
-    required this.isArabic,
-    required this.isUpdating,
-    this.onBack,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: ProfileHeader(
-                user: user,
-                isArabic: isArabic,
-                onBack: onBack,
-              ),
-            ),
-            SliverPadding(
-              padding: EdgeInsets.all(context.dynamicWidth(0.051)),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  _ProfileSections(user: user, isArabic: isArabic),
-                ]),
-              ),
-            ),
-          ],
-        ),
-        if (isUpdating) const _LoadingOverlay(),
-      ],
-    );
-  }
-}
-
-class _ProfileSections extends StatelessWidget {
-  final UserEntity user;
-  final bool isArabic;
-
-  const _ProfileSections({required this.user, required this.isArabic});
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _SectionTitle(title: t.translate('profile_account_type')),
-        SizedBox(height: context.dynamicHeight(0.015)),
-        ProfileUserTypeCard(
-          user: user,
-          isArabic: isArabic,
-          onTypeSelected: (type) async {
-            if (type == user.userType) return;
-            if (type == UserType.institution) {
-              // Becoming an institution is a real, reviewed request: the
-              // organization profile (name, sector, logo) goes to admin review.
-              await Navigator.of(context).push(InstitutionScreen.route());
-              if (context.mounted) {
-                context.read<ProfileCubit>().loadProfile();
-                context.read<AuthCubit>().refreshProfile();
-              }
-            } else {
-              AppSnackBar.showInfo(context,
-                  message: t.translate('profile_type_downgrade_support'));
-            }
-          },
-        ),
-        if (user.identity != null) ...[
-          SizedBox(height: context.dynamicHeight(0.03)),
-          _SectionTitle(title: t.translate('identity_title')),
-          SizedBox(height: context.dynamicHeight(0.015)),
-          IdentityStatusCard(
-            identity: user.identity!,
-            onTap: () async {
-              await Navigator.of(context).push(IdentityVerificationScreen.route());
-              if (context.mounted) {
-                context.read<ProfileCubit>().loadProfile();
-                context.read<AuthCubit>().refreshProfile();
-              }
-            },
-          ),
-        ],
-        SizedBox(height: context.dynamicHeight(0.03)),
-        _SectionTitle(title: t.translate('profile_personal_info')),
-        SizedBox(height: context.dynamicHeight(0.015)),
-        ProfileInfoCard(user: user),
-        SizedBox(height: context.dynamicHeight(0.03)),
-        _SectionTitle(title: t.translate('profile_account_actions')),
-        SizedBox(height: context.dynamicHeight(0.015)),
-        ProfileActionsCard(
-          onEditProfile: () => ProfileDialogs.showEditProfile(context, user: user),
-          onChangePassword: () => ProfileDialogs.showChangePassword(context, phone: user.phone ?? ''),
-          onLogout: () => ProfileDialogs.showLogout(context),
-          onDeleteAccount: () => ProfileDialogs.showDeleteAccount(context),
-        ),
-        SizedBox(height: context.dynamicHeight(0.119)),
-      ],
-    );
-  }
-}
-
-class _SectionTitle extends StatelessWidget {
-  final String title;
-
-  const _SectionTitle({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontSize: context.dynamicWidth(0.045),
-        fontWeight: FontWeight.bold,
-        color: context.textPrimary,
-      ),
-    );
-  }
-}
-
-class _LoadingOverlay extends StatelessWidget {
-  const _LoadingOverlay();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.black.withValues(alpha: 0.3),
-      child: Center(
-        child: Container(
-          padding: EdgeInsets.all(context.dynamicWidth(0.061)),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: MkSpinner(color: AppColors.primaryColor),
         ),
       ),
     );

@@ -156,6 +156,11 @@ class EventEntity extends Equatable {
   bool get isPendingPayment =>
       status == EventStatus.pendingPayment || rawStatus == 'pending_payment';
 
+  /// Until it is paid nothing has gone out: the host fixes the names, title,
+  /// date and place directly. Once active a change is a request to the team.
+  /// Same rule as the backend (Event::DETAILS_EDITABLE).
+  bool get detailsEditable => status == EventStatus.draft || isPendingPayment;
+
   double get responseRate =>
       invitations > 0 ? (responses / invitations) * 100 : 0;
 

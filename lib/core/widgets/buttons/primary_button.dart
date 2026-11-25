@@ -71,16 +71,20 @@ class PrimaryButton extends StatelessWidget {
   bool get _isEnabled => !isLoading && !isDisabled && onPressed != null;
 
   List<Color> get _defaultGradientColors => [
-        AppColors.primaryColor,
-        AppColors.tertiaryColor,
-      ];
+    AppColors.primaryColor,
+    AppColors.tertiaryColor,
+  ];
 
   @override
   Widget build(BuildContext context) {
     // Use responsive values when defaults are used
     final effectiveHeight = height == 56 ? context.dynamicHeight(0.07) : height;
-    final effectiveBorderRadius = borderRadius == 12 ? context.dynamicWidth(0.029) : borderRadius;
-    final effectiveIconSize = iconSize == 20 ? context.dynamicWidth(0.051) : iconSize;
+    final effectiveBorderRadius = borderRadius == 12
+        ? context.dynamicWidth(0.029)
+        : borderRadius;
+    final effectiveIconSize = iconSize == 20
+        ? context.dynamicWidth(0.051)
+        : iconSize;
 
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 200),
@@ -120,8 +124,9 @@ class PrimaryButton extends StatelessWidget {
                       height: context.dynamicWidth(0.061),
                       child: MkSpinner(
                         strokeWidth: 2.5,
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(AppColors.white),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppColors.white,
+                        ),
                       ),
                     )
                   : _buildContent(context, effectiveIconSize),
@@ -140,28 +145,25 @@ class PrimaryButton extends StatelessWidget {
       color: AppColors.white,
     );
 
+    // A long label (or large system text) shrinks to fit; it never overflows.
     if (icon != null) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: AppColors.white,
-            size: effectiveIconSize,
-          ),
-          SizedBox(width: context.dynamicWidth(0.021)),
-          Text(
-            text,
-            style: textStyle ?? defaultTextStyle,
-          ),
-        ],
+      return FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: AppColors.white, size: effectiveIconSize),
+            SizedBox(width: context.dynamicWidth(0.021)),
+            Text(text, style: textStyle ?? defaultTextStyle),
+          ],
+        ),
       );
     }
 
-    return Text(
-      text,
-      style: textStyle ?? defaultTextStyle,
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Text(text, style: textStyle ?? defaultTextStyle),
     );
   }
 }

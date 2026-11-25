@@ -8,6 +8,7 @@ import '../../../domain/entities/event_card.dart';
 import '../../../domain/entities/event_entity.dart';
 import '../../../domain/entities/event_follow_up.dart';
 import '../pending_payment_banner.dart';
+import 'event_page_actions.dart';
 import 'event_page_parts.dart';
 import 'event_summary_card.dart';
 
@@ -58,6 +59,16 @@ class EventSetupView extends StatelessWidget {
                   },
                   style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
                   child: Text(next == null ? context.tr('event_setup_continue') : context.tr(next.labelKey)),
+                ),
+              ],
+              // Waiting for payment: nothing has gone out, so names / date / place are still fixed here.
+              if (event.isPendingPayment && event.role.canManage) ...[
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: () => EventPageActions.edit(context, event),
+                  icon: const Icon(Icons.edit_outlined, size: 18),
+                  label: Text(context.tr('event_edit_details')),
+                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
                 ),
               ],
             ],

@@ -20,7 +20,7 @@ class _FakeRepository implements PaymentRepository {
   _FakeRepository(this.next);
 
   @override
-  Future<Either<Failure, BankDetailsEntity>> getBankDetails() async {
+  Future<Either<Failure, BankDetailsEntity>> getBankDetails({String? currency}) async {
     calls++;
     return next;
   }
@@ -32,6 +32,7 @@ class _FakeRepository implements PaymentRepository {
     PaymentMethod method = PaymentMethod.bankTransfer,
     String? walletProvider,
     String? endpoint,
+    String? currency,
   }) =>
       throw UnimplementedError();
 

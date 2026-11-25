@@ -90,7 +90,7 @@
 | 1 | GET | `/events` | `?search=&status=&page=&per_page=` (default 15, max 100) | Raw Laravel paginator: `{ data: [ EventObject ], current_page, last_page, per_page, total, ... }` | Yes | The app walks every page (`per_page=50`, at most 20 pages) via `Pagination.fetchAll` |
 | 2 | POST | `/events` | `{ title_ar*, title_en?, event_type_id*, template_id?, event_date*, event_time?, venue_id?, description_ar?, description_en? }` | `{ success, data: { id, title_ar, status } }` | Yes | Direct create (not wizard) |
 | 3 | GET | `/events/{id}` | — | `{ event: { ...event columns, image_url, allowed_channels, my_role, details } }` | Yes | `details` = everything the host entered, the same fields the portal and the admin show (`App\Support\EventDetails::forApi`): `starts_at` / `ends_at` / `invitations_sent_at` / `created_at` (Gaza ISO with offset; read the wall clock), `venue { name, address, map_url, lat, lng }`, `description`, `occasion_answers [ { key, label_ar, label_en, value, on_invitation } ]` (every answer, even to a question removed later), `replies { require_response, response_deadline, allow_companions, max_companions (0 = not allowed, null = no limit), ask_reason }`, `messages [ { key: invitation\|acceptance\|refusal\|ask_reason_prompt\|ask_reason_question\|thank_you, ar, en } ]` (only the texts the host wrote), `delivery_method`, `billing { package { name_ar, name_en }, custom_package, invitation_limit, invitations_used, remaining, invoice_number, total, paid, currency: ILS }` |
-| 4 | PUT | `/events/{id}` | `{ title_ar?, venue_id?, custom_venue_address_ar?, description_ar?, event_date?, status?, max_companions?, allow_companions? }` | `{ success, data: EventObject }` | Yes | Direct edit |
+| 4 | PUT | `/events/{id}` | `{ title?, venue_id?, custom_venue_name_ar?, custom_venue_address_ar?, description?, event_date?, status?, max_companions?, allow_companions?, response_deadline?, event_type_form_values? }` | `{ message, warning, event: EventObject }` | Yes | Direct edit **only while unpaid** (`draft`, `pending_payment`; `Event::DETAILS_EDITABLE`, the portal's rule too). Otherwise 422 `{ success:false, code: details_locked, message }`: send an edit request (§7, `POST /events/{id}/edit-requests`) instead. `{ status: cancelled }` alone is accepted at any stage. `event_type_form_values` = the occasion's answers by key (groom, bride, family…), the whole map; a list field may be one string (split the Arabic way). `warning` is set (else null) when a card already exists and the names / title / date / place changed: tell the host to redo the design |
 | 5 | DELETE | `/events/{id}` | — | `{ message }`; 422 `{ code: cancel_instead }` once an active event's invitations were sent | Yes (owner) | Cancel instead: `PUT /events/{id} { status: cancelled }` |
 | 6 | GET | `/events/{id}/invitations` | `?status=&reply=&q=&page=&per_page=` (default 15, max 1000) | Resource collection: `{ data: [ { id, display_name, guest: { name, email, phone }, status, companions, is_checked_in, open_count } ], links, meta: { current_page, last_page, ... }, counts: { all, attending, not_attending, maybe, none, failed } }` | Yes | Guest list; the app walks every page (`per_page=200`, at most 50 pages) and filters offline itself. `reply` = attending, not_attending, maybe, none (no answer), failed (did not arrive); `q` matches the name or the number's digits (a local 059… finds +970 59…). `counts` ignore the filters |
 | 6a | GET | `/events/{id}/activity` | — | `{ success, data: [ { invitation_id, type: opened\|replied, reply, name, companions, at (Gaza ISO) } ] }` (latest 8) | Yes (view) | Event page feed, same as the portal (`App\Services\Client\EventFollowUp`) |
@@ -112,11 +112,95 @@
 | # | Method | Endpoint | Request Body | Response | Auth | Notes |
 |---|--------|----------|-------------|----------|------|-------|
 | 1 | GET | `/events/{id}/edit-requests` | — | `{ success, data: [ { id, event_id, changes: {}, status, admin_notes, created_at } ] }` | Yes | — |
-| 2 | POST | `/events/{id}/edit-requests` | `{ name?, venue?, venue_address?, description?, event_date?, max_companions?, allow_companions?, rsvp_deadline? }` | `{ success, data: { id, status: "pending" }, message }` | Yes | Requires admin approval. One pending request per event: a second one is refused with 422 `errors.changes`. On approval of a new `venue` / `event_date`, staff choose whether to notify the guests (WhatsApp template `maktoob_event_changed_*`) and the door staff; the event's own door shifts move with a new date. |
+| 2 | POST | `/events/{id}/edit-requests` | `{ name?, venue?, venue_address?, description?, event_date?, max_companions?, allow_companions?, rsvp_deadline? }` | `{ success, data: { id, status: "pending" }, message }` | Yes | **Active events only**; an unpaid event gets 422 `{ success:false, message }` (edit it directly with `PUT /events/{id}`). Requires admin approval. One pending request per event: a second one is refused with 422 `errors.changes`. On approval of a new `venue` / `event_date`, staff choose whether to notify the guests (WhatsApp template `maktoob_event_changed_*`) and the door staff; the event's own door shifts move with a new date. |
 
 ---
 
 ## 8. Event Wizard (7-Step Creation Flow)
+
+
+### More invitations, pro-forma invoice, guest groups, staff mode (2026-11-21)
+
+**Increase invitations** (an active event pays only the difference):
+
+| Method | Path | Notes |
+|---|---|---|
+| GET | `/payment-requests/upgrade-options?event_id=` | `{ current_limit, has_pending_request, packages: [ { id, name_ar, name_en, invitations_limit, price_per_invitation, quote } ], custom: { enabled, max_guests } }`. Only packages bigger than what the event has. 422 unless the event is `active`. |
+| GET | `/payment-requests/upgrade-quote?event_id=&custom_invitations=` (or `target_package_id=`) | `quote`: `{ current_limit, target_limit, difference, total }`. |
+| POST | `/payment-requests/upgrade` | The app posts the payment screen's form to `/payment-requests/upgrade?target_package_id=` or `?custom_invitations=` (the target rides in the query). Shekels only. |
+
+**Pro-forma invoice** (before payment, for a funder or a head office):
+
+| Method | Path | Notes |
+|---|---|---|
+| GET | `/events/{event}/proforma-url?funder=&reference=` | `{ url, expires_in }`: a signed link valid 30 minutes that the app opens in the browser. 422 once the event is paid, cancelled or completed; 404 for someone else's event. Never served from the offline cache. |
+
+**Guest groups** (people invited again and again, saved once; `GuestGroupService`, same rules as the portal):
+
+| Method | Path | Body | Notes |
+|---|---|---|---|
+| GET | `/guest-groups` | — | `{ groups: [ { id, name, guests_count } ], total_guests }` |
+| POST | `/guest-groups` | `{ name*, guests?: [ { name*, phone? } ] }` | 201 with the group and its guests. 422 when the client already has a group with that name. |
+| GET | `/guest-groups/{id}` | — | `{ id, name, guests_count, guests: [ { id, name, phone } ] }`, named the way this client knows them. 404 for someone else's group. |
+| PUT | `/guest-groups/{id}` | `{ name* }` | Rename. |
+| POST | `/guest-groups/{id}/guests` | `{ guests*: [ { name*, phone? } ] }` | Adds people; the ones already in the group stay once. |
+| DELETE | `/guest-groups/{id}/guests/{guest}` | — | Removes one person from the group (not from the guest book). |
+| DELETE | `/guest-groups/{id}` | — | Deletes the group; its people stay. |
+
+In the wizard's guests step "From my groups" adds a group's people (those with a mobile number) to the event list.
+
+**Staff mode** (the Maktoob team, admin API; the app keeps its own token under `staff_token`, apart from the client's):
+
+| Method | Path | Notes |
+|---|---|---|
+| POST | `/admin/auth/login` | `{ email, password }` → `{ token, user, permissions }` (admin / super-admin roles). |
+| GET | `/admin/dashboard/today` | `{ date, payment_requests_pending, identities_pending, institutions_pending, events_today, events_awaiting_payment }`. A queue the member may not review is `null`. |
+| GET | `/admin/payment-requests?status=pending` | Paginated; each with `client{name,phone}` and `event{title}`. |
+| GET | `/admin/payment-requests/{id}` | `{ request, image_urls[], currency }`. |
+| POST | `/admin/payment-requests/{id}/approve` · `/reject` | `{ notes? }` · `{ reason* }`, through `PaymentConfirmationService` as on the dashboard. |
+| GET | `/admin/clients?search=` · `/admin/events?search=` | View only in the app. |
+
+**Identity and institution reviews** (staff mode; permissions `identity.review` / `institutions.review`, the same services as the dashboard):
+
+| Method | Path | Notes |
+|---|---|---|
+| GET | `/admin/identity-verifications?status=pending` | Paginated: `{ id, status, client{id,name,phone}, name_ar, name_latin, document_type, document_country, document_last4, created_at }`. The document number never leaves the server, only its last four digits. |
+| GET | `/admin/identity-verifications/{id}` | Adds `birth_date, document_expires_on, has_front, has_back, same_id_on_another_account, same_name_accounts, rejection_reason`. |
+| GET | `/admin/identity-verifications/{id}/document/{front\|back}` | The decrypted photo as bytes. Every call is logged (`identity_verification_logs`, `document_viewed`). The app shows it from memory and never writes it to the phone. |
+| POST | `/admin/identity-verifications/{id}/approve` | `{ notes?, confirm_match: true* }` (the reviewer states the photo matches). 422 once it is no longer pending. |
+| POST | `/admin/identity-verifications/{id}/reject` | `{ reason* }` |
+| GET | `/admin/institutions?status=pending` · `/admin/institutions/{id}` | The file, `checklist{requirement: bool}`, `documents[{id,type,name,mime}]`, `owner_identity_status`. |
+| GET | `/admin/institutions/{id}/documents/{document}` | One private document as bytes. |
+| POST | `/admin/institutions/{id}/approve` · `/reject` | `{ notes? }` · `{ reason* }`. Approval is refused (422) while the checklist is incomplete. |
+
+A staff phone opens on the staff mode at launch (the token is kept under `staff_token`). Guest-group changes made offline are queued (`PendingActionsQueue`) and shown at once.
+
+### Paying in another currency (2026-11-21)
+
+The client picks a **currency**, never an amount: the server quotes it and records it with the shekel total.
+
+| Method | Path | Notes |
+|---|---|---|
+| GET | `/payment-requests/currencies?event_id=` | The app's "Pay in" choices: `{ success, data: { ils_total, currencies: [ { code, name_ar, name_en, symbol, amount, formatted, rate } ] } }`. The shekel comes first; a currency with no rate is never listed. 404 for someone else's event. Never served from the offline cache. |
+| GET | `/payment-requests/currency-quote?event_id=&currency=` | One quote: `{ currency, amount, formatted, rate, ils_total }`; 422 for a currency that is not offered. |
+| GET | `/payments/bank-details?currency=USD` | That currency's own account when one is set up (`bank_currency: "USD"`), otherwise the main account (`bank_currency: null`). |
+| POST | `/payment-requests` | Add `original_currency` (`USD` / `EUR`) to pay in it; omit it for shekels. `original_amount` / `exchange_rate` are computed server-side. |
+
+The app shows the picker only when something besides the shekel is offered, and not for extras paid after activation (`/events/{id}/add-ons/pay`, shekels only).
+
+### The wizard in the app: five screens, saved one by one (2026-11-21)
+
+The app follows the portal's steps: **details → guests → design → settings & extras → package & payment**, then the event page for sending. Each screen saves when the host moves on:
+
+| Step | Calls |
+|---|---|
+| Details | `POST /event-wizard/initialize` (first time), `PUT /event-wizard/{id}/details` (now also sends `description`) |
+| Guests | `POST /event-wizard/{id}/guests/manual` with `replace: true` |
+| Design | the design studio (`ai-images`, `upload-design`, `PUT details {ai_generated_image_id}`), and `GET /events/{id}/designer-url` → `{ url, editor_base, backgrounds_url, expires_in }`: the web editor, opened inside the app |
+| Settings & extras | `PUT /event-wizard/{id}/invitation-config` (`default_delivery_method` = `whatsapp` \| `email`, `require_response`, `allow_companions`, `max_companions`, `response_deadline`, `message_ar`), `POST /event-wizard/{id}/services` |
+| Package & payment | `GET packages`, `POST package`, `GET invoice`, `POST save`, then `/payment` or `POST activate` |
+
+A resumed draft reads `GET /event-wizard/{id}/state`: `event.final_ai_image.image_url` (the design), `event.default_delivery_method`, `event.require_response`.
 
 ### Step 1: Event Type & Template
 
@@ -133,7 +217,7 @@
 | # | Method | Endpoint | Request Body | Response | Auth |
 |---|--------|----------|-------------|----------|------|
 | 1 | GET | `/event-wizard/{eventId}/form-fields` | — | `{ success, data: { fields: [ { key, label_ar, label_en, type, required } ], venues: [...] } }` | Yes |
-| 2 | PUT | `/event-wizard/{eventId}/details` | `{ title_ar*, title_en?, description_ar?, description_en?, event_date*, event_time*, venue_id?, custom_venue_name_ar?, custom_venue_address_ar?, custom_venue_city_ar?, custom_venue_lat?, custom_venue_lng?, partner_count?, event_type_form_values? }` | `{ success }` | Yes |
+| 2 | PUT | `/event-wizard/{eventId}/details` | `{ title_ar*, title_en?, description_ar?, description_en?, event_date*, event_time*, venue_id?, custom_venue_name_ar?, custom_venue_address_ar?, custom_venue_city_ar?, custom_venue_lat?, custom_venue_lng?, partner_count?, event_type_form_values? }` | `{ success }` | Yes | Unpaid events only (`draft`, `pending_payment`): an active one gets 422 `{ success:false, code: details_locked }` (attaching `ai_generated_image_id` alone stays open). The response adds `warning` (string or null), as `PUT /events/{id}` |
 
 ### Step 3: Invitation Preview
 
@@ -320,6 +404,34 @@ New QR images encode `/i/{short_url}?k={event}.{invitation}.{max|n}.{sig}`: `sig
 - The app chats about a payment on `contact.invoice_whatsapp`, falling back to `support_whatsapp`; the button is hidden when neither is set.
 - `is_configured` is `true` when there is a usable bank, wallet, or payment instructions.
 - Do not use `/payments/initiate` for this — it is a POST that creates a payment. (A GET there returns 404, captured by `/payments/{id}`.)
+
+**`GET /payments/overview`** — "My payments" (app: My account → My payments; portal: `client/payment-requests`). One call, unpaginated (newest 200 payments, 50 requests).
+
+```json
+{
+  "success": true,
+  "message": "...",
+  "data": {
+    "paid_total": 99.0,
+    "payments": [ { "id": 7, "receipt_number": "INV-20261112-0003", "event_id": 34, "event_title": "…", "amount": 99.0, "currency": "ILS",
+                    "method": "cash|bank_transfer|wallet", "method_label": "…", "wallet_provider": "…|null", "reference": "…|null",
+                    "status": "paid|refunded", "paid_at": "2026-11-12T15:58:00+02:00", "receipt_url": "https://…/receipts/7?expires=…&signature=…|null" } ],
+    "due":      [ { "event_id": 35, "event_title": "…", "amount": 250.5, "currency": "ILS" } ],
+    "requests": [ { "id": 3, "request_number": "…", "event_id": 36, "event_title": "…", "amount": 120.0, "currency": "ILS",
+                    "method": "…", "status": "pending|rejected", "admin_notes": "…|null (rejected only)", "created_at": "…" } ]
+  }
+}
+```
+
+- `payments` = every confirmed payment however it was paid (the client's receipt approved by staff, or cash / a transfer staff recorded).
+- `receipt_url` is a temporary signed link (30 minutes, no session) to the printable receipt; the app re-fetches before opening one. `null` when refunded.
+- `due` = `pending_payment` events with no confirmed payment and no receipt under review.
+
+**Payment pushes** (`type`, re-fetch over HTTP as always):
+- `event.activated` — the payment activated the event; carries `event_id` and, when a payment did it, `payment_id` (the body has the receipt number).
+- `payment.received` — a payment was confirmed on an event that was already active (upgrade, extra services): `event_id`, `payment_id`. The app opens My payments.
+- `payment.due` — staff saved the event to be paid later: `event_id`, `amount`. The app opens the event (pay + upload the receipt).
+- `payment.rejected` — the client's receipt was refused: `event_id`, `payment_request_id`.
 
 ---
 
@@ -683,6 +795,7 @@ Every generated image (a design background or an editor sticker) is a paid call,
   - `GET /event-wizard/{id}/generation-status/{imageId}` (in `data`, refreshed on every poll);
   - `POST /events/{id}/concepts/generate`, `POST …/concepts/runs/{run}/regenerate` and `GET …/concepts/runs/{run}` (top level).
 - **Refunds:** an image that fails or times out gives its design back (the next poll shows it). A concept run keeps only the backgrounds that were actually painted.
+- **Concept progress:** `GET /events/{id}/concepts/runs/{run}` also returns `stage` = `composing` (the layout is being written) → `painting` (the background is being drawn) → `reviewing` (the text is being fitted to the artwork) → `ready` | `failed`. Show it as "step 1/2/3 of 3" instead of a seconds counter. A run takes about 1½–2 minutes.
 - **Concepts:** a client gets at most **3** concepts per request (`requested_count` above 3 is clamped), and never more than `designs_left`. The run's `requested_count` is what was granted.
 - **Refusals** carry `{ success: false, message, code, design_allowance }`. Show `message` as is: it is localized and never says "AI".
   - 422 `event_limit` · `sticker_limit` · `unpaid_pool` · `blocked` (the team paused designs for this account);

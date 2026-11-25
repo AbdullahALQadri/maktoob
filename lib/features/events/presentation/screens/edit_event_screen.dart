@@ -6,6 +6,7 @@ import '../../../../core/core.dart';
 import '../cubit/edit_event/edit_event_cubit.dart';
 import '../cubit/edit_event/edit_event_state.dart';
 import '../widgets/edit_request_banner.dart';
+import '../widgets/edit_event_fields.dart';
 import '../widgets/edit_request_status_card.dart';
 import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
@@ -74,8 +75,9 @@ class _EditEventScreenState extends State<EditEventScreen> {
     return BlocConsumer<EditEventCubit, EditEventState>(
       listener: (context, state) {
         if (state.status == EditEventStatus.saved) {
-          AppSnackBar.showSuccess(context,
-              message: t.translate('edit_event_saved'));
+          state.redoDesign
+              ? AppSnackBar.showWarning(context, message: t.translate('edit_event_redo_design'))
+              : AppSnackBar.showSuccess(context, message: t.translate('edit_event_saved'));
           Navigator.pop(context, true);
         } else if (state.status == EditEventStatus.requestSubmitted) {
           AppSnackBar.showSuccess(context,
@@ -100,9 +102,9 @@ class _EditEventScreenState extends State<EditEventScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (!state.isDraft)
+                        if (!state.editsDirectly)
                           EditRequestBanner(waiting: state.hasPendingRequest),
-                        _buildTextField(
+                        EditEventTextField(
                           label: t.translate('edit_event_name'),
                           controller: _nameController,
                           focusNode: _nameFocus,
@@ -117,7 +119,12 @@ class _EditEventScreenState extends State<EditEventScreen> {
                           onChanged: context.read<EditEventCubit>().updateName,
                         ),
                         SizedBox(height: context.dynamicHeight(0.02)),
-                        _buildTextField(
+                        if (state.editsDirectly)
+                          OccasionAnswersFields(
+                            answers: state.savedAnswers,
+                            onChanged: context.read<EditEventCubit>().updateAnswer,
+                          ),
+                        EditEventTextField(
                           label: t.translate('edit_event_venue'),
                           controller: _venueController,
                           focusNode: _venueFocus,
@@ -128,7 +135,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
                               context.read<EditEventCubit>().updateVenue,
                         ),
                         SizedBox(height: context.dynamicHeight(0.02)),
-                        _buildTextField(
+                        EditEventTextField(
                           label: t.translate('edit_event_description'),
                           controller: _descriptionController,
                           focusNode: _descriptionFocus,
@@ -141,23 +148,21 @@ class _EditEventScreenState extends State<EditEventScreen> {
                           maxLines: 3,
                         ),
                         SizedBox(height: context.dynamicHeight(0.02)),
-                        _buildDateField(
-                          context: context,
+                        EditEventDateField(
                           label: t.translate('edit_event_date'),
                           value: state.eventDate,
                           onChanged:
                               context.read<EditEventCubit>().updateEventDate,
                         ),
                         SizedBox(height: context.dynamicHeight(0.02)),
-                        _buildDateField(
-                          context: context,
+                        EditEventDateField(
                           label: t.translate('edit_event_rsvp_deadline'),
                           value: state.rsvpDeadline,
                           onChanged:
                               context.read<EditEventCubit>().updateRsvpDeadline,
                         ),
                         SizedBox(height: context.dynamicHeight(0.02)),
-                        _buildSwitchField(
+                        EditEventSwitchField(
                           label: t.translate('edit_event_allow_companions'),
                           value: state.allowCompanions,
                           onChanged: context
@@ -166,7 +171,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
                         ),
                         if (state.allowCompanions) ...[
                           SizedBox(height: context.dynamicHeight(0.02)),
-                          _buildTextField(
+                          EditEventTextField(
                             label: t.translate('edit_event_max_companions'),
                             controller: _maxCompanionsController,
                             focusNode: _maxCompanionsFocus,
@@ -204,7 +209,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
                             },
                           ),
                         ],
-                        if (!state.isDraft &&
+                        if (!state.editsDirectly &&
                             state.previousRequests.isNotEmpty) ...[
                           SizedBox(height: context.dynamicHeight(0.03)),
                           Text(
@@ -399,7 +404,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
           ),
         ),
         child: Text(
-          state.isDraft
+          state.editsDirectly
               ? t.translate('common_save')
               : t.translate('edit_event_submit_request'),
           style: TextStyle(
@@ -410,171 +415,6 @@ class _EditEventScreenState extends State<EditEventScreen> {
             fontSize: context.dynamicWidth(0.033),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required String label,
-    required TextEditingController controller,
-    required ValueChanged<String> onChanged,
-    FocusNode? focusNode,
-    TextInputAction? textInputAction,
-    ValueChanged<String>? onFieldSubmitted,
-    String? Function(String?)? validator,
-    int maxLines = 1,
-    TextInputType? keyboardType,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: AppTextStyles.bodySmall.copyWith(
-            color: context.textSecondary,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        SizedBox(height: context.dynamicHeight(0.008)),
-        TextFormField(
-          controller: controller,
-          focusNode: focusNode,
-          onChanged: onChanged,
-          onFieldSubmitted: onFieldSubmitted,
-          validator: validator,
-          maxLines: maxLines,
-          keyboardType: keyboardType,
-          textInputAction: textInputAction,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          style: TextStyle(fontSize: context.dynamicWidth(0.04)),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.white,
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: context.dynamicWidth(0.035),
-              vertical: context.dynamicHeight(0.015),
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
-              borderSide: BorderSide(color: AppColors.gray200),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
-              borderSide: BorderSide(color: AppColors.gray200),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
-              borderSide:
-                  BorderSide(color: AppColors.primaryColor, width: 1.5),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
-              borderSide: BorderSide(color: AppColors.red500),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
-              borderSide: BorderSide(color: AppColors.red500, width: 1.5),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDateField({
-    required BuildContext context,
-    required String label,
-    required DateTime? value,
-    required ValueChanged<DateTime> onChanged,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: AppTextStyles.bodySmall.copyWith(
-            color: context.textSecondary,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        SizedBox(height: context.dynamicHeight(0.008)),
-        GestureDetector(
-          onTap: () async {
-            final picked = await showDatePicker(
-              context: context,
-              initialDate: value ?? DateTime.now(),
-              firstDate: DateTime.now(),
-              lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
-            );
-            if (picked != null) onChanged(picked);
-          },
-          child: Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(
-              horizontal: context.dynamicWidth(0.035),
-              vertical: context.dynamicHeight(0.018),
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
-              border: Border.all(color: AppColors.gray200),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    value != null
-                        ? '${value.day}/${value.month}/${value.year}'
-                        : '—',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: value != null
-                          ? context.textPrimary
-                          : context.textTertiary,
-                    ),
-                  ),
-                ),
-                Icon(Icons.calendar_today_outlined,
-                    size: context.dynamicWidth(0.045),
-                    color: context.textTertiary),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSwitchField({
-    required String label,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: context.dynamicWidth(0.035),
-        vertical: context.dynamicHeight(0.01),
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(context.dynamicWidth(0.029)),
-        border: Border.all(color: AppColors.gray200),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              label,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: context.textPrimary,
-              ),
-            ),
-          ),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-            activeTrackColor: AppColors.primaryColor,
-          ),
-        ],
       ),
     );
   }

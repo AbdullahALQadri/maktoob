@@ -1,3 +1,4 @@
+import 'contact_picker_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 
@@ -7,7 +8,6 @@ import '../../../../core/utils/phone_normalizer.dart';
 import '../../../../core/widgets/buttons/primary_button.dart';
 import '../../../../core/widgets/inputs/app_text_field.dart';
 import '../../data/models/invitation_draft_model.dart';
-import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
 class ContactPickerWidget extends StatefulWidget {
   final List<GuestInfoModel> previouslySelected;
@@ -248,7 +248,16 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
 
           // Content
           Expanded(
-            child: _buildContent(),
+            child: ContactPickerList(
+              isLoading: _isLoading,
+              errorMessage: _errorMessage,
+              contacts: _filteredContacts,
+              hasAnyContact: _contacts.isNotEmpty,
+              isSelected: _isContactSelected,
+              isValidNumber: _isValidPalestinianNumber,
+              onToggle: _toggleContact,
+              onRetry: _loadContacts,
+            ),
           ),
 
           // Bottom confirm button
@@ -273,129 +282,6 @@ class _ContactPickerWidgetState extends State<ContactPickerWidget> {
             ),
         ],
       ),
-    );
-  }
-
-  Widget _buildContent() {
-    final t = AppLocalizations.of(context)!;
-    if (_isLoading) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const MkSpinner(),
-            const SizedBox(height: 16),
-            Text(t.translate('contacts_loading')),
-          ],
-        ),
-      );
-    }
-
-    if (_errorMessage != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.contacts,
-                size: 64,
-                color: context.iconDefault,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                _errorMessage!,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: context.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 24),
-              PrimaryButton(
-                text: t.translate('contacts_retry'),
-                onPressed: _loadContacts,
-                width: 200,
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    if (_filteredContacts.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.search_off,
-              size: 64,
-              color: context.iconDefault,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              _contacts.isEmpty
-                  ? t.translate('contacts_no_palestinian')
-                  : t.translate('contacts_no_results'),
-              style: TextStyle(
-                fontSize: 16,
-                color: context.textSecondary,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return ListView.builder(
-      itemCount: _filteredContacts.length,
-      itemBuilder: (context, index) {
-        final contact = _filteredContacts[index];
-        final isSelected = _isContactSelected(contact);
-        final validPhone = contact.phones.firstWhere(
-          (phone) => _isValidPalestinianNumber(phone.number),
-          orElse: () => contact.phones.first,
-        );
-
-        return ListTile(
-          leading: CircleAvatar(
-            backgroundColor: isSelected
-                ? AppColors.primary
-                : context.borderColor,
-            child: Text(
-              contact.shownName.isNotEmpty
-                  ? contact.shownName[0].toUpperCase()
-                  : '?',
-              style: TextStyle(
-                color: isSelected ? Colors.white : context.textTertiary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          title: Text(
-            contact.shownName,
-            style: const TextStyle(fontWeight: FontWeight.w500),
-          ),
-          subtitle: Text(
-            validPhone.number,
-            style: TextStyle(
-              color: context.textSecondary,
-              fontSize: 13,
-            ),
-          ),
-          trailing: Checkbox(
-            value: isSelected,
-            onChanged: (_) => _toggleContact(contact),
-            activeColor: AppColors.primary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-          onTap: () => _toggleContact(contact),
-        );
-      },
     );
   }
 }

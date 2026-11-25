@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:maktoob/core/api/api_consumer.dart';
 import 'package:maktoob/core/api/event_wizard_api_service.dart';
+import 'package:maktoob/features/invitation/data/repositories/event_wizard_repository_impl.dart';
 import 'package:maktoob/core/error/exceptions.dart';
 import 'package:maktoob/core/error/failures.dart';
 import 'package:maktoob/core/error/institution_errors.dart';
@@ -283,7 +284,7 @@ void main() {
       await service.initializeWizard(eventTypeId: 1);
       expect(api.bodies['/event-wizard/initialize']!.containsKey('institution_id'), isFalse);
 
-      final cubit = InvitationCubit(apiService: service);
+      final cubit = InvitationCubit(repository: EventWizardRepositoryImpl(service));
       cubit.setEventOwner(institutionId: 9, institutionName: 'شركة', credits: 10);
       expect(cubit.state.institutionId, 9);
       cubit.setEventOwner();

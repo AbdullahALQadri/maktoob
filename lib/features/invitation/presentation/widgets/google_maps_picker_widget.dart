@@ -1,3 +1,4 @@
+import 'map_picker_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart';
@@ -5,9 +6,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/utils/app_colors.dart';
-import '../../../../core/widgets/buttons/primary_button.dart';
 import '../../data/models/location_model.dart';
-import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
 class GoogleMapsPickerWidget extends StatefulWidget {
   final LocationModel? initialLocation;
@@ -194,136 +193,12 @@ class _GoogleMapsPickerWidgetState extends State<GoogleMapsPickerWidget> {
             left: 16,
             right: 16,
             bottom: 24,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Error message
-                if (_errorMessage != null)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    margin: const EdgeInsets.only(bottom: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade100,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.red),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.error_outline, color: Colors.red),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            _errorMessage!,
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                // Selected address card
-                if (_selectedPosition != null)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    margin: const EdgeInsets.only(bottom: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.location_on,
-                              color: AppColors.primary,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              t.translate('map_selected_location'),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        if (_isLoading)
-                          const Center(
-                            child: SizedBox(
-                              width: 20,
-                              height: 20,
-                              child:
-                                  MkSpinner(strokeWidth: 2),
-                            ),
-                          )
-                        else
-                          Text(
-                            _selectedAddress ?? '',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: context.textTertiary,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-
-                // Confirm button
-                if (_selectedPosition != null && !_isLoading)
-                  PrimaryButton(
-                    text: t.translate('map_confirm_location'),
-                    onPressed: _confirmSelection,
-                    width: double.infinity,
-                  ),
-
-                // Instructions
-                if (_selectedPosition == null)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.touch_app,
-                          color: AppColors.primary,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            t.translate('map_tap_instruction'),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
+            child: MapPickerPanel(
+              hasSelection: _selectedPosition != null,
+              isLoading: _isLoading,
+              address: _selectedAddress,
+              errorMessage: _errorMessage,
+              onConfirm: _confirmSelection,
             ),
           ),
         ],

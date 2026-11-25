@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:maktoob/core/api/api_consumer.dart';
 import 'package:maktoob/core/api/dio_consumer.dart';
 import 'package:maktoob/core/api/event_wizard_api_service.dart';
+import 'package:maktoob/features/invitation/data/repositories/event_wizard_repository_impl.dart';
 import 'package:maktoob/core/error/exceptions.dart';
 import 'package:maktoob/core/error/free_trial_refusal.dart';
 import 'package:maktoob/features/invitation/presentation/cubit/invitation_cubit.dart';
@@ -72,7 +73,7 @@ final _fields = {
 };
 
 InvitationCubit _cubit(_FakeApi api) =>
-    InvitationCubit(apiService: EventWizardApiService(apiConsumer: api));
+    InvitationCubit(repository: EventWizardRepositoryImpl(EventWizardApiService(apiConsumer: api)));
 
 /// Wizard save with a free package that fails at the final `save` step.
 Future<InvitationCubit> _saveFailingWith(Object error) async {

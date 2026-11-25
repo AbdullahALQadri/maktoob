@@ -1,11 +1,7 @@
 // Settings feature widgets barrel export
 
+export 'account_summary_card.dart';
 export 'language_card.dart';
-export 'profile_actions_card.dart';
 export 'profile_dialogs.dart';
-export 'profile_header.dart';
-export 'profile_info_card.dart';
-export 'profile_skeleton.dart';
-export 'profile_user_type_card.dart';
-export 'settings_header.dart';
-export 'settings_tile.dart';
+export 'profile_photo_picker.dart';
+export 'settings_contact_options.dart';

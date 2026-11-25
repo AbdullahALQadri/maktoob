@@ -28,7 +28,10 @@ import 'features/explore/domain/usecases/get_public_templates_usecase.dart';
 import 'features/explore/presentation/cubit/explore_cubit.dart';
 import 'core/services/pending_wizard_intent_service.dart';
 import 'features/events/events_module.dart';
+import 'features/payment/my_payments_module.dart';
+import 'features/guest_groups/guest_groups_module.dart';
 import 'features/home/home_module.dart';
+import 'features/staff/staff_module.dart';
 
 // Events Feature
 
@@ -52,12 +55,7 @@ import 'features/scanner/domain/usecases/scan_qr_code_usecase.dart';
 import 'features/scanner/presentation/cubit/scanner_cubit.dart';
 
 // Payment Feature
-import 'features/payment/data/datasources/payment_remote_data_source.dart';
-import 'features/payment/data/repositories/payment_repository_impl.dart';
-import 'features/payment/domain/repositories/payment_repository.dart';
-import 'features/payment/domain/usecases/get_bank_details_usecase.dart';
-import 'features/payment/domain/usecases/upload_invoice_usecase.dart';
-import 'features/payment/presentation/cubit/payment_cubit.dart';
+import 'features/payment/payment_module.dart';
 
 // Settings Feature
 import 'features/settings/presentation/cubit/settings_cubit.dart';
@@ -69,24 +67,15 @@ import 'features/ai_design/data/repositories/ai_design_repository.dart';
 // Push Notifications (FCM)
 import 'core/services/fcm_service.dart';
 
-// Invitation Feature (Golden Scenario)
+import 'features/invitation/invitation_module.dart';
 import 'core/api/event_wizard_api_service.dart';
-import 'features/invitation/data/services/excel_parser_service.dart';
-import 'features/invitation/data/services/invoice_generator.dart';
-import 'features/invitation/data/services/whatsapp_service.dart';
-import 'features/invitation/presentation/cubit/invitation_cubit.dart';
 import 'features/notifications/data/datasources/notifications_remote_data_source.dart';
 import 'features/notifications/data/repositories/notifications_repository_impl.dart';
 import 'features/notifications/domain/repositories/notifications_repository.dart';
 import 'features/notifications/domain/usecases/get_notifications_usecase.dart';
 import 'features/notifications/domain/usecases/mark_notification_read_usecase.dart';
 import 'features/notifications/presentation/cubit/notifications_cubit.dart';
-import 'features/identity/data/datasources/identity_remote_data_source.dart';
-import 'features/identity/data/repositories/identity_repository_impl.dart';
-import 'features/identity/domain/repositories/identity_repository.dart';
-import 'features/identity/domain/usecases/get_identity_usecase.dart';
-import 'features/identity/domain/usecases/submit_identity_usecase.dart';
-import 'features/identity/presentation/cubit/identity_cubit.dart';
+import 'features/identity/identity_module.dart';
 import 'features/institution/data/datasources/institution_remote_data_source.dart';
 import 'features/institution/data/repositories/institution_repository_impl.dart';
 import 'features/institution/domain/repositories/institution_repository.dart';
@@ -194,6 +183,7 @@ Future<void> init({bool pushAvailable = true}) async {
 
   //! ========== EVENTS FEATURE ==========
   registerEventsModule(sl);
+  registerMyPaymentsModule(sl);
 
   //! ========== SCANNER FEATURE (offline door) ==========
   // One SQLite file for door packs, door check-ins and queued writes; the
@@ -261,39 +251,11 @@ Future<void> init({bool pushAvailable = true}) async {
   sl.registerFactory(() => InstitutionTeamCubit(repository: sl()));
   sl.registerFactory(() => InstitutionCreditsCubit(repository: sl()));
 
-  //! ========== IDENTITY FEATURE (KYC) ==========
-  sl.registerLazySingleton<IdentityRemoteDataSource>(
-    () => IdentityRemoteDataSourceImpl(apiConsumer: sl()),
-  );
-  sl.registerLazySingleton<IdentityRepository>(
-    () => IdentityRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
-  );
-  sl.registerLazySingleton(() => GetIdentityUseCase(sl()));
-  sl.registerLazySingleton(() => SubmitIdentityUseCase(sl()));
-  sl.registerFactory(() => IdentityCubit(getIdentity: sl(), submitIdentity: sl()));
+  registerIdentityModule(sl);
 
-  //! ========== PAYMENT FEATURE ==========
-  // Data Sources
-  sl.registerLazySingleton<PaymentRemoteDataSource>(
-    () => PaymentRemoteDataSourceImpl(apiConsumer: sl(), dio: sl()),
-  );
-
-  // Repository
-  sl.registerLazySingleton<PaymentRepository>(
-    () => PaymentRepositoryImpl(remoteDataSource: sl()),
-  );
-
-  // Use Cases
-  sl.registerLazySingleton(() => UploadInvoiceUseCase(sl()));
-  sl.registerLazySingleton(() => GetBankDetailsUseCase(sl()));
-
-  // Cubit
-  sl.registerFactory(
-    () => PaymentCubit(
-      uploadInvoiceUseCase: sl(),
-      getBankDetailsUseCase: sl(),
-    ),
-  );
+  registerPaymentModule(sl);
+  registerGuestGroupsModule(sl);
+  registerStaffModule(sl);
 
   //! ========== SETTINGS FEATURE ==========
   // Cubit (no data/domain layer - simple local settings)
@@ -317,24 +279,5 @@ Future<void> init({bool pushAvailable = true}) async {
   // AiDesignCubit is registered per-page (needs eventId + eventTypeId at runtime)
   // — instantiated directly in AppRoutes with GetIt.I<AiDesignRepository>()
 
-  //! ========== INVITATION FEATURE (Golden Scenario) ==========
-  // API Service
-  sl.registerLazySingleton(
-    () => EventWizardApiService(apiConsumer: sl()),
-  );
-
-  // Services
-  sl.registerLazySingleton(() => ExcelParserService());
-  sl.registerLazySingleton(() => WhatsAppService());
-  sl.registerLazySingleton(() => InvoiceGenerator());
-
-  // Cubit - manages the entire event creation wizard
-  sl.registerFactory(
-    () => InvitationCubit(
-      apiService: sl(),
-      excelParserService: sl(),
-      whatsAppService: sl(),
-      invoiceGenerator: sl(),
-    ),
-  );
+  registerInvitationModule(sl);
 }

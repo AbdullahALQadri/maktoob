@@ -5,6 +5,7 @@ import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
+import '../widgets/login_staff_links.dart';
 import '../widgets/widgets.dart';
 
 /// Login screen with modern glassmorphism design.
@@ -180,16 +181,7 @@ class _AnimatedContent extends StatelessWidget {
                           style: AppTextStyles.labelLarge.white,
                         ),
                       ),
-                    if (onDoorStaffTap != null)
-                      TextButton.icon(
-                        key: const Key('login_door_staff'),
-                        onPressed: onDoorStaffTap,
-                        icon: const Icon(Icons.qr_code_scanner, color: Colors.white),
-                        label: Text(
-                          t.translate('login_door_staff'),
-                          style: AppTextStyles.labelLarge.white,
-                        ),
-                      ),
+                    LoginStaffLinks(onDoorStaffTap: onDoorStaffTap),
                     SizedBox(height: context.dynamicHeight(0.039)),
                   ],
                 ),

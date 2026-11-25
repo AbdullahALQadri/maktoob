@@ -5,13 +5,13 @@ import '../../../../core/usecases/usecase.dart';
 import '../entities/bank_details_entity.dart';
 import '../repositories/payment_repository.dart';
 
-class GetBankDetailsUseCase implements UseCase<BankDetailsEntity, NoParams> {
+class GetBankDetailsUseCase implements UseCase<BankDetailsEntity, String?> {
   final PaymentRepository repository;
 
   GetBankDetailsUseCase(this.repository);
 
   @override
-  Future<Either<Failure, BankDetailsEntity>> call(NoParams params) async {
-    return await repository.getBankDetails();
+  Future<Either<Failure, BankDetailsEntity>> call(String? currency) async {
+    return await repository.getBankDetails(currency: currency);
   }
 }

@@ -99,7 +99,11 @@ class UpdateEventParams {
   final bool? allowCompanions;
   final DateTime? rsvpDeadline;
 
+  /// The occasion's answers (groom, bride, family…), the whole map by key.
+  final Map<String, String>? occasionAnswers;
+
   const UpdateEventParams({
+    this.occasionAnswers,
     this.name,
     this.type,
     this.eventDate,

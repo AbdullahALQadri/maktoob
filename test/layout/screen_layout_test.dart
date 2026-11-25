@@ -48,6 +48,7 @@ import 'package:maktoob/features/invitation/presentation/cubit/invitation_cubit.
 import 'package:maktoob/features/invitation/presentation/screens/invitation_wizard_screen.dart';
 import 'package:maktoob/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:maktoob/features/notifications/presentation/screens/notifications_screen.dart';
+import 'package:maktoob/features/payment/presentation/cubit/pay_currency_cubit.dart';
 import 'package:maktoob/features/payment/presentation/cubit/payment_cubit.dart';
 import 'package:maktoob/features/payment/presentation/screens/payment_upload_screen.dart';
 import 'package:maktoob/features/scanner/presentation/cubit/scanner_cubit.dart';
@@ -268,8 +269,11 @@ void main() {
       child: const NotificationsScreen(),
     ),
     'scanner_events': () => const ScannerEventsScreen(),
-    'payment_upload': () => BlocProvider<PaymentCubit>(
-      create: (_) => di.sl<PaymentCubit>(),
+    'payment_upload': () => MultiBlocProvider(
+      providers: [
+        BlocProvider<PaymentCubit>(create: (_) => di.sl<PaymentCubit>()),
+        BlocProvider<PayCurrencyCubit>(create: (_) => di.sl<PayCurrencyCubit>()),
+      ],
       child: const PaymentUploadScreen(
         eventId: '26',
         amount: 1250,

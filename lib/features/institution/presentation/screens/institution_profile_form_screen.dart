@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../config/locale/app_localizations.dart';
+import '../../../../core/design/window_size.dart';
 import '../../../../core/core.dart';
 import '../../../../injection_container.dart' as di;
 import '../../../identity/domain/entities/identity_entities.dart';
@@ -15,6 +16,9 @@ import '../../domain/entities/institution_entity.dart';
 import '../cubit/institution_cubit.dart';
 import '../cubit/institution_state.dart';
 import '../widgets/institution_widgets.dart';
+
+part 'institution_profile_form_contact.dart';
+part 'institution_profile_form_sections.dart';
 
 /// Edit (or resubmit after rejection) the institution profile:
 /// `POST /institution/profile`. Pops `true` when saved.
@@ -162,6 +166,10 @@ class _InstitutionProfileFormScreenState extends State<InstitutionProfileFormScr
         border: const OutlineInputBorder(borderRadius: AppSpacing.borderRadiusMd),
       );
 
+  /// The sections live in `institution_profile_form_sections.dart`; they
+  /// change the form's state through here.
+  void _change(VoidCallback change) => setState(change);
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
@@ -182,262 +190,19 @@ class _InstitutionProfileFormScreenState extends State<InstitutionProfileFormScr
       builder: (context, state) {
         final busy = state is InstitutionLoaded && state.isBusy;
         return Scaffold(
-          backgroundColor: AppColors.surfaceBg,
-          appBar: MaktoobAppBar(title: t.translate('institution_profile_edit')),
+          backgroundColor: context.scaffoldBg,
+          appBar: AppBar(title: Text(t.translate('institution_profile_edit'))),
           body: SafeArea(
             child: Form(
               key: _formKey,
               child: ListView(
-                padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+                padding: EdgeInsetsDirectional.fromSTEB(context.pageGutter, AppSpacing.md, context.pageGutter, AppSpacing.xl),
                 children: [
-                  if (locked) ...[
-                    OutlinedCard(
-                      child: Text(
-                        t.translate('institution_identity_review_note'),
-                        style: AppTextStyles.bodySmall.copyWith(color: context.textSecondary),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                  ],
-                  Row(
-                    children: [
-                      _logoPath != null
-                          ? ClipRRect(
-                              borderRadius: AppSpacing.borderRadiusMd,
-                              child: Image.file(File(_logoPath!), width: 64, height: 64, fit: BoxFit.cover),
-                            )
-                          : InstitutionLogo(url: _i?.pendingChanges?.logoUrl ?? _i?.logoUrl, size: 64),
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            OutlinedButton.icon(
-                              key: const Key('institution_pick_logo'),
-                              onPressed: busy ? null : _pickLogo,
-                              icon: const Icon(Icons.image_outlined),
-                              label: Text(t.translate('institution_logo_upload')),
-                            ),
-                            Text(
-                              t.translate('institution_logo_hint'),
-                              style: AppTextStyles.bodySmall.copyWith(color: context.textSecondary),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  _SectionLabel(t.translate('institution_section_identity')),
-                  TextFormField(
-                    key: const Key('institution_name_ar'),
-                    controller: _nameAr,
-                    decoration: _decoration(
-                      t.translate('institution_official_name_ar'),
-                      helper: t.translate('institution_official_name_hint'),
-                    ),
-                    validator: (v) => (v ?? '').trim().length < 2 ? t.translate('auth_field_required') : null,
-                  ),
-                  const SizedBox(height: AppSpacing.smd),
-                  TextFormField(
-                    controller: _nameEn,
-                    textDirection: TextDirection.ltr,
-                    decoration: _decoration(t.translate('institution_official_name_en')),
-                  ),
-                  const SizedBox(height: AppSpacing.smd),
-                  TextFormField(
-                    key: const Key('institution_trade_name_ar'),
-                    controller: _tradeNameAr,
-                    decoration: _decoration(
-                      t.translate('institution_trade_name_ar'),
-                      helper: t.translate('institution_trade_name_hint'),
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.smd),
-                  TextFormField(
-                    controller: _tradeNameEn,
-                    textDirection: TextDirection.ltr,
-                    decoration: _decoration(t.translate('institution_trade_name_en')),
-                  ),
-                  const SizedBox(height: AppSpacing.smd),
-                  DropdownButtonFormField<String>(
-                    initialValue: kInstitutionSectors.contains(_sector) ? _sector : null,
-                    decoration: _decoration(t.translate('institution_sector')),
-                    validator: (v) => v == null ? t.translate('auth_field_required') : null,
-                    items: [
-                      for (final s in kInstitutionSectors)
-                        DropdownMenuItem(value: s, child: Text(t.translate('institution_sector_$s'))),
-                    ],
-                    onChanged: (v) => setState(() => _sector = v),
-                  ),
-                  const SizedBox(height: AppSpacing.smd),
-                  DropdownButtonFormField<String>(
-                    key: const Key('institution_legal_form'),
-                    initialValue: kInstitutionLegalForms.contains(_legalForm) ? _legalForm : null,
-                    isExpanded: true,
-                    decoration: _decoration(
-                      t.translate('institution_legal_form'),
-                      helper: t.translate('institution_required_for_review'),
-                    ),
-                    items: [
-                      for (final f in kInstitutionLegalForms)
-                        DropdownMenuItem(value: f, child: Text(t.translate('institution_legal_form_$f'))),
-                    ],
-                    onChanged: (v) => setState(() => _legalForm = v),
-                  ),
-                  const SizedBox(height: AppSpacing.smd),
-                  TextFormField(
-                    controller: _registration,
-                    textDirection: TextDirection.ltr,
-                    decoration: _decoration(
-                      t.translate('institution_registration_number'),
-                      helper: t.translate('institution_registration_number_hint'),
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.smd),
-                  TextFormField(
-                    controller: _tax,
-                    textDirection: TextDirection.ltr,
-                    decoration: _decoration(t.translate('institution_tax_number')),
-                  ),
-                  const SizedBox(height: AppSpacing.smd),
-                  TextFormField(
-                    controller: _authority,
-                    decoration: _decoration(
-                      t.translate('institution_registration_authority'),
-                      helper: t.translate('institution_registration_authority_hint'),
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.smd),
-                  CountryPickerField(
-                    key: const Key('institution_registration_country'),
-                    label: t.translate('institution_registration_country'),
-                    helperText: t.translate('institution_required_for_review'),
-                    value: _registrationCountry,
-                    countries: _countryOptions(t),
-                    enabled: !busy,
-                    onChanged: (code) => setState(() => _registrationCountry = code),
-                  ),
-                  const SizedBox(height: AppSpacing.smd),
-                  InkWell(
-                    key: const Key('institution_registration_date'),
-                    onTap: busy ? null : _pickRegistrationDate,
-                    borderRadius: AppSpacing.borderRadiusMd,
-                    child: InputDecorator(
-                      isEmpty: (_registrationDate ?? '').isEmpty,
-                      decoration: _decoration(t.translate('institution_registration_date')).copyWith(
-                        suffixIcon: (_registrationDate ?? '').isEmpty
-                            ? const Icon(Icons.calendar_today_outlined)
-                            : IconButton(
-                                icon: const Icon(Icons.close_rounded),
-                                onPressed: busy ? null : () => setState(() => _registrationDate = null),
-                              ),
-                      ),
-                      child: Text(
-                        _registrationDate ?? '',
-                        textDirection: TextDirection.ltr,
-                        style: AppTextStyles.bodyLarge.copyWith(color: context.textPrimary),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  _SectionLabel(t.translate('institution_section_representative')),
-                  DropdownButtonFormField<String>(
-                    key: const Key('institution_representative_role'),
-                    initialValue: kInstitutionRepresentativeRoles.contains(_representativeRole) ? _representativeRole : null,
-                    isExpanded: true,
-                    decoration: _decoration(
-                      t.translate('institution_representative_role'),
-                      helper: t.translate(_representativeRole == 'authorized'
-                          ? 'institution_representative_authorized_hint'
-                          : 'institution_representative_role_hint'),
-                    ),
-                    items: [
-                      for (final r in kInstitutionRepresentativeRoles)
-                        DropdownMenuItem(value: r, child: Text(t.translate('institution_representative_role_$r'))),
-                    ],
-                    onChanged: (v) => setState(() => _representativeRole = v),
-                  ),
-                  const SizedBox(height: AppSpacing.smd),
-                  TextFormField(
-                    controller: _website,
-                    keyboardType: TextInputType.url,
-                    textDirection: TextDirection.ltr,
-                    decoration: _decoration(t.translate('institution_website')),
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  _SectionLabel(t.translate('institution_section_contact')),
-                  TextFormField(
-                    controller: _contactPerson,
-                    decoration: _decoration(t.translate('institution_contact_person')),
-                  ),
-                  const SizedBox(height: AppSpacing.smd),
-                  TextFormField(
-                    controller: _contactPhone,
-                    keyboardType: TextInputType.phone,
-                    textDirection: TextDirection.ltr,
-                    decoration: _decoration(t.translate('institution_contact_phone')),
-                  ),
-                  const SizedBox(height: AppSpacing.smd),
-                  TextFormField(
-                    controller: _email,
-                    keyboardType: TextInputType.emailAddress,
-                    textDirection: TextDirection.ltr,
-                    decoration: _decoration(t.translate('institution_official_email')),
-                    validator: (v) {
-                      final s = (v ?? '').trim();
-                      if (s.isEmpty) return null;
-                      return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(s)
-                          ? null
-                          : t.translate('auth_email_invalid');
-                    },
-                  ),
-                  const SizedBox(height: AppSpacing.smd),
-                  CountryPickerField(
-                    key: const Key('institution_country'),
-                    label: t.translate('institution_country'),
-                    value: _country,
-                    countries: _countryOptions(t),
-                    enabled: !busy,
-                    onChanged: (code) => setState(() => _country = code),
-                  ),
-                  const SizedBox(height: AppSpacing.smd),
-                  DropdownButtonFormField<String>(
-                    initialValue: governorates.containsKey(_governorate) ? _governorate : null,
-                    decoration: _decoration(t.translate('auth_governorate')),
-                    items: [
-                      for (final e in governorates.entries)
-                        DropdownMenuItem(value: e.key, child: Text(e.value)),
-                    ],
-                    onChanged: (v) => setState(() => _governorate = v),
-                  ),
-                  const SizedBox(height: AppSpacing.smd),
-                  TextFormField(
-                    controller: _address,
-                    decoration: _decoration(t.translate('institution_address')),
-                  ),
-                  const SizedBox(height: AppSpacing.smd),
-                  TextFormField(
-                    controller: _description,
-                    maxLines: 3,
-                    maxLength: 1000,
-                    decoration: _decoration(t.translate('institution_description')),
-                  ),
-                  if (!(_i?.declarationAccepted ?? false)) ...[
-                    const SizedBox(height: AppSpacing.sm),
-                    CheckboxListTile(
-                      key: const Key('institution_declaration'),
-                      value: _declaration,
-                      contentPadding: EdgeInsetsDirectional.zero,
-                      controlAffinity: ListTileControlAffinity.leading,
-                      onChanged: busy ? null : (v) => setState(() => _declaration = v ?? false),
-                      title: Text(
-                        t.translate('institution_declaration'),
-                        style: AppTextStyles.bodySmall.copyWith(color: context.textPrimary),
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: AppSpacing.lg),
+                  if (locked) ..._lockedNotice(t),
+                  ..._logoPicker(t, busy: busy),
+                  ..._identitySection(t, busy: busy, locked: locked, isArabic: isArabic),
+                  ..._representativeSection(t, busy: busy, locked: locked, isArabic: isArabic),
+                  ..._contactSection(t, busy: busy, isArabic: isArabic, governorates: governorates),
                   PrimaryButton(
                     text: t.translate(locked ? 'common_save' : 'institution_save_and_submit'),
                     isLoading: busy,
@@ -449,20 +214,6 @@ class _InstitutionProfileFormScreenState extends State<InstitutionProfileFormScr
           ),
         );
       },
-    );
-  }
-}
-
-class _SectionLabel extends StatelessWidget {
-  final String text;
-
-  const _SectionLabel(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsetsDirectional.only(bottom: AppSpacing.sm),
-      child: Text(text, style: AppTextStyles.titleSmall.copyWith(color: AppColors.gray700)),
     );
   }
 }

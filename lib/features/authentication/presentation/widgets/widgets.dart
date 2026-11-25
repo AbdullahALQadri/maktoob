@@ -7,6 +7,7 @@ export 'auth_logo.dart';
 export 'auth_screen_icon.dart';
 export 'auth_title_section.dart';
 export 'auth_wrapper.dart';
+export 'institution_signup_guide.dart';
 export 'login_form_card.dart';
 export 'otp_card.dart';
 export 'phone_input_card.dart';

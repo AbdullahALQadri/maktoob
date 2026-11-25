@@ -42,6 +42,10 @@ class BankDetailsEntity extends Equatable {
   /// as opposed to loaded-but-not-configured.
   final bool loadFailed;
 
+  /// The currency this bank account is for (e.g. `USD`); null = the main
+  /// account, where the bank converts a foreign transfer.
+  final String? bankCurrency;
+
   const BankDetailsEntity({
     this.bankNameAr,
     this.bankNameEn,
@@ -57,6 +61,7 @@ class BankDetailsEntity extends Equatable {
     this.invoiceWhatsapp,
     this.wallets = const [],
     this.loadFailed = false,
+    this.bankCurrency,
   });
 
   /// The request failed; the screen must show this instead of loading forever.
@@ -108,5 +113,6 @@ class BankDetailsEntity extends Equatable {
         invoiceWhatsapp,
         wallets,
         loadFailed,
+        bankCurrency,
       ];
 }

@@ -113,6 +113,11 @@ class OfflineCacheInterceptor extends Interceptor {
     RegExp(r'^/?scanner/'),
     RegExp(r'^/?door/'),
     RegExp(r'/payments/initiate'),
+    // Money quotes follow the rate of the day: never shown from an old answer.
+    RegExp(r'/payment-requests/currenc'),
+    RegExp(r'/payment-requests/upgrade'),
+    // A signed link lives 30 minutes: an old one must never be handed out.
+    RegExp(r'/proforma-url'),
   ];
 
   static bool cacheable(RequestOptions o) =>

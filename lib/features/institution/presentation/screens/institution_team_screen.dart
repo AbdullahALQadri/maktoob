@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/locale/app_localizations.dart';
+import '../../../../core/design/window_size.dart';
 import '../../../../core/core.dart';
 import '../../../../injection_container.dart' as di;
 import '../../domain/entities/event_role.dart';
@@ -16,6 +17,7 @@ class InstitutionTeamScreen extends StatelessWidget {
   const InstitutionTeamScreen({super.key});
 
   static Route<void> route() => MaterialPageRoute(
+        settings: const RouteSettings(name: '/r/institution-team'),
         builder: (_) => BlocProvider(
           create: (_) => di.sl<InstitutionTeamCubit>()..load(),
           child: const InstitutionTeamScreen(),
@@ -84,8 +86,8 @@ class InstitutionTeamScreen extends StatelessWidget {
       builder: (context, state) {
         final busy = state is InstitutionTeamLoaded && state.isBusy;
         return Scaffold(
-          backgroundColor: AppColors.surfaceBg,
-          appBar: MaktoobAppBar(title: t.translate('institution_team')),
+          backgroundColor: context.scaffoldBg,
+          appBar: AppBar(title: Text(t.translate('institution_team'))),
           floatingActionButton: FloatingActionButton.extended(
             key: const Key('institution_invite_member'),
             backgroundColor: AppColors.primaryColor,
@@ -104,8 +106,8 @@ class InstitutionTeamScreen extends StatelessWidget {
               InstitutionTeamLoaded(:final members) => RefreshIndicator(
                   onRefresh: () => context.read<InstitutionTeamCubit>().load(),
                   child: ListView.separated(
-                    padding: const EdgeInsetsDirectional.fromSTEB(
-                        AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.xxxxxl + AppSpacing.md),
+                    padding: EdgeInsetsDirectional.fromSTEB(
+                        context.pageGutter, AppSpacing.md, context.pageGutter, AppSpacing.xxxxxl + AppSpacing.md),
                     itemCount: members.length,
                     separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
                     itemBuilder: (context, i) {

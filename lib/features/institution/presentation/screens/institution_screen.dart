@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/locale/app_localizations.dart';
+import '../../../../core/design/window_size.dart';
 import '../../../../core/core.dart';
 import '../../../../injection_container.dart' as di;
 import '../../../authentication/presentation/cubit/auth_cubit.dart';
@@ -17,12 +18,15 @@ import 'institution_profile_form_screen.dart';
 import 'institution_team_screen.dart';
 import 'package:maktoob/core/widgets/loading/mk_spinner.dart';
 
+part 'institution_screen_sections.dart';
+
 /// Settings → Institution: org details, status badge, logo, team and credits
 /// (owner), plus pending team invites and memberships for everyone.
 class InstitutionScreen extends StatelessWidget {
   const InstitutionScreen({super.key});
 
   static Route<void> route() => MaterialPageRoute(
+        settings: const RouteSettings(name: '/r/institution'),
         builder: (_) => BlocProvider(
           create: (_) => di.sl<InstitutionCubit>()..load(),
           child: const InstitutionScreen(),
@@ -44,8 +48,8 @@ class InstitutionScreen extends StatelessWidget {
       },
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: AppColors.surfaceBg,
-          appBar: MaktoobAppBar(title: t.translate('institution_title')),
+          backgroundColor: context.scaffoldBg,
+          appBar: AppBar(title: Text(t.translate('institution_title'))),
           body: SafeArea(child: _body(context, state, t, isArabic)),
         );
       },
@@ -79,7 +83,7 @@ class InstitutionScreen extends StatelessWidget {
       onRefresh: () => cubit.load(silent: true),
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+        padding: EdgeInsetsDirectional.fromSTEB(context.pageGutter, AppSpacing.md, context.pageGutter, AppSpacing.xl),
         children: [
           if (institution != null) ...[
             InstitutionStatusNotice(institution: institution),
@@ -97,9 +101,11 @@ class InstitutionScreen extends StatelessWidget {
                           style: AppTextStyles.titleMedium.copyWith(color: context.textPrimary),
                         ),
                       ),
-                      InstitutionStatusBadge(status: institution.status),
                     ],
                   ),
+                  // On its own line: a long status never squeezes the name out.
+                  const SizedBox(height: AppSpacing.sm),
+                  InstitutionStatusBadge(status: institution.status),
                   const SizedBox(height: AppSpacing.smd),
                   InfoRow(
                     label: t.translate('institution_sector'),
@@ -147,6 +153,7 @@ class InstitutionScreen extends StatelessWidget {
                     onPressed: state.isBusy
                         ? null
                         : () => Navigator.of(context).push(MaterialPageRoute(
+                              settings: const RouteSettings(name: '/r/institution-form'),
                               builder: (_) => BlocProvider.value(
                                 value: cubit,
                                 child: InstitutionProfileFormScreen(initial: institution),
@@ -172,6 +179,7 @@ class InstitutionScreen extends StatelessWidget {
                 onEditProfile: state.isBusy
                     ? null
                     : () => Navigator.of(context).push(MaterialPageRoute(
+                          settings: const RouteSettings(name: '/r/institution-form'),
                           builder: (_) => BlocProvider.value(
                             value: cubit,
                             child: InstitutionProfileFormScreen(initial: institution),
@@ -202,79 +210,8 @@ class InstitutionScreen extends StatelessWidget {
               ),
             ],
           ],
-          if (overview.pendingInvites.isNotEmpty) ...[
-            SectionTitle(t.translate('institution_pending_invites')),
-            for (final invite in overview.pendingInvites)
-              Padding(
-                padding: const EdgeInsetsDirectional.only(bottom: AppSpacing.sm),
-                child: OutlinedCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        invite.institutionName,
-                        style: AppTextStyles.titleSmall.copyWith(color: context.textPrimary),
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        t.translate(EventRole.fromString(invite.role).labelKey),
-                        style: AppTextStyles.bodySmall.copyWith(color: context.textSecondary),
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: PrimaryButton(
-                              key: Key('invite_accept_${invite.id}'),
-                              text: t.translate('institution_invite_accept'),
-                              onPressed: state.isBusy ? null : () => cubit.acceptInvite(invite.id),
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacing.sm),
-                          Expanded(
-                            child: OutlinedButton(
-                              key: Key('invite_decline_${invite.id}'),
-                              onPressed: state.isBusy ? null : () => cubit.declineInvite(invite.id),
-                              child: Text(t.translate('institution_invite_decline')),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-          ],
-          if (overview.memberships.isNotEmpty) ...[
-            SectionTitle(t.translate('institution_my_memberships')),
-            for (final m in overview.memberships)
-              Padding(
-                padding: const EdgeInsetsDirectional.only(bottom: AppSpacing.sm),
-                child: OutlinedCard(
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(m.institutionName,
-                                style: AppTextStyles.titleSmall.copyWith(color: context.textPrimary)),
-                            Text(
-                              t.translate(EventRole.fromString(m.role).labelKey),
-                              style: AppTextStyles.bodySmall.copyWith(color: context.textSecondary),
-                            ),
-                          ],
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: state.isBusy ? null : () => cubit.declineInvite(m.membershipId),
-                        child: Text(t.translate('institution_leave')),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-          ],
+          ..._inviteCards(context, state, t),
+          ..._membershipCards(context, state, t),
           if (institution == null && overview.pendingInvites.isEmpty && overview.memberships.isEmpty)
             Padding(
               padding: const EdgeInsetsDirectional.only(top: AppSpacing.xl),
@@ -285,35 +222,6 @@ class InstitutionScreen extends StatelessWidget {
               ),
             ),
         ],
-      ),
-    );
-  }
-}
-
-class _NavTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String? trailing;
-  final VoidCallback onTap;
-
-  const _NavTile({super.key, required this.icon, required this.title, this.trailing, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: AppSpacing.borderRadiusLg,
-      child: OutlinedCard(
-        child: Row(
-          children: [
-            Icon(icon, color: AppColors.primaryColor),
-            const SizedBox(width: AppSpacing.smd),
-            Expanded(child: Text(title, style: AppTextStyles.bodyLarge.copyWith(color: context.textPrimary))),
-            if (trailing != null)
-              Text(trailing!, style: AppTextStyles.titleSmall.copyWith(color: AppColors.primaryColor)),
-            const Icon(Icons.chevron_right_rounded),
-          ],
-        ),
       ),
     );
   }

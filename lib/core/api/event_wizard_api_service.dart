@@ -29,21 +29,6 @@ class EventWizardApiService {
     return response as Map<String, dynamic>;
   }
 
-  /// Create custom event type
-  Future<Map<String, dynamic>> createCustomEventType({
-    required String nameAr,
-    String? nameEn,
-  }) async {
-    final response = await _apiConsumer.post(
-      Endpoints.wizardCustomEventType,
-      body: {
-        'name_ar': nameAr,
-        'name_en': nameEn,
-      },
-    );
-    return response as Map<String, dynamic>;
-  }
-
   /// Initialize wizard - creates draft event
   Future<Map<String, dynamic>> initializeWizard({
     int? eventTypeId,
@@ -241,12 +226,13 @@ class EventWizardApiService {
     return response as Map<String, dynamic>;
   }
 
-  /// Remove a guest
-  Future<Map<String, dynamic>> removeGuest(int eventId, int guestId) async {
-    final response = await _apiConsumer.delete(
-      Endpoints.wizardGuestDelete(eventId, guestId),
-    );
-    return response as Map<String, dynamic>;
+  /// A short-lived link to the invitation editor (the same editor as the
+  /// web), opened inside the app. Raw shape: `{url, editor_base, ...}`.
+  Future<String?> getDesignerUrl(int eventId) async {
+    final response = await _apiConsumer.get(Endpoints.eventDesignerUrl(eventId));
+    if (response is! Map) return null;
+    final data = response['data'];
+    return (response['url'] ?? (data is Map ? data['url'] : null))?.toString();
   }
 
   // ============================================================

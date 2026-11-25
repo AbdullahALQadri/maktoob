@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/usecases/usecase.dart';
 import '../../domain/entities/bank_details_entity.dart';
 import '../../domain/entities/payment_method.dart';
 import '../../domain/usecases/get_bank_details_usecase.dart';
@@ -28,13 +27,13 @@ class PaymentCubit extends Cubit<PaymentState> {
   /// emit nothing, so the screen showed its loading skeleton forever; it now
   /// emits [BankDetailsEntity.loadFailed] so the card can say so and offer a
   /// retry. Receipt upload is unaffected either way.
-  Future<void> loadBankDetails() async {
+  Future<void> loadBankDetails({String? currency}) async {
     if (_bankDetails != null) {
       _bankDetails = null; // retry: back to the loading state
       emit(PaymentInitial(selectedFiles: state.selectedFiles));
     }
 
-    final result = await getBankDetailsUseCase(const NoParams());
+    final result = await getBankDetailsUseCase(currency);
     result.fold(
       (failure) {
         _bankDetails = const BankDetailsEntity.loadFailed();
@@ -107,6 +106,7 @@ class PaymentCubit extends Cubit<PaymentState> {
     PaymentMethod method = PaymentMethod.bankTransfer,
     String? walletProvider,
     String? endpoint,
+    String? currency,
   }) async {
     final currentFiles =
         method.requiresReceipt ? state.selectedFiles : const <PlatformFile>[];
@@ -147,6 +147,7 @@ class PaymentCubit extends Cubit<PaymentState> {
         method: method,
         walletProvider: method == PaymentMethod.wallet ? walletProvider : null,
         endpoint: endpoint,
+        currency: currency,
       ),
     );
 

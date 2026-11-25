@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/locale/app_localizations.dart';
+import '../../../../core/design/window_size.dart';
 import '../../../../core/core.dart';
 import '../../../../injection_container.dart' as di;
 import '../cubit/institution_cubit.dart';
@@ -17,6 +18,7 @@ class InstitutionCreditsScreen extends StatelessWidget {
   const InstitutionCreditsScreen({super.key});
 
   static Route<void> route() => MaterialPageRoute(
+        settings: const RouteSettings(name: '/r/institution-credits'),
         builder: (_) => BlocProvider(
           create: (_) => di.sl<InstitutionCreditsCubit>()..load(),
           child: const InstitutionCreditsScreen(),
@@ -27,8 +29,8 @@ class InstitutionCreditsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: AppColors.surfaceBg,
-      appBar: MaktoobAppBar(title: t.translate('institution_credits')),
+      backgroundColor: context.scaffoldBg,
+      appBar: AppBar(title: Text(t.translate('institution_credits'))),
       body: SafeArea(
         child: BlocBuilder<InstitutionCreditsCubit, InstitutionCreditsState>(
           builder: (context, state) {
@@ -40,7 +42,7 @@ class InstitutionCreditsScreen extends StatelessWidget {
             return RefreshIndicator(
               onRefresh: () => context.read<InstitutionCreditsCubit>().load(),
               child: ListView(
-                padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+                padding: EdgeInsetsDirectional.fromSTEB(context.pageGutter, AppSpacing.md, context.pageGutter, AppSpacing.xl),
                 children: [
                   OutlinedCard(
                     child: Column(

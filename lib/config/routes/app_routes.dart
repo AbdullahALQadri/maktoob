@@ -8,6 +8,7 @@ import '../../features/ai_design/data/repositories/ai_design_repository.dart';
 import '../../features/ai_design/presentation/cubit/ai_design_cubit.dart';
 import '../../features/ai_design/presentation/pages/ai_design_page.dart';
 import '../../features/ai_design/presentation/widgets/template_invitation_canvas.dart';
+import '../../features/payment/presentation/cubit/pay_currency_cubit.dart';
 import '../../features/payment/presentation/cubit/payment_cubit.dart';
 import '../../features/payment/presentation/screens/payment_upload_screen.dart';
 
@@ -28,8 +29,11 @@ class AppRoutes {
         // A fresh cubit per visit: the app-wide one may still hold the last
         // event's receipt / success state.
         return _buildRoute(
-          BlocProvider<PaymentCubit>(
-            create: (_) => GetIt.I<PaymentCubit>(),
+          MultiBlocProvider(
+            providers: [
+              BlocProvider<PaymentCubit>(create: (_) => GetIt.I<PaymentCubit>()),
+              BlocProvider<PayCurrencyCubit>(create: (_) => GetIt.I<PayCurrencyCubit>()),
+            ],
             child: PaymentUploadScreen(
               eventId: args?['eventId']?.toString(),
               onComplete: args?['onComplete'] ?? () {},

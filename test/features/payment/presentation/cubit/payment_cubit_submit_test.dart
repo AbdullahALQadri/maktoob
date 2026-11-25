@@ -33,6 +33,7 @@ class _RecordingRepository implements PaymentRepository {
     PaymentMethod method = PaymentMethod.bankTransfer,
     String? walletProvider,
     String? endpoint,
+    String? currency,
   }) async {
     calls.add(_Call(files, eventId, method, walletProvider));
     return Right(PaymentEntity(
@@ -46,7 +47,7 @@ class _RecordingRepository implements PaymentRepository {
   }
 
   @override
-  Future<Either<Failure, BankDetailsEntity>> getBankDetails() async => const Right(BankDetailsEntity());
+  Future<Either<Failure, BankDetailsEntity>> getBankDetails({String? currency}) async => const Right(BankDetailsEntity());
 
   @override
   Stream<double> getUploadProgress() => const Stream.empty();

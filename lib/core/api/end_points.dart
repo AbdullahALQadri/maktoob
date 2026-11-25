@@ -28,7 +28,6 @@ class Endpoints {
 
   // Page 1 - Event Type & Template Selection
   static const String wizardEventTypes = '/event-wizard/event-types';
-  static const String wizardCustomEventType = '/event-wizard/event-types/custom';
   static const String wizardInitialize = '/event-wizard/initialize';
 
   static String wizardSaveDetails(int eventId) => '/event-wizard/$eventId/details';
@@ -45,7 +44,6 @@ class Endpoints {
   static String wizardSaveAiImage(int eventId) => '/event-wizard/$eventId/details';
 
   static String wizardGuestsManual(int eventId) => '/event-wizard/$eventId/guests/manual';
-  static String wizardGuestDelete(int eventId, int guestId) => '/event-wizard/$eventId/guests/$guestId';
 
   // Page 4.5 - Invitation Configuration
   static String wizardInvitationConfig(int eventId) => '/event-wizard/$eventId/invitation-config';
@@ -108,6 +106,7 @@ class Endpoints {
   // ============================================================
   static const String events = '/events';
   static String event(int id) => '/events/$id';
+  static String eventDesignerUrl(int id) => '/events/$id/designer-url';
   static String eventStatistics(int id) => '/events/$id/statistics';
   static String eventSendInvitations(int id) => '/events/$id/send-invitations';
   static String eventEditRequests(int id) => '/events/$id/edit-requests';
@@ -115,6 +114,10 @@ class Endpoints {
   // ============================================================
   // CLIENT - GUESTS
   // ============================================================
+  static const String guestGroups = '/guest-groups';
+  static String guestGroup(int id) => '/guest-groups/$id';
+  static String guestGroupGuests(int id) => '/guest-groups/$id/guests';
+  static String guestGroupGuest(int id, int guestId) => '/guest-groups/$id/guests/$guestId';
   static const String guests = '/guests';
   static String guest(int id) => '/guests/$id';
 
@@ -156,11 +159,23 @@ class Endpoints {
   static String institutionDocument(int id) => '/institution/documents/$id';
   /// Read-only manual-payment details (bank / wallet / instructions / contacts).
   static const String paymentBankDetails = '/payments/bank-details';
+  /// "My payments": receipts (signed receipt link), what is due, requests under review.
+  static const String paymentsOverview = '/payments/overview';
 
   // ============================================================
   // CLIENT - PAYMENT REQUESTS
   // ============================================================
   static const String paymentRequests = '/payment-requests';
+  static const String paymentRequestCurrencies = '/payment-requests/currencies'; // ?event_id=
+  static const String upgradeOptions = '/payment-requests/upgrade-options'; // ?event_id=
+  static const String upgradeQuote = '/payment-requests/upgrade-quote';
+
+  /// Where the payment screen sends an upgrade: the target (a bigger package
+  /// or a number of invitations) rides in the query, the receipt in the body.
+  static String paymentRequestUpgrade({int? packageId, int? customInvitations}) => packageId != null
+      ? '/payment-requests/upgrade?target_package_id=$packageId'
+      : '/payment-requests/upgrade?custom_invitations=$customInvitations';
+  static String eventProformaUrl(String eventId) => '/events/$eventId/proforma-url';
 
   // ============================================================
   // CLIENT - SCANNER REQUESTS

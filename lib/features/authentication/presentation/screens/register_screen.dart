@@ -58,6 +58,9 @@ class _RegisterScreenState extends State<RegisterScreen>
   UserType _selectedUserType = UserType.user;
   String _selectedCountryCode = '+970';
   int? _selectedInstitutionFieldIndex;
+
+  /// Institution sign-up: owner, director or an employee acting for it.
+  String? _representativeRole;
   int? _selectedGovernorateIndex;
   bool _showCustomGovernorate = false;
 
@@ -143,6 +146,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                         ? null
                         : kInstitutionSectors[_selectedInstitutionFieldIndex!],
                     contactPerson: personName,
+                    representativeRole: _representativeRole,
                     registrationNumber: _registrationController.text.trim(),
                     declaration: _declaration,
                   ).toFields()
@@ -255,19 +259,35 @@ class _RegisterScreenState extends State<RegisterScreen>
                   }),
                 ),
                 SizedBox(height: context.dynamicHeight(0.022)),
+                // An institution: first the organisation, then the person who runs the account.
+                if (_selectedUserType == UserType.institution) ...[
+                  const InstitutionSignupIntro(),
+                  SizedBox(height: context.dynamicHeight(0.022)),
+                  SignupStepTitle(number: 1, title: t.translate('auth_inst_step_org')),
+                  SizedBox(height: context.dynamicHeight(0.016)),
+                  ..._buildInstitutionFields(t),
+                  SignupStepTitle(number: 2, title: t.translate('auth_inst_step_you')),
+                  SizedBox(height: context.dynamicHeight(0.016)),
+                ],
                 _buildNameField(t),
                 SizedBox(height: context.dynamicHeight(0.016)),
+                if (_selectedUserType == UserType.institution) ...[
+                  RepresentativeRoleField(
+                    value: _representativeRole,
+                    onChanged: (role) => setState(() => _representativeRole = role),
+                  ),
+                  SizedBox(height: context.dynamicHeight(0.016)),
+                ],
                 _buildPhoneField(t),
                 SizedBox(height: context.dynamicHeight(0.016)),
                 _buildEmailField(t),
                 SizedBox(height: context.dynamicHeight(0.016)),
-                if (_selectedUserType == UserType.institution) ..._buildInstitutionFields(t),
                 _buildPasswordFields(t),
                 SizedBox(height: context.dynamicHeight(0.025)),
                 const _LegalConsent(),
                 SizedBox(height: context.dynamicHeight(0.015)),
                 _RegisterButton(onRegister: _handleRegister),
-                if (_selectedUserType == UserType.institution) _InstitutionInfoBanner(t: t),
+                if (_selectedUserType == UserType.institution) const InstitutionReviewBanner(),
               ],
             ),
           ),
@@ -286,7 +306,9 @@ class _RegisterScreenState extends State<RegisterScreen>
           ? t.translate('auth_representative_full_name')
           : t.translate('auth_full_name'),
       // Must match the ID card: identity verification compares the two.
-      hint: t.translate('auth_full_name_hint'),
+      hint: t.translate(
+        _selectedUserType == UserType.institution ? 'auth_representative_name_hint' : 'auth_full_name_hint',
+      ),
       prefixIcon: Icons.person_outline_rounded,
       validator: (value) {
         final error = PersonName.fullNameErrorKey(value);
@@ -844,39 +866,6 @@ class _LoginLink extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _InstitutionInfoBanner extends StatelessWidget {
-  final AppLocalizations t;
-
-  const _InstitutionInfoBanner({required this.t});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(top: context.dynamicHeight(0.015)),
-      child: Container(
-        padding: EdgeInsets.all(context.dynamicWidth(0.029)),
-        decoration: BoxDecoration(
-          color: AppColors.amber50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.amber200),
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.info_outline_rounded, color: AppColors.amber600, size: 20),
-            SizedBox(width: context.dynamicWidth(0.021)),
-            Expanded(
-              child: Text(
-                t.translate('auth_institution_review'),
-                style: AppTextStyles.caption.copyWith(color: AppColors.amber700),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

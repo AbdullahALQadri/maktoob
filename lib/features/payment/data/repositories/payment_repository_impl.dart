@@ -26,6 +26,7 @@ class PaymentRepositoryImpl implements PaymentRepository {
     PaymentMethod method = PaymentMethod.bankTransfer,
     String? walletProvider,
     String? endpoint,
+    String? currency,
   }) async {
     try {
       final result = await remoteDataSource.uploadInvoice(
@@ -34,6 +35,7 @@ class PaymentRepositoryImpl implements PaymentRepository {
         method: method,
         walletProvider: walletProvider,
         endpoint: endpoint,
+        currency: currency,
       );
       return Right(result);
     } on ServerException catch (e) {
@@ -46,9 +48,9 @@ class PaymentRepositoryImpl implements PaymentRepository {
   }
 
   @override
-  Future<Either<Failure, BankDetailsEntity>> getBankDetails() async {
+  Future<Either<Failure, BankDetailsEntity>> getBankDetails({String? currency}) async {
     try {
-      final result = await remoteDataSource.getBankDetails();
+      final result = await remoteDataSource.getBankDetails(currency: currency);
       return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/locale/app_localizations.dart';
+import '../../../../core/design/window_size.dart';
 import '../../../../core/core.dart';
 import '../../../../core/widgets/loading/mk_spinner.dart';
 import '../../../../injection_container.dart' as di;
@@ -19,6 +20,7 @@ class IdentityVerificationScreen extends StatefulWidget {
   const IdentityVerificationScreen({super.key});
 
   static Route<void> route() => MaterialPageRoute(
+        settings: const RouteSettings(name: '/r/identity'),
         builder: (_) => BlocProvider(
           create: (_) => di.sl<IdentityCubit>(),
           child: const IdentityVerificationScreen(),
@@ -63,8 +65,8 @@ class _IdentityVerificationScreenState extends State<IdentityVerificationScreen>
       },
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: AppColors.surfaceBg,
-          appBar: MaktoobAppBar(title: t.translate('identity_title')),
+          backgroundColor: context.scaffoldBg,
+          appBar: AppBar(title: Text(t.translate('identity_title'))),
           body: SafeArea(child: _body(context, state, t)),
         );
       },
@@ -101,7 +103,7 @@ class _IdentityVerificationScreenState extends State<IdentityVerificationScreen>
       onRefresh: () => cubit.load(silent: true),
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+        padding: EdgeInsetsDirectional.fromSTEB(context.pageGutter, AppSpacing.md, context.pageGutter, AppSpacing.xl),
         children: [
           IdentityStatusCard(identity: identity, countryName: overview.options.countryName),
           const SizedBox(height: AppSpacing.md),

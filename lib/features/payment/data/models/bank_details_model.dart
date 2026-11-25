@@ -30,6 +30,7 @@ class BankDetailsModel extends BankDetailsEntity {
     super.supportWhatsapp,
     super.invoiceWhatsapp,
     super.wallets,
+    super.bankCurrency,
   });
 
   factory BankDetailsModel.fromJson(Map<String, dynamic> json) {
@@ -52,6 +53,7 @@ class BankDetailsModel extends BankDetailsEntity {
       supportWhatsapp: _text(contact['support_whatsapp']),
       invoiceWhatsapp: _text(contact['invoice_whatsapp']),
       wallets: _wallets(json['wallets'], wallet),
+      bankCurrency: _text(json['bank_currency']),
     );
   }
 

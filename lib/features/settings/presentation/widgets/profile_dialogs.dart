@@ -20,6 +20,7 @@ class ProfileDialogs {
   static void showEditProfile(BuildContext context, {required UserEntity user}) {
     Navigator.of(context).push(
       MaterialPageRoute(
+        settings: const RouteSettings(name: '/r/edit-profile'),
         builder: (_) => BlocProvider.value(
           value: context.read<ProfileCubit>(),
           child: EditProfileScreen(user: user),
@@ -32,6 +33,7 @@ class ProfileDialogs {
   static void showChangePassword(BuildContext context, {required String phone}) {
     Navigator.of(context).push(
       MaterialPageRoute(
+        settings: const RouteSettings(name: '/r/change-password'),
         builder: (_) => ChangePasswordScreen(phone: phone),
       ),
     );

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../core/core.dart';
 import '../../../../injection_container.dart' as di;
+import '../../../payment/presentation/screens/my_payments_screen.dart';
 import '../../domain/entities/app_notification.dart';
 import '../cubit/notifications_cubit.dart';
 import '../cubit/notifications_state.dart';
@@ -120,11 +121,15 @@ class NotificationsScreen extends StatelessWidget {
                         onTap: () {
                           final n = state.items[i];
                           context.read<NotificationsCubit>().markRead(n.id);
-                          final eventId = n.eventId;
-                          if (eventId != null && onOpenEvent != null) {
-                            Navigator.of(context).pop();
-                            onOpenEvent!(eventId);
+                          // A confirmed payment opens "My payments" (its receipt).
+                          if (n.type == 'payment.received') {
+                            Navigator.of(context).push(MyPaymentsScreen.route());
+                            return;
                           }
+                          final eventId = n.eventId;
+                          if (eventId == null || onOpenEvent == null) return;
+                          Navigator.of(context).pop();
+                          onOpenEvent!(eventId);
                         },
                       ),
               ),
@@ -151,15 +156,8 @@ class _LoadMoreFooter extends StatelessWidget {
       padding: const EdgeInsetsDirectional.symmetric(vertical: AppSpacing.md),
       child: Center(
         child: failed
-            ? TextButton(
-                onPressed: onRetry,
-                child: Text(t.translate('common_retry')),
-              )
-            : const SizedBox(
-                width: 24,
-                height: 24,
-                child: MkSpinner(strokeWidth: 2),
-              ),
+            ? TextButton(onPressed: onRetry, child: Text(t.translate('common_retry')))
+            : const SizedBox(width: 24, height: 24, child: MkSpinner(strokeWidth: 2)),
       ),
     );
   }

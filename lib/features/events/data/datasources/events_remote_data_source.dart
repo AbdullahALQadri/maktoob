@@ -217,8 +217,8 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
         if (params.status != null) 'status': params.status!.apiValue,
         if (params.maxCompanions != null)
           'max_companions': params.maxCompanions,
-        if (params.allowCompanions != null)
-          'allow_companions': params.allowCompanions,
+        if (params.allowCompanions != null) 'allow_companions': params.allowCompanions,
+        if (params.occasionAnswers != null) 'event_type_form_values': params.occasionAnswers,
       },
     );
     // API returns {"event": {...}} for update response

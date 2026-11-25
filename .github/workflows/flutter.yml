@@ -9,20 +9,26 @@ on:
 permissions:
   contents: read
 
+# A newer push to the same branch replaces the run still in progress.
+concurrency:
+  group: flutter-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Same release the team builds with locally (`flutter --version`).
+  FLUTTER_VERSION: '3.47.8'
+
 jobs:
   test:
-
     runs-on: ubuntu-latest
-
 
     steps:
     - uses: actions/checkout@v4
 
-    # Same release the team builds with locally (`flutter --version`).
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.47.8'
+        flutter-version: ${{ env.FLUTTER_VERSION }}
         channel: stable
         cache: true
 
@@ -34,3 +40,75 @@ jobs:
 
     - name: Run tests
       run: flutter test
+
+  android-build:
+    # The bundle that goes to Google Play, built the same way (release,
+    # obfuscated). `flutter analyze` and `flutter test` never run Gradle, so
+    # a plugin that needs a newer Android SDK only fails here.
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Java 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: '17'
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ env.FLUTTER_VERSION }}
+        channel: stable
+        cache: true
+
+    # android/app/build.gradle.kts compiles against API 37
+    # (flutter_local_notifications 23 needs it); the runner image may not
+    # ship that platform yet.
+    - name: Install Android SDK platform 37
+      run: |
+        SDKMANAGER="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
+        yes | "$SDKMANAGER" --licenses > /dev/null || true
+        "$SDKMANAGER" "platforms;android-37.0" || "$SDKMANAGER" "platforms;android-37"
+
+    - name: Install dependencies
+      run: flutter pub get
+
+    # No android/key.properties in CI (the upload key never leaves the
+    # owner's machine): Gradle signs with the debug key, which is enough to
+    # prove the release bundle builds. The store upload is signed locally.
+    - name: Build release app bundle
+      run: flutter build appbundle --release --obfuscate --split-debug-info=build/debug-info
+
+    - name: Keep the bundle
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-release-unsigned-for-store
+        path: build/app/outputs/bundle/release/app-release.aab
+        retention-days: 7
+
+  ios-build:
+    # Compiles the iPhone app on a Mac (Swift AppDelegate, CocoaPods plugins,
+    # Info.plist): nothing on Windows can. Debug without signing needs no
+    # certificates, and the GoogleService-Info.plist check stops only Release.
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ env.FLUTTER_VERSION }}
+        channel: stable
+        cache: true
+
+    - name: Install dependencies
+      run: flutter pub get
+
+    - name: Check Info.plist
+      run: plutil -lint ios/Runner/Info.plist
+
+    - name: Build iOS (debug, no codesign)
+      run: flutter build ios --debug --no-codesign

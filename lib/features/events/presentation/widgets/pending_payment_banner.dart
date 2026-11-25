@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../config/locale/app_localizations.dart';
 import '../../../../config/routes/app_routes.dart';
 import '../../../../core/core.dart';
+import '../../../payment/presentation/widgets/proforma_sheet.dart';
 import '../../domain/entities/event_entity.dart';
 
 /// Shown on an event that is saved but not paid (status pending_payment):
@@ -62,6 +63,12 @@ class PendingPaymentBanner extends StatelessWidget {
                     text: l.translate('event_pay_to_activate'),
                     icon: Icons.payments_outlined,
                     onPressed: () => _openPayment(context),
+                  ),
+                  // Institutions often need a paper for the funder before paying.
+                  TextButton(
+                    key: const Key('event_proforma'),
+                    onPressed: () => showProformaSheet(context, eventId: event.id),
+                    child: Text(l.translate('proforma_question'), textAlign: TextAlign.center),
                   ),
                 ],
               ),

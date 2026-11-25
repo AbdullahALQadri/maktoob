@@ -19,8 +19,10 @@ abstract class PaymentRemoteDataSource {
     PaymentMethod method = PaymentMethod.bankTransfer,
     String? walletProvider,
     String? endpoint,
+    String? currency,
   });
-  Future<BankDetailsModel> getBankDetails();
+  /// [currency]: that currency's own account when one is set up.
+  Future<BankDetailsModel> getBankDetails({String? currency});
   Stream<double> getUploadProgress();
 }
 
@@ -44,6 +46,7 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
     required String eventId,
     required PaymentMethod method,
     String? walletProvider,
+    String? currency,
   }) {
     final provider = walletProvider?.trim();
     return {
@@ -51,6 +54,8 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
       'payment_method': method.apiValue,
       if (method == PaymentMethod.wallet && provider != null && provider.isNotEmpty)
         'wallet_provider': provider,
+      // The client picks the currency; the server quotes and records the amount.
+      if (currency != null && currency != 'ILS') 'original_currency': currency,
     };
   }
 
@@ -61,6 +66,7 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
     PaymentMethod method = PaymentMethod.bankTransfer,
     String? walletProvider,
     String? endpoint,
+    String? currency,
   }) async {
     _progressController.add(0.0);
 
@@ -70,6 +76,7 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
       eventId: eventId,
       method: method,
       walletProvider: walletProvider,
+      currency: currency,
     ));
     if (method.requiresReceipt) {
       for (final file in files) {
@@ -130,10 +137,13 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
   }
 
   @override
-  Future<BankDetailsModel> getBankDetails() async {
+  Future<BankDetailsModel> getBankDetails({String? currency}) async {
     // `/payments/initiate` is a POST that CREATES a payment; it was never a
     // bank-details source (a GET there 404s on the `payments/{payment}` route).
-    final response = await apiConsumer.get(Endpoints.paymentBankDetails);
+    final response = await apiConsumer.get(
+      Endpoints.paymentBankDetails,
+      queryParameters: currency == null ? null : {'currency': currency},
+    );
     final data = response is Map ? (response['data'] ?? response) : const {};
     return BankDetailsModel.fromJson(Map<String, dynamic>.from(data as Map));
   }

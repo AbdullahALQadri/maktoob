@@ -15,10 +15,11 @@ abstract class PaymentRepository {
     PaymentMethod method = PaymentMethod.bankTransfer,
     String? walletProvider,
     String? endpoint,
+    String? currency,
   });
 
   /// Gets the bank details for payment
-  Future<Either<Failure, BankDetailsEntity>> getBankDetails();
+  Future<Either<Failure, BankDetailsEntity>> getBankDetails({String? currency});
 
   /// Simulates upload progress and returns progress updates via stream
   Stream<double> getUploadProgress();

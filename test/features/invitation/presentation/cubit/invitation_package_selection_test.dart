@@ -1,10 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:maktoob/core/api/api_consumer.dart';
 import 'package:maktoob/core/api/event_wizard_api_service.dart';
+import 'package:maktoob/features/invitation/data/repositories/event_wizard_repository_impl.dart';
 import 'package:maktoob/features/invitation/data/models/invoice_model.dart';
 import 'package:maktoob/features/invitation/presentation/cubit/invitation_cubit.dart';
 import 'package:maktoob/features/invitation/presentation/cubit/invitation_state.dart';
-import 'package:maktoob/features/invitation/presentation/screens/page3_review_submit_screen.dart';
+import 'package:maktoob/features/invitation/presentation/widgets/checkout/checkout_flow.dart';
 
 class _FakeApi implements ApiConsumer {
   final calls = <String>[];
@@ -56,7 +57,7 @@ class _FakeApi implements ApiConsumer {
 }
 
 Future<InvitationCubit> _ready(_FakeApi api) async {
-  final cubit = InvitationCubit(apiService: EventWizardApiService(apiConsumer: api));
+  final cubit = InvitationCubit(repository: EventWizardRepositoryImpl(EventWizardApiService(apiConsumer: api)));
   await cubit.initializeWizard(draftEventId: 7);
   await cubit.loadPackages();
   return cubit;

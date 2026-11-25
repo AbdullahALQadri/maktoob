@@ -21,6 +21,7 @@ class UploadInvoiceUseCase implements UseCase<PaymentEntity, UploadInvoiceParams
       method: params.method,
       walletProvider: params.walletProvider,
       endpoint: params.endpoint,
+      currency: params.currency,
     );
   }
 
@@ -40,14 +41,18 @@ class UploadInvoiceParams extends Equatable {
   /// payment). Extra services on a paid event use their own endpoint.
   final String? endpoint;
 
+  /// The currency the client pays in; null = shekels.
+  final String? currency;
+
   const UploadInvoiceParams({
     this.files = const [],
     required this.eventId,
     this.method = PaymentMethod.bankTransfer,
     this.walletProvider,
     this.endpoint,
+    this.currency,
   });
 
   @override
-  List<Object?> get props => [files, eventId, method, walletProvider, endpoint];
+  List<Object?> get props => [files, eventId, method, walletProvider, endpoint, currency];
 }

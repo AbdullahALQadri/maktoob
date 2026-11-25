@@ -14,8 +14,8 @@ import '../../screens/edit_event_screen.dart';
 class EventPageActions {
   const EventPageActions._();
 
-  /// A draft is edited directly; after payment the same screen sends an
-  /// edit request to the team (EditEventScreen decides).
+  /// Unpaid (draft or waiting for payment) is edited directly; once active
+  /// the same screen sends an edit request to the team (EditEventScreen decides).
   static Future<void> edit(BuildContext context, EventEntity event) async {
     final cubit = context.read<EventDetailsCubit>();
     final saved = await Navigator.of(context).push<bool>(
@@ -90,10 +90,10 @@ class EventPageTopBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final e = event;
     final items = <PopupMenuEntry<String>>[
-      if (e != null && e.role.canManage && !e.isInactive)
+      if (e != null && e.role.canManage && (e.detailsEditable || e.status == EventStatus.active))
         PopupMenuItem(
           value: 'edit',
-          child: Text(context.tr(e.status == EventStatus.draft ? 'common_edit' : 'event_page_change')),
+          child: Text(context.tr(e.detailsEditable ? 'event_edit_details' : 'event_page_change')),
         ),
       if (e != null && e.canCancel && e.role.canOwn)
         PopupMenuItem(value: 'cancel', child: Text(context.tr('event_cancel_action'))),

@@ -27,7 +27,8 @@ if (hasReleaseKeystore) {
 
 android {
     namespace = "com.maktoob.maktoob"
-    compileSdk = flutter.compileSdkVersion
+    // flutter_local_notifications 23 and androidx.core 1.19 need API 37 to compile.
+    compileSdk = maxOf(flutter.compileSdkVersion, 37)
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

@@ -1,245 +1,154 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/locale/app_localizations.dart';
+import '../../../../config/locale/l10n_context.dart';
 import '../../../../core/core.dart';
+import '../../../../core/widgets/page/page_kit.dart';
 import '../../../../injection_container.dart' as di;
+import '../../../guest_groups/presentation/screens/guest_groups_screen.dart';
 import '../../../institution/presentation/screens/institution_screen.dart';
+import '../../../payment/presentation/screens/my_payments_screen.dart';
 import '../cubit/profile_cubit.dart';
-import '../cubit/settings_cubit.dart';
-import '../cubit/settings_state.dart';
 import '../widgets/widgets.dart';
 import 'pending_actions_screen.dart';
 import 'profile_screen.dart';
 
-/// Settings screen with language, profile and support options.
+/// "My account": who is signed in, then everything about the account in
+/// flat cards. One column on a phone; account beside help on wide windows.
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<SettingsCubit, SettingsState>(
-      builder: (context, state) {
-        return Scaffold(
-          backgroundColor: context.overlayBg,
-          body: CustomScrollView(
-            slivers: [
-              const SliverToBoxAdapter(child: SettingsHeader()),
-              SliverPadding(
-                padding: EdgeInsets.all(context.dynamicWidth(0.051)),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate(
-                    _buildSettingsList(context),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  List<Widget> _buildSettingsList(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
-
-    return [
-      // Language Section
-      SettingsSectionTitle(title: t.translate('settings_language')),
-      SizedBox(height: context.dynamicHeight(0.015)),
-      const LanguageCard(),
-      SizedBox(height: context.dynamicHeight(0.03)),
-
-      // Profile Section
-      SettingsSectionTitle(title: t.translate('settings_account')),
-      SizedBox(height: context.dynamicHeight(0.015)),
-      SettingsTile(
-        icon: Icons.person_outline,
-        title: t.translate('settings_profile'),
-        subtitle: t.translate('settings_profile_desc'),
-        onTap: () => _navigateToProfile(context),
-      ),
-      SizedBox(height: context.dynamicHeight(0.015)),
-      // Institution profile, team, credits and team invitations.
-      SettingsTile(
-        key: const Key('settings_institution_tile'),
-        icon: Icons.business_outlined,
-        title: t.translate('institution_title'),
-        subtitle: t.translate('institution_settings_desc'),
-        onTap: () => Navigator.of(context).push(InstitutionScreen.route()),
-      ),
-      SizedBox(height: context.dynamicHeight(0.015)),
-      // What was done with no connection and waits to be sent.
-      SettingsTile(
-        key: const Key('settings_offline_queue_tile'),
-        icon: Icons.cloud_upload_outlined,
-        title: t.translate('offline_queue_title'),
-        subtitle: t.translate('settings_offline_queue_desc'),
-        onTap: () => Navigator.of(context).push(PendingActionsScreen.route()),
-      ),
-      SizedBox(height: context.dynamicHeight(0.03)),
-
-      // Support Section
-      SettingsSectionTitle(title: t.translate('settings_support')),
-      SizedBox(height: context.dynamicHeight(0.015)),
-      SettingsTile(
-        icon: Icons.email_outlined,
-        title: t.translate('settings_contact'),
-        subtitle: t.translate('settings_contact_desc'),
-        onTap: () => _showContactSheet(context),
-      ),
-      SizedBox(height: context.dynamicHeight(0.015)),
-      SettingsTile(
-        icon: Icons.help_outline,
-        title: t.translate('settings_help'),
-        subtitle: t.translate('settings_help_desc'),
-        onTap: () => _showHelpDialog(context),
-      ),
-      SizedBox(height: context.dynamicHeight(0.03)),
-
-      // About Section
-      SettingsSectionTitle(title: t.translate('settings_about')),
-      SizedBox(height: context.dynamicHeight(0.015)),
-      SettingsTile(
-        icon: Icons.privacy_tip_outlined,
-        title: t.translate('legal_privacy'),
-        subtitle: t.translate('settings_privacy_desc'),
-        onTap: () => LegalLinks.open(LegalLinks.privacyPolicy),
-      ),
-      SizedBox(height: context.dynamicHeight(0.015)),
-      SettingsTile(
-        icon: Icons.description_outlined,
-        title: t.translate('legal_terms'),
-        subtitle: t.translate('settings_terms_desc'),
-        onTap: () => LegalLinks.open(LegalLinks.termsOfService),
-      ),
-      SizedBox(height: context.dynamicHeight(0.015)),
-      SettingsTile(
-        icon: Icons.info_outline,
-        title: t.translate('settings_about_maktoob'),
-        subtitle: t.translate('settings_version'),
-        onTap: () => _showAboutDialog(context),
-      ),
-      SizedBox(height: context.dynamicHeight(0.119)),
-    ];
-  }
-
-  void _navigateToProfile(BuildContext context) {
+  void _openProfile(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => BlocProvider(
+      MaterialPageRoute<void>(
+        settings: const RouteSettings(name: '/r/profile'),
+        builder: (page) => BlocProvider(
           create: (_) => di.sl<ProfileCubit>(),
-          child: ProfileScreen(onBack: () => Navigator.of(context).pop()),
+          child: ProfileScreen(onBack: () => Navigator.of(page).pop()),
         ),
       ),
     );
   }
 
-  void _showContactSheet(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
+  void _contact(BuildContext context) {
     AppBottomSheet.show(
       context,
-      title: t.translate('settings_contact'),
-      subtitle: t.translate('settings_contact_subtitle'),
+      title: context.tr('settings_contact'),
+      subtitle: context.tr('settings_contact_subtitle'),
       icon: Icons.contact_support_rounded,
       iconColor: AppColors.primaryColor,
-      iconBackgroundColor: AppColors.purple50,
-      child: _ContactOptions(t: t),
+      iconBackgroundColor: context.primaryWash,
+      child: SettingsContactOptions(t: AppLocalizations.of(context)!),
     );
   }
 
-  void _showHelpDialog(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
+  void _info(BuildContext context, String titleKey, String messageKey) {
     AppDialog.showInfo(
       context,
-      title: t.translate('settings_help'),
-      message: t.translate('settings_help_contact'),
-      buttonText: t.translate('common_ok'),
+      title: context.tr(titleKey),
+      message: context.tr(messageKey),
+      buttonText: context.tr('common_ok'),
     );
   }
-
-  void _showAboutDialog(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
-    AppDialog.showInfo(
-      context,
-      title: t.translate('settings_about_maktoob'),
-      message: t.translate('settings_about_text'),
-      buttonText: t.translate('common_ok'),
-    );
-  }
-}
-
-class _ContactOptions extends StatelessWidget {
-  final AppLocalizations t;
-
-  const _ContactOptions({required this.t});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _ContactTile(
-          icon: Icons.email_rounded,
-          title: t.translate('settings_email'),
-          value: 'support@maktoob.social',
-        ),
-        // Phone / WhatsApp tiles removed: they showed a placeholder
-        // ("+966 XX XXX XXXX"). Add them back with the real support numbers.
-      ],
-    );
-  }
-}
+    void push(Route<void> route) => Navigator.of(context).push(route);
 
-class _ContactTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String value;
-
-  const _ContactTile({
-    required this.icon,
-    required this.title,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
-
-    return AppCard.outlined(
-      onTap: () {
-        Clipboard.setData(ClipboardData(text: value.replaceAll(' ', '')));
-        AppSnackBar.showSuccess(
-          context,
-          message: t.translate('common_copied'),
-          duration: const Duration(seconds: 2),
-        );
-      },
-      child: Row(
-        children: [
-          AppIconButton.soft(
-            icon: icon,
-            onPressed: null,
-            iconColor: AppColors.primaryColor,
-          ),
-          SizedBox(width: context.dynamicWidth(0.035)),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: AppTextStyles.labelMedium),
-                Text(value, style: AppTextStyles.caption),
+    return Scaffold(
+      backgroundColor: context.scaffoldBg,
+      body: SafeArea(
+        bottom: false,
+        child: PageBody(
+          bottom: 96,
+          side: [
+            const LanguageCard(),
+            PageCard.rows(
+              title: context.tr('settings_support'),
+              rows: [
+                PageRow(
+                  icon: Icons.email_outlined,
+                  title: context.tr('settings_contact'),
+                  subtitle: context.tr('settings_contact_desc'),
+                  onTap: () => _contact(context),
+                ),
+                PageRow(
+                  icon: Icons.help_outline,
+                  title: context.tr('settings_help'),
+                  subtitle: context.tr('settings_help_desc'),
+                  onTap: () => _info(context, 'settings_help', 'settings_help_contact'),
+                ),
               ],
             ),
-          ),
-          AppIconButton.soft(
-            icon: Icons.copy_rounded,
-            onPressed: null,
-            iconColor: context.iconSecondary,
-            backgroundColor: context.overlayBg,
-          ),
-        ],
+            PageCard.rows(
+              title: context.tr('settings_about'),
+              rows: [
+                PageRow(
+                  icon: Icons.privacy_tip_outlined,
+                  title: context.tr('legal_privacy'),
+                  subtitle: context.tr('settings_privacy_desc'),
+                  onTap: () => LegalLinks.open(LegalLinks.privacyPolicy),
+                ),
+                PageRow(
+                  icon: Icons.description_outlined,
+                  title: context.tr('legal_terms'),
+                  subtitle: context.tr('settings_terms_desc'),
+                  onTap: () => LegalLinks.open(LegalLinks.termsOfService),
+                ),
+                PageRow(
+                  icon: Icons.info_outline,
+                  title: context.tr('settings_about_maktoob'),
+                  subtitle: context.tr('settings_version'),
+                  onTap: () => _info(context, 'settings_about_maktoob', 'settings_about_text'),
+                ),
+              ],
+            ),
+          ],
+          children: [
+            PageHeading(title: context.tr('nav_account'), subtitle: context.tr('account_subtitle')),
+            AccountSummaryCard(onTap: () => _openProfile(context)),
+            PageCard.rows(
+              title: context.tr('settings_account'),
+              rows: [
+                PageRow(
+                  icon: Icons.person_outline,
+                  title: context.tr('settings_profile'),
+                  subtitle: context.tr('settings_profile_desc'),
+                  onTap: () => _openProfile(context),
+                ),
+                PageRow(
+                  key: const Key('settings_my_payments_tile'),
+                  icon: Icons.receipt_long_outlined,
+                  title: context.tr('my_payments_title'),
+                  subtitle: context.tr('my_payments_desc'),
+                  onTap: () => push(MyPaymentsScreen.route()),
+                ),
+                PageRow(
+                  key: const Key('settings_guest_groups_tile'),
+                  icon: Icons.groups_outlined,
+                  title: context.tr('groups_title'),
+                  subtitle: context.tr('groups_desc'),
+                  onTap: () => push(GuestGroupsScreen.route()),
+                ),
+                PageRow(
+                  key: const Key('settings_institution_tile'),
+                  icon: Icons.business_outlined,
+                  title: context.tr('institution_title'),
+                  subtitle: context.tr('institution_settings_desc'),
+                  onTap: () => push(InstitutionScreen.route()),
+                ),
+                PageRow(
+                  key: const Key('settings_offline_queue_tile'),
+                  icon: Icons.cloud_upload_outlined,
+                  title: context.tr('offline_queue_title'),
+                  subtitle: context.tr('settings_offline_queue_desc'),
+                  onTap: () => push(PendingActionsScreen.route()),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

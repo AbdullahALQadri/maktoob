@@ -15,6 +15,8 @@ import '../../../invitation/presentation/screens/invitation_wizard_screen.dart';
 import '../../../scanner/data/door_session_manager.dart';
 import '../../../scanner/domain/entities/door_entities.dart';
 import '../../../scanner/presentation/screens/door_staff_shell.dart';
+import '../../../staff/data/datasources/staff_token_store.dart';
+import '../../../staff/presentation/screens/staff_gate.dart';
 import '../../../settings/presentation/screens/change_password_screen.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
@@ -60,6 +62,10 @@ class _AuthWrapperState extends State<AuthWrapper> {
   /// Door-only mode of a staff phone, restored after a restart.
   DoorSession? _staffSession;
 
+  /// A member of the Maktoob team is signed in here: the app opens on the
+  /// staff mode until they leave it.
+  bool _teamMode = false;
+
   late final PendingWizardIntentService _intents =
       widget.pendingIntents ??
       (di.sl.isRegistered<PendingWizardIntentService>()
@@ -77,6 +83,11 @@ class _AuthWrapperState extends State<AuthWrapper> {
             if (mounted && s != null) setState(() => _staffSession = s);
           })
           .catchError((_) {});
+    }
+    if (di.sl.isRegistered<StaffTokenStore>()) {
+      di.sl<StaffTokenStore>().hasSignIn.then((yes) {
+        if (mounted && yes) setState(() => _teamMode = true);
+      }).catchError((_) {});
     }
   }
 
@@ -179,6 +190,8 @@ class _AuthWrapperState extends State<AuthWrapper> {
     }
     if (_mustAcceptTerms) return _column(const PopScope(canPop: false, child: TermsAcceptanceScreen()));
     if (state is AuthAuthenticated) return const AppShell();
+
+    if (_teamMode) return StaffGate.embedded(onExit: () => setState(() => _teamMode = false));
 
     final staff = _staffSession;
     if (staff != null) {

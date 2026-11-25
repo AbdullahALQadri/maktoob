@@ -1,204 +1,178 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../config/locale/app_localizations.dart';
+import '../../../../config/locale/l10n_context.dart';
 import '../../../../core/core.dart';
+import '../../../../core/widgets/page/page_kit.dart';
 import '../../../authentication/presentation/cubit/auth_cubit.dart';
 import '../../../authentication/presentation/cubit/auth_state.dart';
 import '../../../authentication/presentation/screens/forgot_password_otp_screen.dart';
 import '../../../authentication/presentation/screens/reset_password_screen.dart';
-import '../../../authentication/presentation/widgets/widgets.dart';
-import '../widgets/change_password_form_card.dart';
 
-/// Change password screen — shows current/new/confirm password fields.
-///
-/// If the user taps "Forgot Password?" it navigates to the OTP verification
-/// screen and then to the reset password screen.
+/// Changing the password: the current one, the new one, the new one again.
+/// "Forgot it?" goes through a code sent to the mobile number.
 class ChangePasswordScreen extends StatefulWidget {
+  const ChangePasswordScreen({super.key, required this.phone, this.forced = false});
+
   final String phone;
 
   /// The account was opened by the team with a temporary password: no way
-  /// back, and on success the app refreshes the profile and opens normally.
+  /// back, and on success the app reads the profile again and opens.
   final bool forced;
-
-  const ChangePasswordScreen({super.key, required this.phone, this.forced = false});
 
   @override
   State<ChangePasswordScreen> createState() => _ChangePasswordScreenState();
 }
 
-class _ChangePasswordScreenState extends State<ChangePasswordScreen>
-    with SingleTickerProviderStateMixin {
+class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _currentPasswordController = TextEditingController();
-  final _newPasswordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-
-  final _currentPasswordFocusNode = FocusNode();
-  final _newPasswordFocusNode = FocusNode();
-  final _confirmPasswordFocusNode = FocusNode();
-
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
-    );
-    _animationController.forward();
-  }
+  final _current = TextEditingController();
+  final _next = TextEditingController();
+  final _again = TextEditingController();
 
   @override
   void dispose() {
-    _animationController.dispose();
-    _currentPasswordController.dispose();
-    _newPasswordController.dispose();
-    _confirmPasswordController.dispose();
-    _currentPasswordFocusNode.dispose();
-    _newPasswordFocusNode.dispose();
-    _confirmPasswordFocusNode.dispose();
+    _current.dispose();
+    _next.dispose();
+    _again.dispose();
     super.dispose();
   }
 
-  void _handleSubmit() {
-    if (_formKey.currentState?.validate() ?? false) {
-      context.read<AuthCubit>().changePassword(
-            currentPassword: _currentPasswordController.text,
-            newPassword: _newPasswordController.text,
-          );
-    }
+  void _submit() {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    context.read<AuthCubit>().changePassword(currentPassword: _current.text, newPassword: _next.text);
   }
 
-  void _showSuccessDialog() {
-    final t = AppLocalizations.of(context)!;
-    AppDialog.showSuccess(
-      context,
-      title: t.translate('auth_success'),
-      message: t.translate('auth_password_changed_profile'),
-      buttonText: t.translate('common_ok'),
-      onPressed: () => Navigator.pop(context),
+  String? _nextError(String? value) {
+    if (value == null || value.isEmpty) return context.tr('auth_password_required');
+    if (value.length < 6) return context.tr('auth_password_min_length');
+    // The new password must differ from the current one.
+    return value == _current.text ? context.tr('auth_passwords_mismatch') : null;
+  }
+
+  String? _againError(String? value) {
+    if (value == null || value.isEmpty) return context.tr('auth_confirm_password_required2');
+    return value == _next.text ? null : context.tr('auth_passwords_mismatch');
+  }
+
+  void _forgot() {
+    final navigator = Navigator.of(context);
+    navigator.push(
+      MaterialPageRoute<void>(
+        builder: (_) => ForgotPasswordOtpScreen(
+          phone: widget.phone,
+          onBack: navigator.pop,
+          onVerified: (code) => navigator.pushReplacement(
+            MaterialPageRoute<void>(
+              builder: (_) => ResetPasswordScreen(
+                phone: widget.phone,
+                code: code,
+                onBack: navigator.pop,
+                onSuccess: () => navigator.popUntil((route) => route.isFirst),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
-  void _handleForgotPassword() {
-    final navigator = Navigator.of(context);
-    navigator.push(
-      MaterialPageRoute(
-        builder: (_) => ForgotPasswordOtpScreen(
-          phone: widget.phone,
-          onBack: () => navigator.pop(),
-          onVerified: (code) {
-            navigator.pushReplacement(
-              MaterialPageRoute(
-                builder: (_) => ResetPasswordScreen(
-                  phone: widget.phone,
-                  code: code,
-                  onBack: () => navigator.pop(),
-                  onSuccess: () {
-                    navigator.popUntil((route) => route.isFirst);
-                  },
-                ),
-              ),
-            );
-          },
-        ),
-      ),
+  void _onState(BuildContext context, AuthState state) {
+    if (state is AuthError) return AppSnackBar.showError(context, message: state.message);
+    if (state is! AuthPasswordChanged) return;
+    // Forced: the flag is cleared on the profile and the app opens by itself.
+    if (widget.forced) {
+      context.read<AuthCubit>().refreshProfile();
+      return;
+    }
+    AppDialog.showSuccess(
+      context,
+      title: context.tr('auth_success'),
+      message: context.tr('auth_password_changed_profile'),
+      buttonText: context.tr('common_ok'),
+      onPressed: () => Navigator.pop(context),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
-
-    return BlocListener<AuthCubit, AuthState>(
-      listener: (context, state) {
-        if (state is AuthPasswordChanged) {
-          if (widget.forced) {
-            // Re-read the profile: the flag is cleared, the wrapper opens the app.
-            context.read<AuthCubit>().refreshProfile();
-            return;
-          }
-          _showSuccessDialog();
-        } else if (state is AuthError) {
-          AppSnackBar.showError(context, message: state.message);
-        }
-      },
-      child: Scaffold(
-        body: AuthGradientBackground(
-          child: Stack(
-            children: [
-              const AuthDecorativePattern(),
-              SafeArea(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: EdgeInsets.symmetric(
-                      horizontal: context.dynamicWidth(0.061)),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: MediaQuery.of(context).size.height -
-                          MediaQuery.of(context).padding.top -
-                          MediaQuery.of(context).padding.bottom,
-                    ),
-                    child: FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: Column(
-                        children: [
-                          SizedBox(height: context.dynamicHeight(0.02)),
-                          if (!widget.forced)
-                            AuthBackHeader(
-                              title: t.translate('profile_change_password'),
-                              onBack: () => Navigator.pop(context),
-                            ),
-                          SizedBox(height: context.dynamicHeight(0.06)),
-                          const AuthScreenIcon(
-                              icon: Icons.lock_outline_rounded),
-                          SizedBox(height: context.dynamicHeight(0.03)),
-                          AuthTitleSection(
-                            title: widget.forced
-                                ? t.translate('auth_choose_own_password_title')
-                                : t.translate('profile_change_password'),
-                            subtitle: widget.forced
-                                ? t.translate('auth_choose_own_password_subtitle')
-                                : t.translate('auth_change_password_subtitle'),
-                          ),
-                          SizedBox(height: context.dynamicHeight(0.039)),
-                          BlocBuilder<AuthCubit, AuthState>(
-                            builder: (context, state) {
-                              return ChangePasswordFormCard(
-                                formKey: _formKey,
-                                currentPasswordController:
-                                    _currentPasswordController,
-                                newPasswordController: _newPasswordController,
-                                confirmPasswordController:
-                                    _confirmPasswordController,
-                                currentPasswordFocusNode:
-                                    _currentPasswordFocusNode,
-                                newPasswordFocusNode: _newPasswordFocusNode,
-                                confirmPasswordFocusNode:
-                                    _confirmPasswordFocusNode,
-                                isLoading: state is AuthLoading,
-                                onSubmit: _handleSubmit,
-                                onForgotPassword: _handleForgotPassword,
-                              );
-                            },
-                          ),
-                          SizedBox(height: context.dynamicHeight(0.039)),
-                        ],
+    final forced = widget.forced;
+    return BlocConsumer<AuthCubit, AuthState>(
+      listener: _onState,
+      builder: (context, state) {
+        final busy = state is AuthLoading;
+        return Scaffold(
+          backgroundColor: context.scaffoldBg,
+          appBar: AppBar(
+            automaticallyImplyLeading: !forced,
+            title: Text(context.tr(forced ? 'auth_choose_own_password_title' : 'profile_change_password')),
+          ),
+          body: Form(
+            key: _formKey,
+            child: PageBody(
+              children: [
+                Text(
+                  context.tr(forced ? 'auth_choose_own_password_subtitle' : 'auth_change_password_subtitle'),
+                  style: TextStyle(fontSize: 14, height: 1.6, color: context.textSecondary),
+                ),
+                PageCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      AppTextField(
+                        key: const Key('password_current'),
+                        controller: _current,
+                        labelText: context.tr('auth_current_password'),
+                        hintText: context.tr('auth_current_password_hint'),
+                        isPassword: true,
+                        textInputAction: TextInputAction.next,
+                        validator: (value) =>
+                            (value == null || value.isEmpty) ? context.tr('auth_current_password_required') : null,
                       ),
-                    ),
+                      if (!forced)
+                        Align(
+                          alignment: AlignmentDirectional.centerEnd,
+                          child: TextButton(
+                            key: const Key('password_forgot'),
+                            onPressed: _forgot,
+                            child: Text(context.tr('auth_forgot_password_link')),
+                          ),
+                        ),
+                      const SizedBox(height: 12),
+                      AppTextField(
+                        key: const Key('password_new'),
+                        controller: _next,
+                        labelText: context.tr('auth_new_password'),
+                        hintText: context.tr('auth_new_password_hint'),
+                        isPassword: true,
+                        textInputAction: TextInputAction.next,
+                        validator: _nextError,
+                      ),
+                      const SizedBox(height: 16),
+                      AppTextField(
+                        key: const Key('password_again'),
+                        controller: _again,
+                        labelText: context.tr('auth_confirm_password'),
+                        hintText: context.tr('auth_confirm_password_hint2'),
+                        isPassword: true,
+                        textInputAction: TextInputAction.done,
+                        onSubmitted: (_) => _submit(),
+                        validator: _againError,
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+                PrimaryButton(
+                  key: const Key('password_submit'),
+                  text: context.tr('auth_change_password_submit'),
+                  isLoading: busy,
+                  onPressed: busy ? null : _submit,
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

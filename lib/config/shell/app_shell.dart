@@ -91,7 +91,7 @@ class _AppShellState extends State<AppShell> with ShellNavigation, ShellPushHand
               ? TabNavigator(
                   navigatorKey: _navigators[tab]!,
                   name: tab.name,
-                  responsive: tab == ShellTab.home || tab == ShellTab.events,
+                  responsive: tab != ShellTab.door,
                   root: (_) => _root(tab),
                 )
               : const SizedBox.shrink(),

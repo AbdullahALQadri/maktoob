@@ -14,12 +14,14 @@ class IdentityStatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
-    final (Color bg, Color fg) = switch (status) {
-      IdentityStatus.verified => (AppColors.green50, AppColors.green600),
-      IdentityStatus.rejected => (AppColors.red100, AppColors.red500),
-      IdentityStatus.pending => (AppColors.amber50, AppColors.amber700),
-      IdentityStatus.none => (AppColors.gray100, AppColors.gray700),
+    final fg = switch (status) {
+      IdentityStatus.verified => AppColors.green600,
+      IdentityStatus.rejected => AppColors.red500,
+      IdentityStatus.pending => AppColors.amber700,
+      IdentityStatus.none => context.textSecondary,
     };
+    // A wash of the status colour: readable on the light and the night theme.
+    final bg = fg.withValues(alpha: 0.12);
     return Container(
       key: Key('identity_status_${status.name}'),
       padding: const EdgeInsetsDirectional.symmetric(horizontal: AppSpacing.smd, vertical: AppSpacing.xs),
@@ -78,13 +80,18 @@ class IdentityStatusCard extends StatelessWidget {
                   style: AppTextStyles.titleSmall.copyWith(color: context.textPrimary),
                 ),
               ),
-              IdentityStatusBadge(status: identity.status),
-              if (onTap != null) ...[
-                const SizedBox(width: AppSpacing.xs),
-                Icon(Icons.chevron_right_rounded, color: context.iconSecondary),
-              ],
+              if (onTap != null)
+                Icon(
+                  Directionality.of(context) == TextDirection.rtl
+                      ? Icons.chevron_left_rounded
+                      : Icons.chevron_right_rounded,
+                  color: context.iconSecondary,
+                ),
             ],
           ),
+          // On its own line: a long status never squeezes the title out.
+          const SizedBox(height: AppSpacing.sm),
+          IdentityStatusBadge(status: identity.status),
           if (identity.required && !identity.isVerified) ...[
             const SizedBox(height: AppSpacing.smd),
             _Banner(

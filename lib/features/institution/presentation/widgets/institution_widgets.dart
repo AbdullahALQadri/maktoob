@@ -20,11 +20,12 @@ class OutlinedCard extends StatelessWidget {
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: context.themeSurface,
+        color: context.cardBg,
         borderRadius: AppSpacing.borderRadiusLg,
         border: Border.all(color: context.borderColor, width: 1),
       ),
-      child: child,
+      // Rows and tick boxes inside draw their ink on the card, not under it.
+      child: Material(type: MaterialType.transparency, child: child),
     );
   }
 }
@@ -38,12 +39,14 @@ class InstitutionStatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
-    final (Color bg, Color fg) = switch (status) {
-      InstitutionStatus.approved => (AppColors.green50, AppColors.green600),
-      InstitutionStatus.rejected => (AppColors.red100, AppColors.red500),
-      InstitutionStatus.pending => (AppColors.amber50, AppColors.amber700),
-      InstitutionStatus.suspended => (AppColors.gray100, AppColors.gray700),
+    final fg = switch (status) {
+      InstitutionStatus.approved => AppColors.green600,
+      InstitutionStatus.rejected => AppColors.red500,
+      InstitutionStatus.pending => AppColors.amber700,
+      InstitutionStatus.suspended => context.textSecondary,
     };
+    // A wash of the status colour: readable on the light and the night theme.
+    final bg = fg.withValues(alpha: 0.12);
     return Container(
       key: Key('institution_status_${status.name}'),
       padding: const EdgeInsetsDirectional.symmetric(horizontal: AppSpacing.smd, vertical: AppSpacing.xs),
